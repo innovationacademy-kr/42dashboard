@@ -1,0 +1,5 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# yarn을 사용하는 경우
+yarn commitlint --edit $1
