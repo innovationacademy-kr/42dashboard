@@ -1,0 +1,29 @@
+{
+	"name": "42dashboard",
+	"version": "0.1.0",
+	"description": "42Seoul Dashboard Project",
+	"repository": "https://github.com/innovationacademy-kr/42dashboard.git",
+	"author": "Team 42Dashboard <gnsdlrl@daum.net>",
+	"private": true,
+	"workspaces": [
+		"packages/*"
+	],
+	"scripts": {
+		"commit": "git-cz",
+		"postinstall": "is-ci || (husky install && git config commit.template commit-template)"
+	},
+	"devDependencies": {
+		"@commitlint/cli": "^17.0.2",
+		"@commitlint/config-conventional": "^17.0.2",
+		"@commitlint/cz-commitlint": "^17.0.0",
+		"commitizen": "^4.2.4",
+		"husky": "^8.0.1",
+		"is-ci": "^3.0.1"
+	},
+	"config": {
+		"commitizen": {
+			"path": "@commitlint/cz-commitlint"
+		}
+	},
+	"dependencies": {}
+}
