@@ -3,12 +3,14 @@
 	"version": "0.1.0",
 	"description": "42Seoul Dashboard Project",
 	"repository": "https://github.com/innovationacademy-kr/42dashboard.git",
-	"author": "Team 42Dashboard <gnsdlrl@daum.net>",
+	"author": "Team 42Dashboard <kilee@student.42seoul.kr>",
 	"private": true,
 	"workspaces": [
 		"packages/*"
 	],
 	"scripts": {
+		"lint": "eslint packages/**/*.{ts,tsx}",
+		"lint:format": "prettier packages/**/*.{ts,tsx} --write",
 		"commit": "git-cz",
 		"postinstall": "is-ci || (husky install && git config commit.template commit-template)"
 	},
@@ -16,14 +18,27 @@
 		"@commitlint/cli": "^17.0.2",
 		"@commitlint/config-conventional": "^17.0.2",
 		"@commitlint/cz-commitlint": "^17.0.0",
+		"@typescript-eslint/eslint-plugin": "^5.0.0",
+		"@typescript-eslint/parser": "^5.0.0",
 		"commitizen": "^4.2.4",
+		"eslint": "^8.0.1",
+		"eslint-config-prettier": "^8.3.0",
+		"eslint-config-react-app": "^7.0.1",
+		"eslint-plugin-prettier": "^4.0.0",
+		"eslint-plugin-react-app": "^6.2.2",
 		"husky": "^8.0.1",
-		"is-ci": "^3.0.1"
+		"is-ci": "^3.0.1",
+		"lint-staged": "^13.0.2",
+		"prettier": "^2.3.2"
 	},
 	"config": {
 		"commitizen": {
 			"path": "@commitlint/cz-commitlint"
 		}
 	},
-	"dependencies": {}
+	"dependencies": {},
+	"lint-staged": {
+    "packages/**/*.{js,jsx,ts,tsx}": "eslint --cache --fix",
+    "packages/**/*.{js,jsx,ts,tsx,css,sass,less,md,mdx}": "prettier --write"
+  }
 }
