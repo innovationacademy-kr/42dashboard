@@ -1,0 +1,6 @@
+# eslint 실행 시 무시할 타겟들 명시
+
+.github
+.husky
+.yarn
+node_modules
