@@ -8,7 +8,11 @@
     "@mui/material": "^5.8.6",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+<<<<<<< HEAD
     "react-grid-layout": "^1.3.4",
+=======
+    "react-router-dom": "^6.0.5",
+>>>>>>> e8d08f3 (chore(client): 라우팅 기능 추가를 위한 react-router-dom 모듈 추가)
     "web-vitals": "^2.1.4"
   },
   "scripts": {
