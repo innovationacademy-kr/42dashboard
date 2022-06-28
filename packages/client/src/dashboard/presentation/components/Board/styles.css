@@ -1,0 +1,12 @@
+.Board {
+  font-family: sans-serif;
+  text-align: center;
+}
+.react-grid-layout {
+  border: 1px solid tomato;
+}
+
+.react-grid-item {
+  background: #eee;
+  border: 1px solid #bada55;
+}
