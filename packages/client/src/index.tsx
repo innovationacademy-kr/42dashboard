@@ -3,13 +3,20 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { BrowserRouter } from 'react-router-dom';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement,
 );
 root.render(
   <React.StrictMode>
+<<<<<<< HEAD
     <App />,
+=======
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+>>>>>>> 2edffff (feat(client,App.tsx,index.tsx): 브라우저라우터 적용)
   </React.StrictMode>,
 );
 
