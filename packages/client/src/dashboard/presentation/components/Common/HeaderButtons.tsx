@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 import { InvisibleButton } from '../Button/InvisibleButton';
 
 type parentComponentType = 'SECTION' | 'STICKER';
@@ -15,10 +15,9 @@ const renderButtons = (buttonType: parentComponentType) => {
   let renderList = [];
   if (buttonType === 'SECTION') renderList = ['EDIT', 'FILTER', 'CLOSE'];
   else renderList = ['EDIT', 'CLOSE'];
-  renderList.map((type, i) => {
-    render.push(<InvisibleButton key={i} buttonType={type} />);
-  });
-  return render;
+  return renderList.map((type, i) => (
+    <InvisibleButton key={i} buttonType={type} />
+  ));
 };
 
 export const HeaderButtons = (props: HeaderButtonsProps) => {

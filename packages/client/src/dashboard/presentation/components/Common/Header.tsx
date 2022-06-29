@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 import { HeaderTitle } from './HeaderTitle';
 import { HeaderButtons } from './HeaderButtons';
 
@@ -19,16 +19,15 @@ const HeaderArea = styled.div`
   background-color: lightgrey;
 `;
 
-// TODO
-// title을 직접 적용할 수 있도록 수정
+// TODO(hybae)
+// Support title prop to Button component
 export const Header = (props: HeaderProps) => {
   const { parentComponent } = props;
-  // 임시 타이틀
-  const title = 'TITLE';
+  const title = null;
   return (
     <div>
       <HeaderArea>
-        <HeaderTitle title={title} />
+        <HeaderTitle title={title || 'My Title'} />
         <HeaderButtons parentComponent={parentComponent} />
       </HeaderArea>
     </div>
