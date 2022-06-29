@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import './styles.css';
 import './styles2.css';
-import RGL, { WidthProvider } from 'react-grid-layout';
+import RGL, { Layout, WidthProvider } from 'react-grid-layout';
 
-const ReactGridLayout = WidthProvider(RGL);
+const ReactGridLayout = WidthProvider(RGL.Responsive);
 
 export default function Section(props: any) {
   const { itemKey = '' } = props;
@@ -11,18 +11,12 @@ export default function Section(props: any) {
   const [layout, setLayout] = useState(props.layout || []);
 
   function generateSticker() {
-    return layout.map((item: any) => {
-      return (
-        <div key={item.i}>
-          {item.i.startsWith('sticker-') && (
-            <span className="text">{item.i}</span>
-          )}
-        </div>
-      );
+    return layout.map((item: Layout) => {
+      return <div key={item.i}>{<span className="text">{item.i}</span>}</div>;
     });
   }
 
-  function onLayoutChange(newLayout: any) {
+  function onLayoutChange(newLayout: Layout[]) {
     setLayout(newLayout);
     if (props.onStickerLayoutChange) {
       props.onStickerLayoutChange(newLayout, props.itemKey);
@@ -48,11 +42,12 @@ export default function Section(props: any) {
       <button onClick={addSticker}>Add Sticker</button>
       <ReactGridLayout
         onDragStart={(a, b, c, d, e) => e.stopPropagation()}
-        layout={layout}
+        layouts={{ lg: layout }}
+        breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
+        cols={{ lg: 5, md: 4, sm: 3, xs: 2, xxs: 1 }}
         onLayoutChange={onLayoutChange}
         className="layout"
         rowHeight={30}
-        cols={12}
       >
         {generateSticker()}
       </ReactGridLayout>

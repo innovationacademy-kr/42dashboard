@@ -1,46 +1,51 @@
 import { useState, useEffect } from 'react';
 import './styles.css';
 import './styles2.css';
-import RGL, { WidthProvider } from 'react-grid-layout';
-import Section from '../Section/Section';
+import RGL, { Layout, WidthProvider } from 'react-grid-layout';
+import Section from './Section';
 
-const ReactGridLayout = WidthProvider(RGL);
+const ReactGridLayout = WidthProvider(RGL.Responsive);
+interface NestedLayout extends Layout {
+  sticker: Layout[];
+}
 
-export default function Board(props: any) {
-  const { itemKey = '' } = props;
+export default function Board() {
   const [count, setCount] = useState(0);
-  const [layout, setLayout] = useState(props.layout || []);
+  const [layout, setLayout] = useState(Array<NestedLayout>);
 
   function generateSection() {
-    return layout.map((item: any) => {
+    return layout.map((item: NestedLayout) => {
       return (
         <div key={item.i}>
-          {item.i.startsWith('section-') && (
+          {
             <Section
-              layout={item.layout}
+              layout={item.sticker}
               itemKey={item.i}
               onStickerLayoutChange={onStickerLayoutChange}
             />
-          )}
+          }
         </div>
       );
     });
   }
 
   // when add section or move
-  function onSectionLayoutChange(newLayout: any) {
+  function onSectionLayoutChange(newLayout: Array<NestedLayout>) {
+    console.log('onSectionLayoutChange', newLayout);
     setLayout(newLayout);
   }
 
   // change nested layout
-  function onStickerLayoutChange(stickerLayout: any, itemKey: any) {
-    const itemIndex = layout.findIndex((item: any) => item.i === itemKey);
+  function onStickerLayoutChange(stickerLayout: Layout[], itemKey: string) {
+    const itemIndex = layout.findIndex(
+      (item: NestedLayout) => item.i === itemKey,
+    );
     if (itemIndex !== -1) {
       setLayout([
         ...layout.slice(0, itemIndex),
         {
           ...layout[itemIndex],
-          layout: stickerLayout,
+          sticker: stickerLayout,
         },
         ...layout.slice(itemIndex + 1),
       ]);
@@ -57,14 +62,13 @@ export default function Board(props: any) {
         y: Infinity,
         w: 5,
         h: 5,
-        layout: [],
+        sticker: new Array<Layout>(),
       },
     ]);
   }
 
-  // 화면 리사이즈(반응형) 하면 자리를 잘 찾아감.-> 레이아웃 변경때마다 화면 리사이즈 효과를 넣어주면 되겠다.
   useEffect(() => {
-    console.log({ layout });
+    window.dispatchEvent(new Event('resize'));
   }, [layout]);
 
   return (
@@ -72,11 +76,15 @@ export default function Board(props: any) {
       <button onClick={addSection}>Add Section Item</button>
       <ReactGridLayout
         onDragStart={(a, b, c, d, e) => e.stopPropagation()}
-        layout={layout}
+        onResizeStop={(a, b, c, d, e) => {
+          console.log(a, b, c, d, e);
+        }}
+        layouts={{ lg: layout }}
+        breakpoints={{ lg: 600, md: 498, sm: 384, xs: 240, xxs: 0 }}
+        cols={{ lg: 5, md: 4, sm: 3, xs: 2, xxs: 1 }}
         onLayoutChange={onSectionLayoutChange}
         className="layout"
         rowHeight={30} // rowHeight는 각 셀의 높이, but changable.
-        cols={12} //num of cols
       >
         {generateSection()}
       </ReactGridLayout>
