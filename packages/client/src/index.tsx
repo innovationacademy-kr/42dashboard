@@ -10,13 +10,9 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-<<<<<<< HEAD
-    <App />,
-=======
     <BrowserRouter>
       <App />
     </BrowserRouter>
->>>>>>> 2edffff (feat(client,App.tsx,index.tsx): 브라우저라우터 적용)
   </React.StrictMode>,
 );
 
