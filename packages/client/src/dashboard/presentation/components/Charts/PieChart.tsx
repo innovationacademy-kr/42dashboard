@@ -1,10 +1,33 @@
 import { Pie } from 'react-chartjs-2';
 import { Chart, registerables } from 'chart.js';
-import * as ChartData from './ChartData';
+import { data, options } from './ChartData';
 Chart.register(...registerables);
 
-const PieChart = () => {
-  return <Pie options={ChartData.options} data={ChartData.data} />;
-};
+/* Code For Storybook */
+// export interface PieChartProps {
+//   data: {
+//     labels: Array<string>;
+//     datasets: [
+//       {
+//         label: string;
+//         backgroundColor: string;
+//         borderColor: string;
+//         data: Array<number>;
+//       },
+//     ];
+//   };
+//   options: {
+//     responsive: boolean;
+//     maintainAspectRatio: boolean;
+//   };
+// }
+
+// function PieChart(props: PieChartProps) {
+//   return <Pie data={props.data} options={props.options} />;
+// }
+
+function PieChart() {
+  return <Pie data={data} options={options} />;
+}
 
 export default PieChart;
