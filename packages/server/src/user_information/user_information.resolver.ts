@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { Int, Query } from '@nestjs/graphql';
+=======
+import { Query } from '@nestjs/graphql';
+>>>>>>> b28a5dbd39f81b44fe74143d506ba1a14fe5f548
 import { Args, Resolver } from '@nestjs/graphql';
 import { UserAccessCardInformation } from 'src/user_information/entity/user_access_card_information.entity';
 import { User } from 'src/user_information/entity/user_information.entity';
