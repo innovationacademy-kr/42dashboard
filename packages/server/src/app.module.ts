@@ -12,7 +12,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeORMConfig } from './config/typeorm.config';
 import { ApiModule } from './api/api.module';
 import { UpdaterModule } from './updater/updater.module';
+<<<<<<< HEAD
 import { DataSource } from 'typeorm';
+=======
+>>>>>>> ce88e66 (fix(yarn    run start를 하면 npm에서는 보지못한 에러가 발생): yarn run error)
 
 @Module({
   imports: [

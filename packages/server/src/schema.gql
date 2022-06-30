@@ -42,8 +42,12 @@ type JoinedTable {
 }
 
 type Query {
+<<<<<<< HEAD
   getNumOfPeopleByFilter(filters: [Filter!]!): Int!
   getPeopleByFilter(filters: [Filter!]!): [JoinedTable!]!
+=======
+  getFilter(filters: [Filter!]!): [JoinedTable!]!
+>>>>>>> ce88e66 (fix(yarn    run start를 하면 npm에서는 보지못한 에러가 발생): yarn run error)
   getUserAccessCardInformation: [UserAccessCardInformation!]!
   getUserBlackhole: [UserBlackhole!]!
   getUserById: [User!]!

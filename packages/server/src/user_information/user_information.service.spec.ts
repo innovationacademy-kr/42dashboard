@@ -1,9 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
+<<<<<<< HEAD
 import {
   getDataSourceToken,
   getRepositoryToken,
   InjectDataSource,
 } from '@nestjs/typeorm';
+=======
+import { getDataSourceToken, getRepositoryToken, InjectDataSource } from '@nestjs/typeorm';
+>>>>>>> ce88e66 (fix(yarn    run start를 하면 npm에서는 보지못한 에러가 발생): yarn run error)
 import { DataSource, LessThan } from 'typeorm';
 import { UserAccessCardInformation } from './entity/user_access_card_information.entity';
 import { User } from './entity/user_information.entity';
@@ -53,7 +57,11 @@ describe('userInformationService', () => {
           useClass: MockUserOtherInformationRepository,
         },
         {
+<<<<<<< HEAD
           provide: InjectDataSource,
+=======
+          provide:  InjectDataSource,
+>>>>>>> ce88e66 (fix(yarn    run start를 하면 npm에서는 보지못한 에러가 발생): yarn run error)
           useClass: MockDataSource,
         },
       ],

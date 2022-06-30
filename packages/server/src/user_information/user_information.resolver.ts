@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 import { Int, Query } from '@nestjs/graphql';
-=======
-import { Query } from '@nestjs/graphql';
->>>>>>> b28a5dbd39f81b44fe74143d506ba1a14fe5f548
 import { Args, Resolver } from '@nestjs/graphql';
 import { UserAccessCardInformation } from 'src/user_information/entity/user_access_card_information.entity';
 import { User } from 'src/user_information/entity/user_information.entity';
@@ -56,6 +52,7 @@ export class UserInformationResolver {
   // }
 
   @Query(() => [JoinedTable])
+<<<<<<< HEAD
   getPeopleByFilter(@Args() filterArg: FilterArgs) {
     return this.userService.getPeopleByFilter(filterArg.filters);
   }
@@ -63,5 +60,9 @@ export class UserInformationResolver {
   @Query(() => Int)
   getNumOfPeopleByFilter(@Args() filterArg: FilterArgs) {
     return this.userService.getNumOfPeopleByFilter(filterArg.filters);
+=======
+  getFilter(@Args() filterArg: FilterArgs) {
+    return this.userService.processFilters(filterArg.filters);
+>>>>>>> ce88e66 (fix(yarn    run start를 하면 npm에서는 보지못한 에러가 발생): yarn run error)
   }
 }

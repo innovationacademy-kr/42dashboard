@@ -121,4 +121,8 @@ export class UserEducationFundState extends BaseEntity {
   @ManyToOne(() => User, (user) => user.userEducationFundState)
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> ce88e66 (fix(yarn    run start를 하면 npm에서는 보지못한 에러가 발생): yarn run error)
