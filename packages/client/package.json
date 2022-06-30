@@ -5,11 +5,7 @@
   "dependencies": {
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.9.3",
-<<<<<<< HEAD
     "@mui/material": "^5.8.6",
-=======
-    "@mui/material": "^5.8.6,
->>>>>>> 1e5025b (Update package.json)
     "chart.js": "^3.8.0",
     "react": "^18.2.0",
     "react-chartjs-2": "^4.2.0",
