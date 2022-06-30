@@ -52,7 +52,6 @@ export class UserInformationResolver {
   // }
 
   @Query(() => [JoinedTable])
-<<<<<<< HEAD
   getPeopleByFilter(@Args() filterArg: FilterArgs) {
     return this.userService.getPeopleByFilter(filterArg.filters);
   }
@@ -60,9 +59,5 @@ export class UserInformationResolver {
   @Query(() => Int)
   getNumOfPeopleByFilter(@Args() filterArg: FilterArgs) {
     return this.userService.getNumOfPeopleByFilter(filterArg.filters);
-=======
-  getFilter(@Args() filterArg: FilterArgs) {
-    return this.userService.processFilters(filterArg.filters);
->>>>>>> ce88e66 (fix(yarn    run start를 하면 npm에서는 보지못한 에러가 발생): yarn run error)
   }
 }

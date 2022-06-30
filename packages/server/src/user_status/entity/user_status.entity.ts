@@ -3,10 +3,6 @@ import {
   BaseEntity,
   Column,
   CreateDateColumn,
-<<<<<<< HEAD
-=======
-
->>>>>>> ce88e66 (fix(yarn    run start를 하면 npm에서는 보지못한 에러가 발생): yarn run error)
   Entity,
   JoinColumn,
   JoinTable,
@@ -17,10 +13,6 @@ import { User } from '../../user_information/entity/user_information.entity';
 //!!하나의 파일에 하나의 엔터티? -> 컨벤션을 정할것!
 //목적에 따라 하나의 파일에 넣을수도...
 
-<<<<<<< HEAD
-=======
-
->>>>>>> ce88e66 (fix(yarn    run start를 하면 npm에서는 보지못한 에러가 발생): yarn run error)
 //학습데이터
 @ObjectType()
 @Entity()

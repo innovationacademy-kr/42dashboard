@@ -10,10 +10,7 @@ import { UserAccessCardInformation } from 'src/user_information/entity/user_acce
 import { GraphQLModule } from '@nestjs/graphql';
 import { JoinedTable } from './argstype/joinedTable';
 import { Filter } from './filter';
-<<<<<<< HEAD
 import { DataSource } from 'typeorm';
-=======
->>>>>>> ce88e66 (fix(yarn    run start를 하면 npm에서는 보지못한 에러가 발생): yarn run error)
 
 @Module({
   imports: [
@@ -22,10 +19,7 @@ import { DataSource } from 'typeorm';
       UserPersonalInformation,
       UserOtherInformation,
       UserAccessCardInformation,
-<<<<<<< HEAD
       DataSource,
-=======
->>>>>>> ce88e66 (fix(yarn    run start를 하면 npm에서는 보지못한 에러가 발생): yarn run error)
     ]),
   ],
   controllers: [UserInformationController],
