@@ -1,9 +1,9 @@
 
-name: front build test
+name: common lint test
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "*" ]
   pull_request:
     branches: [ "main" ]
 
@@ -17,28 +17,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
+        cache: 'yarn'
 
-    - name: install monorepo
+    - name: install & lint
       run: |
-        yarn install
-
-    - name: check lint
-      run: |
+        yarn install --frozen-lockfile
         yarn lint
-
-    - name: install package
-      run: |
-        yarn --cwd ./packages/client install
-
-    - name: build
-      env:
-        CI: false
-      run: yarn build
-      working-directory: ./packages/client
-
 
