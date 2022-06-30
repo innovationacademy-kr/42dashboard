@@ -23,13 +23,13 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
 
-    - name: check lint
-      run: |
-        yarn lint
-
     - name: install package
       run: |
         yarn --cwd ./packages/client install
+
+    - name: check lint
+      run: |
+        yarn run lint
 
     - name: build
       run: yarn build
