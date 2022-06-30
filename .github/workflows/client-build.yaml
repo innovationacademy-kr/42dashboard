@@ -1,0 +1,40 @@
+name: front build test
+
+on:
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - ./packages/client
+
+jobs:
+  front-build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'yarn'
+
+    - name: install package
+      env:
+        CI: false
+      run: |
+        yarn --cwd ./packages/client install --frozen-lockfile
+      working-directory: ./packages/client
+
+    - name: build package
+      env:
+        CI: false
+      run: |
+        yarn build
+      working-directory: ./packages/client
+
+
