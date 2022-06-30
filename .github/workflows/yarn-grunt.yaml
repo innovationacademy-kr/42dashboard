@@ -1,0 +1,38 @@
+
+name: NodeJS with Grunt
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [12.x, 14.x, 16.x]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: check lint
+      run: |
+        yarn lint
+
+    - name: install package
+      run: |
+        yarn --cwd ./packages/client install
+
+    - name: build
+      run: |
+        yarn --cwd ./packages/client build
+
+
