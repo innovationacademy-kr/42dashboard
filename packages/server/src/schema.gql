@@ -1,0 +1,209 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+input Filter {
+  column: String!
+  entityName: String!
+  givenValue: String!
+  lastest: Boolean!
+  operator: String!
+}
+
+type JoinedTable {
+  academic_state: String
+  coalition: String
+  created_date: DateTime
+  grade: String
+  intra_id: String
+  intra_no: Int!
+  name: String
+  start_process: DateTime
+  userAccessCardInformation: UserAccessCardInformation
+  userBlackhole: [UserBlackhole!]
+  userComputationFund: [UserComputationFund!]
+  userEducationFundState: [UserEducationFundState!]
+  userEmploymentAndFound: [UserEmploymentAndFound!]
+  userEmploymentStatus: [UserEmploymentStatus!]
+  userHrdNetUtilize: [UserHrdNetUtilize!]
+  userInternStatus: [UserInternStatus!]
+  userLapiscineInformation: [UserLapiscineInformation!]
+  userLearningData: [UserLearningData!]
+  userLeaveOfAbsence: [UserLeaveOfAbsence!]
+  userOtherInformation: [UserOtherInformation!]
+  userPersonalInformation: UserPersonalInformation
+  userProcessProgress: [UserProcessProgress!]
+  userReasonOfBreak: [UserReasonOfBreak!]
+}
+
+type Query {
+  getFilter(filters: [Filter!]!): [JoinedTable!]!
+  getUserAccessCardInformation: [UserAccessCardInformation!]!
+  getUserBlackhole: [UserBlackhole!]!
+  getUserById: [User!]!
+  getUserComputationFund: [UserComputationFund!]!
+  getUserEmploymentAndFound: [UserEmploymentAndFound!]!
+  getUserEmploymentStatus: [UserEmploymentStatus!]!
+  getUserHrdNetUtilize: [UserHrdNetUtilize!]!
+  getUserInternStatus: [UserEducationFundState!]!
+  getUserLeaningData: [UserLearningData!]!
+  getUserLeaveOfAbsence: [UserLeaveOfAbsence!]!
+  getUserOtherInformation(created_date: DateTime!, experience_of_software_developing: String!, highest_level_of_education: String!, major: String!, major_field: String!, major_name: String!, period_of_software_learning: Int, pk: Int): [UserOtherInformation!]!
+  getUserPersonalInformation: [UserPersonalInformation!]!
+  getUserProcessProgress: [UserProcessProgress!]!
+  getUserReasonOfBreak: UserReasonOfBreak!
+  getUsers(column: String!, entityName: String!, givenValue: String!, lastest: Boolean!, operator: String!): [User!]!
+}
+
+type User {
+  academic_state: String!
+  coalition: String!
+  created_date: DateTime!
+  grade: String!
+  intra_id: String!
+  intra_no: Int!
+  name: String!
+}
+
+type UserAccessCardInformation {
+  created_date: DateTime!
+  lapiscine_access_card_number_of_logical: Int!
+  lapiscine_access_card_number_of_physical: Int!
+  logical_number_of_access_card_for_this_course: Int!
+  name_of_entry_card_for_this_course: String!
+  pk: Int!
+  profile_picture_path: String!
+}
+
+type UserBlackhole {
+  blackhole_time: DateTime!
+  created_date: DateTime!
+  pk: Float!
+  reason_of_blackhole: String
+  remaining_period: Float
+}
+
+type UserComputationFund {
+  created_date: DateTime!
+  majoreceived_fundr_field: String!
+  no_duplicate_collection: String!
+  payment_date: DateTime
+  pk: Int!
+  reason_of_no_duplicate: String
+  recevied_grant_amount: Int!
+}
+
+type UserEducationFundState {
+  created_date: DateTime!
+  fund_period: DateTime
+  payment_delay_period: Int
+  payment_give_break_date: DateTime
+  payment_give_start_date: DateTime
+  pk: Int!
+  remaining_period_of_fund: Int
+  total_calculated_month: Int!
+  total_payment_of_money: Int!
+  total_payment_of_number: Int!
+}
+
+type UserEmploymentAndFound {
+  created_date: DateTime!
+  employment: String!
+  employment_date: DateTime
+  enterprise: String
+  pk: Int!
+}
+
+type UserEmploymentStatus {
+  created_date: DateTime!
+  emplyment_date: DateTime
+  enterprise: String
+  pk: Float!
+}
+
+type UserHrdNetUtilize {
+  consent_to_provide_information: String!
+  created_date: DateTime!
+  employment_insurance_date: DateTime
+  enterprise: String
+  enterprise_size: String
+  pk: Float!
+}
+
+type UserInternStatus {
+  created_date: DateTime!
+  end_intern_date: Float
+  enterprise: DateTime
+  intern_blackhole: Float
+  intern_blackhole_date: DateTime
+  intern_note: Float
+  intern_part_of_job: Float
+  pk: Float!
+  start_intern_date: Float
+}
+
+type UserLapiscineInformation {
+  lapiscine_degree: String!
+  lapiscine_grade: String
+  number_of_rapicin_participation: String
+  participate_lapicin: String
+  pk: Float!
+}
+
+type UserLearningData {
+  coalition_score: Float!
+  created_date: DateTime!
+  out_circle: String!
+  out_circle_date: DateTime
+  pk: Float!
+}
+
+type UserLeaveOfAbsence {
+  absence_reason: String
+  created_date: DateTime!
+  end_absence_date: DateTime
+  pk: Float!
+  return_from_absence_date: DateTime
+  start_absence_date: DateTime
+}
+
+type UserOtherInformation {
+  created_date: DateTime!
+  experience_of_software_developing: String!
+  highest_level_of_education: String!
+  major: String!
+  major_field: String!
+  major_name: String!
+  period_of_software_learning: Int!
+  pk: Int!
+}
+
+type UserPersonalInformation {
+  birthday: String!
+  created_date: DateTime!
+  email: String!
+  gender: String!
+  phone_number: String!
+  pk: Int!
+  region: String!
+}
+
+type UserProcessProgress {
+  basic_expiration_date: DateTime!
+  created_date: DateTime!
+  final_expiration_date: DateTime!
+  pk: Float!
+  request_extension: String
+}
+
+type UserReasonOfBreak {
+  created_date: DateTime!
+  date_of_break: Float
+  pk: Float!
+  reason_of_break: DateTime!
+}
