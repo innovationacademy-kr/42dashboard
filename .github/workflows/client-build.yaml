@@ -8,7 +8,7 @@ on:
       - ./packages/client
 
 jobs:
-  build:
+  front-build:
     runs-on: ubuntu-latest
 
     strategy:
