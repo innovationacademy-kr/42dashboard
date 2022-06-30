@@ -10,6 +10,7 @@ import { UserAccessCardInformation } from 'src/user_information/entity/user_acce
 import { GraphQLModule } from '@nestjs/graphql';
 import { JoinedTable } from './argstype/joinedTable';
 import { Filter } from './filter';
+import { DataSource } from 'typeorm';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { Filter } from './filter';
       UserPersonalInformation,
       UserOtherInformation,
       UserAccessCardInformation,
+      DataSource,
     ]),
   ],
   controllers: [UserInformationController],
