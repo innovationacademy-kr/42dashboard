@@ -11,7 +11,6 @@ interface HeaderButtonsProps {
 const ButtonsArea = styled.div``;
 
 const renderButtons = (buttonType: parentComponentType) => {
-  const render: any[] = [];
   let renderList = [];
   if (buttonType === 'SECTION') renderList = ['EDIT', 'FILTER', 'CLOSE'];
   else renderList = ['EDIT', 'CLOSE'];
