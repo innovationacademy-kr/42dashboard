@@ -4,30 +4,28 @@ import { data, options } from './ChartData';
 Chart.register(...registerables);
 
 /* Code For Storybook */
-// export interface PieChartProps {
-//   data: {
-//     labels: Array<string>;
-//     datasets: [
-//       {
-//         label: string;
-//         backgroundColor: string;
-//         borderColor: string;
-//         data: Array<number>;
-//       },
-//     ];
-//   };
-//   options: {
-//     responsive: boolean;
-//     maintainAspectRatio: boolean;
-//   };
-// }
-
-// function PieChart(props: PieChartProps) {
-//   return <Pie data={props.data} options={props.options} />;
-// }
-
-function PieChart() {
-  return <Pie data={data} options={options} />;
+export interface PieChartProps {
+  data: {
+    labels: Array<string>;
+    datasets: [
+      {
+        label: string;
+        backgroundColor: string;
+        borderColor: string;
+        data: Array<number>;
+      },
+    ];
+  };
+  options: {
+    responsive: boolean;
+    maintainAspectRatio: boolean;
+  };
 }
 
-export default PieChart;
+export function StoryPieChart(props: PieChartProps) {
+  return <Pie data={props.data} options={props.options} />;
+}
+
+export function PieChart() {
+  return <Pie data={data} options={options} />;
+}

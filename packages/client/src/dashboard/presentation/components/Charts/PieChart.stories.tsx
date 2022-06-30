@@ -1,13 +1,13 @@
 import { Story } from '@storybook/react';
-import PieChart, { PieChartProps } from './PieChart';
+import { StoryPieChart, PieChartProps } from './PieChart';
 
 export default {
-  title: 'PieChart',
-  component: PieChart,
+  title: 'StoryPieChart',
+  component: StoryPieChart,
 };
 
 const Template: Story<PieChartProps> = (args: PieChartProps) => (
-  <PieChart {...args} />
+  <StoryPieChart {...args} />
 );
 
 export const Default = Template.bind({});
@@ -27,7 +27,7 @@ Default.args = {
     labels: Labels,
     datasets: [
       {
-        label: 'PieChart',
+        label: 'StoryPieChart',
         backgroundColor: '#72aee6',
         borderColor: '#4f94db',
         data: [2, 9, 5, 3, 6, 1, 9],
