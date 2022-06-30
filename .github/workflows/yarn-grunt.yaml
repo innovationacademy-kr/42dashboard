@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [12.x, 14.x, 16.x]
+        node-version: [16.x]
 
     steps:
     - uses: actions/checkout@v3
@@ -23,15 +23,21 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
 
+    - name: install monorepo
+      run: |
+        yarn install
+
+    - name: check lint
+      run: |
+        yarn lint
+
     - name: install package
       run: |
         yarn --cwd ./packages/client install
 
-    - name: check lint
-      run: |
-        yarn run lint
-
     - name: build
+      env:
+        CI: false
       run: yarn build
       working-directory: ./packages/client
 
