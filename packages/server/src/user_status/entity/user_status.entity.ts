@@ -187,18 +187,18 @@ export class UserReasonOfBreak extends BaseEntity {
   @PrimaryGeneratedColumn({ name: 'pk' })
   pk: number;
 
-  @Field({ nullable: true })
-  @Column({ name: 'date_of_break', nullable: true })
-  date_of_break: number;
-
   @Field({ nullable: false, defaultValue: '9999-12-31' })
   @Column({
-    name: 'reason_of_break',
+    name: 'date_of_break',
     nullable: false,
     default: '9999-12-31',
     type: 'date',
   })
-  reason_of_break: Date;
+  date_of_break: Date;
+
+  @Field({ nullable: true })
+  @Column({ name: 'reason_of_break', nullable: true })
+  reason_of_break: string;
 
   @Field({ nullable: false })
   @CreateDateColumn({ name: 'created_date' })
