@@ -2,6 +2,7 @@ import { useState } from 'react';
 import './styles.css';
 import './styles2.css';
 import RGL, { Layout, WidthProvider } from 'react-grid-layout';
+import { Sticker } from '../Sticker/Sticker';
 
 const ReactGridLayout = WidthProvider(RGL.Responsive);
 
@@ -12,7 +13,11 @@ export default function Section(props: any) {
 
   function generateSticker() {
     return layout.map((item: Layout) => {
-      return <div key={item.i}>{<span className="text">{item.i}</span>}</div>;
+      return (
+        <div key={item.i}>
+          <Sticker content="PieChart"></Sticker>
+        </div>
+      );
     });
   }
 
