@@ -4,7 +4,6 @@ import { ApiResolver } from './api.resolver';
 import { ApiService } from './api.service';
 
 @Module({
-  
   controllers: [ApiController],
   providers: [ApiResolver, ApiService],
   //exports:[ApiService]

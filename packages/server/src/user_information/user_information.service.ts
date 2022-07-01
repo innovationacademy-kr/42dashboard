@@ -45,9 +45,7 @@ export class UserInformationService {
     private userOtherRepository: Repository<UserOtherInformation>,
     @InjectRepository(UserAccessCardInformation)
     private userAccessCardRepository: Repository<UserAccessCardInformation>,
-    @InjectRepository(DataSource)
     private dataSource: DataSource,
-    
   ) {
     this.operatorToMethod = {};
     this.operatorToMethod['>'] = MoreThan;

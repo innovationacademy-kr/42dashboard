@@ -1,5 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { getDataSourceToken, getRepositoryToken, InjectDataSource } from '@nestjs/typeorm';
+import {
+  getDataSourceToken,
+  getRepositoryToken,
+  InjectDataSource,
+} from '@nestjs/typeorm';
 import { DataSource, LessThan } from 'typeorm';
 import { UserAccessCardInformation } from './entity/user_access_card_information.entity';
 import { User } from './entity/user_information.entity';
@@ -49,7 +53,7 @@ describe('userInformationService', () => {
           useClass: MockUserOtherInformationRepository,
         },
         {
-          provide:  InjectDataSource,
+          provide: InjectDataSource,
           useClass: MockDataSource,
         },
       ],
