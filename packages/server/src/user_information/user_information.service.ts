@@ -179,7 +179,7 @@ export class UserInformationService {
             filter['lastest'] == true
           ) {
             row[joinedTable] = row[joinedTable].slice(0, 1);
-            console.log(row[joinedTable]);
+            // console.log(row[joinedTable]);
           }
         }
       }
@@ -191,10 +191,10 @@ export class UserInformationService {
     const obj = this.getObj(filterObj);
     obj['cache'] = true; //typeORM에서 제공하는 cache 기능
     obj['order'] = { intra_id: 'ASC', grade: 'ASC' }; //정렬할 필요가 있는건지?
-    console.log('OBJ is', obj);
+    // console.log('OBJ is', obj);
     const ret = await this.dataSource.getRepository(User).find(obj);
     this.makeLimit(ret, filterObj);
-    console.log('RET is', ret);
+    // console.log('RET is', ret);
     return ret;
   }
 
@@ -238,7 +238,6 @@ export class UserInformationService {
     for (const entityName in filterObj) {
       if (entityName == 'user') continue; // user는 이미 위의 for문에서 처리
       ret['relations'][entityName] = true;
-      console.log('\n\n\n\n\nhihi\n\n\n\n');
       ret['where'][entityName] = {};
       ret['order'][entityName] = {};
       for (const idx in filterObj[entityName]) {
