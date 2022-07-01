@@ -26,6 +26,6 @@ export function StoryPieChart(props: PieChartProps) {
   return <Pie data={props.data} options={props.options} />;
 }
 
-export function PieChart() {
+export default function PieChart() {
   return <Pie data={data} options={options} />;
 }
