@@ -2,6 +2,7 @@ import { useState } from 'react';
 import './styles.css';
 import './styles2.css';
 import RGL, { Layout, WidthProvider } from 'react-grid-layout';
+import { Header } from '../Common/Header';
 import { Sticker } from '../Sticker/Sticker';
 
 const ReactGridLayout = WidthProvider(RGL.Responsive);
@@ -45,6 +46,10 @@ export default function Section(props: any) {
   return (
     <>
       <button onClick={addSticker}>Add Sticker</button>
+      <Header
+        parentComponent={'SECTION'}
+        clickHandler={clickHandlerGenerator(itemKey)}
+      ></Header>
       <ReactGridLayout
         onDragStart={(a, b, c, d, e) => e.stopPropagation()}
         layouts={{ lg: layout }}
