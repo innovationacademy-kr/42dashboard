@@ -7,8 +7,15 @@ import { Sticker } from '../Sticker/Sticker';
 
 const ReactGridLayout = WidthProvider(RGL.Responsive);
 
-export default function Section(props: any) {
-  const { itemKey = '' } = props;
+interface SectionProps {
+  itemKey: string;
+  layout: Layout[];
+  clickHandlerGenerator: (itemKey: string) => () => void;
+  onStickerLayoutChange: (stickerLayout: Layout[], itemKey: string) => void;
+}
+
+export default function Section(props: SectionProps) {
+  const { itemKey = '', clickHandlerGenerator } = props;
   const [count, setCount] = useState(0);
   const [layout, setLayout] = useState(props.layout || []);
 
@@ -16,7 +23,7 @@ export default function Section(props: any) {
     return layout.map((item: Layout) => {
       return (
         <div key={item.i}>
-          <Sticker content="PieChart"></Sticker>
+          {<Sticker content="PieChart" clickHandler={removeSticker(item.i)} />}
         </div>
       );
     });
@@ -41,6 +48,13 @@ export default function Section(props: any) {
         h: 2,
       },
     ]);
+  }
+
+  function removeSticker(itemKey: string) {
+    return () => {
+      setCount(count - 1);
+      setLayout([...layout.filter((item: Layout) => item.i !== itemKey)]);
+    };
   }
 
   return (
