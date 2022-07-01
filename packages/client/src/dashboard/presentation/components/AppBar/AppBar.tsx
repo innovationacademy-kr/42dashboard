@@ -15,7 +15,6 @@ function AppBar(props: AppBarProps) {
   const freespace = <div style={{ flexGrow: 1 }}></div>;
 
   return (
-    // <Box sx={{ flexGrow: 1 }}>
     <MuiAppBar
       position="fixed"
       sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
@@ -26,7 +25,6 @@ function AppBar(props: AppBarProps) {
         {props.rightChildren}
       </Toolbar>
     </MuiAppBar>
-    // </Box>
   );
 }
 

@@ -1,3 +1,4 @@
+import { Toolbar } from '@mui/material';
 import { Box } from '@mui/system';
 import { ReactNode } from 'react';
 export interface MainAreaProps {
@@ -5,7 +6,8 @@ export interface MainAreaProps {
 }
 function MainArea(props: MainAreaProps) {
   return (
-    <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+    <Box component="main" sx={{ flexGrow: 1, p: 2 }}>
+      <Toolbar />
       {props.children}
     </Box>
   );
