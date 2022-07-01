@@ -17,13 +17,12 @@ export default function Board() {
     return layout.map((item: NestedLayout) => {
       return (
         <div key={item.i}>
-          {
-            <Section
-              layout={item.sticker}
-              itemKey={item.i}
-              onStickerLayoutChange={onStickerLayoutChange}
-            />
-          }
+          <Section
+            layout={item.sticker}
+            itemKey={item.i}
+            onStickerLayoutChange={onStickerLayoutChange}
+            clickHandlerGenerator={removeSection}
+          />
         </div>
       );
     });
@@ -31,10 +30,8 @@ export default function Board() {
 
   // when add section or move
   function onSectionLayoutChange(newLayout: Array<NestedLayout>) {
-    console.log('onSectionLayoutChange', newLayout);
     setLayout(newLayout);
   }
-
   // change nested layout
   function onStickerLayoutChange(stickerLayout: Layout[], itemKey: string) {
     const itemIndex = layout.findIndex(
@@ -67,6 +64,13 @@ export default function Board() {
     ]);
   }
 
+  function removeSection(itemKey: string) {
+    return () => {
+      setCount(count - 1);
+      setLayout([...layout.filter((item: NestedLayout) => item.i !== itemKey)]);
+    };
+  }
+
   useEffect(() => {
     window.dispatchEvent(new Event('resize'));
   }, [layout]);
@@ -76,9 +80,6 @@ export default function Board() {
       <button onClick={addSection}>Add Section Item</button>
       <ReactGridLayout
         onDragStart={(a, b, c, d, e) => e.stopPropagation()}
-        onResizeStop={(a, b, c, d, e) => {
-          console.log(a, b, c, d, e);
-        }}
         layouts={{ lg: layout }}
         breakpoints={{ lg: 600, md: 498, sm: 384, xs: 240, xxs: 0 }}
         cols={{ lg: 5, md: 4, sm: 3, xs: 2, xxs: 1 }}
