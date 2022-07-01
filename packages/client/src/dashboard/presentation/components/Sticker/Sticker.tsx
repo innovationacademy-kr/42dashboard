@@ -7,6 +7,7 @@ type contentType = 'Table' | 'PieChart' | 'BarChart' | 'LineChart';
 
 interface StickerProps {
   content: contentType;
+  clickHandler: () => void;
 }
 
 const StickerWrapper = styled.div`
@@ -14,10 +15,10 @@ const StickerWrapper = styled.div`
 `;
 
 export const Sticker = (props: StickerProps) => {
-  const { content } = props;
+  const { content, clickHandler } = props;
   return (
     <StickerWrapper>
-      <Header parentComponent="STICKER"></Header>
+      <Header parentComponent="STICKER" clickHandler={clickHandler}></Header>
       <StickerBody content={content}></StickerBody>
     </StickerWrapper>
   );
