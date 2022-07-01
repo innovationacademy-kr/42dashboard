@@ -22,7 +22,7 @@ function SideBar() {
         [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
       }}
     >
-      {/* <Toolbar /> */}
+      <Toolbar />
       <Box sx={{ overflow: 'auto' }}>
         <List>
           {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (

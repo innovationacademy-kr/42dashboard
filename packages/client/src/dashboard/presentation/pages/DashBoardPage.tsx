@@ -27,7 +27,7 @@ const appBarTitle = (
   </Typography>
 );
 
-const profile = { name: 'kilee' };
+const profile = { name: 'kilee', size: 48 };
 
 const profileMenuItems = [
   {
