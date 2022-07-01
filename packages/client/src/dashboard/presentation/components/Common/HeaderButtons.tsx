@@ -6,20 +6,26 @@ type parentComponentType = 'SECTION' | 'STICKER';
 
 interface HeaderButtonsProps {
   parentComponent: parentComponentType;
+  clickHandler: () => void;
 }
 
 const ButtonsArea = styled.div``;
 
-const renderButtons = (buttonType: parentComponentType) => {
+const renderButtons = (
+  buttonType: parentComponentType,
+  clickHandler: () => void,
+) => {
   let renderList = [];
   if (buttonType === 'SECTION') renderList = ['EDIT', 'FILTER', 'CLOSE'];
   else renderList = ['EDIT', 'CLOSE'];
   return renderList.map((type, i) => (
-    <InvisibleButton key={i} buttonType={type} />
+    <InvisibleButton key={i} buttonType={type} clickHandler={clickHandler} />
   ));
 };
 
 export const HeaderButtons = (props: HeaderButtonsProps) => {
-  const { parentComponent } = props;
-  return <ButtonsArea>{renderButtons(parentComponent)}</ButtonsArea>;
+  const { parentComponent, clickHandler } = props;
+  return (
+    <ButtonsArea>{renderButtons(parentComponent, clickHandler)}</ButtonsArea>
+  );
 };
