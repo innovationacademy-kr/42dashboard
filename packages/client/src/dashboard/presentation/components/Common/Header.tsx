@@ -7,6 +7,7 @@ type parentComponentType = 'SECTION' | 'STICKER';
 
 interface HeaderProps {
   parentComponent: parentComponentType;
+  clickHandler: () => void;
 }
 
 const HeaderArea = styled.div`
@@ -22,13 +23,16 @@ const HeaderArea = styled.div`
 // TODO(hybae)
 // Support title prop to Button component
 export const Header = (props: HeaderProps) => {
-  const { parentComponent } = props;
+  const { parentComponent, clickHandler } = props;
   const title = null;
   return (
     <div>
       <HeaderArea>
         <HeaderTitle title={title || 'My Title'} />
-        <HeaderButtons parentComponent={parentComponent} />
+        <HeaderButtons
+          parentComponent={parentComponent}
+          clickHandler={clickHandler}
+        />
       </HeaderArea>
     </div>
   );
