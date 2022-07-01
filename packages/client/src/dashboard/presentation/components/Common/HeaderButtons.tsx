@@ -18,9 +18,19 @@ const renderButtons = (
   let renderList = [];
   if (buttonType === 'SECTION') renderList = ['EDIT', 'FILTER', 'CLOSE'];
   else renderList = ['EDIT', 'CLOSE'];
-  return renderList.map((type, i) => (
-    <InvisibleButton key={i} buttonType={type} clickHandler={clickHandler} />
-  ));
+  return renderList.map((type, i) =>
+    type === 'CLOSE' ? (
+      <InvisibleButton key={i} buttonType={type} clickHandler={clickHandler} />
+    ) : (
+      <InvisibleButton
+        key={i}
+        buttonType={type}
+        clickHandler={() => {
+          console.log('something event');
+        }}
+      />
+    ),
+  );
 };
 
 export const HeaderButtons = (props: HeaderButtonsProps) => {
