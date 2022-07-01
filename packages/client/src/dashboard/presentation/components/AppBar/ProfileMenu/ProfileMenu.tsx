@@ -1,4 +1,4 @@
-import { Button, Menu, MenuItem } from '@mui/material';
+import { Menu, MenuItem } from '@mui/material';
 import { useState } from 'react';
 import Profile, { ProfileProps } from '../Profile/Profile';
 
@@ -37,9 +37,11 @@ export default function ProfileMenu(props: ProfileMenuProps) {
           'aria-labelledby': 'basic-button',
         }}
       >
-        {menuItems.map((menuItem) => {
+        {menuItems.map((menuItem, i) => {
           return (
-            <MenuItem onClick={menuItem.onClick}>{menuItem.label}</MenuItem>
+            <MenuItem key={i} onClick={menuItem.onClick}>
+              {menuItem.label}
+            </MenuItem>
           );
         })}
       </Menu>
