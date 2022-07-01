@@ -1,8 +1,8 @@
-import React from 'react';
 import styled from '@emotion/styled';
 
 interface InvisibleButtonProps {
   buttonType: string;
+  clickHandler: () => void;
 }
 
 const Button = styled.button`
@@ -10,6 +10,6 @@ const Button = styled.button`
 `;
 
 export const InvisibleButton = (props: InvisibleButtonProps) => {
-  const { buttonType } = props;
-  return <Button>{buttonType}</Button>;
+  const { buttonType, clickHandler } = props;
+  return <Button onClick={clickHandler}>{buttonType}</Button>;
 };
