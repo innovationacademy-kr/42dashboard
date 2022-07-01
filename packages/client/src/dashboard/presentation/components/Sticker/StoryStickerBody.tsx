@@ -29,28 +29,13 @@ const contentSwitch = (props: StickerBodyProps) => {
     case 'Table':
       break;
     case 'PieChart':
-      return (
-        <StoryPieChart
-          data={props.dataSet}
-          options={props.options}
-        ></StoryPieChart>
-      );
+      return <StoryPieChart data={props.dataSet} options={props.options} />;
     case 'BarChart':
-      return (
-        <StoryBarChart
-          data={props.dataSet}
-          options={props.options}
-        ></StoryBarChart>
-      );
+      return <StoryBarChart data={props.dataSet} options={props.options} />;
     case 'LineChart':
-      return (
-        <StoryLineChart
-          data={props.dataSet}
-          options={props.options}
-        ></StoryLineChart>
-      );
+      return <StoryLineChart data={props.dataSet} options={props.options} />;
     default:
-      break;
+      return null;
   }
 };
 
