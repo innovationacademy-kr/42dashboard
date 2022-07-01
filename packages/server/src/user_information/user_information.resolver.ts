@@ -1,4 +1,4 @@
-import { Query } from '@nestjs/graphql';
+import { Int, Query } from '@nestjs/graphql';
 import { Args, Resolver } from '@nestjs/graphql';
 import { UserAccessCardInformation } from 'src/user_information/entity/user_access_card_information.entity';
 import { User } from 'src/user_information/entity/user_information.entity';
@@ -40,7 +40,7 @@ export class UserInformationResolver {
   }
 
   // @Query(() => [JoinedTable])
-  // getFilterBeforeJson(@Args() filterArg: FilterArgs) {
+  // getNumofPeopleByFilterBeforeJson(@Args() filterArg: FilterArgs) {
   //   // console.log(filterArg);
   //   // return;
   //   return this.userService.processFilters(filterArg.filters['realFilters']);
@@ -52,7 +52,12 @@ export class UserInformationResolver {
   // }
 
   @Query(() => [JoinedTable])
-  getFilter(@Args() filterArg: FilterArgs) {
-    return this.userService.processFilters(filterArg.filters);
+  getPeopleByFiter(@Args() filterArg: FilterArgs) {
+    return this.userService.getPeopleByFiter(filterArg.filters);
+  }
+
+  @Query(() => Int)
+  getNumOfPeopleByFilter(@Args() filterArg: FilterArgs) {
+    return this.userService.getNumOfPeopleByFilter(filterArg.filters);
   }
 }

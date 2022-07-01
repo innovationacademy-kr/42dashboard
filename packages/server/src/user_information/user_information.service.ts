@@ -93,6 +93,45 @@ export class UserInformationService {
    *      UserPersonalInformation:[{entityName:UserPersonalInformation, column:"gender", operaotr:"=", givenValue:"남"}, {...}, {...}]
    *    }
    */
+  filtersToObj(filters) {
+    const filterObj = {};
+    let filter;
+    let entityName;
+
+    for (let i = 0; i < filters.length; i++) {
+      filter = filters[i]; // filter 하나
+      entityName = filter.entityName;
+      if (entityName in filterObj) {
+        // filterObj에 이미 해당 entityName이 있음
+        filterObj[entityName].push(filter);
+      } else {
+        //filterObj에 해당 entityName이 없음
+        filterObj[entityName] = []; //해당 entity에 대해 필터조건이 여러개 있을수 있으니
+        filterObj[entityName].push(filter); //필터조건(들)을 배열 넣어둠
+      }
+    }
+    // console.log(filterObj);
+    const obj = this.getObj(filterObj);
+    obj['cache'] = true; //typeORM에서 제공하는 cache 기능
+    obj['order'] = { intra_id: 'ASC', grade: 'ASC' }; //정렬할 필요가 있는건지?
+    return { obj, filterObj };
+  }
+
+  async getPeopleByFiter(filters) {
+    const { obj, filterObj } = this.filtersToObj(filters);
+    // console.log('OBJ is', obj);
+    const data = await this.dataSource.getRepository(User).find(obj);
+    this.makeLimit(data, filterObj);
+    return data;
+  }
+
+  async getNumOfPeopleByFilter(filters) {
+    const { obj, filterObj } = this.filtersToObj(filters);
+    // console.log('OBJ is', obj);
+    const data = await this.dataSource.getRepository(User).count(obj);
+    // this.makeLimit(data, filterObj);
+    return data;
+  }
 
   async processFilters(filters) {
     // console.log(filters);
@@ -157,7 +196,7 @@ export class UserInformationService {
             filter['lastest'] == true
           ) {
             row[joinedTable] = row[joinedTable].slice(0, 1);
-            console.log(row[joinedTable]);
+            // console.log(row[joinedTable]);
           }
         }
       }
@@ -192,7 +231,6 @@ export class UserInformationService {
    *          major: Equal("비전공")
    *        },
    *      },
-  
    *    }
    */
 
