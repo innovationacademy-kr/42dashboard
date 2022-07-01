@@ -3,24 +3,23 @@ import { ApiService } from './api.service';
 
 @Controller()
 export class ApiController {
-    constructor(private readonly apiService: ApiService) {}
+  constructor(private readonly apiService: ApiService) {}
 
-    @Get()
-    showBrowser() {
-        console.log("hi");
-        return ;// this.apiService.showBrowser();
-    }
+  @Get()
+  showBrowser() {
+    console.log('hi');
+    return; // this.apiService.showBrowser();
+  }
 
-    @Get("api")
-    async getApi() {
-        let api = await this.apiService.getApi();
-        return api;
-    }
+  @Get('api')
+  async getApi() {
+    const api = await this.apiService.getApi();
+    return api;
+  }
 
-    // @Get('/doyun')
-    // getUserById(@Param('intra_id')intra_id: String) {
-    //     console.log("ishere");
-    //     return this.apiService.getUserById(intra_id);
-    // }
-
+  // @Get('/doyun')
+  // getUserById(@Param('intra_id')intra_id: String) {
+  //     console.log("ishere");
+  //     return this.apiService.getUserById(intra_id);
+  // }
 }

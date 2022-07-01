@@ -12,6 +12,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeORMConfig } from './config/typeorm.config';
 import { ApiModule } from './api/api.module';
 import { UpdaterModule } from './updater/updater.module';
+import { DataSource } from 'typeorm';
 
 @Module({
   imports: [
@@ -37,4 +38,6 @@ import { UpdaterModule } from './updater/updater.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+  constructor(private dataSource: DataSource) {}
+}
