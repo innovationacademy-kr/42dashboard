@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { UserAccessCardInformation } from 'src/user_information/entity/user_access_card_information.entity';
 import { User } from 'src/user_information/entity/user_information.entity';
 import { UserOtherInformation } from 'src/user_information/entity/user_other_information.entity';
@@ -45,6 +45,7 @@ export class UserInformationService {
     private userOtherRepository: Repository<UserOtherInformation>,
     @InjectRepository(UserAccessCardInformation)
     private userAccessCardRepository: Repository<UserAccessCardInformation>,
+    @InjectDataSource()
     private dataSource: DataSource,
   ) {
     this.operatorToMethod = {};

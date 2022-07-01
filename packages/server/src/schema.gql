@@ -203,7 +203,7 @@ type UserProcessProgress {
 
 type UserReasonOfBreak {
   created_date: DateTime!
-  date_of_break: Float
+  date_of_break: DateTime!
   pk: Float!
-  reason_of_break: DateTime!
+  reason_of_break: String
 }
