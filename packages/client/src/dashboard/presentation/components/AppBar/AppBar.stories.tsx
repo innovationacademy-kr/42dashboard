@@ -1,7 +1,7 @@
 import { Typography } from '@mui/material';
 import { ComponentStory } from '@storybook/react';
 import AppBar, { AppBarProps } from './AppBar';
-import Profile from './Profile/Profile';
+import ProfileMenu from './ProfileMenu/ProfileMenu';
 
 export default {
   component: AppBar,
@@ -18,8 +18,26 @@ const appBarTitle = (
     AppBarTitle
   </Typography>
 );
+const profile = { name: 'kilee', size: 48 };
+
+const profileMenuItems = [
+  {
+    label: '마이페이지',
+    onClick: () => {
+      console.log('Click');
+    },
+  },
+  {
+    label: '로그아웃',
+    onClick: () => {
+      console.log('로그아웃');
+    },
+  },
+];
+const profileMenu = (
+  <ProfileMenu menuItems={profileMenuItems} profile={profile} />
+);
+
 Default.args = {
-  title: 'Title',
-  leftChildren: [appBarTitle],
-  rightChildren: [Profile({ name: 'kilee' })],
+  children: [appBarTitle, <div style={{ flexGrow: 1 }}></div>, profileMenu],
 };

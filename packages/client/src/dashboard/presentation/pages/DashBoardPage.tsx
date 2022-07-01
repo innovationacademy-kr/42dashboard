@@ -1,9 +1,6 @@
 import { Box, CssBaseline, Typography } from '@mui/material';
 import AppBar from '../components/AppBar/AppBar';
-import Profile from '../components/AppBar/Profile/Profile';
-import ProfileMenu, {
-  ProfileMenuItemProps,
-} from '../components/AppBar/ProfileMenu/ProfileMenu';
+import ProfileMenu from '../components/AppBar/ProfileMenu/ProfileMenu';
 import Board from '../components/Board/Board';
 import MainArea from '../components/MainArea/MainArea';
 import SideBar from '../components/SideBar/SideBar';
@@ -51,11 +48,11 @@ function DashBoardPage() {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <AppBar
-        title="42Dash"
-        leftChildren={[appBarTitle]}
-        rightChildren={[profileMenu]}
-      />
+      <AppBar>
+        {appBarTitle}
+        <div style={{ flexGrow: 1 }}></div>
+        {profileMenu}
+      </AppBar>
       <SideBar />
       <MainArea>
         <Board />
