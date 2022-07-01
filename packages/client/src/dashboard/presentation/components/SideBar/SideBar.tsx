@@ -1,15 +1,12 @@
-import { AddIcCallTwoTone, ImportContactsOutlined } from '@mui/icons-material';
 import {
-  Box,
-  Divider,
-  Drawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Toolbar,
-} from '@mui/material';
+  Addchart,
+  AssessmentSharp,
+  ExtensionSharp,
+  ShowChart,
+} from '@mui/icons-material';
+import { Box, Divider, Drawer, Toolbar } from '@mui/material';
+import SideBarList from './SideBarList';
+import SideBarListItem from './SideBarListItem';
 
 function SideBar() {
   const drawerWidth = 240;
@@ -24,39 +21,15 @@ function SideBar() {
     >
       <Toolbar />
       <Box sx={{ overflow: 'auto' }}>
-        <List>
-          {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-            <ListItem key={text} disablePadding>
-              <ListItemButton>
-                <ListItemIcon>
-                  {index % 2 === 0 ? (
-                    <AddIcCallTwoTone />
-                  ) : (
-                    <ImportContactsOutlined />
-                  )}
-                </ListItemIcon>
-                <ListItemText primary={text} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
+        <SideBarList label="DashBoard" icon={AssessmentSharp}>
+          <SideBarListItem icon={ShowChart} label="요약" />
+          <SideBarListItem icon={ShowChart} label="프리셋112" />
+          <SideBarListItem icon={Addchart} label="보드 추가" />
+        </SideBarList>
         <Divider />
-        <List>
-          {['All mail', 'Trash', 'Spam'].map((text, index) => (
-            <ListItem key={text} disablePadding>
-              <ListItemButton>
-                <ListItemIcon>
-                  {index % 2 === 0 ? (
-                    <AddIcCallTwoTone />
-                  ) : (
-                    <AddIcCallTwoTone />
-                  )}
-                </ListItemIcon>
-                <ListItemText primary={text} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
+        <SideBarList label="Future" icon={ExtensionSharp}>
+          <SideBarListItem icon={ShowChart} label="미래기능" />
+        </SideBarList>
       </Box>
     </Drawer>
   );
