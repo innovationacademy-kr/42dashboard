@@ -93,11 +93,19 @@ export class UserInformationService {
    *    }
    */
 
+<<<<<<< HEAD
   private filterToObj(filters, filterObj) {
+=======
+  async processFilters(filters) {
+>>>>>>> b28a5dbd39f81b44fe74143d506ba1a14fe5f548
     // console.log(filters);
     let filter;
     let entityName;
     let numOfEntity = 1; //entity의 개수(user는 무조건 쓰니까 initialValue = 1)
+<<<<<<< HEAD
+=======
+    const filterObj = {};
+>>>>>>> b28a5dbd39f81b44fe74143d506ba1a14fe5f548
 
     for (let i = 0; i < filters.length; i++) {
       filter = filters[i]; // filter 하나
@@ -112,6 +120,7 @@ export class UserInformationService {
         filterObj[entityName].push(filter); //필터조건(들)을 배열 넣어둠
       }
     }
+<<<<<<< HEAD
 
     const obj = this.getObj(filterObj);
     obj['cache'] = true; //typeORM에서 제공하는 cache 기능
@@ -137,6 +146,9 @@ export class UserInformationService {
     // this.makeLimit(ret, filterObj); //number니까 이 함수 호출할 필요없음
     // console.log('RET is', ret);
     return ret;
+=======
+    return this.joinTableByFilters(filterObj); //numOFEntity 값을 사용하지는 않지만 일단 넣어두었음
+>>>>>>> b28a5dbd39f81b44fe74143d506ba1a14fe5f548
   }
 
   /**
@@ -179,7 +191,11 @@ export class UserInformationService {
             filter['lastest'] == true
           ) {
             row[joinedTable] = row[joinedTable].slice(0, 1);
+<<<<<<< HEAD
             // console.log(row[joinedTable]);
+=======
+            console.log(row[joinedTable]);
+>>>>>>> b28a5dbd39f81b44fe74143d506ba1a14fe5f548
           }
         }
       }
@@ -191,7 +207,11 @@ export class UserInformationService {
     const obj = this.getObj(filterObj);
     obj['cache'] = true; //typeORM에서 제공하는 cache 기능
     obj['order'] = { intra_id: 'ASC', grade: 'ASC' }; //정렬할 필요가 있는건지?
+<<<<<<< HEAD
     // console.log('OBJ is', obj);
+=======
+    console.log('OBJ is', obj);
+>>>>>>> b28a5dbd39f81b44fe74143d506ba1a14fe5f548
     const ret = await this.dataSource.getRepository(User).find(obj);
     this.makeLimit(ret, filterObj);
     // console.log('RET is', ret);
@@ -405,6 +425,7 @@ export class UserInformationService {
         created_date: 'ASC',
       },
     };
+<<<<<<< HEAD
     const t2 = {
       relations: { userProcessProgress: true },
       where: {
@@ -415,6 +436,8 @@ export class UserInformationService {
       // cache: true,
     };
     return await this.dataSource.getRepository(User).find(t2);
+=======
+>>>>>>> b28a5dbd39f81b44fe74143d506ba1a14fe5f548
     // test['take'] = {
     //   userProcessProgress:1,
     // }; <- 안되는걸로 결론

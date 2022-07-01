@@ -42,8 +42,12 @@ type JoinedTable {
 }
 
 type Query {
+<<<<<<< HEAD
   getNumOfPeopleByFilter(filters: [Filter!]!): Int!
   getPeopleByFilter(filters: [Filter!]!): [JoinedTable!]!
+=======
+  getFilter(filters: [Filter!]!): [JoinedTable!]!
+>>>>>>> b28a5dbd39f81b44fe74143d506ba1a14fe5f548
   getUserAccessCardInformation: [UserAccessCardInformation!]!
   getUserBlackhole: [UserBlackhole!]!
   getUserById: [User!]!
