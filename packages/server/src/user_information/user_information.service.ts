@@ -93,12 +93,11 @@ export class UserInformationService {
    *    }
    */
 
-  async processFilters(filters) {
+  private filterToObj(filters, filterObj) {
     // console.log(filters);
     let filter;
     let entityName;
     let numOfEntity = 1; //entity의 개수(user는 무조건 쓰니까 initialValue = 1)
-    const filterObj = {};
 
     for (let i = 0; i < filters.length; i++) {
       filter = filters[i]; // filter 하나
@@ -113,7 +112,31 @@ export class UserInformationService {
         filterObj[entityName].push(filter); //필터조건(들)을 배열 넣어둠
       }
     }
-    return this.joinTableByFilters(filterObj); //numOFEntity 값을 사용하지는 않지만 일단 넣어두었음
+
+    const obj = this.getObj(filterObj);
+    obj['cache'] = true; //typeORM에서 제공하는 cache 기능
+    obj['order'] = { intra_id: 'ASC', grade: 'ASC' }; //정렬할 필요가 있는건지?
+    return obj;
+  }
+
+  async getPeopleByFilter(filters) {
+    const filterObj = {};
+    const obj = this.filterToObj(filters, filterObj);
+    // console.log('OBJ is', obj);
+    const ret = await this.dataSource.getRepository(User).find(obj);
+    this.makeLimit(ret, filterObj);
+    // console.log('RET is', ret);
+    return ret;
+  }
+
+  async getNumOfPeopleByFilter(filters) {
+    const filterObj = {};
+    const obj = this.filterToObj(filters, filterObj);
+    // console.log('OBJ is', obj);
+    const ret = await this.dataSource.getRepository(User).count(obj);
+    // this.makeLimit(ret, filterObj); //number니까 이 함수 호출할 필요없음
+    // console.log('RET is', ret);
+    return ret;
   }
 
   /**
@@ -171,7 +194,7 @@ export class UserInformationService {
     console.log('OBJ is', obj);
     const ret = await this.dataSource.getRepository(User).find(obj);
     this.makeLimit(ret, filterObj);
-    // console.log('RET is', ret);
+    console.log('RET is', ret);
     return ret;
   }
 
@@ -215,6 +238,7 @@ export class UserInformationService {
     for (const entityName in filterObj) {
       if (entityName == 'user') continue; // user는 이미 위의 for문에서 처리
       ret['relations'][entityName] = true;
+      console.log('\n\n\n\n\nhihi\n\n\n\n');
       ret['where'][entityName] = {};
       ret['order'][entityName] = {};
       for (const idx in filterObj[entityName]) {
@@ -382,6 +406,16 @@ export class UserInformationService {
         created_date: 'ASC',
       },
     };
+    const t2 = {
+      relations: { userProcessProgress: true },
+      where: {
+        intra_no: LessThan(100000),
+        // userProcessProgress: { created_date: Not('2022-01-01') },
+      },
+      // order: { intra_id: 'ASC', grade: 'ASC' },
+      // cache: true,
+    };
+    return await this.dataSource.getRepository(User).find(t2);
     // test['take'] = {
     //   userProcessProgress:1,
     // }; <- 안되는걸로 결론
