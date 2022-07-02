@@ -16,7 +16,6 @@ interface SectionProps {
 
 export default function Section(props: SectionProps) {
   const { itemKey = '', clickHandlerGenerator } = props;
-  const [count, setCount] = useState(0);
   const [layout, setLayout] = useState(props.layout || []);
 
   function generateSticker() {
@@ -37,11 +36,10 @@ export default function Section(props: SectionProps) {
   }
 
   function addSticker() {
-    setCount(count + 1);
     setLayout([
       ...layout,
       {
-        i: `sticker-${count}-${itemKey}`,
+        i: `sticker-${Date.now().toString()}`,
         x: (layout.length * 2) % 12,
         y: Infinity,
         w: 2,
@@ -52,7 +50,6 @@ export default function Section(props: SectionProps) {
 
   function removeSticker(itemKey: string) {
     return () => {
-      setCount(count - 1);
       setLayout([...layout.filter((item: Layout) => item.i !== itemKey)]);
     };
   }
