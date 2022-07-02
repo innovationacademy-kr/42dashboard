@@ -1,71 +1,91 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import {
-  getDataSourceToken,
-  getRepositoryToken,
-  InjectDataSource,
-} from '@nestjs/typeorm';
-import { DataSource, LessThan } from 'typeorm';
-import { UserAccessCardInformation } from './entity/user_access_card_information.entity';
+import { UserBlackhole } from 'src/user_status/entity/user_status.entity';
+import { DataSource, Repository } from 'typeorm';
+import { createMemDB } from '../utils/testing-helpers/createMemDB';
 import { User } from './entity/user_information.entity';
-import { UserOtherInformation } from './entity/user_other_information.entity';
 import { UserPersonalInformation } from './entity/user_personal_information.entity';
 import { UserInformationService } from './user_information.service';
 
-/**
- * cli test는 npm test 명령어 입력하면 됨
- */
+const userList = [
+  {
+    intra_no: 1,
+    intra_id: 'huchoi',
+    name: 'hungin',
+    grade: '3기',
+    start_process: new Date('2020-12-31'),
+    academic_state: '재학',
+  },
+];
 
-class MockUserRepository {}
-class MockUserAccessCardInforMationRepositoty {}
-class MockUserPersonalInformationRepository {}
-class MockUserOtherInformationRepository {}
-class MockDataSource {}
-//describe는 파일단위로?
-describe('userInformationService', () => {
-  let service: UserInformationService;
+const userPersonalInformationObject = {
+  1: [
+    {
+      reigin: '부산',
+      gender: '남',
+      email: 'testnyz1058@nate.com',
+    },
+  ],
+};
 
-  /**
-   * UserInformationService에서 DI되는것들 다 befirEach에서 가짜로 DI시켜줘야함
-   * 그렇지 않으면 테스트 에러발생
-   */
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        UserInformationService, //축약형
-        // {provider: UserInformationService,
-        // useClass: UserInformationService},
-        {
-          provide: getRepositoryToken(User),
-          useClass: MockUserRepository,
-          //useFactory: function mocking
-          //userValue: value mocking
-        },
-        {
-          provide: getRepositoryToken(UserAccessCardInformation),
-          useClass: MockUserAccessCardInforMationRepositoty,
-        },
-        {
-          provide: getRepositoryToken(UserPersonalInformation),
-          useClass: MockUserPersonalInformationRepository,
-        },
-        {
-          provide: getRepositoryToken(UserOtherInformation),
-          useClass: MockUserOtherInformationRepository,
-        },
-        {
-          provide: InjectDataSource,
-          useClass: MockDataSource,
-        },
-      ],
-    }).compile(); //가짜 module를 만들어줌
-    service = module.get<UserInformationService>(UserInformationService);
-  });
-  it('service가 반드시 존재해야함', () => {
-    expect(service).toBeDefined(); //jest가 지원해주는 함수
+const userBlackholeObject = {
+  1: [
+    {
+      remaining_period: 89,
+      reason_of_blackhole: null,
+      blackhole_date: new Date('2021-01-01'),
+    },
+  ],
+};
+
+describe('User Service', () => {
+  let db: DataSource;
+  let userService: UserInformationService;
+  let userRepository: Repository<User>;
+  let queryRunner;
+
+  beforeAll(async () => {
+    db = await createMemDB([User]);
+    // db = await new DataSource(typeORMConfig);
+    await db.initialize();
+    userRepository = await db.getRepository(User);
+    userService = new UserInformationService(db); // <--- manually inject
+    //given
+    const userRepo = db.getRepository(User);
+    const userPersonalRepo = db.getRepository(UserPersonalInformation);
+    const userBlackholeRepo = db.getRepository(UserBlackhole);
+    let userEntity, userPersonalEntity, userBlackholeEntity;
+    for (const idx in userList) {
+      userEntity = userRepo.create(userList[idx]);
+      for (const jdx in userPersonalInformationObject[userEntity.intra_no]) {
+        userPersonalEntity = await userPersonalRepo.create(
+          userPersonalInformationObject[userEntity.intra_no][jdx],
+        );
+        userEntity.userPersonalInformation = userPersonalEntity;
+        await userPersonalRepo.save(userPersonalEntity); //cascade 쓰면 이 작업 불필요 -> cascade, eager 쓸지말지 고민해보기
+        await userRepo.save(userEntity);
+      }
+      for (const kdx in userBlackholeObject[userEntity.intra_no]) {
+        userBlackholeEntity = await userPersonalRepo.create(
+          userBlackholeObject[userEntity.intra_no][kdx],
+        );
+        userBlackholeEntity.user = userEntity; //반대로는 안됨
+        await userBlackholeRepo.save(userBlackholeEntity); //cascade 쓰면 이 작업 불필요 -> cascade, eager 쓸지말지 고민해보기
+        await userRepo.save(userEntity);
+      }
+    }
+    queryRunner = db.createQueryRunner();
   });
 
-  it('findByEmail은 반드시 유저정보를 return 해야합니다', () => {
-    expect(service.func1()).toBe(LessThan);
+  afterAll(() => db.destroy());
+
+  it('should create a new user', async () => {
+    // given
+    // when
+    await queryRunner.startTransaction();
+    const intra_id = 'huchoi';
+    const findUser = await userRepository.find({ where: { intra_id } });
+    // then
+    expect(findUser).not.toBeNull();
+    await queryRunner.rollbackTransaction();
+    await queryRunner.release();
   });
-  it.todo('findByUserStatus은 반드시 ~~~을 return 해야합니다.');
 });

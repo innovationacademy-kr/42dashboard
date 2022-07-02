@@ -88,8 +88,8 @@ export class User {
   @OneToOne(
     () => UserPersonalInformation,
     (userPersonalInformation) => userPersonalInformation.user,
+    { cascade: true, eager: true },
   )
-  @JoinTable()
   userPersonalInformation: UserPersonalInformation;
 
   // @Field(()=>UserAccessCardInformation)
@@ -97,7 +97,6 @@ export class User {
     () => UserAccessCardInformation,
     (userAccessCardInformation) => userAccessCardInformation.user,
   )
-  @JoinTable()
   userAccessCardInformation: UserAccessCardInformation;
 
   // @Field((type) => [UserOtherInformation])

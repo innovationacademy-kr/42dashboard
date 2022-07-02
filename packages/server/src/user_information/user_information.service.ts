@@ -29,6 +29,7 @@ import {
   ArrayContainedBy,
   ArrayOverlap,
   JoinTable,
+  DeepPartial,
 } from 'typeorm';
 import { Filter } from './filter';
 
@@ -37,14 +38,14 @@ export class UserInformationService {
   private operatorToMethod;
 
   constructor(
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
-    @InjectRepository(UserPersonalInformation)
-    private userPersonalRepository: Repository<UserPersonalInformation>,
-    @InjectRepository(UserOtherInformation)
-    private userOtherRepository: Repository<UserOtherInformation>,
-    @InjectRepository(UserAccessCardInformation)
-    private userAccessCardRepository: Repository<UserAccessCardInformation>,
+    // @InjectRepository(User)
+    // private userRepository: Repository<User>,
+    // @InjectRepository(UserPersonalInformation)
+    // private userPersonalRepository: Repository<UserPersonalInformation>,
+    // @InjectRepository(UserOtherInformation)
+    // private userOtherRepository: Repository<UserOtherInformation>,
+    // @InjectRepository(UserAccessCardInformation)
+    // private userAccessCardRepository: Repository<UserAccessCardInformation>,
     @InjectDataSource()
     private dataSource: DataSource,
   ) {
@@ -62,14 +63,22 @@ export class UserInformationService {
     this.operatorToMethod['null'] = IsNull;
   }
 
+  async createUser(user: User) {
+    user = await this.dataSource.getRepository(User).create(user);
+    return await this.dataSource.getRepository(User).save(user);
+  }
   async getUserPersonalInformation() {
-    return await this.userPersonalRepository.find({});
+    return await this.dataSource
+      .getRepository(UserPersonalInformation)
+      .find({});
   }
   async getUserOtherInformation() {
-    return await this.userOtherRepository.find({});
+    return await this.dataSource.getRepository(UserOtherInformation).find({});
   }
   async getUserAccessCardInformation() {
-    return await this.userAccessCardRepository.find({});
+    return await this.dataSource
+      .getRepository(UserAccessCardInformation)
+      .find({});
   }
 
   private camelize(str) {
@@ -310,9 +319,9 @@ export class UserInformationService {
   }
 
   async querySampel() {
-    let temp = await this.userRepository.query(
-      `SELECT * FROM user NATURAL JOIN user_blackhole`,
-    );
+    let temp = await this.dataSource
+      .getRepository(User)
+      .query(`SELECT * FROM user NATURAL JOIN user_blackhole`);
     // await this.dataSource.query(
     //   'CREATE TABLE accounts (user_id serial PRIMARY KEY,username VARCHAR ( 50 ) UNIQUE NOT NULL,password VARCHAR ( 50 ) NOT NULL,email VARCHAR ( 255 ) UNIQUE NOT NULL,created_on TIMESTAMP NOT NULL,last_login TIMESTAMP );',
     // );
@@ -338,7 +347,9 @@ export class UserInformationService {
     temp = await queryRunner.manager.createQueryBuilder();
     queryRunner.release();
 
-    temp = this.userRepository.find({ where: { intra_id: 'hanchoi' } });
+    temp = this.dataSource
+      .getRepository(User)
+      .find({ where: { intra_id: 'hanchoi' } });
     return temp;
   }
 
