@@ -10,7 +10,6 @@ interface NestedLayout extends Layout {
 }
 
 export default function Board() {
-  const [count, setCount] = useState(0);
   const [layout, setLayout] = useState(Array<NestedLayout>);
 
   function generateSection() {
@@ -50,11 +49,10 @@ export default function Board() {
   }
 
   function addSection() {
-    setCount(count + 1);
     setLayout([
       ...layout,
       {
-        i: `section-${count}`,
+        i: `section-${Date.now().toString()}`,
         x: (layout.length * 2) % 12,
         y: Infinity,
         w: 5,
@@ -66,7 +64,6 @@ export default function Board() {
 
   function removeSection(itemKey: string) {
     return () => {
-      setCount(count - 1);
       setLayout([...layout.filter((item: NestedLayout) => item.i !== itemKey)]);
     };
   }
