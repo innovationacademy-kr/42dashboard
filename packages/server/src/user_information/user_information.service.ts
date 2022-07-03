@@ -134,10 +134,11 @@ export class UserInformationService {
     return data;
   }
 
-  async getNumOfPeopleByFilter(filters) {
+  async getNumOfPeopleByFilter(filters): Promise<number> {
     const { obj, filterObj } = this.filtersToObj(filters);
     // console.log('OBJ is', obj);
     const data = await this.dataSource.getRepository(User).count(obj);
+    // console.log(data);
     // this.makeLimit(data, filterObj);
     return data;
   }
@@ -166,7 +167,7 @@ export class UserInformationService {
   }
 
   /**
-   * 1. 일관성 달성????
+   * 1. 일관성 달성
    *    일대일관계에서 붙는 테이블이 없으면 -> null
    *    일대일관계에서 붙는 테이블이 있으면 -> 객체 하나 => [객체하나] 꼴로 바꾸자 (가)
    *    filter.lastest=false && 일대다관계에서 붙는 테이블이 없으면 -> [](빈테이블) => null로 바꾸자 (나)
