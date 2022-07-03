@@ -7,15 +7,17 @@ import IosShareIcon from '@mui/icons-material/IosShare';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 
-interface ModeDialProps {
-  className?: string;
-}
-
-export default function ModeDial({ className }: ModeDialProps) {
+export default function ModeDial() {
   return (
     <Box
-      className={className}
-      sx={{ height: 270, transform: 'translateZ(0px)', flexGrow: 1 }}
+      sx={{
+        height: 270,
+        transform: 'translateZ(0px)',
+        flexGrow: 1,
+        position: 'fixed',
+        right: 25,
+        bottom: 0,
+      }}
     >
       <SpeedDial ariaLabel="ModeDial" icon={<MenuIcon />}>
         <SpeedDialAction
