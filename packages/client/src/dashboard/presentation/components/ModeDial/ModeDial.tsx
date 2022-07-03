@@ -6,8 +6,16 @@ import SpeedDialAction from '@mui/material/SpeedDialAction';
 import IosShareIcon from '@mui/icons-material/IosShare';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import {
+  useAppDispatch,
+  useAppSelector,
+} from '../../../infrastructure/redux/hooks';
+import { boardModeActions } from '../../../infrastructure/redux/actions';
 
 export default function ModeDial() {
+  const dispatch = useAppDispatch();
+  const mode = useAppSelector((state) => state.mode);
+  console.log(mode);
   return (
     <Box
       sx={{
@@ -24,21 +32,21 @@ export default function ModeDial() {
           icon={<ModeEditIcon />}
           tooltipTitle={'EditMode'}
           onClick={() => {
-            console.log('EditMode');
+            dispatch(boardModeActions.changeMode('edit'));
           }}
         />
         <SpeedDialAction
           icon={<FullscreenIcon />}
           tooltipTitle={'Fullscreen'}
           onClick={() => {
-            console.log('FullScreen');
+            dispatch(boardModeActions.changeMode('fullscreen'));
           }}
         />
         <SpeedDialAction
           icon={<IosShareIcon />}
           tooltipTitle={'Export'}
           onClick={() => {
-            console.log('Export');
+            dispatch(boardModeActions.changeMode('export'));
           }}
         />
       </SpeedDial>
