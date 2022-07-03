@@ -13,15 +13,19 @@ const ButtonsArea = styled.div``;
 
 const renderButtons = (
   buttonType: parentComponentType,
-  clickHandler: () => void = () => {
-    console.log('something event');
-  },
+  clickHandler: () => void,
 ) => {
   let renderList = [];
   if (buttonType === 'SECTION') renderList = ['EDIT', 'FILTER', 'CLOSE'];
   else renderList = ['EDIT', 'CLOSE'];
   return renderList.map((type, i) => (
-    <InvisibleButton key={i} buttonType={type} clickHandler={clickHandler} />
+    <InvisibleButton
+      key={i}
+      buttonType={type}
+      clickHandler={
+        type === 'CLOSE' ? clickHandler : () => console.log('clicked')
+      }
+    />
   ));
 };
 
