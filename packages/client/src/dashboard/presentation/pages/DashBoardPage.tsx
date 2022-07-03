@@ -54,21 +54,19 @@ const StyledModeDial = styled(ModeDial)`
 
 function DashBoardPage() {
   return (
-    <>
-      <Box sx={{ display: 'flex' }}>
-        <CssBaseline />
-        <AppBar>
-          {appBarTitle}
-          <div style={{ flexGrow: 1 }}></div>
-          {profileMenu}
-        </AppBar>
-        <SideBar />
-        <MainArea>
-          <Board />
-        </MainArea>
-        <StyledModeDial />
-      </Box>
-    </>
+    <Box sx={{ display: 'flex' }}>
+      <CssBaseline />
+      <AppBar>
+        {appBarTitle}
+        <div style={{ flexGrow: 1 }}></div>
+        {profileMenu}
+      </AppBar>
+      <SideBar />
+      <MainArea>
+        <Board />
+      </MainArea>
+      <StyledModeDial />
+    </Box>
   );
 }
 
