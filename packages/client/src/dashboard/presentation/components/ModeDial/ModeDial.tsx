@@ -17,7 +17,7 @@ export default function ModeDial({ className }: ModeDialProps) {
       className={className}
       sx={{ height: 270, transform: 'translateZ(0px)', flexGrow: 1 }}
     >
-      <SpeedDial ariaLabel="SpeedDial basic example" icon={<MenuIcon />}>
+      <SpeedDial ariaLabel="ModeDial" icon={<MenuIcon />}>
         <SpeedDialAction
           icon={<ModeEditIcon />}
           tooltipTitle={'EditMode'}
