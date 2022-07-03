@@ -3,7 +3,9 @@ import AppBar from '../components/AppBar/AppBar';
 import ProfileMenu from '../components/AppBar/ProfileMenu/ProfileMenu';
 import Board from '../components/Board/Board';
 import MainArea from '../components/MainArea/MainArea';
+import ModeDial from '../components/ModeDial/ModeDial';
 import SideBar from '../components/SideBar/SideBar';
+import styled from '@emotion/styled';
 
 const appBarTitle = (
   <Typography
@@ -44,20 +46,29 @@ const profileMenu = (
   <ProfileMenu menuItems={profileMenuItems} profile={profile} />
 );
 
+const StyledModeDial = styled(ModeDial)`
+  position: fixed;
+  right: 25px;
+  bottom: 0;
+`;
+
 function DashBoardPage() {
   return (
-    <Box sx={{ display: 'flex' }}>
-      <CssBaseline />
-      <AppBar>
-        {appBarTitle}
-        <div style={{ flexGrow: 1 }}></div>
-        {profileMenu}
-      </AppBar>
-      <SideBar />
-      <MainArea>
-        <Board />
-      </MainArea>
-    </Box>
+    <>
+      <Box sx={{ display: 'flex' }}>
+        <CssBaseline />
+        <AppBar>
+          {appBarTitle}
+          <div style={{ flexGrow: 1 }}></div>
+          {profileMenu}
+        </AppBar>
+        <SideBar />
+        <MainArea>
+          <Board />
+        </MainArea>
+        <StyledModeDial />
+      </Box>
+    </>
   );
 }
 
