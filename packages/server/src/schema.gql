@@ -42,6 +42,7 @@ type JoinedTable {
 }
 
 type Query {
+  getAllSpread: String!
   getNumOfPeopleByFilter(filters: [Filter!]!): Int!
   getPeopleByFiter(filters: [Filter!]!): [JoinedTable!]!
   getUserAccessCardInformation: [UserAccessCardInformation!]!
