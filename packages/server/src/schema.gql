@@ -42,6 +42,7 @@ type JoinedTable {
 }
 
 type Query {
+  getAllSpread: String!
   getNumOfPeopleByFilter(filters: [Filter!]!): Int!
   getPeopleByFiter(filters: [Filter!]!): [JoinedTable!]!
   getUserAccessCardInformation: [UserAccessCardInformation!]!
@@ -73,10 +74,10 @@ type User {
 
 type UserAccessCardInformation {
   created_date: DateTime!
-  lapiscine_access_card_number_of_logical: Int!
-  lapiscine_access_card_number_of_physical: Int!
-  logical_number_of_access_card_for_this_course: Int!
-  name_of_entry_card_for_this_course: String!
+  lapiscine_logical_number: Int!
+  lapiscine_physical_number: Int!
+  logical_number_for_main_course: Int!
+  name_of_entry_card_for_main_course: String!
   pk: Int!
   profile_picture_path: String!
 }

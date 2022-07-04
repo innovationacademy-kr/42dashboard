@@ -7,4 +7,9 @@ import { UpdateUpdaterInput } from './dto/update-updater.input';
 @Resolver(() => Updater)
 export class UpdaterResolver {
   constructor(private readonly updaterService: UpdaterService) {}
+
+  @Query(() => String)
+  getAllSpread() {
+    return this.updaterService.getAllSpread();
+  }
 }
