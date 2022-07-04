@@ -57,9 +57,15 @@ export class UserInformationService {
     this.operatorToMethod['='] = Equal;
     this.operatorToMethod['!='] = Not;
     this.operatorToMethod['Like'] = Like;
+    this.operatorToMethod['like'] = Like;
     this.operatorToMethod['ILike'] = ILike;
+    this.operatorToMethod['iLike'] = ILike;
+    this.operatorToMethod['ilike'] = ILike;
+    this.operatorToMethod['Ilike'] = ILike;
     this.operatorToMethod['In'] = In;
+    this.operatorToMethod['in'] = In;
     this.operatorToMethod['Any'] = Any;
+    this.operatorToMethod['any'] = Any;
     this.operatorToMethod['null'] = IsNull;
   }
 
@@ -121,6 +127,7 @@ export class UserInformationService {
     }
     // console.log(filterObj);
     const obj = this.getObj(filterObj);
+    console.log(obj);
     obj['cache'] = true; //typeORM에서 제공하는 cache 기능
     obj['order'] = { intra_id: 'ASC', grade: 'ASC' }; //정렬할 필요가 있는건지?
     return { obj, filterObj };
@@ -247,6 +254,7 @@ export class UserInformationService {
   private getObj(filterObj) {
     let filter;
     let column;
+    let operator;
     const ret = {};
     ret['relations'] = {};
     ret['where'] = {};
@@ -254,8 +262,12 @@ export class UserInformationService {
     if ('user' in filterObj) {
       for (const idx in filterObj['user']) {
         filter = filterObj['user'][idx];
+        operator = filter['operator'];
         column = filter['column'];
         if (column == null) continue; // 예외처리
+        if (operator == 'In' || operator == 'in') {
+          filter['givenValue'] = filter['givenValue'].split(';');
+        }
         ret['where'][column] = this.operatorToORMMethod(filter['operator'])(
           filter['givenValue'],
         ); //overwrite issue 발생가능(명세서에 적어줘야함)
@@ -268,8 +280,13 @@ export class UserInformationService {
       ret['order'][entityName] = {};
       for (const idx in filterObj[entityName]) {
         filter = filterObj[entityName][idx];
+        operator = filter['operator'];
+        console.log('given value: ', filter['operator']);
         column = filter['column'];
-        if (column == null) continue;
+        if (column == null) continue; // 예외처리
+        if (operator == 'In' || operator == 'in') {
+          filter['givenValue'] = filter['givenValue'].split(';');
+        }
         ret['where'][entityName][column] = this.operatorToORMMethod(
           filter['operator'],
         )(filter['givenValue']); //overwrite issue 발생가능(명세서에 적어줘야함)
