@@ -76,19 +76,19 @@ export const mapObj = [
     { spName: '출입카드정보 사진이미지파일', dbName: 'profile_picture_url' },
     {
       spName: '라피신출입카드물리번호',
-      dbName: 'lapiscine_access_card_number_of_physical',
+      dbName: 'lapiscine_physical_number',
     },
     {
       spName: '라피신출입카드논리번호',
-      dbName: 'lapiscine_access_card_number_of_logical',
+      dbName: 'lapiscine_logical_number',
     },
     {
       spName: '본과정출입카드논리번호',
-      dbName: 'logical_number_of_access_card_for_this_course',
+      dbName: 'logical_number_for_main_course',
     },
     {
       spName: '본과정출입카드명',
-      dbName: 'name_of_entry_card_for_this_course',
+      dbName: 'name_of_entry_card_for_main_course',
     },
   ],
 ];

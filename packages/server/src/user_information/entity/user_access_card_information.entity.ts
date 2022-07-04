@@ -23,23 +23,23 @@ export class UserAccessCardInformation extends BaseEntity {
   profile_picture_path: string;
 
   @Field((type) => Int)
-  @Column({ name: 'lapiscine_access_card_number_of_physical', nullable: true })
-  lapiscine_access_card_number_of_physical: number;
+  @Column({ name: 'lapiscine_physical_number', nullable: true })
+  lapiscine_physical_number: number;
 
   @Field((type) => Int)
-  @Column({ name: 'lapiscine_access_card_number_of_logical', nullable: true })
-  lapiscine_access_card_number_of_logical: number;
+  @Column({ name: 'lapiscine_logical_number', nullable: true })
+  lapiscine_logical_number: number;
 
   @Field((type) => Int)
   @Column({
-    name: 'logical_number_of_access_card_for_this_course',
+    name: 'logical_number_for_main_course',
     nullable: true,
   })
-  logical_number_of_access_card_for_this_course: number;
+  logical_number_for_main_course: number;
 
   @Field()
-  @Column({ name: 'name_of_entry_card_for_this_course', nullable: true })
-  name_of_entry_card_for_this_course: string;
+  @Column({ name: 'name_of_entry_card_for_main_course', nullable: true })
+  name_of_entry_card_for_main_course: string;
 
   @Field()
   @CreateDateColumn({ name: 'created_date' })
