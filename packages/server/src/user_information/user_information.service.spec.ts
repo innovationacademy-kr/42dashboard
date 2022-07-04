@@ -49,6 +49,33 @@ const userBlackholeObject = {
       reason_of_blackhole: null,
       blackhole_date: new Date('2021-01-01'),
     },
+    {
+      remaining_period: 88,
+      reason_of_blackhole: null,
+      blackhole_date: new Date('2021-01-01'),
+    },
+    {
+      remaining_period: 87,
+      reason_of_blackhole: null,
+      blackhole_date: new Date('2021-01-01'),
+    },
+  ],
+  2: [
+    {
+      remaining_period: 200,
+      reason_of_blackhole: null,
+      blackhole_date: new Date('2021-01-01'),
+    },
+    {
+      remaining_period: 199,
+      reason_of_blackhole: null,
+      blackhole_date: new Date('2021-01-01'),
+    },
+    {
+      remaining_period: 198,
+      reason_of_blackhole: null,
+      blackhole_date: new Date('2021-01-01'),
+    },
   ],
 };
 
@@ -123,14 +150,15 @@ describe('User Service', () => {
   });
 
   it('필터 [region = 부산]', async () => {
-    //given
+    // given
     await queryRunner.startTransaction();
-    //when
+    // when
     const filters = [];
     filters.push(
       makeFilter('userPersonalInformation', 'region', '=', '부산', true),
     );
-    //then
+    // then
+    console.log(await userService.getPeopleByFiter(filters));
     expect(await userService.getNumOfPeopleByFilter(filters)).not.toBeNull();
     expect(await userService.getNumOfPeopleByFilter(filters)).toBe(2);
     await queryRunner.rollbackTransaction();
