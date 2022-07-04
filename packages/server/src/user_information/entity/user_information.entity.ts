@@ -264,17 +264,17 @@ export class User {
 //     @Column({name: "profile_picture", nullable: true })
 //     profile_picture: string;
 
-//     @Column({name: "lapiscine_access_card_number_of_physical", nullable: true })
-//     lapiscine_access_card_number_of_physical: number;
+//     @Column({name: "lapiscine_physical_number", nullable: true })
+//     lapiscine_physical_number: number;
 
-//     @Column({name: "lapiscine_access_card_number_of_logical", nullable: true})
-//     lapiscine_access_card_number_of_logical: number;
+//     @Column({name: "lapiscine_logical_number", nullable: true})
+//     lapiscine_logical_number: number;
 
-//     @Column({name: "logical_number_of_access_card_for_this_course", nullable: true })
-//     logical_number_of_access_card_for_this_course: number;
+//     @Column({name: "logical_number_for_main_course", nullable: true })
+//     logical_number_for_main_course: number;
 
-//     @Column({name: "name_of_entry_card_for_this_course", nullable: true })
-//     name_of_entry_card_for_this_course: string;
+//     @Column({name: "name_of_entry_card_for_main_course", nullable: true })
+//     name_of_entry_card_for_main_course: string;
 
 //     @Column({name: "created_date", nullable: false })
 //     created_date: Date;

@@ -17,16 +17,16 @@ export class GetUserAccessCardInformationArgs {
   profile_picture_path: string;
 
   @Field((type) => Int, { nullable: true })
-  lapiscine_access_card_number_of_physical: number;
+  lapiscine_physical_number: number;
 
   @Field((type) => Int, { nullable: true })
-  lapiscine_access_card_number_of_logical: number;
+  lapiscine_logical_number: number;
 
   @Field((type) => Int, { nullable: true })
-  logical_number_of_access_card_for_this_course: number;
+  logical_number_for_main_course: number;
 
   @Field({ nullable: true })
-  name_of_entry_card_for_this_course: string;
+  name_of_entry_card_for_main_course: string;
 
   @Field({ nullable: true })
   created_date: Date;
