@@ -52,7 +52,7 @@ export class UserInformationResolver {
   // }
 
   @Query(() => [JoinedTable])
-  getPeopleByFiter(@Args() filterArg: FilterArgs) {
+  getPeopleByFilter(@Args() filterArg: FilterArgs) {
     return this.userService.getPeopleByFiter(filterArg.filters);
   }
 

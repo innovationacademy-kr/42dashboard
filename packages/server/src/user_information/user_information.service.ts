@@ -64,6 +64,8 @@ export class UserInformationService {
     this.operatorToMethod['Ilike'] = ILike;
     this.operatorToMethod['In'] = In;
     this.operatorToMethod['in'] = In;
+    this.operatorToMethod['Between'] = Between;
+    this.operatorToMethod['between'] = Between;
     this.operatorToMethod['Any'] = Any;
     this.operatorToMethod['any'] = Any;
     this.operatorToMethod['null'] = IsNull;
@@ -265,7 +267,12 @@ export class UserInformationService {
         operator = filter['operator'];
         column = filter['column'];
         if (column == null) continue; // 예외처리
-        if (operator == 'In' || operator == 'in') {
+        if (
+          operator == 'In' ||
+          operator == 'in' ||
+          operator == 'Between' ||
+          operator == 'between'
+        ) {
           filter['givenValue'] = filter['givenValue'].split(';');
         }
         ret['where'][column] = this.operatorToORMMethod(filter['operator'])(
