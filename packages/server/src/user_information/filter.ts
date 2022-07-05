@@ -16,7 +16,7 @@ export class Filter {
   @Field()
   givenValue: string; //이렇게 물음표 안붙으면 필수값이라는 뜻
   @Field()
-  lastest: boolean;
+  latest: boolean;
   // @Field()
   // log?: boolean; //이렇게 물음표 붙이면 '필수값이 아니'라는 뜻
 }
