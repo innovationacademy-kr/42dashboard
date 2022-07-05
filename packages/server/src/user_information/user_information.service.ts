@@ -179,11 +179,11 @@ export class UserInformationService {
    * 1. 일관성 달성
    *    일대일관계에서 붙는 테이블이 없으면 -> null
    *    일대일관계에서 붙는 테이블이 있으면 -> 객체 하나 => [객체하나] 꼴로 바꾸자 (가)
-   *    filter.lastest=false && 일대다관계에서 붙는 테이블이 없으면 -> [](빈테이블) => null로 바꾸자 (나)
-   *    filter.lastest=true && 일대다관계에서 붙는 테이블이 있으면 -> [obj1, obj2...]
+   *    filter.latest=false && 일대다관계에서 붙는 테이블이 없으면 -> [](빈테이블) => null로 바꾸자 (나)
+   *    filter.latest=true && 일대다관계에서 붙는 테이블이 있으면 -> [obj1, obj2...]
    * 2. 최신정보 vs 최신정보+로깅정보
-   *    filter.lastest값이 false이면 최신정보+로깅정보 반환
-   *    filter.lastest값이 true이면 최신정보만 반환
+   *    filter.latest값이 false이면 최신정보+로깅정보 반환
+   *    filter.latest값이 true이면 최신정보만 반환
    */
   private makeLimit(data, filterObj) {
     let filter;
@@ -211,8 +211,8 @@ export class UserInformationService {
           if (
             row[joinedTable] != null &&
             Array.isArray(row[joinedTable]) &&
-            'lastest' in filter &&
-            filter['lastest'] == true
+            'latest' in filter &&
+            filter['latest'] == true
           ) {
             row[joinedTable] = row[joinedTable].slice(0, 1);
             // console.log(row[joinedTable]);
@@ -297,7 +297,7 @@ export class UserInformationService {
         ret['where'][entityName][column] = this.operatorToORMMethod(
           filter['operator'],
         )(filter['givenValue']); //overwrite issue 발생가능(명세서에 적어줘야함)
-        if ('lastest' in filter && filter['lastest'] == true) {
+        if ('latest' in filter && filter['latest'] == true) {
           ret['order'][entityName]['created_at'] = 'DESC';
         } else {
           ret['order'][entityName]['created_at'] = 'ASC';
