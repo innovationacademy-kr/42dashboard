@@ -84,14 +84,14 @@ function makeFilter(
   column: string,
   operator: any,
   givenValue: any,
-  lastest: boolean,
+  latest: boolean,
 ) {
   const ret = {};
   ret['entityName'] = entityName;
   ret['column'] = column;
   ret['operator'] = operator;
   ret['givenValue'] = givenValue;
-  ret['lastest'] = lastest;
+  ret['latest'] = latest;
   return ret;
 }
 
