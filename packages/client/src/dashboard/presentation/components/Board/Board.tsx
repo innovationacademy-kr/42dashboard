@@ -56,7 +56,7 @@ export default function Board() {
         x: (layout.length * 2) % 12,
         y: Infinity,
         w: 5,
-        h: 5,
+        h: 20,
         sticker: new Array<Layout>(),
       },
     ]);

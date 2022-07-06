@@ -22,7 +22,7 @@ export default function Section(props: SectionProps) {
     return layout.map((item: Layout) => {
       return (
         <div key={item.i}>
-          {<Sticker content="PieChart" clickHandler={removeSticker(item.i)} />}
+          {<Sticker content="Table" clickHandler={removeSticker(item.i)} />}
         </div>
       );
     });
@@ -43,7 +43,7 @@ export default function Section(props: SectionProps) {
         x: (layout.length * 2) % 12,
         y: Infinity,
         w: 2,
-        h: 2,
+        h: 10,
       },
     ]);
   }
