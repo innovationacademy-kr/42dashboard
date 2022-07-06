@@ -16,10 +16,4 @@ export class ApiController {
     const api = await this.apiService.getApi();
     return api;
   }
-
-  // @Get('/doyun')
-  // getUserById(@Param('intra_id')intra_id: String) {
-  //     console.log("ishere");
-  //     return this.apiService.getUserById(intra_id);
-  // }
 }

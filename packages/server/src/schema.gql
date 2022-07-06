@@ -158,9 +158,11 @@ type UserLapiscineInformation {
 }
 
 type UserLearningData {
+  circle: Float
   coalition_score: Float!
   created_date: DateTime!
-  out_circle: String!
+  level: Float!
+  out_circle: String
   out_circle_date: DateTime
   pk: Float!
 }

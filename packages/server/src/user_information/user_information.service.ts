@@ -460,6 +460,7 @@ export class UserInformationService {
     // test['take'] = {
     //   userProcessProgress:1,
     // }; <- 안되는걸로 결론
+
     const ret = await this.dataSource.getRepository(User).find(test);
     await queryRunner.release();
     return ret;
