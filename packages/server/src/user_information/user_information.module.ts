@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { UserInformationController } from './user_information.controller';
 import { UserInformationService } from './user_information.service';
 import { UserInformationResolver } from './user_information.resolver';
@@ -11,6 +11,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { JoinedTable } from './argstype/joinedTable';
 import { Filter } from './filter';
 import { DataSource } from 'typeorm';
+import { AppModule } from 'src/app.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { DataSource } from 'typeorm';
       UserPersonalInformation,
       UserOtherInformation,
       UserAccessCardInformation,
+      //AppModule,
       DataSource,
     ]),
   ],

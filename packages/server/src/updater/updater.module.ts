@@ -25,6 +25,7 @@ import {
   UserReasonOfBreak,
 } from 'src/user_status/entity/user_status.entity';
 import { UpdaterController } from './updater.controller';
+import { ApiService } from 'src/api/api.service';
 
 @Module({
   imports: [
@@ -48,6 +49,6 @@ import { UpdaterController } from './updater.controller';
     ]),
   ],
   controllers: [UpdaterController],
-  providers: [UpdaterResolver, UpdaterService],
+  providers: [UpdaterResolver, UpdaterService, ApiService],
 })
 export class UpdaterModule {}

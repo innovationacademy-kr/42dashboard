@@ -1,4 +1,4 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, Float, ObjectType } from '@nestjs/graphql';
 import {
   BaseEntity,
   Column,
@@ -21,12 +21,25 @@ export class UserLearningData extends BaseEntity {
   @PrimaryGeneratedColumn({ name: 'pk' })
   pk: number;
 
+  @Field({ nullable: true, defaultValue: 0 }) //특정 데이터 때문에 널 허용중
+  @Column({ name: 'circle', nullable: true, default: 0 })
+  circle: number;
+
+  @Field({ nullable: false, defaultValue: 0 })
+  @Column({
+    type: 'float',
+    name: 'level',
+    nullable: false,
+    default: 0,
+  })
+  level: number;
+
   @Field({ nullable: false, defaultValue: 0 })
   @Column({ name: 'coalition_score', nullable: false, default: 0 })
   coalition_score: number;
 
-  @Field({ nullable: false, defaultValue: 'N' })
-  @Column({ name: 'out_circle', nullable: false, default: 'N' })
+  @Field({ nullable: true, defaultValue: 'N' }) //특정 데이터 때문에 널 허용중
+  @Column({ name: 'out_circle', nullable: true, default: 'N' })
   out_circle: string;
 
   @Field({ nullable: true })
@@ -205,7 +218,7 @@ export class UserReasonOfBreak extends BaseEntity {
   created_date: Date;
 
   @Column({ name: 'fk_user_no', nullable: true })
-  fk_user_no: string;
+  fk_user_no: number;
 
   @ManyToOne(() => User, (user) => user.userReasonOfBreak)
   @JoinColumn({ name: 'fk_user_no' })

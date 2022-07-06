@@ -17,6 +17,8 @@ export const mapObj = [
     { spName: '성별', dbName: 'gender' },
     { spName: '생년월일', dbName: 'birthday' },
     { spName: '만 나이', dbName: 'grade' }, //테이블에 없음
+    { spName: '전화번호', dbName: 'phone_number' },
+    { spName: '이메일', dbName: 'email' },
     //이메일, 전화번호는 api
   ],
   [
@@ -32,8 +34,10 @@ export const mapObj = [
     { spName: '사유', dbName: 'absence_reason' },
   ],
   [
+    { spName: '잔여기간', dbName: 'remaining_period' },
+    { spName: '블랙홀일자', dbName: 'blackhole_date' },
     { spName: '블랙홀 사유', dbName: 'reason_of_blackhole' },
-    //잔여기간, 블랙홀일자는 api
+    //잔여기간, 블랙홀일자는 api -> 추가함
   ],
   [
     { spName: '과정중단 과정중단일자', dbName: 'date_of_break' },
@@ -113,3 +117,5 @@ export const endOfTable = [
   '지원금산정 지원금수령여부',
   '출입카드정보 사진이미지파일',
 ];
+
+export const apiOfTable = ['학습데이터'];

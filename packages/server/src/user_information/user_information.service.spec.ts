@@ -1,7 +1,17 @@
 import { last } from 'rxjs';
 import { UserBlackhole } from 'src/user_status/entity/user_status.entity';
-import { DataSource, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { createMemDB } from '../utils/testing-helpers/createMemDB';
+import { Test, TestingModule } from '@nestjs/testing';
+
+import {
+  getDataSourceToken,
+  getRepositoryToken,
+  InjectDataSource,
+} from '@nestjs/typeorm';
+
+import { DataSource, LessThan } from 'typeorm';
+import { UserAccessCardInformation } from './entity/user_access_card_information.entity';
 import { User } from './entity/user_information.entity';
 import { UserPersonalInformation } from './entity/user_personal_information.entity';
 import { UserInformationService } from './user_information.service';
@@ -194,4 +204,5 @@ describe('User Service', () => {
     expect(await userService.getNumOfPeopleByFilter(filters)).not.toBeNull();
     expect(await userService.getNumOfPeopleByFilter(filters)).toBe(2);
   });
+  it.todo('findByUserStatus은 반드시 ~~~을 return 해야합니다.');
 });
