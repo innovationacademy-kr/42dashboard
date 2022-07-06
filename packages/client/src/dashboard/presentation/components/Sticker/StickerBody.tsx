@@ -1,5 +1,9 @@
+import { useElementSize } from 'usehooks-ts';
 import styled from '@emotion/styled';
 import PieChart from '../Charts/PieChart';
+import LineChart from '../Charts/LineChart';
+import BarChart from '../Charts/BarChart';
+import StickyTable from '../Table/Table';
 
 type contentType = 'Table' | 'PieChart' | 'BarChart' | 'LineChart';
 
@@ -20,16 +24,16 @@ const Content = styled.div`
 
 // TODO(hybae)
 // Support other charts and table with dataset in Content component
-const contentSwitch = (type: contentType) => {
+const contentSwitch = (type: contentType, height: number) => {
   switch (type) {
     case 'Table':
-      break;
+      return <StickyTable height={height} />;
     case 'PieChart':
-      return <PieChart></PieChart>;
+      return <PieChart />;
     case 'BarChart':
-      break;
+      return <BarChart />;
     case 'LineChart':
-      break;
+      return <LineChart />;
     default:
       break;
   }
@@ -37,5 +41,6 @@ const contentSwitch = (type: contentType) => {
 
 export const StickerBody = (props: StickerBodyProps) => {
   const { content } = props;
-  return <Content>{contentSwitch(content)}</Content>;
+  const [squareRef, { height }] = useElementSize();
+  return <Content ref={squareRef}>{contentSwitch(content, height)}</Content>;
 };
