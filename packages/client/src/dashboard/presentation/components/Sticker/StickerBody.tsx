@@ -4,11 +4,14 @@ import PieChart from '../Charts/PieChart';
 import LineChart from '../Charts/LineChart';
 import BarChart from '../Charts/BarChart';
 import StickyTable from '../Table/Table';
+import { DocumentNode } from '@apollo/client';
 
 type contentType = 'Table' | 'PieChart' | 'BarChart' | 'LineChart';
 
 interface StickerBodyProps {
   content: contentType;
+  query: DocumentNode;
+  filters: object;
   dataSet?: any;
   colorSet?: any;
 }
@@ -24,23 +27,33 @@ const Content = styled.div`
 
 // TODO(hybae)
 // Support other charts and table with dataset in Content component
-const contentSwitch = (type: contentType, height: number) => {
+const contentSwitch = (
+  type: contentType,
+  height: number,
+  query: DocumentNode,
+  filters: object,
+) => {
   switch (type) {
     case 'Table':
-      return <StickyTable height={height} />;
+      return <StickyTable height={height} query={query} filters={filters} />;
     case 'PieChart':
-      return <PieChart />;
+      return <PieChart query={query} filters={filters} />;
     case 'BarChart':
-      return <BarChart />;
+      return <BarChart query={query} filters={filters} />;
     case 'LineChart':
-      return <LineChart />;
+      return <LineChart query={query} filters={filters} />;
     default:
       break;
   }
 };
 
 export const StickerBody = (props: StickerBodyProps) => {
-  const { content } = props;
+  const { content, query, filters } = props;
   const [squareRef, { height }] = useElementSize();
-  return <Content ref={squareRef}>{contentSwitch(content, height)}</Content>;
+
+  return (
+    <Content ref={squareRef}>
+      {contentSwitch(content, height, query, filters)}
+    </Content>
+  );
 };

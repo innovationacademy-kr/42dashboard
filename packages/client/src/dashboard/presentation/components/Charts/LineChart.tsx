@@ -1,7 +1,8 @@
 import { Line } from 'react-chartjs-2';
 import { Chart, registerables } from 'chart.js';
-import { data, options } from './ChartData';
+import { chartColor, chartProps, options } from './ChartData';
 import { ChartProps } from './Chart.stories';
+import { useQuery } from '@apollo/client';
 Chart.register(...registerables);
 
 /* Code For Storybook */
@@ -9,6 +10,20 @@ export function StoryLineChart(props: ChartProps) {
   return <Line data={props.data} options={props.options} />;
 }
 
-export default function LineChart() {
-  return <Line data={data} options={options} />;
+export default function LineChart({ query, filters }: chartProps) {
+  const { loading, error, data } = useQuery(query, {
+    variables: filters,
+  });
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error :(</p>;
+  const Data = {
+    labels: Object.keys(data),
+    datasets: [
+      {
+        backgroundColor: chartColor,
+        data: Object.values(data),
+      },
+    ],
+  };
+  return <Line data={Data} options={options} />;
 }

@@ -4,6 +4,7 @@ import './styles2.css';
 import RGL, { Layout, WidthProvider } from 'react-grid-layout';
 import { Header } from '../Common/Header';
 import { Sticker } from '../Sticker/Sticker';
+import * as filter from '../QueryFilter/QueryFilter';
 
 const ReactGridLayout = WidthProvider(RGL.Responsive);
 
@@ -19,13 +20,70 @@ export default function Section(props: SectionProps) {
   const [layout, setLayout] = useState(props.layout || []);
 
   function generateSticker() {
-    return layout.map((item: Layout) => {
-      return (
-        <div key={item.i}>
-          {<Sticker content="Table" clickHandler={removeSticker(item.i)} />}
-        </div>
-      );
-    });
+    return [
+      <div key={1}>
+        <Sticker
+          content="PieChart"
+          query={filter.GENDER}
+          filters={{ man: filter.Man, woman: filter.Woman }}
+          clickHandler={removeSticker('1')}
+        />
+      </div>,
+      <div key={2}>
+        <Sticker
+          content="PieChart"
+          query={filter.EMPLOYMENT}
+          filters={{
+            employed: filter.Employed,
+            unemployed: filter.Unemployed,
+          }}
+          clickHandler={removeSticker('2')}
+        />
+      </div>,
+      <div key={3}>
+        <Sticker
+          content="BarChart"
+          query={filter.COALITION}
+          filters={{
+            gun: filter.Gun,
+            gon: filter.Gon,
+            gam: filter.Gam,
+            lee: filter.Lee,
+          }}
+          clickHandler={removeSticker('3')}
+        />
+      </div>,
+      <div key={4}>
+        <Sticker
+          content="LineChart"
+          query={filter.GRADE}
+          filters={{
+            one: filter.One,
+            two: filter.Two,
+            three: filter.Three,
+            four: filter.Four,
+          }}
+          clickHandler={removeSticker('3')}
+        />
+      </div>,
+      <div key={5}>
+        <Sticker
+          content="Table"
+          query={filter.USERS}
+          filters={{
+            user: filter.Grade3,
+          }}
+          clickHandler={removeSticker('3')}
+        />
+      </div>,
+    ];
+    // return layout.map((item: Layout) => {
+    //   return (
+    //     <div key={item.i}>
+    //       {<Sticker content="Table" clickHandler={removeSticker(item.i)} />}
+    //     </div>
+    //   );
+    // });
   }
 
   function onLayoutChange(newLayout: Layout[]) {
