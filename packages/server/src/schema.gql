@@ -49,11 +49,8 @@ type Mutation {
 }
 
 type Query {
-  getAllSpread: String!
-  getNumOfPeopleByFilter(filters: [Filter!]!, skip: Int, take: Int): Int!
-  getOldData: String!
-  getPeopleByFilter(filters: [Filter!]!, skip: Int, take: Int): [JoinedTable!]!
-  getPeopleByFilterForAdmin(filters: [Filter!]!, skip: Int, take: Int): [JoinedTable!]!
+  getNumOfPeopleByFilter(filters: [Filter!]!): Int!
+  getPeopleByFilter(filters: [Filter!]!): [JoinedTable!]!
   getUserAccessCardInformation: [UserAccessCardInformation!]!
   getUserBlackhole: [UserBlackhole!]!
   getUserComputationFund: [UserComputationFund!]!
@@ -67,7 +64,18 @@ type Query {
   getUserPersonalInformation: [UserPersonalInformation!]!
   getUserProcessProgress: [UserProcessProgress!]!
   getUserReasonOfBreak: UserReasonOfBreak!
-  tempFunction: [JoinedTable!]!
+  getUsers(column: String!, entityName: String!, givenValue: String!, latest: Boolean!, operator: String!): [User!]!
+  updateDataPerDay: String!
+}
+
+type User {
+  academic_state: String!
+  coalition: String!
+  created_date: DateTime!
+  grade: String!
+  intra_id: String!
+  intra_no: Int!
+  name: String!
 }
 
 type UserAccessCardInformation {

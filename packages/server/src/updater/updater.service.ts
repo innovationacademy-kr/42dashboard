@@ -6,8 +6,6 @@ import {
 } from '@nestjs/common';
 import axios from 'axios';
 import { ApiService } from 'src/api/api.service';
-import { CreateApiDto } from 'src/api/dto/create-api.dto';
-import { Api } from 'src/api/entity/api.entity';
 import {
   app_id,
   app_secret,
@@ -38,6 +36,8 @@ import {
 } from 'src/user_status/entity/user_status.entity';
 import { Column, DataSource, Repository } from 'typeorm';
 import { SingleEntryPlugin } from 'webpack';
+import { find, map } from 'rxjs';
+import { Cron } from '@nestjs/schedule';
 import {
   apiOfTable,
   endOfTable,
@@ -46,8 +46,6 @@ import {
   pastDataOnSheet,
   TABLENUM,
 } from './name_types/updater.name';
-import { find, map } from 'rxjs';
-import { Cron } from '@nestjs/schedule';
 
 @Injectable() //총 16개의 테이블
 export class UpdaterService {
@@ -110,10 +108,10 @@ export class UpdaterService {
 
   @Cron('00 00 00 * * *') //24시간마다 업데이트
   handleCron() {
-    console.log(this.getAllSpread());
+    console.log(this.updateDataPerDay());
   }
 
-  async getAllSpread() {
+  async updateDataPerDay() {
     let jsonData;
     let tableNum = 0;
     let index = 0;
