@@ -6,7 +6,7 @@ export class UpdaterController {
   constructor(private updaterService: UpdaterService) {}
 
   @Get()
-  getAllSpread() {
-    return this.updaterService.getAllSpread();
+  updateDataPerDay(): Promise<string> {
+    return this.updaterService.updateDataPerDay();
   }
 }
