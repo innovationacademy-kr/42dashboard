@@ -11,7 +11,7 @@ input Filter {
   column: String!
   entityName: String!
   givenValue: String!
-  lastest: Boolean!
+  latest: Boolean!
   operator: String!
 }
 
@@ -44,7 +44,7 @@ type JoinedTable {
 type Query {
   getAllSpread: String!
   getNumOfPeopleByFilter(filters: [Filter!]!): Int!
-  getPeopleByFiter(filters: [Filter!]!): [JoinedTable!]!
+  getPeopleByFilter(filters: [Filter!]!): [JoinedTable!]!
   getUserAccessCardInformation: [UserAccessCardInformation!]!
   getUserBlackhole: [UserBlackhole!]!
   getUserById: [User!]!
@@ -59,7 +59,7 @@ type Query {
   getUserPersonalInformation: [UserPersonalInformation!]!
   getUserProcessProgress: [UserProcessProgress!]!
   getUserReasonOfBreak: UserReasonOfBreak!
-  getUsers(column: String!, entityName: String!, givenValue: String!, lastest: Boolean!, operator: String!): [User!]!
+  getUsers(column: String!, entityName: String!, givenValue: String!, latest: Boolean!, operator: String!): [User!]!
 }
 
 type User {
