@@ -2,9 +2,9 @@ version: "3"
 services:
     app:
         image: awesome/backend
-        # restart: always
+        restart: always
         build:
-          context: ./packages/server
+          context: .
           dockerfile: ./nestjs.dockerfile
         ports:
             - "3000:3000"
@@ -17,13 +17,11 @@ services:
             - our_net
         links:
             - "db"
-            # - "db:database"
-            # - "redis"
         # network_mode: "host"
     db:
         image: postgres:latest
         container_name: postgres
-        # restart: always
+        restart: always
         expose:
             - 5432
         # ports:

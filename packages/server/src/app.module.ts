@@ -13,6 +13,7 @@ import { typeORMConfig } from './config/typeorm.config';
 import { ApiModule } from './api/api.module';
 import { UpdaterModule } from './updater/updater.module';
 import { DataSource } from 'typeorm';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { DataSource } from 'typeorm';
       //   UserJobModule]
     }),
     UpdaterModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
