@@ -3,6 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { userInfo } from 'os';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { SECRETORKEY } from 'src/config/42oauth';
 import { DataSource } from 'typeorm';
 
 const cookieExtractor = function (req) {
@@ -24,7 +25,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(@InjectDataSource() private dataSource: DataSource) {
     super({
       // 들어온 cookie와 payload를 통해 새로 만든 cookie를 비교해서 인가절차 진행
-      secretOrKey: 'huchoi',
+      secretOrKey: SECRETORKEY,
       jwtFromRequest: cookieExtractor,
       // jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
     });

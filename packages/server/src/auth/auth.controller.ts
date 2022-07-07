@@ -1,6 +1,7 @@
 import { Controller, Get, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Response } from 'express';
+import { OAUTHURL } from 'src/config/42oauth';
 import { AuthService } from './auth.service';
 
 //authentication 과 authorization은 다름
@@ -9,9 +10,7 @@ export class AuthController {
   constructor(private authService: AuthService) {}
   @Get('/42')
   async authenticationUser(@Res() res: Response) {
-    return res.redirect(
-      'https://api.intra.42.fr/oauth/authorize?client_id=b30d3b073e551b492e6fcd5ad35dad825545eede1f463058fcd255b673721384&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauth%2F42%2Fredirection&response_type=code',
-    );
+    return res.redirect(OAUTHURL);
   }
 
   /**

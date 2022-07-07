@@ -4,6 +4,7 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import axios from 'axios';
 import { createReadStream, open, write, writeFile } from 'fs';
 import { join } from 'path';
+import { AUTHPARAM } from 'src/config/42oauth';
 import { jsonToFile } from 'src/utils/json-helper/jsonHelper';
 import { DataSource } from 'typeorm';
 
@@ -15,6 +16,8 @@ export class AuthService {
   ) {}
 
   async createJwt(obj) {
+    // 아래 if문은 주석문은 배포할때 주석풀어주기
+    // if (obj['staff'] == false) throw new BadRequestException();
     const payload = obj;
     console.log(payload);
     const access_token = await this.jwtService.sign(payload);
@@ -22,23 +25,15 @@ export class AuthService {
   }
 
   async authentication(code) {
-    const param = {
-      grant_type: 'authorization_code',
-      client_id:
-        'b30d3b073e551b492e6fcd5ad35dad825545eede1f463058fcd255b673721384',
-      client_secret:
-        'cb465b16e6fe96b7b3659c57bd4587e5133824986f20aa8f7ca33a335872ce24',
-      code,
-      redirect_uri: 'http://localhost:3000/auth/42/redirection',
-      state: 'sStTaATteEe',
-    };
+    const param = AUTHPARAM;
+    param['code'] = code;
+    let response42;
     let url = 'https://api.intra.42.fr/oauth/token?';
     //url에 query붙이기
     for (const key in param) {
       url += `${key}=`;
       url += `${param[key]}&`;
     }
-    let response42;
     try {
       response42 = await axios.post(url);
     } catch (what) {
@@ -58,7 +53,7 @@ export class AuthService {
           Authorization: `Bearer ${access_token}`,
         },
       });
-      console.log(response42.data);
+      // console.log(response42.data);
       //이제 jwt 토큰 생성 및 jwt passport 그리고 guard 설정
     }
     // jsonToFile(
@@ -66,7 +61,11 @@ export class AuthService {
     //   response42.data,
     // );
     // 아래에서 id는 고유 number임 ("huchoi"같은 intra_id가 아님)
-    const payload = { id: response42.data.id, login: response42.data.login };
+    const payload = {
+      id: response42.data.id,
+      login: response42.data.login,
+      staff: response42.data['staff?'],
+    };
     return await this.createJwt(payload);
   }
 }
