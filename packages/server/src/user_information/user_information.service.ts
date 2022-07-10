@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { UserAccessCardInformation } from 'src/user_information/entity/user_access_card_information.entity';
 import { User } from 'src/user_information/entity/user_information.entity';
@@ -31,6 +31,9 @@ import {
   JoinTable,
   DeepPartial,
 } from 'typeorm';
+import { CudDto } from './argstype/cudDto.argstype';
+import { FilterArgs } from './argstype/filter.argstype';
+import { JoinedTable } from './argstype/joinedTable';
 import { Filter } from './filter';
 
 @Injectable()
@@ -89,16 +92,8 @@ export class UserInformationService {
       .find({});
   }
 
-  private camelize(str) {
-    return str
-      .replace(/(?:^\w|[A-Z]|\b\w)/g, function (word, index) {
-        return index === 0 ? word.toLowerCase() : word.toUpperCase();
-      })
-      .replace(/\s+/g, '');
-  }
-
   /**
-   * 아래 processFilters()함수에서 만드는 filterObj의 구조
+   * 아래 filtersToObj(filters)함수에서 만드는 filterObj의 구조
    *    {
    *      엔터티:[filter객체, filter객체...],
    *      엔터티:[filter객체, filter객체...]
@@ -110,10 +105,11 @@ export class UserInformationService {
    *      UserPersonalInformation:[{entityName:UserPersonalInformation, column:"gender", operaotr:"=", givenValue:"남"}, {...}, {...}]
    *    }
    */
-  filtersToObj(filters) {
+  filtersToObj(filterArgs: FilterArgs, withDeleted = false) {
     const filterObj = {};
     let filter;
     let entityName;
+    const filters = filterArgs.filters;
 
     for (let i = 0; i < filters.length; i++) {
       filter = filters[i]; // filter 하나
@@ -128,110 +124,16 @@ export class UserInformationService {
       }
     }
     // console.log(filterObj);
-    const obj = this.getObj(filterObj);
-    // console.log(obj);
-    obj['cache'] = true; //typeORM에서 제공하는 cache 기능
-    obj['order'] = { intra_id: 'ASC', grade: 'ASC' }; //정렬할 필요가 있는건지?
-    return { obj, filterObj };
-  }
-
-  async getPeopleByFiter(filters) {
-    const { obj, filterObj } = this.filtersToObj(filters);
-    // console.log('OBJ is', obj);
-    const data = await this.dataSource.getRepository(User).find(obj);
-    this.makeLimit(data, filterObj);
-    return data;
-  }
-
-  async getNumOfPeopleByFilter(filters): Promise<number> {
-    const { obj, filterObj } = this.filtersToObj(filters);
-    // console.log('OBJ is', obj);
-    const data = await this.dataSource.getRepository(User).count(obj);
-    // console.log(data);
-    // this.makeLimit(data, filterObj);
-    return data;
-  }
-
-  async processFilters(filters) {
-    // console.log(filters);
-    let filter;
-    let entityName;
-    let numOfEntity = 1; //entity의 개수(user는 무조건 쓰니까 initialValue = 1)
-    const filterObj = {};
-
-    for (let i = 0; i < filters.length; i++) {
-      filter = filters[i]; // filter 하나
-      entityName = filter.entityName;
-      if (entityName in filterObj) {
-        // filterObj에 이미 해당 entityName이 있음
-        filterObj[entityName].push(filter);
-      } else {
-        //filterObj에 해당 entityName이 없음
-        numOfEntity++;
-        filterObj[entityName] = []; //해당 entity에 대해 필터조건이 여러개 있을수 있으니
-        filterObj[entityName].push(filter); //필터조건(들)을 배열 넣어둠
-      }
+    const findObj = this.getObj(filterObj, withDeleted);
+    // console.log(findObj);
+    findObj['cache'] = true; //typeORM에서 제공하는 cache 기능
+    findObj['order'] = { intra_id: 'ASC', grade: 'ASC' }; //정렬할 필요가 있는건지?
+    if ('take' in filterArgs) {
+      findObj['take'] = filterArgs['amount'];
+      if ('skip' in filterArgs) findObj['skip'] = filterArgs['skip'];
+      else findObj['skip'] = 0;
     }
-    return this.joinTableByFilters(filterObj); //numOFEntity 값을 사용하지는 않지만 일단 넣어두었음
-  }
-
-  /**
-   * 1. 일관성 달성
-   *    일대일관계에서 붙는 테이블이 없으면 -> null
-   *    일대일관계에서 붙는 테이블이 있으면 -> 객체 하나 => [객체하나] 꼴로 바꾸자 (가)
-   *    filter.latest=false && 일대다관계에서 붙는 테이블이 없으면 -> [](빈테이블) => null로 바꾸자 (나)
-   *    filter.latest=true && 일대다관계에서 붙는 테이블이 있으면 -> [obj1, obj2...]
-   * 2. 최신정보 vs 최신정보+로깅정보
-   *    filter.latest값이 false이면 최신정보+로깅정보 반환
-   *    filter.latest값이 true이면 최신정보만 반환
-   */
-  private makeLimit(data, filterObj) {
-    let filter;
-    let row;
-    let temp;
-    for (const joinedTable in filterObj) {
-      if (joinedTable == 'user') continue;
-      for (const idx in filterObj[joinedTable]) {
-        filter = filterObj[joinedTable][idx];
-        for (const idx in data) {
-          row = data[idx];
-          //(가)
-          if (row[joinedTable] != null && !Array.isArray(row[joinedTable])) {
-            temp = [JoinTable];
-            temp.push(row[joinedTable]);
-            row[joinedTable] = temp;
-            //(나)
-          } else if (
-            row[joinedTable] != null &&
-            Array.isArray(row[joinedTable]) &&
-            row[joinedTable].length == 0
-          ) {
-            row[joinedTable] = null;
-          }
-          if (
-            row[joinedTable] != null &&
-            Array.isArray(row[joinedTable]) &&
-            'latest' in filter &&
-            filter['latest'] == true
-          ) {
-            row[joinedTable] = row[joinedTable].slice(0, 1);
-            // console.log(row[joinedTable]);
-          }
-        }
-      }
-    }
-  }
-
-  private async joinTableByFilters(filterObj) {
-    // console.log(filterObj);
-    const obj = this.getObj(filterObj);
-    obj['cache'] = true; //typeORM에서 제공하는 cache 기능
-    obj['order'] = { intra_id: 'ASC', grade: 'ASC' }; //정렬할 필요가 있는건지?
-    // console.log('OBJ is', obj);
-    const ret = await this.dataSource.getRepository(User).find(obj);
-    this.makeLimit(ret, filterObj);
-    // console.log('RET is', ret);
-    return ret;
+    return { findObj, filterObj };
   }
 
   /**
@@ -253,14 +155,16 @@ export class UserInformationService {
    *    }
    */
 
-  private getObj(filterObj) {
+  private getObj(filterObj, withDeleted = false) {
     let filter;
     let column;
     let operator;
-    const ret = {};
-    ret['relations'] = {};
-    ret['where'] = {};
-    ret['order'] = {};
+    const ret = {
+      withDeleted, //제일 상단에 와야함
+      relations: {},
+      where: {},
+      order: {},
+    };
     if ('user' in filterObj) {
       for (const idx in filterObj['user']) {
         filter = filterObj['user'][idx];
@@ -288,12 +192,10 @@ export class UserInformationService {
       for (const idx in filterObj[entityName]) {
         filter = filterObj[entityName][idx];
         operator = filter['operator'];
-        // console.log('given value: ', filter['operator']);
         column = filter['column'];
-        if (column == null) continue; // 예외처리
-        if (operator == 'In' || operator == 'in') {
+        if (column == 'null' || column == null) continue; // 예외처리 <- 명세서에 적어주기
+        if (operator == 'In' || operator == 'in')
           filter['givenValue'] = filter['givenValue'].split(';');
-        }
         ret['where'][entityName][column] = this.operatorToORMMethod(
           filter['operator'],
         )(filter['givenValue']); //overwrite issue 발생가능(명세서에 적어줘야함)
@@ -307,13 +209,196 @@ export class UserInformationService {
     return ret;
   }
 
+  /**
+   * 1. 일관성 달성
+   *    일대일관계에서 붙는 테이블이 없으면 -> null
+   *    일대일관계에서 붙는 테이블이 있으면 -> 객체 하나 => [객체하나] 꼴로 바꾸자 (가)
+   *    filter.latest=false && 일대다관계에서 붙는 테이블이 없으면 -> [](빈테이블) => null로 바꾸자 (나)
+   *    filter.latest=true && 일대다관계에서 붙는 테이블이 있으면 -> [obj1, obj2...]
+   * 2. 최신정보 vs 최신정보+로깅정보
+   *    filter.latest값이 false이면 최신정보+로깅정보 반환
+   *    filter.latest값이 true이면 최신정보만 반환
+   */
+  private makeLimit(data, filterObj) {
+    let filter;
+    let row;
+    // let temp: JoinedTable[];
+    let temp;
+    for (const joinedTable in filterObj) {
+      if (joinedTable == 'user') continue;
+      for (const idx in filterObj[joinedTable]) {
+        filter = filterObj[joinedTable][idx];
+        for (const idx in data) {
+          row = data[idx];
+          //(가)
+          if (row[joinedTable] != null && !Array.isArray(row[joinedTable])) {
+            temp = []; //여기서 temp = [JoinTable] 이렇게 오타.. JoinTable은 데코레이터..
+            temp.push(row[joinedTable]);
+            row[joinedTable] = temp;
+            //(나)
+          } else if (
+            row[joinedTable] != null &&
+            Array.isArray(row[joinedTable]) &&
+            row[joinedTable].length == 0
+          ) {
+            row[joinedTable] = null;
+          }
+          if (
+            row[joinedTable] != null &&
+            Array.isArray(row[joinedTable]) &&
+            'latest' in filter &&
+            filter['latest'] == true
+          ) {
+            row[joinedTable] = row[joinedTable].slice(0, 1);
+            // console.log(row[joinedTable]);
+          }
+        }
+      }
+    }
+    return data;
+  }
+
   private operatorToORMMethod(operator: string) {
     return this.operatorToMethod[operator];
   }
 
+  async getPeopleByFiter(filterArgs: FilterArgs) {
+    const { findObj, filterObj } = this.filtersToObj(filterArgs);
+    // console.log('OBJ is', findObj);
+    let data = await this.dataSource.getRepository(User).find(findObj);
+    data = this.makeLimit(data, filterObj);
+    // console.log(data);
+    return data;
+  }
+
+  async getPeopleByFilterForAdmin(filterArgs: FilterArgs) {
+    const { findObj, filterObj } = this.filtersToObj(filterArgs, true);
+    // console.log('OBJ is', findObj);
+    let data = await this.dataSource.getRepository(User).find(findObj);
+    // console.log(data);
+    data = this.makeLimit(data, filterObj);
+    // console.log(data);
+    return data;
+  }
+
+  async getNumOfPeopleByFilter(filterArgs: FilterArgs): Promise<number> {
+    const { findObj } = this.filtersToObj(filterArgs);
+    // console.log('OBJ is', findObj);
+    const data = await this.dataSource.getRepository(User).count(findObj);
+    // console.log(data);
+    // this.makeLimit(data, filterObj);
+    return data;
+  }
+
+  // 아래는 mutation을 위한 service code
+  createFindObj(cudDto: CudDto) {
+    const ret = {};
+    ret['relations'] = {};
+    ret['where'] = {};
+    ret['where']['intra_no'] = cudDto.intra_no;
+    if (cudDto.entityName != 'user') {
+      ret['relations'][cudDto.entityName] = true; //relation -> relations
+      ret['where'][cudDto.entityName] = {};
+      ret['where'][cudDto.entityName]['pk'] = cudDto.pk;
+    } else {
+      // nothing
+    }
+    return ret;
+  }
+
+  async updateUserInformation(cudDto: CudDto): Promise<boolean> {
+    const findObj = this.createFindObj(cudDto);
+    const user = await this.dataSource.getRepository(User).findOne(findObj);
+    if (user == null) return false;
+    const entityName = cudDto.entityName;
+    const coulmn = cudDto.column;
+    const value = cudDto.value;
+    if (coulmn == 'intra_no' || coulmn == 'pk') throw new BadRequestException();
+    if (entityName == 'user') user[coulmn] = value;
+    else if (Array.isArray(user[entityName]))
+      user[entityName][0][coulmn] = value;
+    else user[entityName][coulmn] = value;
+    //cacade true 덕분에 user만 save해도 다른 엔터티도 save 됨
+    if (await this.dataSource.getRepository(User).save(user)) return true;
+    else return false;
+  }
+
+  async deleteUserInformation(cudDto: CudDto) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    const findObj = this.createFindObj(cudDto);
+    const user = await this.dataSource.getRepository(User).findOne(findObj);
+    if (user == null) return false;
+    const entityName = cudDto.entityName;
+    if (Array.isArray(user[entityName]))
+      queryRunner.manager.softRemove(user[entityName][0]);
+    else queryRunner.manager.softRemove(user[entityName]);
+    //cacade true 덕분에 user만 save해도 다른 엔터티도 save 됨
+    if (await this.dataSource.getRepository(User).save(user)) return true;
+    else return false;
+  }
+
+  async recoverUserInformaiton(cudDto: CudDto) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    const findObj = this.createFindObj(cudDto);
+    findObj['withDeleted'] = true; //상단에 위치해야함
+    const user = await this.dataSource.getRepository(User).findOne(findObj);
+    if (user == null) return false;
+    const entityName = cudDto.entityName;
+    if (Array.isArray(user[entityName]))
+      queryRunner.manager.recover(user[entityName][0]);
+    else queryRunner.manager.recover(user[entityName]);
+    //cacade true 덕분에 user만 save해도 다른 엔터티도 save 됨
+    if (await this.dataSource.getRepository(User).save(user)) return true;
+    else return false;
+  }
+
   //--------------------------------------------------
-  //      아래 부분은 안보셔도 됩니다. 실습용 테스트 코드.       |
+  //                                                  |
+  //                                                  |
+  //                                                  |
+  //                                                  |
+  //                                                  |
+  //                                                  |
+  //    아래 부분은 안보셔도 됩니다 (실습용 테스트 코드)         |
+  //                                                  |
+  //                                                  |
+  //                                                  |
+  //                                                  |
+  //                                                  |
+  //                                                  |
+  //                                                  |
+  //                                                  |
   //--------------------------------------------------
+
+  /**
+   * 실습용 코드
+   */
+  async softDeleteRemoveWithdrawTest(cudDto: CudDto) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    // const obj = this.createFindObj(cudDto);
+    // const user = await this.dataSource.getRepository(User).findOne(obj);
+    // if (user == null) return false;
+    const entityName = cudDto.entityName;
+    // const coulmn = cudDto.column;
+    // if (coulmn == 'intra_no' || coulmn == 'pk') throw new BadRequestException();
+    // if (entityName == 'user') queryRunner.manager.softRemove(user);
+    // else if (Array.isArray(user[entityName]))
+    //   queryRunner.manager.softRemove(user[entityName][0]);
+    // else queryRunner.manager.softRemove(user[entityName]);
+    // cacade true 덕분에 user만 save해도 다른 엔터티도 save 됨
+    // await this.dataSource.getRepository(User).save(user);
+    const findObj = {
+      withDeleted: true, //가장 앞에 위치해야함
+      where: {},
+      relations: {},
+    };
+    findObj['relations'][entityName] = true;
+    findObj['where'][entityName] = {};
+    findObj['where'][entityName]['region'] = '부산';
+    const ret = await this.dataSource.getRepository(User).find(findObj);
+    console.log(ret);
+    return ret;
+  }
 
   /**
    * "현재 휴학인 카뎃들"이라는 필터조건이 들어올때
@@ -439,19 +524,20 @@ export class UserInformationService {
       // }
       // order: { created_date: 'DESC' },
     };
-    // temp = await this.dataSource.getRepository(User).find({
-    //   relations: {
-    //     //entityname:true
-    //     userPersonalInformation: true,
-    //     userOtherInformation: true,
-    //     userAccessCardInformation: true,
-    //   },
-    //   where: {
-    //     userOtherInformation: {
-    //       pk: LessThanOrEqual(3000),
-    //     },
-    //   },
-    // });
+    const temp = await this.dataSource.getRepository(User).find({
+      relations: {
+        //entityname:true
+        userPersonalInformation: true,
+        userOtherInformation: true,
+        userAccessCardInformation: true,
+      },
+      where: {
+        userOtherInformation: {
+          pk: LessThanOrEqual(3000),
+        },
+      },
+      withDeleted: true,
+    });
     test['order'] = {
       userProcessProgress: {
         created_date: 'ASC',
@@ -463,28 +549,6 @@ export class UserInformationService {
 
     const ret = await this.dataSource.getRepository(User).find(test);
     await queryRunner.release();
-    return ret;
-  }
-
-  async makeArguments(entityName: string, arr) {
-    const ret = [];
-    ret[0] = `user.${entityName}`;
-    ret[1] = entityName
-      .replace(/\.?([A-Z]+)/g, function (_x, y) {
-        return '_' + y.toLowerCase();
-      })
-      .replace(/^_/, '');
-    ret[2] = new String();
-    for (let i = 0; i < arr.length; i++) {
-      if (i != 0) ret[2] += ' AND ';
-      ret[2] += `${ret[1]}.`;
-      ret[2] += `${arr[i].column}`;
-      if (arr[i].operator == 'eq') ret[2] += ' = ';
-      else if (arr[i].operator == 'gt') ret[2] += ' > ';
-      else console.log('\n\n\nERROR in makeArguments function\n\n\n');
-      ret[2] += `${arr[i].value}`;
-    }
-    console.log(ret);
     return ret;
   }
 }

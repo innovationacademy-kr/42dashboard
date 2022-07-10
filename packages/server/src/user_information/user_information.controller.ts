@@ -7,7 +7,7 @@ export class UserInformationController {
   constructor(private readonly userService: UserInformationService) {}
   @Get()
   testUser() {
-    return this.userService.querySampel();
+    return 'hello user!';
   }
   @Get('/temp')
   tempFunction(@Query() query) {

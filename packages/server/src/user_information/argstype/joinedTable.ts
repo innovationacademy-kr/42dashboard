@@ -49,11 +49,11 @@ export class JoinedTable {
   @Field((type) => [UserOtherInformation], { nullable: true })
   userOtherInformation: UserOtherInformation[];
 
-  @Field((type) => UserPersonalInformation, { nullable: true })
-  userPersonalInformation: UserPersonalInformation; //일대일 이니까
+  @Field((type) => [UserPersonalInformation], { nullable: true })
+  userPersonalInformation: UserPersonalInformation[]; //일대일 이니까 -> DB에서는 그럴지몰라도 반환값에서는 배열로반환
 
-  @Field((type) => UserAccessCardInformation, { nullable: true })
-  userAccessCardInformation: UserAccessCardInformation; //일대일 이니까
+  @Field((type) => [UserAccessCardInformation], { nullable: true })
+  userAccessCardInformation: UserAccessCardInformation[]; //일대일 이니까 -> DB에서는 그럴지몰라도 반환값에서는 배열로반환
 
   @Field((type) => [UserEmploymentAndFound], { nullable: true })
   userEmploymentAndFound: UserEmploymentAndFound[];

@@ -3,6 +3,7 @@ import {
   BaseEntity,
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   OneToOne,
@@ -43,13 +44,15 @@ export class UserPersonalInformation {
   @CreateDateColumn({ name: 'created_date' })
   created_date: Date;
 
-  @Column({ name: 'fk_user_no', nullable: true })
-  fk_user_no: string; //외래키값을 선언하지 않으면 null으로 판단됨
+  @Field()
+  @DeleteDateColumn()
+  deleted_date: Date;
+  // @Column({ name: 'fk_user_no', nullable: true })
+  // fk_user_no: string; //외래키값을 선언하지 않으면 null으로 판단됨
 
   @OneToOne(() => User, (user) => user.userPersonalInformation, {
     createForeignKeyConstraints: false, //외래키 제약조건 해제
   })
-  @JoinColumn({ name: 'fk_user_no' }) //user와 이름이 중복되는 에러로 인해 이름변경
-  // @PrimaryColumn({name: "user"})
+  @JoinColumn() //user와 이름이 중복되는 에러로 인해 이름변경
   user: User;
 }

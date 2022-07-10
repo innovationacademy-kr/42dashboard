@@ -7,6 +7,7 @@ import { join } from 'path';
 import { AUTHPARAM } from 'src/config/42oauth';
 import { jsonToFile } from 'src/utils/json-helper/jsonHelper';
 import { DataSource } from 'typeorm';
+import { Bocal, BocalRole } from './entity/bocal.entity';
 
 @Injectable()
 export class AuthService {
@@ -15,9 +16,18 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
+  /**
+   * 배포할때 수정필요함
+   */
   async createJwt(obj) {
     // 아래 if문은 주석문은 배포할때 주석풀어주기
     // if (obj['staff'] == false) throw new BadRequestException();
+    const bocal = this.dataSource.getRepository(Bocal).create();
+    bocal.id = obj.id;
+    bocal.login = obj.login;
+    bocal.role = BocalRole.ADMIN; //이 부분 나중에 분기문으로 처리
+    bocal.staff = true;
+    await this.dataSource.getRepository(Bocal).save(bocal);
     const payload = obj;
     console.log(payload);
     const access_token = await this.jwtService.sign(payload);
@@ -53,13 +63,7 @@ export class AuthService {
           Authorization: `Bearer ${access_token}`,
         },
       });
-      // console.log(response42.data);
-      //이제 jwt 토큰 생성 및 jwt passport 그리고 guard 설정
     }
-    // jsonToFile(
-    //   join(process.cwd(), './src/auth/responseJson.Json'),
-    //   response42.data,
-    // );
     // 아래에서 id는 고유 number임 ("huchoi"같은 intra_id가 아님)
     const payload = {
       id: response42.data.id,

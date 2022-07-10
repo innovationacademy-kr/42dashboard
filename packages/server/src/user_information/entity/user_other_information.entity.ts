@@ -3,6 +3,7 @@ import {
   BaseEntity,
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   JoinTable,
@@ -46,6 +47,10 @@ export class UserOtherInformation extends BaseEntity {
   @Field()
   @CreateDateColumn({ name: 'created_date' })
   created_date: Date;
+
+  @Field()
+  @DeleteDateColumn()
+  deleted_date: Date;
 
   @Column({ name: 'fk_user_no', nullable: true })
   fk_user_no: string;

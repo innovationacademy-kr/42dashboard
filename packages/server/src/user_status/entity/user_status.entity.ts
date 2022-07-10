@@ -3,6 +3,7 @@ import {
   BaseEntity,
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   JoinTable,
@@ -55,6 +56,10 @@ export class UserLearningData extends BaseEntity {
   @CreateDateColumn({ name: 'created_date' })
   created_date: Date;
 
+  @Field()
+  @DeleteDateColumn()
+  deleted_date: Date;
+
   @Column({ name: 'fk_user_no', nullable: true })
   fk_user_no: string;
 
@@ -97,6 +102,10 @@ export class UserProcessProgress extends BaseEntity {
   @CreateDateColumn({ name: 'created_date' })
   created_date: Date;
 
+  @Field()
+  @DeleteDateColumn()
+  deleted_date: Date;
+
   @Column({ name: 'fk_user_no', nullable: true })
   fk_user_no: string;
 
@@ -133,6 +142,10 @@ export class UserBlackhole extends BaseEntity {
   @Field({ nullable: false })
   @CreateDateColumn({ name: 'created_date' })
   created_date: Date;
+
+  @Field()
+  @DeleteDateColumn()
+  deleted_date: Date;
 
   @Column({ name: 'fk_user_no', nullable: true })
   fk_user_no: string;
@@ -185,6 +198,10 @@ export class UserLeaveOfAbsence extends BaseEntity {
   @CreateDateColumn({ name: 'created_date' })
   created_date: Date;
 
+  @Field()
+  @DeleteDateColumn()
+  deleted_date: Date;
+
   @Column({ name: 'fk_user_no', nullable: true })
   fk_user_no: string;
 
@@ -216,6 +233,10 @@ export class UserReasonOfBreak extends BaseEntity {
   @Field({ nullable: false })
   @CreateDateColumn({ name: 'created_date' })
   created_date: Date;
+
+  @Field()
+  @DeleteDateColumn()
+  deleted_date: Date;
 
   @Column({ name: 'fk_user_no', nullable: true })
   fk_user_no: number;
@@ -250,6 +271,10 @@ export class UserLapiscineInformation extends BaseEntity {
 
   @CreateDateColumn({ name: 'created_date' })
   created_date: Date;
+
+  @Field()
+  @DeleteDateColumn()
+  deleted_date: Date;
 
   @Column({ name: 'fk_user_no', nullable: true })
   fk_user_no: string;

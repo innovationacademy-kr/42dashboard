@@ -3,6 +3,7 @@ import {
   BaseEntity,
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   JoinTable,
@@ -39,6 +40,10 @@ export class UserEmploymentAndFound extends BaseEntity {
   @Field()
   @CreateDateColumn({ name: 'created_date' })
   created_date: Date;
+
+  @Field()
+  @DeleteDateColumn()
+  deleted_date: Date;
 
   @Column({ name: 'fk_user_no', nullable: true })
   fk_user_no: string;
@@ -98,6 +103,10 @@ export class UserInternStatus extends BaseEntity {
   @CreateDateColumn({ name: 'created_date' })
   created_date: Date;
 
+  @Field()
+  @DeleteDateColumn()
+  deleted_date: Date;
+
   @Column({ name: 'fk_user_no', nullable: true })
   fk_user_no: string;
 
@@ -143,6 +152,10 @@ export class UserHrdNetUtilize extends BaseEntity {
   @CreateDateColumn({ name: 'created_date' })
   created_date: Date;
 
+  @Field()
+  @DeleteDateColumn()
+  deleted_date: Date;
+
   @Column({ name: 'fk_user_no', nullable: true })
   fk_user_no: string;
 
@@ -175,6 +188,10 @@ export class UserEmploymentStatus extends BaseEntity {
   @Field({ nullable: false })
   @CreateDateColumn({ name: 'created_date' })
   created_date: Date;
+
+  @Field()
+  @DeleteDateColumn()
+  deleted_date: Date;
 
   @Column({ name: 'fk_user_no', nullable: true })
   fk_user_no: string;

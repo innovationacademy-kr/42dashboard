@@ -24,7 +24,7 @@ type JoinedTable {
   intra_no: Int!
   name: String
   start_process: DateTime
-  userAccessCardInformation: UserAccessCardInformation
+  userAccessCardInformation: [UserAccessCardInformation!]
   userBlackhole: [UserBlackhole!]
   userComputationFund: [UserComputationFund!]
   userEducationFundState: [UserEducationFundState!]
@@ -36,18 +36,25 @@ type JoinedTable {
   userLearningData: [UserLearningData!]
   userLeaveOfAbsence: [UserLeaveOfAbsence!]
   userOtherInformation: [UserOtherInformation!]
-  userPersonalInformation: UserPersonalInformation
+  userPersonalInformation: [UserPersonalInformation!]
   userProcessProgress: [UserProcessProgress!]
   userReasonOfBreak: [UserReasonOfBreak!]
 }
 
+type Mutation {
+  deleteUserInformation(column: String!, entityName: String!, intra_no: Int!, pk: Int!, value: String!): Boolean!
+  recoverUserInformaiton(column: String!, entityName: String!, intra_no: Int!, pk: Int!, value: String!): Boolean!
+  softDeleteRemoveWithdrawTest(column: String!, entityName: String!, intra_no: Int!, pk: Int!, value: String!): [JoinedTable!]!
+  updateUserInformation(column: String!, entityName: String!, intra_no: Int!, pk: Int!, value: String!): Boolean!
+}
+
 type Query {
   getAllSpread: String!
-  getNumOfPeopleByFilter(filters: [Filter!]!): Int!
-  getPeopleByFilter(filters: [Filter!]!): [JoinedTable!]!
+  getNumOfPeopleByFilter(filters: [Filter!]!, skip: Int, take: Int): Int!
+  getPeopleByFilter(filters: [Filter!]!, skip: Int, take: Int): [JoinedTable!]!
+  getPeopleByFilterForAdmin(filters: [Filter!]!, skip: Int, take: Int): [JoinedTable!]!
   getUserAccessCardInformation: [UserAccessCardInformation!]!
   getUserBlackhole: [UserBlackhole!]!
-  getUserById: [User!]!
   getUserComputationFund: [UserComputationFund!]!
   getUserEmploymentAndFound: [UserEmploymentAndFound!]!
   getUserEmploymentStatus: [UserEmploymentStatus!]!
@@ -59,17 +66,7 @@ type Query {
   getUserPersonalInformation: [UserPersonalInformation!]!
   getUserProcessProgress: [UserProcessProgress!]!
   getUserReasonOfBreak: UserReasonOfBreak!
-  getUsers(column: String!, entityName: String!, givenValue: String!, latest: Boolean!, operator: String!): [User!]!
-}
-
-type User {
-  academic_state: String!
-  coalition: String!
-  created_date: DateTime!
-  grade: String!
-  intra_id: String!
-  intra_no: Int!
-  name: String!
+  tempFunction: [JoinedTable!]!
 }
 
 type UserAccessCardInformation {
@@ -190,6 +187,7 @@ type UserOtherInformation {
 type UserPersonalInformation {
   birthday: String!
   created_date: DateTime!
+  deleted_date: DateTime!
   email: String!
   gender: String!
   phone_number: String!
