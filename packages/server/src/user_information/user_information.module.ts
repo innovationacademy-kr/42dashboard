@@ -20,7 +20,6 @@ import { AppModule } from 'src/app.module';
       UserPersonalInformation,
       UserOtherInformation,
       UserAccessCardInformation,
-      //AppModule,
       DataSource,
     ]),
   ],

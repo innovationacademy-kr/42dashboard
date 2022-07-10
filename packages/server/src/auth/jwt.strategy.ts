@@ -5,6 +5,7 @@ import { userInfo } from 'os';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { SECRETORKEY } from 'src/config/42oauth';
 import { DataSource } from 'typeorm';
+import { Bocal } from './entity/bocal.entity';
 
 const cookieExtractor = function (req) {
   let token: string = null;
@@ -40,7 +41,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validateUser(payload) {
     //DB에서 해당 사용자에 대한 정보가 있는지 체크 <- repo.findOne()하면 될듯?
-    if (payload) return payload;
+    const user = this.dataSource.getRepository(Bocal).findOne(payload);
+    if (user) return payload;
     else return null;
   }
 }

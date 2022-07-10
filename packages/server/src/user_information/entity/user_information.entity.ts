@@ -2,7 +2,9 @@ import {
   BaseEntity,
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
+  JoinColumn,
   JoinTable,
   ManyToOne,
   OneToMany,
@@ -74,6 +76,10 @@ export class User {
   @CreateDateColumn({ name: 'created_date' })
   created_date: Date;
 
+  @Field()
+  @DeleteDateColumn()
+  deleted_date: Date;
+
   // @Field()
   // vailidated_date;
 
@@ -88,7 +94,7 @@ export class User {
   @OneToOne(
     () => UserPersonalInformation,
     (userPersonalInformation) => userPersonalInformation.user,
-    { cascade: true, eager: true },
+    { cascade: true },
   )
   userPersonalInformation: UserPersonalInformation;
 
@@ -96,6 +102,7 @@ export class User {
   @OneToOne(
     () => UserAccessCardInformation,
     (userAccessCardInformation) => userAccessCardInformation.user,
+    { cascade: true },
   )
   userAccessCardInformation: UserAccessCardInformation;
 
@@ -103,6 +110,7 @@ export class User {
   @OneToMany(
     () => UserOtherInformation,
     (userOtherInformation) => userOtherInformation.user,
+    { cascade: true },
   )
   userOtherInformation: UserOtherInformation[];
 
@@ -114,6 +122,7 @@ export class User {
   @OneToMany(
     () => UserLearningData,
     (userLearningDate) => userLearningDate.user,
+    { cascade: true },
   )
   userLearningDate: UserLearningData[];
 
@@ -121,17 +130,21 @@ export class User {
   @OneToMany(
     () => UserProcessProgress,
     (userProcessProgress) => userProcessProgress.user,
+    { cascade: true },
   )
   userProcessProgress: UserProcessProgress[];
 
   // @Field((type) => [UserBlackhole])
-  @OneToMany(() => UserBlackhole, (userBlackhole) => userBlackhole.user)
+  @OneToMany(() => UserBlackhole, (userBlackhole) => userBlackhole.user, {
+    cascade: true,
+  })
   userBlackhole: UserBlackhole[];
 
   // @Field((type) => [UserLeaveOfAbsence])
   @OneToMany(
     () => UserLeaveOfAbsence,
     (userLeaveOfAbsence) => userLeaveOfAbsence.user,
+    { cascade: true },
   )
   userLeaveOfAbsence: UserLeaveOfAbsence[];
 
@@ -139,6 +152,7 @@ export class User {
   @OneToMany(
     () => UserReasonOfBreak,
     (userReasonOfBreak) => userReasonOfBreak.user,
+    { cascade: true },
   )
   userReasonOfBreak: UserReasonOfBreak[];
 
@@ -146,6 +160,7 @@ export class User {
   @OneToMany(
     () => UserLapiscineInformation,
     (userLapiscineInformation) => userLapiscineInformation.user,
+    { cascade: true },
   )
   userLapiscineInformation: UserLapiscineInformation[];
 
@@ -157,6 +172,7 @@ export class User {
   @OneToMany(
     () => UserComputationFund,
     (userComputationFund) => userComputationFund.user,
+    { cascade: true },
   )
   userComputationFund: UserComputationFund[];
 
@@ -164,6 +180,7 @@ export class User {
   @OneToMany(
     () => UserEducationFundState,
     (userEducationFundState) => userEducationFundState.user,
+    { cascade: true },
   )
   userEducationFundState: UserEducationFundState[];
 
@@ -175,6 +192,7 @@ export class User {
   @OneToMany(
     () => UserEmploymentAndFound,
     (UserEmploymentAndFound) => UserEmploymentAndFound.user,
+    { cascade: true },
   )
   userEmploymentAndFound: UserEmploymentAndFound[];
 
@@ -182,6 +200,7 @@ export class User {
   @OneToMany(
     () => UserInternStatus,
     (userInternStatus) => userInternStatus.user,
+    { cascade: true },
   )
   userInternStatus: UserInternStatus[];
 
@@ -189,6 +208,7 @@ export class User {
   @OneToMany(
     () => UserHrdNetUtilize,
     (userHrdNetUtilize) => userHrdNetUtilize.user,
+    { cascade: true },
   )
   userHrdNetUtilize: UserHrdNetUtilize[];
 
@@ -196,6 +216,7 @@ export class User {
   @OneToMany(
     () => UserEmploymentStatus,
     (userEmploymentStatus) => userEmploymentStatus.user,
+    { cascade: true },
   )
   userEmploymentStatus: UserEmploymentStatus[];
 }

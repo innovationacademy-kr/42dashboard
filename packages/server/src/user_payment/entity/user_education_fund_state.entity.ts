@@ -3,6 +3,7 @@ import {
   BaseEntity,
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -52,6 +53,10 @@ export class UserEducationFundState extends BaseEntity {
   @Field({ nullable: false })
   @CreateDateColumn({ name: 'created_date' })
   created_date: Date;
+
+  @Field()
+  @DeleteDateColumn()
+  deleted_date: Date;
 
   @ManyToOne(() => User, (user) => user.userEducationFundState)
   user: User;
