@@ -12,4 +12,9 @@ export class UpdaterResolver {
   getAllSpread() {
     return this.updaterService.getAllSpread();
   }
+
+  @Query(() => String)
+  getOldData() {
+    return this.updaterService.getOldData();
+  }
 }

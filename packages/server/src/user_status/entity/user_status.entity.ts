@@ -26,27 +26,45 @@ export class UserLearningData extends BaseEntity {
   @Column({ name: 'circle', nullable: true, default: 0 })
   circle: number;
 
-  @Field({ nullable: false, defaultValue: 0 })
+  @Field({ nullable: true })
+  @Column({
+    name: 'circle_date',
+    nullable: true,
+    default: '9999-12-31',
+    type: 'date',
+  })
+  circle_date: Date;
+
+  @Field({ nullable: true, defaultValue: 0 })
   @Column({
     type: 'float',
     name: 'level',
-    nullable: false,
+    nullable: true,
     default: 0,
   })
   level: number;
 
-  @Field({ nullable: false, defaultValue: 0 })
-  @Column({ name: 'coalition_score', nullable: false, default: 0 })
+  @Field({ nullable: true })
+  @Column({
+    name: 'level_date',
+    nullable: true,
+    default: '9999-12-31',
+    type: 'date',
+  })
+  level_date: Date;
+
+  @Field({ nullable: true, defaultValue: 0 })
+  @Column({ name: 'coalition_score', nullable: true, default: 0 }) //구글 스프레드 데이터에 없을 수도 있기 때문에 널이 올 수 있도록 처리하였습니다.
   coalition_score: number;
 
-  @Field({ nullable: true, defaultValue: 'N' }) //특정 데이터 때문에 널 허용중
+  @Field({ nullable: true, defaultValue: 'N' })
   @Column({ name: 'out_circle', nullable: true, default: 'N' })
   out_circle: string;
 
   @Field({ nullable: true })
   @Column({
     name: 'out_circle_date',
-    nullable: false,
+    nullable: true,
     default: '9999-12-31',
     type: 'date',
   })
@@ -60,10 +78,13 @@ export class UserLearningData extends BaseEntity {
   @DeleteDateColumn()
   deleted_date: Date;
 
-  @Column({ name: 'fk_user_no', nullable: true })
+  @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userLearningDate)
+  @ManyToOne(() => User, (user) => user.userLearningDate, {
+    createForeignKeyConstraints: false, //외래키 제약조건 해제
+    nullable: false,
+  })
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }
@@ -106,10 +127,13 @@ export class UserProcessProgress extends BaseEntity {
   @DeleteDateColumn()
   deleted_date: Date;
 
-  @Column({ name: 'fk_user_no', nullable: true })
+  @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userProcessProgress)
+  @ManyToOne(() => User, (user) => user.userProcessProgress, {
+    createForeignKeyConstraints: false, //외래키 제약조건 해제
+    nullable: false,
+  })
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }
@@ -147,10 +171,13 @@ export class UserBlackhole extends BaseEntity {
   @DeleteDateColumn()
   deleted_date: Date;
 
-  @Column({ name: 'fk_user_no', nullable: true })
+  @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userBlackhole)
+  @ManyToOne(() => User, (user) => user.userBlackhole, {
+    createForeignKeyConstraints: false, //외래키 제약조건 해제
+    nullable: false,
+  })
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }
@@ -202,10 +229,13 @@ export class UserLeaveOfAbsence extends BaseEntity {
   @DeleteDateColumn()
   deleted_date: Date;
 
-  @Column({ name: 'fk_user_no', nullable: true })
+  @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userLeaveOfAbsence)
+  @ManyToOne(() => User, (user) => user.userLeaveOfAbsence, {
+    createForeignKeyConstraints: false, //외래키 제약조건 해제
+    nullable: false,
+  })
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }
@@ -238,10 +268,13 @@ export class UserReasonOfBreak extends BaseEntity {
   @DeleteDateColumn()
   deleted_date: Date;
 
-  @Column({ name: 'fk_user_no', nullable: true })
-  fk_user_no: number;
+  @Column({ name: 'fk_user_no', nullable: false })
+  fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userReasonOfBreak)
+  @ManyToOne(() => User, (user) => user.userReasonOfBreak, {
+    createForeignKeyConstraints: false, //외래키 제약조건 해제
+    nullable: false,
+  })
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }
@@ -276,10 +309,13 @@ export class UserLapiscineInformation extends BaseEntity {
   @DeleteDateColumn()
   deleted_date: Date;
 
-  @Column({ name: 'fk_user_no', nullable: true })
+  @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userLapiscineInformation)
+  @ManyToOne(() => User, (user) => user.userLapiscineInformation, {
+    createForeignKeyConstraints: false, //외래키 제약조건 해제
+    nullable: false,
+  })
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }

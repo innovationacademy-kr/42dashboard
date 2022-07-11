@@ -52,10 +52,13 @@ export class UserOtherInformation extends BaseEntity {
   @DeleteDateColumn()
   deleted_date: Date;
 
-  @Column({ name: 'fk_user_no', nullable: true })
+  @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userOtherInformation)
+  @ManyToOne(() => User, (user) => user.userOtherInformation, {
+    createForeignKeyConstraints: false, //외래키 제약조건 해제
+    nullable: false,
+  })
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }

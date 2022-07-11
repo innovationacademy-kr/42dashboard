@@ -13,10 +13,6 @@ import {
   UserInternStatus,
 } from 'src/user_job/entity/user_job.entity';
 import {
-  UserComputationFund,
-  UserEducationFundState,
-} from 'src/user_payment/entity/user_payment.entity';
-import {
   UserBlackhole,
   UserLapiscineInformation,
   UserLearningData,
@@ -26,6 +22,8 @@ import {
 } from 'src/user_status/entity/user_status.entity';
 import { UpdaterController } from './updater.controller';
 import { ApiService } from 'src/api/api.service';
+import { UserComputationFund } from 'src/user_payment/entity/user_computation_fund.entity';
+import { UserEducationFundState } from 'src/user_payment/entity/user_education_fund_state.entity';
 
 @Module({
   imports: [
