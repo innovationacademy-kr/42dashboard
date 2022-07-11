@@ -50,11 +50,12 @@ export class UserAccessCardInformation extends BaseEntity {
   @DeleteDateColumn()
   deleted_date: Date;
 
-  // @Column({ name: 'fk_user_no', nullable: true })
-  // fk_user_no: string;
+  @Column({ name: 'fk_user_no', nullable: false })
+  fk_user_no: string;
 
   @OneToOne(() => User, (user) => user.userAccessCardInformation, {
     createForeignKeyConstraints: false, //외래키 제약조건 해제
+    nullable: false,
   })
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
