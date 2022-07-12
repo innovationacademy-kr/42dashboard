@@ -1,9 +1,5 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  CacheKey,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
 import { ApiService } from 'src/api/api.service';
 import {
@@ -13,7 +9,7 @@ import {
   SHEET_ID4,
   SPREAD_END_POINT,
 } from 'src/config/key';
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { SpreadService } from 'src/spread/spread.service';
 import { UserAccessCardInformation } from 'src/user_information/entity/user_access_card_information.entity';
 import { User } from 'src/user_information/entity/user_information.entity';
 import { UserOtherInformation } from 'src/user_information/entity/user_other_information.entity';
@@ -34,18 +30,36 @@ import {
   UserProcessProgress,
   UserReasonOfBreak,
 } from 'src/user_status/entity/user_status.entity';
-import { Column, DataSource, Repository } from 'typeorm';
-import { SingleEntryPlugin } from 'webpack';
-import { find, map } from 'rxjs';
+
 import { Cron } from '@nestjs/schedule';
+import { DataSource, Repository } from 'typeorm';
 import {
-  apiOfTable,
+  apiTable,
   endOfTable,
   mapObj,
   pastDataOnColumn,
   pastDataOnSheet,
   TABLENUM,
+  repoKeys,
 } from './name_types/updater.name';
+
+interface RepoDict {
+  [repositoryName: string]:
+    | Repository<User>
+    | Repository<UserPersonalInformation>
+    | Repository<UserOtherInformation>
+    | Repository<UserAccessCardInformation>
+    | Repository<UserEmploymentAndFound>
+    | Repository<UserHrdNetUtilize>
+    | Repository<UserComputationFund>
+    | Repository<UserEducationFundState>
+    | Repository<UserProcessProgress>
+    | Repository<UserBlackhole>
+    | Repository<UserLeaveOfAbsence>
+    | Repository<UserReasonOfBreak>
+    | Repository<UserLapiscineInformation>
+    | Repository<UserLearningData>;
+}
 
 @Injectable() //총 16개의 테이블
 export class UpdaterService {
@@ -55,71 +69,96 @@ export class UpdaterService {
     @InjectRepository(UserPersonalInformation)
     private userPersonalRepository: Repository<UserPersonalInformation>,
     @InjectRepository(UserOtherInformation)
-    private userOtherRepository: Repository<UserOtherInformation>,
+    private userOtherInformationRepository: Repository<UserOtherInformation>,
     @InjectRepository(UserAccessCardInformation)
     private userAccessCardRepository: Repository<UserAccessCardInformation>,
     @InjectRepository(UserEmploymentAndFound)
-    private userEmploymentAndFound: Repository<UserEmploymentAndFound>,
+    private userEmploymentAndFoundRepository: Repository<UserEmploymentAndFound>,
     @InjectRepository(UserInternStatus)
-    private userInternStatus: Repository<UserInternStatus>,
+    private userInternStatusRepository: Repository<UserInternStatus>,
     @InjectRepository(UserHrdNetUtilize)
-    private userHrdNetUtilize: Repository<UserHrdNetUtilize>,
+    private userHrdNetUtilizeRepository: Repository<UserHrdNetUtilize>,
     @InjectRepository(UserEmploymentStatus)
-    private userEmploymentStatus: Repository<UserEmploymentStatus>,
+    private userEmploymentStatusRepository: Repository<UserEmploymentStatus>,
     @InjectRepository(UserComputationFund)
-    private userComputationFund: Repository<UserComputationFund>,
+    private userComputationFundRepository: Repository<UserComputationFund>,
     @InjectRepository(UserEducationFundState)
-    private userEducationFundState: Repository<UserEducationFundState>,
+    private userEducationFundStateRepository: Repository<UserEducationFundState>,
     @InjectRepository(UserLearningData)
-    private userLearningData: Repository<UserLearningData>,
+    private userLearningDataRepository: Repository<UserLearningData>,
     @InjectRepository(UserProcessProgress)
-    private userProcessProgress: Repository<UserProcessProgress>,
+    private userProcessProgressRepository: Repository<UserProcessProgress>,
     @InjectRepository(UserBlackhole)
-    private userBlackhole: Repository<UserBlackhole>,
+    private userBlackholeRepository: Repository<UserBlackhole>,
     @InjectRepository(UserLeaveOfAbsence)
-    private userLeaveOfAbsence: Repository<UserLeaveOfAbsence>,
+    private userLeaveOfAbsenceRepository: Repository<UserLeaveOfAbsence>,
     @InjectRepository(UserReasonOfBreak)
-    private userReasonOfBreak: Repository<UserReasonOfBreak>,
+    private userReasonOfBreakRepository: Repository<UserReasonOfBreak>,
     @InjectRepository(UserLapiscineInformation)
-    private userLapiscineInformation: Repository<UserLapiscineInformation>,
-    private apiService: ApiService,
+    private userLapiscineInformationRepository: Repository<UserLapiscineInformation>,
     @InjectDataSource()
     private dataSource: DataSource,
-  ) {}
-
-  repoArray = [
-    //메인, 하위
-    this.userRepository,
-    this.userPersonalRepository,
-    this.userProcessProgress,
-    this.userLeaveOfAbsence,
-    this.userBlackhole,
-    this.userReasonOfBreak,
-    this.userOtherRepository,
-    this.userLapiscineInformation,
-    this.userInternStatus,
-    this.userEmploymentAndFound,
-    this.userEmploymentStatus,
-    this.userHrdNetUtilize,
-    this.userEducationFundState,
-    this.userComputationFund,
-    this.userAccessCardRepository,
-  ];
-
-  @Cron('00 00 00 * * *') //24시간마다 업데이트
-  handleCron() {
-    console.log(this.updateDataPerDay());
+    private apiService: ApiService,
+    private spreadService: SpreadService,
+  ) {
+    //repoKeys에 선언된 문자열 value 를 받음
   }
 
-  async updateDataPerDay() {
-    let jsonData;
-    let tableNum = 0;
-    let index = 0;
+  repoDict: RepoDict = {
+    [repoKeys.user]: this.userRepository,
+    [repoKeys.userPersonal]: this.userPersonalRepository,
+    [repoKeys.userProcessProgress]: this.userProcessProgressRepository,
+    [repoKeys.userLeaveOfAbsence]: this.userLeaveOfAbsenceRepository,
+    [repoKeys.userBlackhole]: this.userBlackholeRepository,
+    [repoKeys.userReasonOfBreak]: this.userReasonOfBreakRepository,
+    [repoKeys.userOtherInformation]: this.userOtherInformationRepository,
+    [repoKeys.userLapiscineInformation]:
+      this.userLapiscineInformationRepository,
+    [repoKeys.userEmploymentAndFound]: this.userEmploymentAndFoundRepository,
+    [repoKeys.userHrdNetUtilize]: this.userHrdNetUtilizeRepository,
+    [repoKeys.userEducationFundState]: this.userEducationFundStateRepository,
+    [repoKeys.userComputationFund]: this.userComputationFundRepository,
+    [repoKeys.userAccessCard]: this.userAccessCardRepository,
+    [repoKeys.userLearningData]: this.userLearningDataRepository,
+  };
 
-    const apiOfRepo = [this.userLearningData];
+  repoArray = [
+    //spread 메인, 하위
+    this.userRepository,
+    this.userPersonalRepository,
+    this.userProcessProgressRepository,
+    this.userLeaveOfAbsenceRepository,
+    this.userBlackholeRepository,
+    this.userReasonOfBreakRepository,
+    this.userOtherInformationRepository,
+    this.userLapiscineInformationRepository,
+    this.userInternStatusRepository,
+    this.userEmploymentAndFoundRepository,
+    this.userEmploymentStatusRepository,
+    this.userHrdNetUtilizeRepository,
+    this.userEducationFundStateRepository,
+    this.userComputationFundRepository,
+    this.userAccessCardRepository,
+    //api 데이터를 담당하는 repository
+    // this.userLearningDataRepository,
+  ];
+
+  apiOfRepo = [this.userLearningDataRepository];
+
+  @Cron('00 00 00 * * *') //24시간마다 업데이트
+  updatePerDay() {
+    console.log(this.updateData());
+  }
+
+  async updateData() {
+    let tableNum = 0;
+    const index = 0;
 
     // eslint-disable-next-line prefer-const
-    jsonData = await this.sendRequestToSpread(SPREAD_END_POINT, SHEET_ID4);
+    const jsonData = await this.spreadService.sendRequestToSpread(
+      SPREAD_END_POINT,
+      SHEET_ID4,
+    );
 
     const obj = JSON.parse(jsonData);
     const cols = obj.table.cols;
@@ -128,306 +167,78 @@ export class UpdaterService {
 
     //console.log(api42s, 'wht');
     //return api42s;
+    const table_array = {};
+    let table_name;
+
+    /**
+     *  아래 for 문 두개 돌고 나온 tableArray 값 예시
+    {
+    "user": {
+        "0": {
+            "intra_no": 68582,
+            "intra_id": "hybae",
+            "name": "배현식",
+            "grade": "2기",
+            "start_process": "2020-01-28",
+            "academic_state": "휴학",
+            "coalition": "리"
+        },
+    "user_personal_information": {
+        "0": {
+            "region": "경기",
+            "gender": "남",
+            "birthday": "1998-02-17",
+            "phone_number": "hidden",
+            "email": "3b3-68582@student.42.fr",
+            "fk_user_no": "68582"
+        },
+     */
 
     for (const col in cols) {
-      console.log(col, 'col', tableNum, 'table');
-      if (cols[col]['label'] === endOfTable[tableNum])
+      //console.log(col, 'col', tableNum, 'table');
+      if (cols[col]['label'] === endOfTable[tableNum]) {
+        table_name = await this.spreadService.getTableName(cols[col]['label']);
+        table_array[table_name] = {};
         //tablle num 을 추가시키면서 label과 같은지 찾기, endoftable과 clos의 수가 같아서 가능
-        index = await this.parseSpread(
-          //인턴현황과 기타취업현황 추가됨.
+        table_array[table_name] = await this.spreadService.parseSpread(
           cols,
           rows,
-          index,
+          +col, //typescrit에서 string을 number로 바꾸기 위함
           this.repoArray[tableNum],
           mapObj[tableNum],
           endOfTable,
           ++tableNum,
           api42s,
         );
-      else if (
+      } else if (
         //endOfTable에 하위시트를 대비하여 메인에 없는 시트들이 생김
         cols.find((Column) => Column.label === endOfTable[tableNum]) ===
         undefined
       )
         tableNum++;
     }
-    for (const api_table in apiOfTable) {
-      if (apiOfTable[api_table] == '학습데이터') {
-        await this.apiService.parseApi(apiOfRepo[api_table], api42s);
+    for (const api_table_idx in apiTable) {
+      if (apiTable[api_table_idx] == '학습데이터') {
+        table_name = await this.spreadService.getTableName('학습데이터');
+        table_array[table_name] = {}; //학습데이터
+        table_array[table_name] = await this.apiService.parseApi(
+          apiTable[api_table_idx],
+          this.apiOfRepo[api_table_idx],
+          api42s,
+        );
+        //  }
       }
+      //return await 'finish';
+      // }
+      // return table_array;
+      //    const db_array = this.getLatestData();
+      //    return db_array;
     }
 
     return await 'All data has been updated';
   }
 
-  onlyNumbers(str) {
-    return /^[0-9]+$/.test(str);
-  }
-
-  change_date(str: string): string {
-    //console.log(str);
-    const convStr = str.replace(/. /g, '-');
-    const tmp = new Date(convStr);
-    const insertHyphen = (str, sub) =>
-      `${str.slice(0, 4)}${sub}${str.slice(4, 6)}${sub}${str.slice(6)}`;
-    if (str === convStr && this.onlyNumbers(str)) return insertHyphen(str, '-');
-    //생년월일에 - 추가해야함
-    const year = tmp.getFullYear();
-    const tmpMonth = tmp.getMonth() + 1;
-    const tmpDay = tmp.getDate();
-    const month = tmpMonth >= 10 ? tmpMonth : '0' + tmpMonth;
-    const day = tmpDay >= 10 ? tmpDay : '0' + tmpDay;
-    return `${year}-${month}-${day}`;
-  }
-
-  checkEnd(endpoint, endOfTable, label) {
-    for (const idx in endOfTable) {
-      if (Number(idx) < endpoint) continue;
-      if (endOfTable[Number(idx)] === label) return 1;
-    }
-    return false;
-  }
-
-  //테이블 별 하나의 로우 완성하는 함수
-  makeLowPerColumn(row, cols, rowIdx, tuple, mapObjs) {
-    let columnLabel;
-
-    if (
-      row['c'][rowIdx] !== null &&
-      (columnLabel = mapObjs.find(
-        this.compareSpname(cols[rowIdx]['label']),
-      )) !== undefined
-    ) {
-      //타입이 date인 경우 변환처리해줘야 db에 적용됨.
-      if (cols[rowIdx]['type'] === 'date') {
-        tuple[`${columnLabel.dbName}`] = this.change_date(
-          row['c'][rowIdx]['f'],
-        );
-      } else if (row['c'][rowIdx]['v'] !== null) {
-        tuple[`${columnLabel.dbName}`] = row['c'][rowIdx]['v'];
-      }
-    }
-  }
-
-  async parseSpread(
-    cols,
-    rows,
-    colIdx: number,
-    Repo,
-    mapObj,
-    endOfTable,
-    tableNum?, // 하위시트는 넘버가 필요없음.
-    api42s?,
-  ): Promise<number> {
-    let tupleLine;
-    let ColLowIdx; //컬럼의 위치 튜플의 도메인 위치 맞춰주기 위한 색인
-
-    for (const row of rows) {
-      const tuple = {};
-      ColLowIdx = colIdx; //특정 테이블의 시작에 해당하는 컬럼의 색인으로 초기화
-      while (
-        cols[ColLowIdx] !== undefined &&
-        !this.checkEnd(tableNum, endOfTable, cols[ColLowIdx]['label'])
-      ) {
-        this.makeLowPerColumn(row, cols, ColLowIdx, tuple, mapObj);
-        ColLowIdx++;
-      }
-      //console.log('before intra', tuple, '111111111111');
-      if (api42s != undefined) {
-        const api42 = await this.apiService.getTupleFromApi(
-          //updater name이 13개 유효하므로, 총 13번 호출됨, email, phone 같은 건 해당 테이블일 때만 컬럼에 넣어주면 될듯
-          row['c'][1]['f'],
-          api42s,
-        );
-        //console.log(api42);
-        tuple['email'] = api42.email;
-        tuple['phone_number'] = api42.phone_number;
-        tuple['remaining_period'] = api42.remaining_period;
-        tuple['blackhole_time'] = api42.blackhole_time;
-      }
-      //tuple['circle'] = api42.circle;
-      tupleLine = Repo.create(tuple);
-      tupleLine['fk_user_no'] = row['c'][1]['f'];
-      await Repo.save(tupleLine);
-    }
-    return ColLowIdx;
-  }
-
-  compareSpname(label) {
-    return (column) => column.spName === label;
-  }
-
-  compareFkCircleDate(fk, date) {
-    return (data) => data.fk_user_no === fk && data.circle_date === date;
-  }
-
-  isKeyExists(obj, key) {
-    if (obj[key] == undefined) {
-      return false;
-    } else {
-      return true;
-    }
-  }
-
-  insertArrayToDB(entity, array) {
-    this.dataSource
-      .createQueryBuilder()
-      .insert()
-      .into(entity)
-      .values(array)
-      .execute();
-  }
-  async sendRequestToSpread(endPoint: string, id: string) {
-    let spreadData;
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const axios = require('axios');
-
-    await axios({
-      method: 'get',
-      url: `http://spreadsheets.google.com/tq?key=${endPoint}&pub=1&gid=${id}`,
-    })
-      .then(function (response) {
-        const rawdata = response.data;
-
-        const temp = '/*O_o*/\ngoogle.visualization.Query.setResponse(';
-        const temp2 = '';
-        const temp3 = ');';
-
-        const rawdata2 = rawdata.replace(temp, temp2);
-        spreadData = rawdata2.replace(temp3, temp2);
-      })
-      .catch(function (err) {
-        console.log(err); // 에러 처리 내용
-      });
-
-    return await spreadData;
-  }
-
-  async getOldSheetLogColumns(colObj) {
-    const colDatas = [];
-
-    let date;
-
-    for (const idx in colObj.Id) {
-      //시트의 총 장수 만큼 반복
-      const jsonData = await this.sendRequestToSpread(
-        colObj.endPoint,
-        colObj.Id[idx],
-      );
-      const obj = JSON.parse(jsonData);
-      colDatas.push(obj);
-    }
-    const datas = [];
-    for (const colData in colDatas) {
-      const cols = colDatas[colData].table.cols;
-      const rows = colDatas[colData].table.rows;
-      if (colObj.table === TABLENUM.USERCOMPUTATIONFUND) {
-        this.makeAColumnInTable(cols, rows, datas, date);
-      } else if (colObj.table === TABLENUM.USERLEARNINGDATA) {
-        if (colData === '0') {
-          this.makeColumnsInTable(cols, rows, datas, date, 1, 0);
-        } else if (colData === '1')
-          this.makeColumnsInTable(cols, rows, datas, date, 3, 2);
-      }
-      await this.insertArrayToDB(UserLearningData, datas);
-    }
-    return colDatas;
-  }
-
-  makeAColumnInTable(cols, rows, datas, date) {
-    for (const col in cols) {
-      if (cols[col]['pattern'] === 'yyyy. mm. dd') {
-        for (const row in rows) {
-          const payment_data = {};
-          if (row === '0') {
-            date = rows[row]['c'][col]['f'];
-            continue;
-          }
-          if (rows[row]['c'][col] === null) continue;
-          payment_data[mapObj[TABLENUM.USERCOMPUTATIONFUND][2].dbName] =
-            this.change_date(date);
-          payment_data[mapObj[TABLENUM.USERCOMPUTATIONFUND][1].dbName] = Number(
-            rows[row]['c'][col]['f'].replace(/\,/g, ''),
-          );
-          if (rows[row]['c'][col]['f'] != '0')
-            payment_data[mapObj[TABLENUM.USERCOMPUTATIONFUND][0].dbName] = 'Y';
-          payment_data['fk_user_no'] = rows[row]['c'][1]['f'];
-          datas.push(payment_data);
-        }
-      }
-    }
-  }
-
-  makeColumnsInTable(cols, rows, datas, date, dateIdx, nonDateIdx) {
-    //한테이블에 두개이상 컬럼을 추가하는 경우
-    let data;
-
-    for (const col in cols) {
-      if (cols[col]['pattern'] === 'yyyy. mm. dd') {
-        for (const row in rows) {
-          const inputData = {};
-          if (row === '0') {
-            date = rows[row]['c'][col]['f'];
-            continue;
-          }
-          if (rows[row]['c'][col] === null) continue;
-          inputData[mapObj[TABLENUM.USERLEARNINGDATA][dateIdx].dbName] =
-            this.change_date(date);
-          inputData[mapObj[TABLENUM.USERLEARNINGDATA][nonDateIdx].dbName] =
-            Number(rows[row]['c'][col]['f']);
-          inputData['fk_user_no'] = rows[row]['c'][1]['f'];
-          if (
-            //fk와 기존 일자와 동일한 경우 같이 삽입 하드코딩작업
-            (data = datas.find(
-              this.compareFkCircleDate(
-                inputData['fk_user_no'],
-                inputData['level_date'],
-              ),
-            )) !== undefined
-          ) {
-            Object.assign(data, inputData);
-          } else {
-            datas.push(inputData);
-          }
-        }
-      }
-    }
-  }
-
-  async parseOldSpread(cols, rows, pastSheetData) {
-    let tupleLine;
-
-    for (const row of rows) {
-      //학생의 수 만큼 반복
-      const tuple = {};
-      const columns = pastSheetData.columns; // 해당 시트 테이블의 컬럼들
-      for (const col in cols) {
-        //컬럼 수 만큼 반복
-        this.makeLowPerColumn(row, cols, col, tuple, columns);
-      }
-      tupleLine = await pastSheetData['repo'].create(tuple);
-      tupleLine['fk_user_no'] = row['c'][1]['f']; //취업정보, 고용보험 시트의 경우 변경을 해줘야함.
-      await pastSheetData['repo'].save(tupleLine);
-    }
-  }
-
-  async getOldSheetTable(pastSheetData) {
-    let colObj;
-    // let colDatas;
-    const jsonData = await this.sendRequestToSpread(
-      pastSheetData.endPoint,
-      pastSheetData.Id,
-    );
-    const obj = JSON.parse(jsonData);
-    const cols = obj.table.cols;
-    const rows = obj.table.rows;
-
-    //지급일 시트 정보 받아서 저장해두기 테이블 관계수정 //확장성을 고려하려 했으나, 지원금 시트(LogColumn)의 특징이 강력하여 함수를 하나 더 만들기로 결정
-
-    await this.parseOldSpread(cols, rows, pastSheetData);
-  }
-
-  async getOldData() {
+  async updateOldData() {
     /* 지원금 관련 월별 지금액 시트 */
     //this.sendRequestToSpread();
     /* 테이블 별 과거 데이터 */
@@ -437,13 +248,16 @@ export class UpdaterService {
     const index = 0;
 
     // eslint-disable-next-line prefer-const
-    jsonData = await this.sendRequestToSpread(SPREAD_END_POINT, SHEET_ID2);
+    jsonData = await this.spreadService.sendRequestToSpread(
+      SPREAD_END_POINT,
+      SHEET_ID2,
+    );
 
     const obj = JSON.parse(jsonData);
     const cols = obj.table.cols;
     const rows = obj.table.rows;
 
-    await this.parseSpread(
+    await this.spreadService.parseSpread(
       cols,
       rows,
       index,
@@ -456,15 +270,87 @@ export class UpdaterService {
       //시트의 총 장수 만큼 반복
       if (pastDataOnSheet[sheetIdx].endPoint) {
         pastDataOnSheet[sheetIdx]['repo'] = this.repoArray[sheetIdx];
-        await this.getOldSheetTable(pastDataOnSheet[sheetIdx]);
+        await this.spreadService.getOldSheetTable(pastDataOnSheet[sheetIdx]);
       } else if (
         (pastColumn = pastDataOnColumn.find(
           (Column) => Column.table === pastDataOnSheet[sheetIdx].table,
         )) != undefined
       ) {
-        await this.getOldSheetLogColumns(pastColumn);
+        await this.spreadService.getOldSheetLogColumns(pastColumn);
       }
     }
-    return await 'finish';
+    return await 'All old data has been updated';
+  }
+
+  async updateDb(table_array) {
+    console.log('inin');
+    for (const table of table_array) {
+      console.log(table, 'taaa');
+    }
+  }
+
+  async getLatestData() {
+    let ret;
+    let user;
+    // for (const repoName of repoArray) {
+    const repo = this.dataSource.getRepository(User);
+    const obj = {};
+    // obj['relations'] = {};
+    // obj['relations']['user'] = true;
+    // obj['order'] = {};
+    // obj['order']['created_at'] = 'DESC';
+    // ret = await repo.find(obj);
+    // console.log(ret, 'ret');
+    // return ret;
+    //   }
+
+    let resultd;
+    await Object.keys(repoKeys).forEach(async (repoKey) => {
+      //console.log('repoKey: ', repoKey);
+      const latestDataObj = this.repoDict[repoKey];
+
+      console.log(latestDataObj, 'ddd');
+      resultd = await latestDataObj
+        .createQueryBuilder(`${repoKey}`)
+        .select()
+        //.groupBy('user.intra_no')
+        .getMany();
+    });
+    //   console.log(resultd, 'ddsss');
+    // return resultd;
+    // });
+    // console.log(ojj, 'ccc');
+    // while (1);
+    // try {
+    //   user = await repo.find({
+    //     order: { intra_id: 'DESC', created_date: 'DESC' },
+    //   });
+    // } catch {
+    //   throw 'error';
+    // }
+    // //console.log(user[0].intra_no, 'ddd');
+    // let checkUser = '0';
+    // const userArray = [];
+    // for (const latest of user) {
+    //   if (latest.intra_id != checkUser) {
+    //     checkUser = latest.intra_id;
+    //     userArray.push(latest);
+    //   }
+    //   // if (latest.intra_no == checkUser) {
+    //   // }
+    // }
+
+    // console.log(userArray);
+    // return userArray;
+    //학생 개개인의 배열 모음으로 어떻게 구성 할 수 있을까??
+    //
+    // for (const idx of user) {
+    //   user.
+    // }
+    // for (const obj in user) {
+    //   user[obj].fk_user_no
+    // }
+    //  console.log(user);
+    return 'finish';
   }
 }

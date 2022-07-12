@@ -19,17 +19,20 @@ export class Api {
   circle: number;
 
   @Field(() => Int)
-  outercircle: string;
+  out_circle: string;
 
   @Field(() => Int)
-  outercircle_date: Date;
+  out_circle_date: Date;
 
   @Field(() => Int)
-  coaltion_score: number;
+  coalition_score: number;
 
   @Field(() => Int)
   blackhole_time: Date;
 
   @Field(() => Int)
   remaining_period: number;
+
+  @Field(() => Int)
+  fk_user_no: number;
 }

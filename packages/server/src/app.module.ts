@@ -20,10 +20,10 @@ import { ScheduleModule } from '@nestjs/schedule';
   imports: [
     TypeOrmModule.forRoot(typeORMConfig),
     UserInformationModule,
-    ApiModule,
     UserJobModule,
     UserPaymentModule,
     UserStatusModule,
+    ApiModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       debug: false,
