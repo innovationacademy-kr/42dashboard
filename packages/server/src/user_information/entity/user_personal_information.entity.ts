@@ -55,6 +55,6 @@ export class UserPersonalInformation {
     createForeignKeyConstraints: false, //외래키 제약조건 해제
     nullable: false,
   })
-  @JoinColumn() //user와 이름이 중복되는 에러로 인해 이름변경
+  @JoinColumn({ name: 'fk_user_no' }) //user와 이름이 중복되는 에러로 인해 이름변경
   user: User;
 }

@@ -18,7 +18,7 @@ import {
   SUB_T_ID8,
 } from 'src/config/key';
 
-export enum TABLENUM {
+export const enum TABLENUM {
   USER = 0,
   USERPERSONAL = 1,
   USERPROCESSPROGRESS = 2,

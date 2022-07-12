@@ -12,6 +12,7 @@ import {
   app_id,
   app_secret,
   SHEET_ID2,
+  SHEET_ID4,
   SPREAD_END_POINT,
 } from 'src/config/key';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
@@ -45,6 +46,7 @@ import {
   pastDataOnSheet,
   TABLENUM,
 } from './name_types/updater.name';
+import { find, map } from 'rxjs';
 
 @Injectable() //총 16개의 테이블
 export class UpdaterService {
@@ -86,35 +88,34 @@ export class UpdaterService {
     private dataSource: DataSource,
   ) {}
 
-  async getAllSpread(): Promise<string> {
+  repoArray = [
+    //메인, 하위
+    this.userRepository,
+    this.userPersonalRepository,
+    this.userProcessProgress,
+    this.userLeaveOfAbsence,
+    this.userBlackhole,
+    this.userReasonOfBreak,
+    this.userOtherRepository,
+    this.userLapiscineInformation,
+    this.userInternStatus,
+    this.userEmploymentAndFound,
+    this.userEmploymentStatus,
+    this.userHrdNetUtilize,
+    this.userEducationFundState,
+    this.userComputationFund,
+    this.userAccessCardRepository,
+  ];
+
+  async getAllSpread() {
     let jsonData;
     let tableNum = 0;
     let index = 0;
 
-    const repoArray = [
-      //메인3
-      this.userRepository,
-      this.userPersonalRepository,
-      this.userProcessProgress,
-      this.userLeaveOfAbsence,
-      this.userBlackhole,
-      this.userReasonOfBreak,
-
-      this.userOtherRepository,
-      this.userLapiscineInformation,
-      this.userInternStatus,
-      this.userEmploymentAndFound,
-      this.userEmploymentStatus,
-      this.userHrdNetUtilize,
-      this.userEducationFundState,
-      this.userComputationFund,
-      this.userAccessCardRepository,
-    ];
-
     const apiOfRepo = [this.userLearningData];
 
     // eslint-disable-next-line prefer-const
-    jsonData = await this.sendRequestToSpread(SPREAD_END_POINT, SHEET_ID2);
+    jsonData = await this.sendRequestToSpread(SPREAD_END_POINT, SHEET_ID4);
 
     const obj = JSON.parse(jsonData);
     const cols = obj.table.cols;
@@ -133,7 +134,7 @@ export class UpdaterService {
           cols,
           rows,
           index,
-          repoArray[tableNum],
+          this.repoArray[tableNum],
           mapObj[tableNum],
           endOfTable,
           ++tableNum,
@@ -172,7 +173,7 @@ export class UpdaterService {
     const tmpDay = tmp.getDate();
     const month = tmpMonth >= 10 ? tmpMonth : '0' + tmpMonth;
     const day = tmpDay >= 10 ? tmpDay : '0' + tmpDay;
-    return year + '-' + month + '-' + day;
+    return `${year}-${month}-${day}`;
   }
 
   checkEnd(endpoint, endOfTable, label) {
@@ -180,7 +181,28 @@ export class UpdaterService {
       if (Number(idx) < endpoint) continue;
       if (endOfTable[Number(idx)] === label) return 1;
     }
-    return 0;
+    return false;
+  }
+
+  //테이블 별 하나의 로우 완성하는 함수
+  makeLowPerColumn(row, cols, rowIdx, tuple, mapObjs) {
+    let columnLabel;
+
+    if (
+      row['c'][rowIdx] !== null &&
+      (columnLabel = mapObjs.find(
+        this.compareSpname(cols[rowIdx]['label']),
+      )) !== undefined
+    ) {
+      //타입이 date인 경우 변환처리해줘야 db에 적용됨.
+      if (cols[rowIdx]['type'] === 'date') {
+        tuple[`${columnLabel.dbName}`] = this.change_date(
+          row['c'][rowIdx]['f'],
+        );
+      } else if (row['c'][rowIdx]['v'] !== null) {
+        tuple[`${columnLabel.dbName}`] = row['c'][rowIdx]['v'];
+      }
+    }
   }
 
   async parseSpread(
@@ -194,70 +216,63 @@ export class UpdaterService {
     api42s?,
   ): Promise<number> {
     let tupleLine;
-    let idx; //특정 테이블에 있는 컬럼인지 검사하는 색인
-    let jdx = colIdx; //컬럼의 위치 튜플의 도메인 위치 맞춰주기 위한 색인
-    const check = endOfTable + 1;
+    let ColLowIdx; //컬럼의 위치 튜플의 도메인 위치 맞춰주기 위한 색인
 
     for (const row of rows) {
       const tuple = {};
-      jdx = colIdx; //특정 테이블의 시작에 해당하는 컬럼의 색인으로 초기화
-      while (1) {
-        //하나의 로우 완성
-        idx = 0;
-        if (
-          cols[jdx] === undefined ||
-          this.checkEnd(tableNum, endOfTable, cols[jdx]['label']) //테이블이 추가됨에 따라 확장성을 고려해서 추가함
-        ) {
-          break;
-        } else if (
-          row['c'][jdx] === null &&
-          (idx = this.compareColumn(cols[jdx]['label'], mapObj)) !== -1
-        ) {
-          //tuple[`${mapObj[idx].dbName}`] = null; //셀값이 null인 경우 별도의 처리 //위의 경우 다음 걸로 패스 어차피 없으면 null을 넣음.
-        } else if (
-          (idx = this.compareColumn(cols[jdx]['label'], mapObj)) !== -1
-        ) {
-          if (cols[jdx]['type'] === 'date')
-            //타입이 date인 경우 변환처리해줘야 db에 적용됨.
-            tuple[`${mapObj[idx].dbName}`] = this.change_date(
-              row['c'][jdx]['f'],
-            );
-          else if (row['c'][jdx]['v'] !== null)
-            tuple[`${mapObj[idx].dbName}`] = row['c'][jdx]['v'];
-          console.log(
-            tuple[`${mapObj[idx].dbName}`],
-            ` : ${mapObj[idx].dbName}`,
-          );
-        }
-        jdx++;
+      ColLowIdx = colIdx; //특정 테이블의 시작에 해당하는 컬럼의 색인으로 초기화
+      while (
+        cols[ColLowIdx] !== undefined &&
+        !this.checkEnd(tableNum, endOfTable, cols[ColLowIdx]['label'])
+      ) {
+        this.makeLowPerColumn(row, cols, ColLowIdx, tuple, mapObj);
+        ColLowIdx++;
       }
       //console.log('before intra', tuple, '111111111111');
-      const api42 = await this.apiService.getTupleFromApi(
-        //updater name이 13개 유효하므로, 총 13번 호출됨, email, phone 같은 건 해당 테이블일 때만 컬럼에 넣어주면 될듯
-        row['c'][1]['f'],
-        api42s,
-      );
-      //console.log(api42);
-      tuple['email'] = api42.email;
-      tuple['phone_number'] = api42.phone_number;
-      tuple['remaining_period'] = api42.remaining_period;
-      tuple['blackhole_time'] = api42.blackhole_time;
+      if (api42s != undefined) {
+        const api42 = await this.apiService.getTupleFromApi(
+          //updater name이 13개 유효하므로, 총 13번 호출됨, email, phone 같은 건 해당 테이블일 때만 컬럼에 넣어주면 될듯
+          row['c'][1]['f'],
+          api42s,
+        );
+        //console.log(api42);
+        tuple['email'] = api42.email;
+        tuple['phone_number'] = api42.phone_number;
+        tuple['remaining_period'] = api42.remaining_period;
+        tuple['blackhole_time'] = api42.blackhole_time;
+      }
       //tuple['circle'] = api42.circle;
-      console.log(tuple, 'tupleeee');
       tupleLine = Repo.create(tuple);
       tupleLine['fk_user_no'] = row['c'][1]['f'];
       await Repo.save(tupleLine);
     }
-    return jdx;
+    return ColLowIdx;
   }
 
-  compareColumn(label, objs): number {
-    for (const obj in objs) {
-      if (label === objs[obj].spName) return Number(obj);
+  compareSpname(label) {
+    return (column) => column.spName === label;
+  }
+
+  compareFkCircleDate(fk, date) {
+    return (data) => data.fk_user_no === fk && data.circle_date === date;
+  }
+
+  isKeyExists(obj, key) {
+    if (obj[key] == undefined) {
+      return false;
+    } else {
+      return true;
     }
-    return -1;
   }
 
+  insertArrayToDB(entity, array) {
+    this.dataSource
+      .createQueryBuilder()
+      .insert()
+      .into(entity)
+      .values(array)
+      .execute();
+  }
   async sendRequestToSpread(endPoint: string, id: string) {
     let spreadData;
     // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -298,37 +313,19 @@ export class UpdaterService {
       const obj = JSON.parse(jsonData);
       colDatas.push(obj);
     }
-    if (colObj.table === TABLENUM.USERCOMPUTATIONFUND) {
-      const datas = [];
-      for (const colData of colDatas) {
-        const cols = colData.table.cols;
-        const rows = colData.table.rows;
+    const datas = [];
+    for (const colData in colDatas) {
+      const cols = colDatas[colData].table.cols;
+      const rows = colDatas[colData].table.rows;
+      if (colObj.table === TABLENUM.USERCOMPUTATIONFUND) {
         this.makeAColumnInTable(cols, rows, datas, date);
-      }
-      await this.dataSource
-        .createQueryBuilder()
-        .insert()
-        .into(UserComputationFund)
-        .values(datas)
-        .execute();
-    }
-    if (colObj.table === TABLENUM.USERLEARNINGDATA) {
-      const datas = [];
-      for (const colData in colDatas) {
-        const cols = colDatas[colData].table.cols;
-        const rows = colDatas[colData].table.rows;
-
-        if (colData === '0')
+      } else if (colObj.table === TABLENUM.USERLEARNINGDATA) {
+        if (colData === '0') {
           this.makeColumnsInTable(cols, rows, datas, date, 1, 0);
-        else if (colData === '1')
+        } else if (colData === '1')
           this.makeColumnsInTable(cols, rows, datas, date, 3, 2);
-        await this.dataSource
-          .createQueryBuilder()
-          .insert()
-          .into(UserLearningData)
-          .values(datas)
-          .execute();
       }
+      await this.insertArrayToDB(UserLearningData, datas);
     }
     return colDatas;
   }
@@ -357,8 +354,10 @@ export class UpdaterService {
     }
   }
 
-  makeColumnsInTable(cols, rows, datas, date, idx1, idx2) {
+  makeColumnsInTable(cols, rows, datas, date, dateIdx, nonDateIdx) {
     //한테이블에 두개이상 컬럼을 추가하는 경우
+    let data;
+
     for (const col in cols) {
       if (cols[col]['pattern'] === 'yyyy. mm. dd') {
         for (const row in rows) {
@@ -368,14 +367,24 @@ export class UpdaterService {
             continue;
           }
           if (rows[row]['c'][col] === null) continue;
-          inputData[mapObj[TABLENUM.USERLEARNINGDATA][idx1].dbName] =
+          inputData[mapObj[TABLENUM.USERLEARNINGDATA][dateIdx].dbName] =
             this.change_date(date);
-          inputData[mapObj[TABLENUM.USERLEARNINGDATA][idx2].dbName] = Number(
-            rows[row]['c'][col]['f'],
-          );
+          inputData[mapObj[TABLENUM.USERLEARNINGDATA][nonDateIdx].dbName] =
+            Number(rows[row]['c'][col]['f']);
           inputData['fk_user_no'] = rows[row]['c'][1]['f'];
-
-          datas.push(inputData);
+          if (
+            //fk와 기존 일자와 동일한 경우 같이 삽입 하드코딩작업
+            (data = datas.find(
+              this.compareFkCircleDate(
+                inputData['fk_user_no'],
+                inputData['level_date'],
+              ),
+            )) !== undefined
+          ) {
+            Object.assign(data, inputData);
+          } else {
+            datas.push(inputData);
+          }
         }
       }
     }
@@ -388,27 +397,9 @@ export class UpdaterService {
       //학생의 수 만큼 반복
       const tuple = {};
       const columns = pastSheetData.columns; // 해당 시트 테이블의 컬럼들
-      let idx;
       for (const col in cols) {
         //컬럼 수 만큼 반복
-        if (
-          row['c'][col] === null &&
-          (idx = this.compareColumn(cols[col]['label'], columns)) !== -1
-        ) {
-          continue;
-        } else if (
-          (idx = this.compareColumn(cols[col]['label'], columns)) !== -1
-        ) {
-          if (cols[col]['type'] === 'date')
-            //타입이 date인 경우 변환처리해줘야 db에 적용됨
-            tuple[`${columns[idx].dbName}`] = this.change_date(
-              row['c'][col]['f'],
-            );
-          else if (row['c'][col]['v'] !== null) {
-            //여기서 한사람이 지금껏 받은 지원금의 모든 컬럼을 넣을 것
-            tuple[`${columns[idx].dbName}`] = row['c'][col]['v'];
-          }
-        }
+        this.makeLowPerColumn(row, cols, col, tuple, columns);
       }
       tupleLine = await pastSheetData['repo'].create(tuple);
       tupleLine['fk_user_no'] = row['c'][1]['f']; //취업정보, 고용보험 시트의 경우 변경을 해줘야함.
@@ -436,29 +427,10 @@ export class UpdaterService {
     /* 지원금 관련 월별 지금액 시트 */
     //this.sendRequestToSpread();
     /* 테이블 별 과거 데이터 */
-    let colObj;
     let pastColumn;
 
-    const pastDataRepoArray = [
-      //하위2
-      this.userRepository,
-      this.userPersonalRepository,
-      this.userProcessProgress,
-      this.userLeaveOfAbsence,
-      this.userBlackhole,
-      this.userReasonOfBreak,
-      this.userOtherRepository,
-      this.userLapiscineInformation,
-      this.userInternStatus,
-      this.userEmploymentAndFound,
-      this.userEmploymentStatus,
-      this.userHrdNetUtilize,
-      this.userEducationFundState,
-      this.userComputationFund,
-      this.userAccessCardRepository,
-    ];
     let jsonData;
-    let index = 0;
+    const index = 0;
 
     // eslint-disable-next-line prefer-const
     jsonData = await this.sendRequestToSpread(SPREAD_END_POINT, SHEET_ID2);
@@ -467,18 +439,19 @@ export class UpdaterService {
     const cols = obj.table.cols;
     const rows = obj.table.rows;
 
-    index = await this.parseSpread(
+    await this.parseSpread(
       cols,
       rows,
       index,
       this.userRepository,
       mapObj[0],
       endOfTable[1],
+      undefined,
     );
     for (const sheetIdx in pastDataOnSheet) {
       //시트의 총 장수 만큼 반복
       if (pastDataOnSheet[sheetIdx].endPoint) {
-        pastDataOnSheet[sheetIdx]['repo'] = pastDataRepoArray[sheetIdx];
+        pastDataOnSheet[sheetIdx]['repo'] = this.repoArray[sheetIdx];
         await this.getOldSheetTable(pastDataOnSheet[sheetIdx]);
       } else if (
         (pastColumn = pastDataOnColumn.find(
