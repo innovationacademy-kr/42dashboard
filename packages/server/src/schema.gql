@@ -8,11 +8,11 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 input Filter {
-  column: String!
+  column: String
   entityName: String!
-  givenValue: String!
-  latest: Boolean!
-  operator: String!
+  givenValue: String
+  latest: Boolean
+  operator: String
 }
 
 type JoinedTable {
@@ -51,6 +51,7 @@ type Mutation {
 type Query {
   getAllSpread: String!
   getNumOfPeopleByFilter(filters: [Filter!]!, skip: Int, take: Int): Int!
+  getOldData: String!
   getPeopleByFilter(filters: [Filter!]!, skip: Int, take: Int): [JoinedTable!]!
   getPeopleByFilterForAdmin(filters: [Filter!]!, skip: Int, take: Int): [JoinedTable!]!
   getUserAccessCardInformation: [UserAccessCardInformation!]!
@@ -71,6 +72,7 @@ type Query {
 
 type UserAccessCardInformation {
   created_date: DateTime!
+  deleted_date: DateTime!
   lapiscine_logical_number: Int!
   lapiscine_physical_number: Int!
   logical_number_for_main_course: Int!
@@ -82,6 +84,7 @@ type UserAccessCardInformation {
 type UserBlackhole {
   blackhole_time: DateTime!
   created_date: DateTime!
+  deleted_date: DateTime!
   pk: Float!
   reason_of_blackhole: String
   remaining_period: Float
@@ -89,20 +92,22 @@ type UserBlackhole {
 
 type UserComputationFund {
   created_date: DateTime!
-  majoreceived_fundr_field: String!
+  deleted_date: DateTime!
+  is_received_fund: String!
   no_duplicate_collection: String!
   payment_date: DateTime
   pk: Int!
   reason_of_no_duplicate: String
-  recevied_grant_amount: Int!
+  recevied_amount: Int!
 }
 
 type UserEducationFundState {
   created_date: DateTime!
-  fund_period: DateTime
+  deleted_date: DateTime!
+  fund_period: DateTime!
   payment_delay_period: Int
-  payment_give_break_date: DateTime
-  payment_give_start_date: DateTime
+  payment_end_date: DateTime!
+  payment_give_start_date: DateTime!
   pk: Int!
   remaining_period_of_fund: Int
   total_calculated_month: Int!
@@ -111,23 +116,29 @@ type UserEducationFundState {
 }
 
 type UserEmploymentAndFound {
+  consent_to_provide_information: String!
   created_date: DateTime!
+  deleted_date: DateTime!
   employment: String!
   employment_date: DateTime
   enterprise: String
-  pk: Int!
+  pk: Float!
 }
 
 type UserEmploymentStatus {
   created_date: DateTime!
+  deleted_date: DateTime!
   emplyment_date: DateTime
   enterprise: String
+  enterprise_size: String
   pk: Float!
 }
 
 type UserHrdNetUtilize {
   consent_to_provide_information: String!
   created_date: DateTime!
+  deleted_date: DateTime!
+  employment: String!
   employment_insurance_date: DateTime
   enterprise: String
   enterprise_size: String
@@ -136,17 +147,19 @@ type UserHrdNetUtilize {
 
 type UserInternStatus {
   created_date: DateTime!
+  deleted_date: DateTime!
   end_intern_date: Float
   enterprise: DateTime
-  intern_blackhole: Float
-  intern_blackhole_date: DateTime
+  given_blackhole_day: Float
   intern_note: Float
   intern_part_of_job: Float
+  is_given_blackhole: String!
   pk: Float!
   start_intern_date: Float
 }
 
 type UserLapiscineInformation {
+  deleted_date: DateTime!
   lapiscine_degree: String!
   lapiscine_grade: String
   number_of_rapicin_participation: String
@@ -156,9 +169,12 @@ type UserLapiscineInformation {
 
 type UserLearningData {
   circle: Float
-  coalition_score: Float!
+  circle_date: DateTime
+  coalition_score: Float
   created_date: DateTime!
-  level: Float!
+  deleted_date: DateTime!
+  level: Float
+  level_date: DateTime
   out_circle: String
   out_circle_date: DateTime
   pk: Float!
@@ -167,6 +183,7 @@ type UserLearningData {
 type UserLeaveOfAbsence {
   absence_reason: String
   created_date: DateTime!
+  deleted_date: DateTime!
   end_absence_date: DateTime
   pk: Float!
   return_from_absence_date: DateTime
@@ -175,6 +192,7 @@ type UserLeaveOfAbsence {
 
 type UserOtherInformation {
   created_date: DateTime!
+  deleted_date: DateTime!
   experience_of_software_developing: String!
   highest_level_of_education: String!
   major: String!
@@ -198,6 +216,7 @@ type UserPersonalInformation {
 type UserProcessProgress {
   basic_expiration_date: DateTime!
   created_date: DateTime!
+  deleted_date: DateTime!
   final_expiration_date: DateTime!
   pk: Float!
   request_extension: String
@@ -206,6 +225,7 @@ type UserProcessProgress {
 type UserReasonOfBreak {
   created_date: DateTime!
   date_of_break: DateTime!
+  deleted_date: DateTime!
   pk: Float!
   reason_of_break: String
 }

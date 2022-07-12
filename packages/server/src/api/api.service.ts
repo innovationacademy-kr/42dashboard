@@ -59,13 +59,13 @@ export class ApiService {
 
   async requestApi(token) {
     let api_data = [];
-    let page_num = 1;
+    let page_num = 20;
 
     while (1) {
       const temp = await axios({
         method: 'get', // 요청 방식
 
-        url: `https://api.intra.42.fr/v2/cursus/21/cursus_users?filter[campus_id]=29&page[number]=${page_num}&page[size]=100$sort=user_id`,
+        url: `https://api.intra.42.fr/v2/cursus/21/cursus_users?filter[campus_id]=29&page[number]=${page_num}&page[size]=100$sort=-user_id`,
         //url: 'https://api.intra.42.fr/v2/cursus_users/117025', //cursus_id 41값인 외국인 같음 grade도 null 임
         headers: {
           Authorization: `Bearer ${token}`,
@@ -75,11 +75,11 @@ export class ApiService {
 
       //    console.log(page_num);
       // console.log('why ', temp.data.length);
-      console.log(page_num);
+      //console.log(page_num);
 
       if (temp.data.length === 0) {
         //(temp.data == null || temp.data == undefined) {
-        console.log('i got all data from 42api');
+        //console.log('i got all data from 42api');
         break;
       }
       //console.log(temp.data.user.staff);
@@ -104,7 +104,10 @@ export class ApiService {
     let idx = 0;
 
     for (const row in api_data) {
-      if (api_data[row].user['staff?'] == true) {
+      if (
+        api_data[row].user['staff?'] == false &&
+        api_data[row].user.login.split('-')[0] !== 'm'
+      ) {
         parsed_data[idx] = {};
         parsed_data[idx]['intra_no'] = api_data[row].user.id;
         parsed_data[idx]['intra_id'] = api_data[row].user.login;
@@ -123,7 +126,7 @@ export class ApiService {
           api_data[row].blackholed_at,
         );
         idx++;
-        console.log(parsed_data);
+        //console.log(parsed_data);
       }
     }
     return parsed_data;
@@ -181,7 +184,7 @@ export class ApiService {
         return api42;
       }
     }
-    console.log('cant find');
+    //console.log('cant find');
     return -1;
   }
 
@@ -189,7 +192,7 @@ export class ApiService {
     const api = new UserLearningData();
     let api_tuple;
     for (const api42 of api42s) {
-      console.log(api42);
+      //console.log(api42);
       //api.intra_no = api42.id;
       api.circle = api42.circle;
       api.level = api42.level;
