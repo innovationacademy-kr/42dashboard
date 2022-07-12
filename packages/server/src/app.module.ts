@@ -14,6 +14,7 @@ import { ApiModule } from './api/api.module';
 import { UpdaterModule } from './updater/updater.module';
 import { DataSource } from 'typeorm';
 import { AuthModule } from './auth/auth.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { AuthModule } from './auth/auth.module';
     }),
     UpdaterModule,
     AuthModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [AppService],
