@@ -31,10 +31,10 @@ export class AuthController {
     // res.send('login success!!');
   }
 
-  @Get('/test')
-  @UseGuards(AuthGuard('jwt'))
-  test(@Req() req: Request, @Res() res: Response) {
-    // guard를 무사히 통과하면 아래 메시지가 전송
-    res.send('access_token 인가 완료!');
-  }
+  // @Get('/test')
+  // @UseGuards(AuthGuard('jwt'))
+  // test(@Req() req: Request, @Res() res: Response) {
+  //   // guard를 무사히 통과하면 아래 메시지가 전송
+  //   res.send('access_token 인가 완료!');
+  // }
 }

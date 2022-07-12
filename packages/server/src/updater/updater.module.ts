@@ -24,6 +24,7 @@ import { UpdaterController } from './updater.controller';
 import { ApiService } from 'src/api/api.service';
 import { UserComputationFund } from 'src/user_payment/entity/user_computation_fund.entity';
 import { UserEducationFundState } from 'src/user_payment/entity/user_education_fund_state.entity';
+import { SpreadService } from 'src/spread/spread.service';
 
 @Module({
   imports: [
@@ -47,6 +48,6 @@ import { UserEducationFundState } from 'src/user_payment/entity/user_education_f
     ]),
   ],
   controllers: [UpdaterController],
-  providers: [UpdaterResolver, UpdaterService, ApiService],
+  providers: [UpdaterResolver, UpdaterService, ApiService, SpreadService],
 })
 export class UpdaterModule {}

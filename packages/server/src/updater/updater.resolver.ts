@@ -9,12 +9,17 @@ export class UpdaterResolver {
   constructor(private readonly updaterService: UpdaterService) {}
 
   @Query(() => String)
-  updateDataPerDay() {
-    return this.updaterService.updateDataPerDay();
+  updateData() {
+    return this.updaterService.updateData();
   }
 
   @Query(() => String)
-  getOldData() {
-    return this.updaterService.getOldData();
+  updateOldData() {
+    return this.updaterService.updateOldData();
+  }
+
+  @Query(() => String)
+  getLatestData() {
+    return this.updaterService.getLatestData();
   }
 }

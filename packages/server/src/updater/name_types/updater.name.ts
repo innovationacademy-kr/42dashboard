@@ -345,4 +345,22 @@ export const pastDataOnColumn = [
   },
 ];
 
-export const apiOfTable = ['학습데이터'];
+export const apiTable = ['학습데이터'];
+
+//key 값만 필요하지만, 지칭하는 repo를 명확하게 하기 위해서 value도 적었음
+export const repoKeys = {
+  user: 'user',
+  userPersonal: 'userPersonal',
+  userProcessProgress: 'userProcessProgress',
+  userLeaveOfAbsence: 'userLeaveOfAbsence',
+  userBlackhole: 'userBlackhole',
+  userReasonOfBreak: 'userReasonOfBreak',
+  userOtherInformation: 'userOtherInformation',
+  userLapiscineInformation: 'userLapiscineInformation',
+  userEmploymentAndFound: 'userEmploymentAndFound',
+  userHrdNetUtilize: 'userHrdNetUtilize',
+  userEducationFundState: 'userEducationFundState',
+  userComputationFund: 'userComputationFund',
+  userAccessCard: 'userAccessCard',
+  userLearningData: 'userLearningData',
+};

@@ -5,8 +5,18 @@ import { UpdaterService } from './updater.service';
 export class UpdaterController {
   constructor(private updaterService: UpdaterService) {}
 
-  @Get()
-  updateDataPerDay(): Promise<string> {
-    return this.updaterService.updateDataPerDay();
+  @Get('/data')
+  updateData() {
+    return this.updaterService.updateData();
+  }
+
+  @Get('/oldData')
+  updateOldData() {
+    return this.updaterService.updateOldData();
+  }
+
+  @Get('/latest')
+  getLatestData() {
+    return this.updaterService.getLatestData();
   }
 }

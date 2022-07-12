@@ -152,6 +152,9 @@ export class UserInformationService {
    *          major: Equal("비전공")
    *        },
    *      },
+   *      order:{
+   *        intra_no: ASC,
+   *      }
    *    }
    */
 
