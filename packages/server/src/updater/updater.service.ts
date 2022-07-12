@@ -47,6 +47,7 @@ import {
   TABLENUM,
 } from './name_types/updater.name';
 import { find, map } from 'rxjs';
+import { Cron } from '@nestjs/schedule';
 
 @Injectable() //총 16개의 테이블
 export class UpdaterService {
@@ -107,6 +108,11 @@ export class UpdaterService {
     this.userAccessCardRepository,
   ];
 
+  @Cron('00 00 00 * * *') //24시간마다 업데이트
+  handleCron() {
+    console.log(this.getAllSpread());
+  }
+
   async getAllSpread() {
     let jsonData;
     let tableNum = 0;
@@ -153,7 +159,7 @@ export class UpdaterService {
       }
     }
 
-    return await 'finish';
+    return await 'All data has been updated';
   }
 
   onlyNumbers(str) {
