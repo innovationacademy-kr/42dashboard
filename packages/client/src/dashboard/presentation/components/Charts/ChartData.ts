@@ -1,3 +1,6 @@
+import { ChartOptions } from 'chart.js';
+import { QueryDataType } from '../../../application/services/useDataset';
+
 export const chartColor = [
   '#72aee6',
   '#c3c4c7',
@@ -44,3 +47,9 @@ export const options = {
   responsive: true,
   maintainAspectRatio: false,
 };
+
+export interface ChartProps {
+  labels: string[];
+  queryData: QueryDataType;
+  options?: ChartOptions;
+}
