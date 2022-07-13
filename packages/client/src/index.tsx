@@ -5,18 +5,26 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
-import store from './dashboard/infrastructure/redux/store';
+import store from './dashboard/infrastructure/store/redux/store';
+import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
+
+const client = new ApolloClient({
+  uri: 'https://d001-121-135-181-61.jp.ngrok.io/graphql',
+  cache: new InMemoryCache(),
+});
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement,
 );
 root.render(
   <React.StrictMode>
-    <Provider store={store}>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </Provider>
+    <ApolloProvider client={client}>
+      <Provider store={store}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </Provider>
+    </ApolloProvider>
   </React.StrictMode>,
 );
 
