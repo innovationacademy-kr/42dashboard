@@ -6,11 +6,12 @@ import SpeedDialAction from '@mui/material/SpeedDialAction';
 import IosShareIcon from '@mui/icons-material/IosShare';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
+
+import { boardModeActions } from '../../../infrastructure/store/redux/actions';
 import {
   useAppDispatch,
   useAppSelector,
-} from '../../../infrastructure/redux/hooks';
-import { boardModeActions } from '../../../infrastructure/redux/actions';
+} from '../../../infrastructure/store/redux/hooks';
 
 export default function ModeDial() {
   const dispatch = useAppDispatch();
