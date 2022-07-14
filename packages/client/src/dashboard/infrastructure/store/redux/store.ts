@@ -1,9 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
 import boardModeSlice from './slices/boardModeSlice';
+import boardPresetSlice from './slices/boardPresetSlice';
 
 const store = configureStore({
   reducer: {
     mode: boardModeSlice,
+    presetName: boardPresetSlice,
   },
 });
 
