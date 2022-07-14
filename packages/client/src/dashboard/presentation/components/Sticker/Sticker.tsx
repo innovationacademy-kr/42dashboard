@@ -1,7 +1,4 @@
 import React, { Key } from 'react';
-import styled from '@emotion/styled';
-import { Header } from '../Common/Header';
-import { StickerBody } from './StickerBody';
 import StickerContentFactory from './StickerContentFactory';
 import { Button } from '@mui/material';
 import useStickers from '../../../application/services/useStickers';
@@ -25,26 +22,5 @@ function Sticker(props: StickerProps) {
     </>
   );
 }
-
-// type contentType = 'Table' | 'PieChart' | 'BarChart' | 'LineChart';
-
-// interface StickerProps {
-//   content: contentType;
-//   clickHandler: () => void;
-// }
-
-// const StickerWrapper = styled.div`
-//   height: 100%;
-// `;
-
-// export const Sticker = (props: StickerProps) => {
-//   const { content, clickHandler } = props;
-//   return (
-//     <StickerWrapper>
-//       <Header parentComponent="STICKER" clickHandler={clickHandler}></Header>
-//       <StickerBody content={content}></StickerBody>
-//     </StickerWrapper>
-//   );
-// };
 
 export default Sticker;
