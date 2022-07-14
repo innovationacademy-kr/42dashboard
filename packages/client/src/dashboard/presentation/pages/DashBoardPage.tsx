@@ -2,6 +2,7 @@ import { Box, CssBaseline, Typography } from '@mui/material';
 import createQuery from '../../infrastructure/http/graphql/createQuery';
 import AppBar from '../components/AppBar/AppBar';
 import ProfileMenu from '../components/AppBar/ProfileMenu/ProfileMenu';
+import Section from '../components/Board/Section';
 import BarChart from '../components/Charts/BarChart';
 import LineChart from '../components/Charts/LineChart';
 import PieChart from '../components/Charts/PieChart';
@@ -97,9 +98,7 @@ function DashBoardPage() {
       </AppBar>
       <SideBar />
       <MainArea>
-        <PieChart labels={['man', 'woman']} queryData={queryData} />
-        <LineChart labels={['man', 'woman']} queryData={queryData} />
-        <BarChart labels={['man', 'woman']} queryData={queryData} />
+        <Section />
       </MainArea>
       <ModeDial />
     </Box>
