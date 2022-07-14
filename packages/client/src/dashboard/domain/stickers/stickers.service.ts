@@ -4,7 +4,7 @@ import StickersRepositoryInterface from './stickers.repository.interface';
 class StickersService {
   constructor(protected stickersRepository: StickersRepositoryInterface) {}
 
-  public getSticker(id: string): StickerDataType {
+  public async getSticker(id: string): Promise<StickerDataType> {
     return this.stickersRepository.getSticker(id);
   }
 

@@ -2,6 +2,7 @@ import { Box, CssBaseline, Typography } from '@mui/material';
 import createQuery from '../../infrastructure/http/graphql/createQuery';
 import AppBar from '../components/AppBar/AppBar';
 import ProfileMenu from '../components/AppBar/ProfileMenu/ProfileMenu';
+import Board from '../components/Board/Board';
 import Section from '../components/Board/Section';
 import BarChart from '../components/Charts/BarChart';
 import LineChart from '../components/Charts/LineChart';
@@ -51,43 +52,6 @@ function DashBoardPage() {
     <ProfileMenu menuItems={profileMenuItems} profile={profile} />
   );
 
-  const weMadeQuery = createQuery(
-    ['filtersGrade', 'filtersMan', 'filtersWoman'],
-    ['man', 'woman'],
-    [
-      ['filtersGrade', 'filtersMan'],
-      ['filtersGrade', 'filtersWoman'],
-      ['filtersMan'],
-      ['filtersWoman'],
-    ],
-  );
-  const queryData = {
-    query: weMadeQuery,
-    filters: {
-      filtersMan: {
-        entityName: 'userPersonalInformation',
-        column: 'gender',
-        operator: '=',
-        givenValue: '남',
-        latest: true,
-      },
-      filtersWoman: {
-        entityName: 'userPersonalInformation',
-        column: 'gender',
-        operator: '=',
-        givenValue: '여',
-        latest: true,
-      },
-      filtersGrade: {
-        entityName: 'user',
-        column: 'grade',
-        operator: '=',
-        givenValue: '2기',
-        latest: true,
-      },
-    },
-  };
-
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
@@ -98,7 +62,7 @@ function DashBoardPage() {
       </AppBar>
       <SideBar />
       <MainArea>
-        <Section />
+        <Board />
       </MainArea>
       <ModeDial />
     </Box>
