@@ -9,9 +9,7 @@ class StickersRepository implements StickersRepositoryInterface {
   }
 
   public async addSticker(sticker: StickerDataType) {
-    const stickers = stickersStore.getStickers();
-    stickers.push(sticker);
-    console.log(stickers);
+    const stickers = [...stickersStore.getStickers(), sticker];
     stickersStore.setStickers(stickers);
   }
 

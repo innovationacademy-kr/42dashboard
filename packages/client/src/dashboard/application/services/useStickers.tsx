@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import StickersService from '../../domain/stickers/stickers.service';
 import StickerDataType from '../../domain/stickers/stickers.type';
 import stickersRepository from '../../infrastructure/stickers.repository';
@@ -9,8 +9,10 @@ const stickersService = new StickersService(stickersRepository);
 function useStickers() {
   const [stickers, setStickers] = useState(stickersStore.getStickers());
 
-  stickersStore.subscribeToStickers((stickers: Array<StickerDataType>) => {
-    setStickers(stickers);
+  console.log('stateStickers', stickers);
+
+  stickersStore.subscribeToStickers((newStickers: Array<StickerDataType>) => {
+    setStickers(newStickers);
   });
 
   const getSticker = (id: string) => {
