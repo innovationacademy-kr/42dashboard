@@ -1,4 +1,4 @@
-import { StickerDataType } from './../../../domain/stickers/stickers.type';
+import StickerDataType from '../../../domain/stickerDatas/stickerData.type';
 import create from 'zustand';
 import { devtools } from 'zustand/middleware';
 import ControlModeType from '../../../domain/controlMode/controlMode.type';
@@ -10,8 +10,8 @@ export interface DashBoardState {
   preset: PresetType | null;
   // presetList: PresetType[];
   controlMode: ControlModeType;
-  stickers: StickerDataType[];
   filtersModal: boolean;
+  stickerDatas: StickerDataType[];
 }
 
 const store = create<DashBoardState, [['zustand/devtools', DashBoardState]]>(
@@ -20,8 +20,8 @@ const store = create<DashBoardState, [['zustand/devtools', DashBoardState]]>(
     preset: null,
     // presetList: [],
     controlMode: 'view',
-    stickers: [],
     filtersModal: false,
+    stickerDatas: [],
   })),
 );
 
