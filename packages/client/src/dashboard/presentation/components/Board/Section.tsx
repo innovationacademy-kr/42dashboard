@@ -4,7 +4,7 @@ import Sticker from '../Sticker/Sticker';
 import useStickers from '../../../application/services/useStickers';
 import { Button } from '@mui/material';
 import { v4 as uuid } from 'uuid';
-import StickerDataType from '../../../domain/stickers/stickers.type';
+import StickerDataType from '../../../domain/stickerDatas/stickerData.type';
 import createQuery from '../../../infrastructure/http/graphql/createQuery';
 import useSectionLayout from '../../../application/services/useSectionLayout';
 import RGL, { Layout, WidthProvider } from 'react-grid-layout';
