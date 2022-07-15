@@ -1,4 +1,4 @@
-import { StickerDataType } from './stickers.type';
+import StickerDataType from './stickerData.type';
 
 export default interface StickersRepositoryInterface {
   getSticker: (id: string) => StickerDataType;

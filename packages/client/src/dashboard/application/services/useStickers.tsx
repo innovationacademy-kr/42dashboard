@@ -1,19 +1,23 @@
-import { useEffect, useState } from 'react';
-import StickersService from '../../domain/stickers/stickers.service';
-import StickerDataType from '../../domain/stickers/stickers.type';
-import stickersRepository from '../../infrastructure/stickers.repository';
-import stickersStore from '../../infrastructure/store/stickers.store';
+import { useState } from 'react';
+import StickersService from '../../domain/stickerDatas/stickerDatas.service';
+import StickerDataType from '../../domain/stickerDatas/stickerData.type';
+import stickerDatasRepository from '../../infrastructure/stickerDatas.repository';
+import stickersStore from '../../infrastructure/store/stickerDatas.store';
 
-const stickersService = new StickersService(stickersRepository);
+const stickersService = new StickersService(stickerDatasRepository);
 
 function useStickers() {
-  const [stickers, setStickers] = useState(stickersStore.getStickers());
+  const [stickerDatas, setStickerDatas] = useState(
+    stickersStore.getStickerDatas(),
+  );
 
-  console.log('stateStickers', stickers);
+  console.log('stateStickers', stickerDatas);
 
-  stickersStore.subscribeToStickers((newStickers: Array<StickerDataType>) => {
-    setStickers(newStickers);
-  });
+  stickersStore.subscribeToStickers(
+    (newStickerDatas: Array<StickerDataType>) => {
+      setStickerDatas(newStickerDatas);
+    },
+  );
 
   const getSticker = (id: string) => {
     return stickersService.getSticker(id);
@@ -27,7 +31,7 @@ function useStickers() {
     return await stickersService.removeSticker(id);
   };
 
-  return { stickers, getSticker, addSticker, removeSticker };
+  return { stickerDatas, getSticker, addSticker, removeSticker };
 }
 
 export default useStickers;

@@ -5,7 +5,7 @@ import Sticker from '../Sticker/Sticker';
 import useStickers from '../../../application/services/useStickers';
 import { Button } from '@mui/material';
 import { v4 as uuid } from 'uuid';
-import StickerDataType from '../../../domain/stickers/stickers.type';
+import StickerDataType from '../../../domain/stickerDatas/stickerData.type';
 import createQuery from '../../../infrastructure/http/graphql/createQuery';
 
 const weMadeQuery = createQuery(
@@ -45,10 +45,8 @@ const queryData = {
   },
 };
 
-const ReactGridLayout = WidthProvider(RGL.Responsive);
-
 export default function Section() {
-  const { stickers, addSticker, removeSticker } = useStickers();
+  const { stickerDatas, addSticker, removeSticker } = useStickers();
 
   const stickerData: StickerDataType = {
     id: uuid(),
@@ -66,7 +64,7 @@ export default function Section() {
   return (
     <>
       <Button onClick={() => addSticker(stickerData)}>Add Sticker</Button>
-      {stickers.map((sticker) => (
+      {stickerDatas.map((sticker) => (
         <Sticker
           key={sticker.id}
           id={sticker.id}
