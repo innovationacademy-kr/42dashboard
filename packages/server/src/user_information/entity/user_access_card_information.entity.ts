@@ -6,6 +6,7 @@ import {
   DeleteDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryColumn,
   PrimaryGeneratedColumn,
@@ -53,7 +54,7 @@ export class UserAccessCardInformation extends BaseEntity {
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @OneToOne(() => User, (user) => user.userAccessCardInformation, {
+  @ManyToOne(() => User, (user) => user.userAccessCardInformation, {
     createForeignKeyConstraints: false, //외래키 제약조건 해제
     nullable: false,
   })

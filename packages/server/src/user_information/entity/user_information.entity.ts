@@ -91,7 +91,7 @@ export class User {
    ***********************************/
 
   // @Field()
-  @OneToOne(
+  @OneToMany(
     () => UserPersonalInformation,
     (userPersonalInformation) => userPersonalInformation.user,
     { cascade: true },
@@ -99,7 +99,7 @@ export class User {
   userPersonalInformation: UserPersonalInformation;
 
   // @Field(()=>UserAccessCardInformation)
-  @OneToOne(
+  @OneToMany(
     () => UserAccessCardInformation,
     (userAccessCardInformation) => userAccessCardInformation.user,
     { cascade: true },

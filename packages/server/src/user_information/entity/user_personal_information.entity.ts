@@ -6,6 +6,7 @@ import {
   DeleteDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryColumn,
   PrimaryGeneratedColumn,
@@ -51,7 +52,7 @@ export class UserPersonalInformation {
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string; //외래키값을 선언하지 않으면 null으로 판단됨
 
-  @OneToOne(() => User, (user) => user.userPersonalInformation, {
+  @ManyToOne(() => User, (user) => user.userPersonalInformation, {
     createForeignKeyConstraints: false, //외래키 제약조건 해제
     nullable: false,
   })
