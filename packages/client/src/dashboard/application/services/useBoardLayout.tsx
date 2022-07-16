@@ -2,62 +2,64 @@ import { useEffect, useState } from 'react';
 import { Layout } from 'react-grid-layout';
 import { v4 as uuid } from 'uuid';
 
-interface NestedLayout extends Layout {
-  sticker: Layout[];
+export interface NestedLayout extends Layout {
+  stickers: Layout[];
 }
 
 function useBoardLayout() {
-  const [layout, setLayout] = useState(Array<NestedLayout>);
+  const [sectionLayout, setSectionLayout] = useState(Array<NestedLayout>);
 
   useEffect(() => {
     window.dispatchEvent(new Event('resize'));
-  }, [layout]);
+  }, [sectionLayout]);
 
   const handleStickerLayoutChange = (
     stickerLayout: Layout[],
     itemKey: string,
   ) => {
-    const itemIndex = layout.findIndex(
+    const itemIndex = sectionLayout.findIndex(
       (item: NestedLayout) => item.i === itemKey,
     );
     if (itemIndex !== -1) {
-      setLayout([
-        ...layout.slice(0, itemIndex),
+      setSectionLayout([
+        ...sectionLayout.slice(0, itemIndex),
         {
-          ...layout[itemIndex],
-          sticker: stickerLayout,
+          ...sectionLayout[itemIndex],
+          stickers: stickerLayout,
         },
-        ...layout.slice(itemIndex + 1),
+        ...sectionLayout.slice(itemIndex + 1),
       ]);
     }
   };
 
   const handleSectionLayoutChange = (newLayout: Array<NestedLayout>) => {
-    setLayout(newLayout);
+    setSectionLayout(newLayout);
   };
 
   const handleSectionAdd = () => {
-    setLayout([
-      ...layout,
+    setSectionLayout([
+      ...sectionLayout,
       {
         i: uuid(),
-        x: (layout.length * 2) % 12,
+        x: (sectionLayout.length * 2) % 12,
         y: Infinity,
         w: 5,
         h: 5,
-        sticker: new Array<Layout>(),
+        stickers: new Array<Layout>(),
       },
     ]);
   };
 
   const handleSectionRemove = (itemKey: string) => {
     return () => {
-      setLayout([...layout.filter((item: NestedLayout) => item.i !== itemKey)]);
+      setSectionLayout([
+        ...sectionLayout.filter((item: NestedLayout) => item.i !== itemKey),
+      ]);
     };
   };
 
   return {
-    layout,
+    sectionLayout,
     handleStickerLayoutChange,
     handleSectionLayoutChange,
     handleSectionAdd,
