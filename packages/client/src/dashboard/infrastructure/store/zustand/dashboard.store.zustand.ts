@@ -11,6 +11,7 @@ export interface DashBoardState {
   // presetList: PresetType[];
   controlMode: ControlModeType;
   stickers: StickerDataType[];
+  filtersModal: boolean;
 }
 
 const store = create<DashBoardState, [['zustand/devtools', DashBoardState]]>(
@@ -20,6 +21,7 @@ const store = create<DashBoardState, [['zustand/devtools', DashBoardState]]>(
     // presetList: [],
     controlMode: 'view',
     stickers: [],
+    filtersModal: false,
   })),
 );
 
