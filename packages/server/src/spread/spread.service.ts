@@ -303,8 +303,9 @@ export class SpreadService {
         //컬럼 수 만큼 반복
         this.makeRowPerColumn(row, cols, col, tuple, columns);
       }
-      tupleLine = await pastSheetData['repo'].create(tuple);
-      tupleLine['fk_user_no'] = row['c'][1]['f']; //취업정보, 고용보험 시트의 경우 변경을 해줘야함.
+      tuple['fk_user_no'] = row['c'][1]['f']; //취업정보, 고용보험 시트의 경우 변경을 해줘야함.
+      tupleLine = pastSheetData['repo'].create(tuple);
+
       await pastSheetData['repo'].save(tupleLine);
     }
     return tupleLine;

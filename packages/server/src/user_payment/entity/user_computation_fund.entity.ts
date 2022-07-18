@@ -51,10 +51,7 @@ export class UserComputationFund extends BaseEntity {
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userComputationFund, {
-    createForeignKeyConstraints: false, //외래키 제약조건 해제
-    nullable: false,
-  })
+  @ManyToOne(() => User, (user) => user.userComputationFund)
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }

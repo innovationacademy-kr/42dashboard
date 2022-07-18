@@ -56,10 +56,7 @@ export class UserEmploymentAndFound extends BaseEntity {
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userEmploymentAndFound, {
-    createForeignKeyConstraints: false, //외래키 제약조건 해제
-    nullable: false,
-  })
+  @ManyToOne(() => User, (user) => user.userEmploymentAndFound)
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }
@@ -120,10 +117,7 @@ export class UserInternStatus extends BaseEntity {
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userInternStatus, {
-    createForeignKeyConstraints: false, //외래키 제약조건 해제
-    nullable: false,
-  })
+  @ManyToOne(() => User, (user) => user.userInternStatus)
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }
@@ -176,10 +170,7 @@ export class UserHrdNetUtilize extends BaseEntity {
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userHrdNetUtilize, {
-    createForeignKeyConstraints: false, //외래키 제약조건 해제
-    nullable: false,
-  })
+  @ManyToOne(() => User, (user) => user.userHrdNetUtilize)
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }
@@ -220,10 +211,7 @@ export class UserEmploymentStatus extends BaseEntity {
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userEmploymentStatus, {
-    createForeignKeyConstraints: false, //외래키 제약조건 해제
-    nullable: false,
-  })
+  @ManyToOne(() => User, (user) => user.userEmploymentStatus)
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }

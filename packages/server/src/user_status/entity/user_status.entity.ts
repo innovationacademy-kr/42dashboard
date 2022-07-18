@@ -81,10 +81,7 @@ export class UserLearningData extends BaseEntity {
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userLearningDate, {
-    createForeignKeyConstraints: false, //외래키 제약조건 해제
-    nullable: false,
-  })
+  @ManyToOne(() => User, (user) => user.userLearningDate)
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }
@@ -130,10 +127,7 @@ export class UserProcessProgress extends BaseEntity {
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userProcessProgress, {
-    createForeignKeyConstraints: false, //외래키 제약조건 해제
-    nullable: false,
-  })
+  @ManyToOne(() => User, (user) => user.userProcessProgress)
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }
@@ -174,10 +168,7 @@ export class UserBlackhole extends BaseEntity {
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userBlackhole, {
-    createForeignKeyConstraints: false, //외래키 제약조건 해제
-    nullable: false,
-  })
+  @ManyToOne(() => User, (user) => user.userBlackhole)
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }
@@ -232,10 +223,7 @@ export class UserLeaveOfAbsence extends BaseEntity {
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userLeaveOfAbsence, {
-    createForeignKeyConstraints: false, //외래키 제약조건 해제
-    nullable: false,
-  })
+  @ManyToOne(() => User, (user) => user.userLeaveOfAbsence)
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }
@@ -271,10 +259,7 @@ export class UserReasonOfBreak extends BaseEntity {
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userReasonOfBreak, {
-    createForeignKeyConstraints: false, //외래키 제약조건 해제
-    nullable: false,
-  })
+  @ManyToOne(() => User, (user) => user.userReasonOfBreak)
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }
@@ -312,10 +297,7 @@ export class UserLapiscineInformation extends BaseEntity {
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userLapiscineInformation, {
-    createForeignKeyConstraints: false, //외래키 제약조건 해제
-    nullable: false,
-  })
+  @ManyToOne(() => User, (user) => user.userLapiscineInformation)
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }
