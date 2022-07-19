@@ -6,7 +6,7 @@ import sectionDatasStore from '../../infrastructure/store/sectionDatas.store';
 
 const sectionDatassService = new SectionDatasService(sectionDatasRepository);
 
-function useSectionDatass() {
+function useSectionDatas() {
   const [sectionDatas, setSectionDatas] = useState(
     sectionDatasStore.getSectionDatas(),
   );
