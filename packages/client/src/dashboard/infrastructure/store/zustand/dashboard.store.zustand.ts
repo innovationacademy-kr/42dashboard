@@ -5,14 +5,16 @@ import ControlModeType from '../../../domain/controlMode/controlMode.type';
 import PresetType from '../../../domain/preset/preset.type';
 import UserType from '../../../domain/user/user.type';
 import SectionDataType from '../../../domain/sectionDatas/sectionData.type';
+import BoardDataType from '../../../domain/boardData/boardData.type';
 
 export interface DashBoardState {
   user: UserType | null;
   preset: PresetType | null;
   controlMode: ControlModeType;
   filtersModal: boolean;
-  stickerDatas: StickerDataType[];
+  boardData: BoardDataType | null;
   sectionDatas: SectionDataType[];
+  stickerDatas: StickerDataType[];
 }
 
 const store = create<DashBoardState, [['zustand/devtools', DashBoardState]]>(
@@ -21,8 +23,9 @@ const store = create<DashBoardState, [['zustand/devtools', DashBoardState]]>(
     preset: null,
     controlMode: 'view',
     filtersModal: false,
-    stickerDatas: [],
+    boardData: null,
     sectionDatas: [],
+    stickerDatas: [],
   })),
 );
 
