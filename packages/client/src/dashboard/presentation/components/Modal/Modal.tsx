@@ -1,8 +1,9 @@
-import { Box, Modal } from '@mui/material';
+import { Box, Input, Modal } from '@mui/material';
 import { ReactNode } from 'react';
 
 import styled from '@emotion/styled';
 import useFiltersModal from '../../../application/services/useFiltersModal';
+import InputDataset from './InputDataset';
 
 interface ModalProps {
   contents: () => ReactNode;
@@ -44,7 +45,7 @@ const ModalFrame = (props: ModalProps) => {
       }}
     >
       <Contents>
-        <Box>{contents()}</Box>
+        <InputDataset />
         <ButtonArea>
           <Button onClick={() => applyFiltersModal()}>APPLY</Button>
           <Button onClick={() => cancelFiltersModal()}>CLOSE</Button>
