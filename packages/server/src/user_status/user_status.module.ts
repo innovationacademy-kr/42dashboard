@@ -2,11 +2,12 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   UserBlackhole,
+  UserCourseExtension,
+  UserInterruptionOfCourse,
   UserLapiscineInformation,
-  UserLearningData,
+  UserLearningDataAPI,
   UserLeaveOfAbsence,
-  UserProcessProgress,
-  UserReasonOfBreak,
+  UserLoyaltyManagement,
 } from 'src/user_status/entity/user_status.entity';
 import { UserStatusController } from './user_status.controller';
 import { UserStatusResolver } from './user_status.resolver';
@@ -15,12 +16,13 @@ import { UserStatusService } from './user_status.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
-      UserLearningData,
-      UserProcessProgress,
+      UserCourseExtension,
+      UserInterruptionOfCourse,
       UserBlackhole,
       UserLeaveOfAbsence,
-      UserReasonOfBreak,
+      UserLearningDataAPI,
       UserLapiscineInformation,
+      UserLoyaltyManagement,
     ]),
   ],
   controllers: [UserStatusController],

@@ -5,10 +5,6 @@ import { User } from 'src/user_information/entity/user_information.entity';
 import { UserOtherInformation } from 'src/user_information/entity/user_other_information.entity';
 import { UserPersonalInformation } from 'src/user_information/entity/user_personal_information.entity';
 import {
-  UserBlackhole,
-  UserProcessProgress,
-} from 'src/user_status/entity/user_status.entity';
-import {
   createQueryBuilder, //deprecated
   DataSource,
   Repository,

@@ -5,8 +5,7 @@ import { ApiService } from 'src/api/api.service';
 import {
   app_id,
   app_secret,
-  SHEET_ID2,
-  SHEET_ID4,
+  MAIN_SHEET,
   SPREAD_END_POINT,
 } from 'src/config/key';
 import { SpreadService } from 'src/spread/spread.service';
@@ -15,20 +14,20 @@ import { User } from 'src/user_information/entity/user_information.entity';
 import { UserOtherInformation } from 'src/user_information/entity/user_other_information.entity';
 import { UserPersonalInformation } from 'src/user_information/entity/user_personal_information.entity';
 import {
-  UserEmploymentAndFound,
   UserEmploymentStatus,
   UserHrdNetUtilize,
-  UserInternStatus,
+  UserHrdNetUtilizeConsent,
+  //UserInternStatus,
+  UserOtherEmploymentStatus,
 } from 'src/user_job/entity/user_job.entity';
-import { UserComputationFund } from 'src/user_payment/entity/user_computation_fund.entity';
-import { UserEducationFundState } from 'src/user_payment/entity/user_education_fund_state.entity';
 import {
   UserBlackhole,
+  UserCourseExtension,
+  UserInterruptionOfCourse,
   UserLapiscineInformation,
-  UserLearningData,
+  UserLearningDataAPI,
   UserLeaveOfAbsence,
-  UserProcessProgress,
-  UserReasonOfBreak,
+  UserLoyaltyManagement,
 } from 'src/user_status/entity/user_status.entity';
 
 import { Cron } from '@nestjs/schedule';
@@ -42,23 +41,30 @@ import {
   TABLENUM,
   repoKeys,
 } from './name_types/updater.name';
+import {
+  UserComputationFund,
+  UserEducationFundState,
+} from 'src/user_payment/entity/user_payment.entity';
 
 interface RepoDict {
   [repositoryName: string]:
     | Repository<User>
     | Repository<UserPersonalInformation>
-    | Repository<UserOtherInformation>
-    | Repository<UserAccessCardInformation>
-    | Repository<UserEmploymentAndFound>
-    | Repository<UserHrdNetUtilize>
-    | Repository<UserComputationFund>
-    | Repository<UserEducationFundState>
-    | Repository<UserProcessProgress>
-    | Repository<UserBlackhole>
+    | Repository<UserCourseExtension>
     | Repository<UserLeaveOfAbsence>
-    | Repository<UserReasonOfBreak>
-    | Repository<UserLapiscineInformation>
-    | Repository<UserLearningData>;
+    | Repository<UserBlackhole>
+    | Repository<UserInterruptionOfCourse>
+    | Repository<UserLearningDataAPI>
+    | Repository<UserLoyaltyManagement>
+    | Repository<UserEmploymentStatus>
+    | Repository<UserHrdNetUtilizeConsent>
+    | Repository<UserHrdNetUtilize>
+    | Repository<UserOtherEmploymentStatus>
+    | Repository<UserEducationFundState>
+    | Repository<UserComputationFund>
+    | Repository<UserAccessCardInformation>
+    | Repository<UserOtherInformation>
+    | Repository<UserLapiscineInformation>;
 }
 
 @Injectable() //총 16개의 테이블
@@ -67,33 +73,35 @@ export class UpdaterService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     @InjectRepository(UserPersonalInformation)
-    private userPersonalRepository: Repository<UserPersonalInformation>,
-    @InjectRepository(UserOtherInformation)
-    private userOtherInformationRepository: Repository<UserOtherInformation>,
-    @InjectRepository(UserAccessCardInformation)
-    private userAccessCardRepository: Repository<UserAccessCardInformation>,
-    @InjectRepository(UserEmploymentAndFound)
-    private userEmploymentAndFoundRepository: Repository<UserEmploymentAndFound>,
-    @InjectRepository(UserInternStatus)
-    private userInternStatusRepository: Repository<UserInternStatus>,
-    @InjectRepository(UserHrdNetUtilize)
-    private userHrdNetUtilizeRepository: Repository<UserHrdNetUtilize>,
-    @InjectRepository(UserEmploymentStatus)
-    private userEmploymentStatusRepository: Repository<UserEmploymentStatus>,
-    @InjectRepository(UserComputationFund)
-    private userComputationFundRepository: Repository<UserComputationFund>,
-    @InjectRepository(UserEducationFundState)
-    private userEducationFundStateRepository: Repository<UserEducationFundState>,
-    @InjectRepository(UserLearningData)
-    private userLearningDataRepository: Repository<UserLearningData>,
-    @InjectRepository(UserProcessProgress)
-    private userProcessProgressRepository: Repository<UserProcessProgress>,
-    @InjectRepository(UserBlackhole)
-    private userBlackholeRepository: Repository<UserBlackhole>,
+    private userPersonalInformationRepository: Repository<UserPersonalInformation>,
+    @InjectRepository(UserCourseExtension)
+    private userCourseExtensionRepository: Repository<UserCourseExtension>,
     @InjectRepository(UserLeaveOfAbsence)
     private userLeaveOfAbsenceRepository: Repository<UserLeaveOfAbsence>,
-    @InjectRepository(UserReasonOfBreak)
-    private userReasonOfBreakRepository: Repository<UserReasonOfBreak>,
+    @InjectRepository(UserBlackhole)
+    private userBlackholeRepository: Repository<UserBlackhole>,
+    @InjectRepository(UserInterruptionOfCourse)
+    private userInterruptionOfCourseRepository: Repository<UserInterruptionOfCourse>,
+    @InjectRepository(UserLearningDataAPI)
+    private userLearningDataAPIRepository: Repository<UserLearningDataAPI>,
+    @InjectRepository(UserLoyaltyManagement)
+    private userLoyaltyManagementRepository: Repository<UserLoyaltyManagement>,
+    @InjectRepository(UserEmploymentStatus)
+    private userEmploymentStatusRepository: Repository<UserEmploymentStatus>,
+    @InjectRepository(UserHrdNetUtilizeConsent)
+    private userHrdNetUtilizeConsentRepository: Repository<UserHrdNetUtilizeConsent>,
+    @InjectRepository(UserHrdNetUtilize)
+    private userHrdNetUtilizeRepository: Repository<UserHrdNetUtilize>,
+    @InjectRepository(UserOtherEmploymentStatus)
+    private userOtherEmploymentStatusRepository: Repository<UserOtherEmploymentStatus>,
+    @InjectRepository(UserEducationFundState)
+    private userEducationFundStateRepository: Repository<UserEducationFundState>,
+    @InjectRepository(UserComputationFund)
+    private userComputationFundRepository: Repository<UserComputationFund>,
+    @InjectRepository(UserAccessCardInformation)
+    private userAccessCardInformationRepository: Repository<UserAccessCardInformation>,
+    @InjectRepository(UserOtherInformation)
+    private userOtherInformationRepository: Repository<UserOtherInformation>,
     @InjectRepository(UserLapiscineInformation)
     private userLapiscineInformationRepository: Repository<UserLapiscineInformation>,
     @InjectDataSource()
@@ -106,44 +114,51 @@ export class UpdaterService {
 
   repoDict: RepoDict = {
     [repoKeys.user]: this.userRepository,
-    [repoKeys.userPersonal]: this.userPersonalRepository,
-    [repoKeys.userProcessProgress]: this.userProcessProgressRepository,
+    [repoKeys.userPersonal]: this.userPersonalInformationRepository,
+    [repoKeys.userCourseExtension]: this.userCourseExtensionRepository,
     [repoKeys.userLeaveOfAbsence]: this.userLeaveOfAbsenceRepository,
     [repoKeys.userBlackhole]: this.userBlackholeRepository,
-    [repoKeys.userReasonOfBreak]: this.userReasonOfBreakRepository,
+    [repoKeys.userInterruptionOfCourse]:
+      this.userInterruptionOfCourseRepository,
+    [repoKeys.userLearningDataAPI]: this.userLearningDataAPIRepository,
+    [repoKeys.userLoyaltyManagement]: this.userLoyaltyManagementRepository,
+    [repoKeys.userEmploymentStatus]: this.userEmploymentStatusRepository,
+    [repoKeys.userHrdNetUtilizeConsent]:
+      this.userHrdNetUtilizeConsentRepository,
+    [repoKeys.userHrdNetUtilize]: this.userHrdNetUtilizeRepository,
+    [repoKeys.userOtherEmploymentStatus]:
+      this.userOtherEmploymentStatusRepository,
+    [repoKeys.userEducationFundState]: this.userEducationFundStateRepository,
+    [repoKeys.userComputationFund]: this.userComputationFundRepository,
+    [repoKeys.userAccessCard]: this.userAccessCardInformationRepository,
     [repoKeys.userOtherInformation]: this.userOtherInformationRepository,
     [repoKeys.userLapiscineInformation]:
       this.userLapiscineInformationRepository,
-    [repoKeys.userEmploymentAndFound]: this.userEmploymentAndFoundRepository,
-    [repoKeys.userHrdNetUtilize]: this.userHrdNetUtilizeRepository,
-    [repoKeys.userEducationFundState]: this.userEducationFundStateRepository,
-    [repoKeys.userComputationFund]: this.userComputationFundRepository,
-    [repoKeys.userAccessCard]: this.userAccessCardRepository,
-    [repoKeys.userLearningData]: this.userLearningDataRepository,
   };
 
   repoArray = [
-    //spread 메인, 하위
     this.userRepository,
-    this.userPersonalRepository,
-    this.userProcessProgressRepository,
+    this.userPersonalInformationRepository,
+    this.userCourseExtensionRepository,
     this.userLeaveOfAbsenceRepository,
     this.userBlackholeRepository,
-    this.userReasonOfBreakRepository,
-    this.userOtherInformationRepository,
-    this.userLapiscineInformationRepository,
-    this.userInternStatusRepository,
-    this.userEmploymentAndFoundRepository,
+    this.userInterruptionOfCourseRepository,
+    this.userLearningDataAPIRepository,
+    this.userLoyaltyManagementRepository,
     this.userEmploymentStatusRepository,
+    this.userHrdNetUtilizeConsentRepository,
     this.userHrdNetUtilizeRepository,
+    this.userOtherEmploymentStatusRepository,
     this.userEducationFundStateRepository,
     this.userComputationFundRepository,
-    this.userAccessCardRepository,
+    this.userAccessCardInformationRepository,
+    this.userOtherInformationRepository,
+    this.userLapiscineInformationRepository,
     //api 데이터를 담당하는 repository
     // this.userLearningDataRepository,
   ];
 
-  apiOfRepo = [this.userLearningDataRepository];
+  apiOfRepo = [this.userLearningDataAPIRepository];
 
   @Cron('00 00 00 * * *') //24시간마다 업데이트
   updatePerDay() {
@@ -157,7 +172,7 @@ export class UpdaterService {
     // eslint-disable-next-line prefer-const
     const jsonData = await this.spreadService.sendRequestToSpread(
       SPREAD_END_POINT,
-      SHEET_ID4,
+      MAIN_SHEET,
     );
 
     const obj = JSON.parse(jsonData);
@@ -217,23 +232,23 @@ export class UpdaterService {
       )
         tableNum++;
     }
-    for (const api_table_idx in apiTable) {
-      if (apiTable[api_table_idx] == '학습데이터') {
-        table_name = await this.spreadService.getTableName('학습데이터');
-        table_array[table_name] = {}; //학습데이터
-        table_array[table_name] = await this.apiService.parseApi(
-          apiTable[api_table_idx],
-          this.apiOfRepo[api_table_idx],
-          api42s,
-        );
-        //  }
-      }
-      //return await 'finish';
-      // }
-      // return table_array;
-      //    const db_array = this.getLatestData();
-      //    return db_array;
-    }
+    // for (const api_table_idx in apiTable) {
+    //   if (apiTable[api_table_idx] == '학습데이터') {
+    //     table_name = await this.spreadService.getTableName('학습데이터');
+    //     table_array[table_name] = {}; //학습데이터
+    //     table_array[table_name] = await this.apiService.parseApi(
+    //       apiTable[api_table_idx],
+    //       this.apiOfRepo[api_table_idx],
+    //       api42s,
+    //     );
+    //     //  }
+    //   }
+    //   //return await 'finish';
+    //   // }
+    //   // return table_array;
+    //   //    const db_array = this.getLatestData();
+    //   //    return db_array;
+    // }
 
     return await 'All data has been updated';
   }
@@ -250,7 +265,7 @@ export class UpdaterService {
     // eslint-disable-next-line prefer-const
     jsonData = await this.spreadService.sendRequestToSpread(
       SPREAD_END_POINT,
-      SHEET_ID2,
+      MAIN_SHEET,
     );
 
     const obj = JSON.parse(jsonData);

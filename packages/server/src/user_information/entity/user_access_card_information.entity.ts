@@ -26,18 +26,18 @@ export class UserAccessCardInformation extends BaseEntity {
 
   @Field((type) => Int)
   @Column({ name: 'lapiscine_physical_number', nullable: true })
-  lapiscine_physical_number: number;
+  lapiscine_physical_number: string;
 
   @Field((type) => Int)
   @Column({ name: 'lapiscine_logical_number', nullable: true })
-  lapiscine_logical_number: number;
+  lapiscine_logical_number: string;
 
   @Field((type) => Int)
   @Column({
     name: 'logical_number_for_main_course',
     nullable: true,
   })
-  logical_number_for_main_course: number;
+  logical_number_for_main_course: string;
 
   @Field()
   @Column({ name: 'name_of_entry_card_for_main_course', nullable: true })

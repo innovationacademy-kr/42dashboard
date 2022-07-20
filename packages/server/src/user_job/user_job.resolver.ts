@@ -1,10 +1,11 @@
 import { Query } from '@nestjs/graphql';
 import { Resolver } from '@nestjs/graphql';
 import {
-  UserEmploymentAndFound,
   UserEmploymentStatus,
   UserHrdNetUtilize,
-  UserInternStatus,
+  UserHrdNetUtilizeConsent,
+  //UserInternStatus,
+  UserOtherEmploymentStatus,
 } from './entity/user_job.entity';
 import { UserJobService } from './user_job.service';
 
@@ -12,7 +13,7 @@ import { UserJobService } from './user_job.service';
 export class UserJobResolver {
   constructor(private readonly userJobService: UserJobService) {}
 
-  @Query(() => [UserEmploymentAndFound])
+  @Query(() => [UserOtherEmploymentStatus])
   getUserEmploymentAndFound() {
     return this.userJobService.getUserEmploymentAndFound();
   }
@@ -22,13 +23,18 @@ export class UserJobResolver {
     return this.userJobService.getUserEmploymentStatus();
   }
 
+  @Query(() => [UserHrdNetUtilizeConsent])
+  getUserHrdNetUtilizeConsent() {
+    return this.userJobService.getUserHrdNetUtilizeConsent();
+  }
+
   @Query(() => [UserHrdNetUtilize])
   getUserHrdNetUtilize() {
     return this.userJobService.getUserHrdNetUtilize();
   }
 
-  @Query(() => [UserInternStatus])
-  getUserInternStatus() {
-    return this.userJobService.getUserInternStatus();
-  }
+  // @Query(() => [UserInternStatus])
+  // getUserInternStatus() {
+  //   return this.userJobService.getUserInternStatus();
+  // }
 }

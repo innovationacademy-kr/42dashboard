@@ -3,39 +3,51 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
   UserBlackhole,
-  UserLearningData,
+  UserCourseExtension,
+  UserInterruptionOfCourse,
+  UserLapiscineInformation,
+  UserLearningDataAPI,
   UserLeaveOfAbsence,
-  UserProcessProgress,
-  UserReasonOfBreak,
+  UserLoyaltyManagement,
 } from './entity/user_status.entity';
 
 @Injectable()
 export class UserStatusService {
   constructor(
-    @InjectRepository(UserLearningData)
-    private userLearningDataRepository: Repository<UserLearningData>,
-    @InjectRepository(UserProcessProgress)
-    private userProcessProgressPersonalRepository: Repository<UserProcessProgress>,
+    @InjectRepository(UserLearningDataAPI)
+    private userLearningDataAPIRepository: Repository<UserLearningDataAPI>,
+    @InjectRepository(UserCourseExtension)
+    private userCourseExtensionRepository: Repository<UserCourseExtension>,
     @InjectRepository(UserBlackhole)
     private userBlackholeRepository: Repository<UserBlackhole>,
     @InjectRepository(UserLeaveOfAbsence)
     private userLeaveOfAbsenceRepository: Repository<UserLeaveOfAbsence>,
-    @InjectRepository(UserReasonOfBreak)
-    private userReasonOfBreakRepository: Repository<UserReasonOfBreak>,
+    @InjectRepository(UserInterruptionOfCourse)
+    private userInterruptionOfCourseRepository: Repository<UserInterruptionOfCourse>,
+    @InjectRepository(UserLoyaltyManagement)
+    private userLoyaltyManagementRepository: Repository<UserLoyaltyManagement>,
+    @InjectRepository(UserLapiscineInformation)
+    private userLapiscineInformationRepository: Repository<UserLapiscineInformation>,
   ) {}
-  async getUserReasonOfBreak() {
-    return await this.userReasonOfBreakRepository.find({});
+  async getUserLeaningDataAPI() {
+    return await this.userLearningDataAPIRepository.find({});
   }
-  async getUserLeaveOfAbsence() {
-    return await this.userLeaveOfAbsenceRepository.find({});
+  async getUserCourseExtension() {
+    return await this.userCourseExtensionRepository.find({});
   }
   async getUserBlackhole() {
     return await this.userBlackholeRepository.find({});
   }
-  async getUserProcessProgress() {
-    return await this.userProcessProgressPersonalRepository.find({});
+  async getUserLeaveOfAbsence() {
+    return await this.userLeaveOfAbsenceRepository.find({});
   }
-  async getUserLeaningData() {
-    return await this.userLearningDataRepository.find({});
+  async getUserInterruptionOfCourse() {
+    return await this.userInterruptionOfCourseRepository.find({});
   }
+  async getUserLoyaltyManagement() {
+    return await this.userLoyaltyManagementRepository.find({});
+  }
+  async getUserLapiscineInformation() {
+    return await this.userLapiscineInformationRepository.find({});
+  } //로얄티 추가됨.
 }
