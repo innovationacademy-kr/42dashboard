@@ -20,22 +20,6 @@ export class UserComputationFund extends BaseEntity {
   @PrimaryGeneratedColumn({ name: 'pk' })
   pk: number;
 
-  @Field({ nullable: false })
-  @Column({ name: 'no_duplicate_collection', nullable: false, default: 'N' })
-  no_duplicate_collection: string;
-
-  @Field({ nullable: true })
-  @Column({ name: 'reason_of_no_duplicate', nullable: true })
-  reason_of_no_duplicate: string;
-
-  @Field({ nullable: false })
-  @Column({ name: 'received_fund', nullable: false, default: 'N' })
-  majoreceived_fundr_field: string;
-
-  @Field({ nullable: false })
-  @Column({ name: 'recevied_grant_amount', nullable: false, default: 0 })
-  recevied_grant_amount: number;
-
   @Field({ nullable: true })
   @Column({
     name: 'payment_date',
@@ -46,6 +30,14 @@ export class UserComputationFund extends BaseEntity {
   payment_date: Date;
 
   @Field({ nullable: false })
+  @Column({ name: 'received', nullable: false, default: 'N' })
+  received: string;
+
+  @Field({ nullable: false })
+  @Column({ name: 'recevied_amount', nullable: false, default: 0 })
+  recevied_amount: string;
+
+  @Field({ nullable: false })
   @CreateDateColumn({ name: 'created_date' })
   created_date: Date;
 
@@ -53,7 +45,7 @@ export class UserComputationFund extends BaseEntity {
   @DeleteDateColumn()
   deleted_date: Date;
 
-  @Column({ name: 'fk_user_no', nullable: true })
+  @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
   @ManyToOne(() => User, (user) => user.userComputationFund)
@@ -69,52 +61,30 @@ export class UserEducationFundState extends BaseEntity {
   @PrimaryGeneratedColumn({ name: 'pk' })
   pk: number;
 
-  @Field({ nullable: false })
-  @Column({ name: 'total_payment_of_number', nullable: false, default: 0 })
+  @Field({ nullable: true })
+  @Column({ name: 'total_payment_of_number', nullable: true, default: 0 })
   total_payment_of_number: number;
 
-  @Field({ nullable: false })
-  @Column({ name: 'total_payment_of_money', nullable: false, default: 0 })
-  total_payment_of_money: number;
+  @Field({ nullable: true })
+  @Column({ name: 'total_payment_of_money', nullable: true, default: 0 })
+  total_payment_of_money: string;
 
   @Field({ nullable: true })
   @Column({
-    name: 'fund_period',
+    name: 'payment_end_date',
     nullable: false,
     default: '9999-12-31',
     type: 'date',
   })
-  fund_period: Date;
+  payment_end_date: Date;
 
   @Field({ nullable: true })
-  @Column({ name: 'remaining_period_of_fund', nullable: true })
-  remaining_period_of_fund: number;
-
-  @Field({ nullable: false })
-  @Column({ name: 'total_calculated_month', nullable: false, default: 0 })
-  total_calculated_month: number;
+  @Column({ name: 'payment_ended', nullable: true })
+  payment_ended: string;
 
   @Field({ nullable: true })
-  @Column({
-    name: 'payment_give_start_date',
-    nullable: false,
-    default: '9999-12-31',
-    type: 'date',
-  })
-  payment_give_start_date: Date;
-
-  @Field({ nullable: true })
-  @Column({ name: 'payment_delay_period', nullable: true })
-  payment_delay_period: number;
-
-  @Field({ nullable: true })
-  @Column({
-    name: 'payment_give_break_date',
-    nullable: false,
-    default: '9999-12-31',
-    type: 'date',
-  })
-  payment_give_break_date: Date;
+  @Column({ name: 'remarks', nullable: true, default: 0 })
+  remarks: string;
 
   @Field({ nullable: false })
   @CreateDateColumn({ name: 'created_date' })
@@ -124,7 +94,7 @@ export class UserEducationFundState extends BaseEntity {
   @DeleteDateColumn()
   deleted_date: Date;
 
-  @Column({ name: 'fk_user_no', nullable: true })
+  @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
   @ManyToOne(() => User, (user) => user.userEducationFundState)

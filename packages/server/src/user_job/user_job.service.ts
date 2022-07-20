@@ -2,21 +2,24 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
-  UserEmploymentAndFound,
   UserEmploymentStatus,
   UserHrdNetUtilize,
-  UserInternStatus,
+  UserHrdNetUtilizeConsent,
+  //UserInternStatus,
+  UserOtherEmploymentStatus,
 } from './entity/user_job.entity';
 
 @Injectable()
 export class UserJobService {
   constructor(
-    @InjectRepository(UserInternStatus)
-    private readonly userInternStatusRepo: Repository<UserInternStatus>,
+    // @InjectRepository(UserInternStatus)
+    // private readonly userInternStatusRepo: Repository<UserInternStatus>,
+    @InjectRepository(UserHrdNetUtilizeConsent)
+    private readonly userHrdNetUtilizeConsentRepo: Repository<UserHrdNetUtilizeConsent>,
     @InjectRepository(UserHrdNetUtilize)
     private readonly userHrdNetUtilizeRepo: Repository<UserHrdNetUtilize>,
-    @InjectRepository(UserEmploymentAndFound)
-    private readonly userEmploymentAndFoundRepo: Repository<UserEmploymentAndFound>,
+    @InjectRepository(UserOtherEmploymentStatus)
+    private readonly userEmploymentAndFoundRepo: Repository<UserOtherEmploymentStatus>,
     @InjectRepository(UserEmploymentStatus)
     private readonly userEmploymentStatusRepo: Repository<UserEmploymentStatus>,
   ) {}
@@ -27,10 +30,13 @@ export class UserJobService {
   async getUserEmploymentStatus() {
     return await this.userEmploymentStatusRepo.find({});
   }
+  async getUserHrdNetUtilizeConsent() {
+    return await this.userHrdNetUtilizeConsentRepo.find({});
+  }
   async getUserHrdNetUtilize() {
     return await this.userHrdNetUtilizeRepo.find({});
   }
-  async getUserInternStatus() {
-    return await this.userInternStatusRepo.find({});
-  }
+  // async getUserInternStatus() {
+  //   return await this.userInternStatusRepo.find({});
+  // }
 }

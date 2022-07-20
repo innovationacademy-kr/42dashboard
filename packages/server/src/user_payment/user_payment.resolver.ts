@@ -1,6 +1,8 @@
 import { Query, Resolver } from '@nestjs/graphql';
-import { UserComputationFund } from './entity/user_computation_fund.entity';
-import { UserEducationFundState } from './entity/user_education_fund_state.entity';
+import {
+  UserComputationFund,
+  UserEducationFundState,
+} from './entity/user_payment.entity';
 import { UserPaymentService } from './user_payment.service';
 
 @Resolver()

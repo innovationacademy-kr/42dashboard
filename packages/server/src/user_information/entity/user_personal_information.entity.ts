@@ -34,6 +34,14 @@ export class UserPersonalInformation {
   birthday: string;
 
   @Field()
+  @Column({ name: 'social_security_key', nullable: true })
+  social_security_key: string;
+
+  @Field()
+  @Column({ name: 'age', nullable: true })
+  age: string;
+
+  @Field()
   @Column({ name: 'phone_number', nullable: true })
   phone_number: string;
 

@@ -1,19 +1,22 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import {
-  UserEmploymentAndFound,
+  UserOtherEmploymentStatus,
   UserEmploymentStatus,
   UserHrdNetUtilize,
-  UserInternStatus,
+  //UserInternStatus,
 } from 'src/user_job/entity/user_job.entity';
-import { UserComputationFund } from 'src/user_payment/entity/user_computation_fund.entity';
-import { UserEducationFundState } from 'src/user_payment/entity/user_education_fund_state.entity';
 import {
+  UserComputationFund,
+  UserEducationFundState,
+} from 'src/user_payment/entity/user_payment.entity';
+import {
+  UserLearningDataAPI,
+  UserCourseExtension,
   UserBlackhole,
   UserLapiscineInformation,
-  UserLearningData,
   UserLeaveOfAbsence,
-  UserProcessProgress,
-  UserReasonOfBreak,
+  UserInterruptionOfCourse,
+  UserLoyaltyManagement,
 } from 'src/user_status/entity/user_status.entity';
 import { Entity } from 'typeorm';
 import { UserAccessCardInformation } from '../entity/user_access_card_information.entity';
@@ -55,11 +58,11 @@ export class JoinedTable {
   @Field((type) => [UserAccessCardInformation], { nullable: true })
   userAccessCardInformation: UserAccessCardInformation[]; //일대일 이니까 -> DB에서는 그럴지몰라도 반환값에서는 배열로반환
 
-  @Field((type) => [UserEmploymentAndFound], { nullable: true })
-  userEmploymentAndFound: UserEmploymentAndFound[];
+  @Field((type) => [UserEmploymentStatus], { nullable: true })
+  userEmploymentAndFound: UserEmploymentStatus[];
 
-  @Field((type) => [UserInternStatus], { nullable: true })
-  userInternStatus: UserInternStatus[];
+  // @Field((type) => [UserInternStatus], { nullable: true })
+  // userInternStatus: UserInternStatus[];
 
   @Field((type) => [UserHrdNetUtilize], { nullable: true })
   userHrdNetUtilize: UserHrdNetUtilize[];
@@ -73,20 +76,23 @@ export class JoinedTable {
   @Field((type) => [UserEducationFundState], { nullable: true })
   userEducationFundState: UserEducationFundState[];
 
-  @Field((type) => [UserLearningData], { nullable: true })
-  userLearningData: UserLearningData[];
+  @Field((type) => [UserLearningDataAPI], { nullable: true })
+  userLearningDataAPI: UserLearningDataAPI[];
 
-  @Field((type) => [UserProcessProgress], { nullable: true })
-  userProcessProgress: UserProcessProgress[];
+  @Field((type) => [UserCourseExtension], { nullable: true })
+  userCourseExtension: UserCourseExtension[];
 
   @Field((type) => [UserBlackhole], { nullable: true })
   userBlackhole: UserBlackhole[];
 
+  @Field((type) => [UserLoyaltyManagement], { nullable: true })
+  userLoyaltyManagement: UserLoyaltyManagement[];
+
   @Field((type) => [UserLeaveOfAbsence], { nullable: true })
   userLeaveOfAbsence: UserLeaveOfAbsence[];
 
-  @Field((type) => [UserReasonOfBreak], { nullable: true })
-  userReasonOfBreak: UserReasonOfBreak[];
+  @Field((type) => [UserInterruptionOfCourse], { nullable: true })
+  userInterruptionOfCourse: UserInterruptionOfCourse[];
 
   @Field((type) => [UserLapiscineInformation], { nullable: true })
   userLapiscineInformation: UserLapiscineInformation[];

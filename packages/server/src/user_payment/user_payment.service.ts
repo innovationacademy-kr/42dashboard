@@ -2,8 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user_information/entity/user_information.entity';
 import { Repository } from 'typeorm';
-import { UserComputationFund } from './entity/user_computation_fund.entity';
-import { UserEducationFundState } from './entity/user_education_fund_state.entity';
+import {
+  UserComputationFund,
+  UserEducationFundState,
+} from './entity/user_payment.entity';
 
 @Injectable()
 export class UserPaymentService {

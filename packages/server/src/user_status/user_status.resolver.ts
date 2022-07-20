@@ -1,10 +1,10 @@
 import { Query, Resolver } from '@nestjs/graphql';
 import {
   UserBlackhole,
-  UserLearningData,
+  UserCourseExtension,
+  UserInterruptionOfCourse,
+  UserLearningDataAPI,
   UserLeaveOfAbsence,
-  UserProcessProgress,
-  UserReasonOfBreak,
 } from './entity/user_status.entity';
 import { UserStatusService } from './user_status.service';
 
@@ -12,13 +12,13 @@ import { UserStatusService } from './user_status.service';
 export class UserStatusResolver {
   constructor(private readonly userStatusService: UserStatusService) {}
 
-  @Query(() => [UserLearningData])
+  @Query(() => [UserLearningDataAPI])
   getUserLeaningData() {
-    return this.userStatusService.getUserLeaningData();
+    return this.userStatusService.getUserLeaningDataAPI();
   }
-  @Query(() => [UserProcessProgress])
-  getUserProcessProgress() {
-    return this.userStatusService.getUserProcessProgress();
+  @Query(() => [UserCourseExtension])
+  getUserCourseExtension() {
+    return this.userStatusService.getUserCourseExtension();
   }
   @Query(() => [UserBlackhole])
   getUserBlackhole() {
@@ -29,8 +29,8 @@ export class UserStatusResolver {
     return this.userStatusService.getUserLeaveOfAbsence();
   }
 
-  @Query(() => UserReasonOfBreak)
-  getUserReasonOfBreak() {
-    return this.userStatusService.getUserReasonOfBreak();
+  @Query(() => UserInterruptionOfCourse)
+  getUserInterruptionOfCourse() {
+    return this.userStatusService.getUserInterruptionOfCourse();
   }
 }
