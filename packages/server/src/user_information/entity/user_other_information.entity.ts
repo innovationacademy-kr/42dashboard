@@ -48,7 +48,11 @@ export class UserOtherInformation extends BaseEntity {
   @DeleteDateColumn()
   deleted_date: Date;
 
+<<<<<<< HEAD
   @Column({ name: 'fk_user_no', nullable: false })
+=======
+  @Column({ name: 'fk_user_no', nullable: true })
+>>>>>>> b0232f735548468240aacf3c2449228c420a97e7
   fk_user_no: string;
 
   @ManyToOne(() => User, (user) => user.userOtherInformation)

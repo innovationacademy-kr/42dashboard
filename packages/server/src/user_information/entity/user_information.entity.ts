@@ -101,6 +101,18 @@ export class User {
   )
   userPersonalInformation: UserPersonalInformation;
 
+<<<<<<< HEAD
+=======
+  // @Field(()=>UserAccessCardInformation)
+  @OneToOne(
+    () => UserAccessCardInformation,
+    (userAccessCardInformation) => userAccessCardInformation.user,
+    { cascade: true },
+  )
+  userAccessCardInformation: UserAccessCardInformation;
+
+  // @Field((type) => [UserOtherInformation])
+>>>>>>> b0232f735548468240aacf3c2449228c420a97e7
   @OneToMany(
     () => UserOtherInformation,
     (userOtherInformation) => userOtherInformation.user,
@@ -120,33 +132,62 @@ export class User {
    ***********************************/
 
   @OneToMany(
+<<<<<<< HEAD
     () => UserOtherEmploymentStatus,
     (userOtherEmploymentStatus) => userOtherEmploymentStatus.user,
+=======
+    () => UserLearningData,
+    (userLearningDate) => userLearningDate.user,
+>>>>>>> b0232f735548468240aacf3c2449228c420a97e7
     { cascade: true },
   )
   userOtherEmploymentStatus: UserOtherEmploymentStatus[];
 
   @OneToMany(
+<<<<<<< HEAD
     () => UserHrdNetUtilizeConsent,
     (userHrdNetUtilizeConsent) => userHrdNetUtilizeConsent.user,
+=======
+    () => UserProcessProgress,
+    (userProcessProgress) => userProcessProgress.user,
+>>>>>>> b0232f735548468240aacf3c2449228c420a97e7
     { cascade: true },
   )
   userHrdNetUtilizeConsent: UserHrdNetUtilizeConsent[];
 
+<<<<<<< HEAD
   @OneToMany(
     () => UserHrdNetUtilize,
     (userHrdNetUtilize) => userHrdNetUtilize.user,
+=======
+  // @Field((type) => [UserBlackhole])
+  @OneToMany(() => UserBlackhole, (userBlackhole) => userBlackhole.user, {
+    cascade: true,
+  })
+  userBlackhole: UserBlackhole[];
+
+  // @Field((type) => [UserLeaveOfAbsence])
+  @OneToMany(
+    () => UserLeaveOfAbsence,
+    (userLeaveOfAbsence) => userLeaveOfAbsence.user,
+>>>>>>> b0232f735548468240aacf3c2449228c420a97e7
     { cascade: true },
   )
   userHrdNetUtilize: UserHrdNetUtilize[];
 
   @OneToMany(
+<<<<<<< HEAD
     () => UserEmploymentStatus,
     (userEmploymentStatus) => userEmploymentStatus.user,
+=======
+    () => UserReasonOfBreak,
+    (userReasonOfBreak) => userReasonOfBreak.user,
+>>>>>>> b0232f735548468240aacf3c2449228c420a97e7
     { cascade: true },
   )
   userEmploymentStatus: UserEmploymentStatus[];
 
+<<<<<<< HEAD
   // @OneToMany(
   //   //사용미정
   //   () => UserInternStatus,
@@ -154,11 +195,32 @@ export class User {
   //   { cascade: true },
   // )
   // userInternStatus: UserInternStatus[];
+=======
+  // @Field((type) => [UserLapiscineInformation])
+  @OneToMany(
+    () => UserLapiscineInformation,
+    (userLapiscineInformation) => userLapiscineInformation.user,
+    { cascade: true },
+  )
+  userLapiscineInformation: UserLapiscineInformation[];
+>>>>>>> b0232f735548468240aacf3c2449228c420a97e7
 
   /***********************************
    *               Payment           *
    ***********************************/
 
+<<<<<<< HEAD
+=======
+  // @Field((type) => [UserComputationFund])
+  @OneToMany(
+    () => UserComputationFund,
+    (userComputationFund) => userComputationFund.user,
+    { cascade: true },
+  )
+  userComputationFund: UserComputationFund[];
+
+  // @Field((type) => [UserEducationFundState])
+>>>>>>> b0232f735548468240aacf3c2449228c420a97e7
   @OneToMany(
     () => UserEducationFundState,
     (userEducationFundState) => userEducationFundState.user,
@@ -178,22 +240,37 @@ export class User {
    ***********************************/
 
   @OneToMany(
+<<<<<<< HEAD
     () => UserLearningDataAPI,
     (userLearningDataAPI) => userLearningDataAPI.user,
+=======
+    () => UserEmploymentAndFound,
+    (UserEmploymentAndFound) => UserEmploymentAndFound.user,
+>>>>>>> b0232f735548468240aacf3c2449228c420a97e7
     { cascade: true },
   )
   userLearningDataAPI: UserLearningDataAPI[];
 
   @OneToMany(
+<<<<<<< HEAD
     () => UserLoyaltyManagement,
     (userLoyaltyManagement) => userLoyaltyManagement.user,
+=======
+    () => UserInternStatus,
+    (userInternStatus) => userInternStatus.user,
+>>>>>>> b0232f735548468240aacf3c2449228c420a97e7
     { cascade: true },
   )
   userLoyaltyManagement: UserLoyaltyManagement[];
 
   @OneToMany(
+<<<<<<< HEAD
     () => UserCourseExtension,
     (userCourseExtension) => userCourseExtension.user,
+=======
+    () => UserHrdNetUtilize,
+    (userHrdNetUtilize) => userHrdNetUtilize.user,
+>>>>>>> b0232f735548468240aacf3c2449228c420a97e7
     { cascade: true },
   )
   userCourseExtension: UserCourseExtension[];
@@ -204,8 +281,13 @@ export class User {
   userBlackhole: UserBlackhole[];
 
   @OneToMany(
+<<<<<<< HEAD
     () => UserLeaveOfAbsence,
     (userLeaveOfAbsence) => userLeaveOfAbsence.user,
+=======
+    () => UserEmploymentStatus,
+    (userEmploymentStatus) => userEmploymentStatus.user,
+>>>>>>> b0232f735548468240aacf3c2449228c420a97e7
     { cascade: true },
   )
   userLeaveOfAbsence: UserLeaveOfAbsence[];

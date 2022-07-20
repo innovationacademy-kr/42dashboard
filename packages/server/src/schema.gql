@@ -39,6 +39,18 @@ type JoinedTable {
   userLoyaltyManagement: [UserLoyaltyManagement!]
   userOtherInformation: [UserOtherInformation!]
   userPersonalInformation: [UserPersonalInformation!]
+<<<<<<< HEAD
+}
+
+type Mutation {
+  deleteUserInformation(column: String!, entityName: String!, intra_no: Int!, pk: Int!, value: String!): Boolean!
+  recoverUserInformaiton(column: String!, entityName: String!, intra_no: Int!, pk: Int!, value: String!): Boolean!
+  softDeleteRemoveWithdrawTest(column: String!, entityName: String!, intra_no: Int!, pk: Int!, value: String!): [JoinedTable!]!
+  updateUserInformation(column: String!, entityName: String!, intra_no: Int!, pk: Int!, value: String!): Boolean!
+=======
+  userProcessProgress: [UserProcessProgress!]
+  userReasonOfBreak: [UserReasonOfBreak!]
+>>>>>>> b0232f735548468240aacf3c2449228c420a97e7
 }
 
 type Mutation {
@@ -49,7 +61,11 @@ type Mutation {
 }
 
 type Query {
+<<<<<<< HEAD
   getLatestData: String!
+=======
+  getAllSpread: String!
+>>>>>>> b0232f735548468240aacf3c2449228c420a97e7
   getNumOfPeopleByFilter(filters: [Filter!]!, skip: Int, take: Int): Int!
   getPeopleByFilter(filters: [Filter!]!, skip: Int, take: Int): [JoinedTable!]!
   getPeopleByFilterForAdmin(filters: [Filter!]!, skip: Int, take: Int): [JoinedTable!]!
@@ -67,9 +83,15 @@ type Query {
   getUserLeaveOfAbsence: [UserLeaveOfAbsence!]!
   getUserOtherInformation(created_date: DateTime!, experience_of_software_developing: String!, highest_level_of_education: String!, major: String!, major_field: String!, major_name: String!, period_of_software_learning: Int, pk: Int): [UserOtherInformation!]!
   getUserPersonalInformation: [UserPersonalInformation!]!
+<<<<<<< HEAD
   tempFunction: [JoinedTable!]!
   updateData: String!
   updateOldData: String!
+=======
+  getUserProcessProgress: [UserProcessProgress!]!
+  getUserReasonOfBreak: UserReasonOfBreak!
+  tempFunction: [JoinedTable!]!
+>>>>>>> b0232f735548468240aacf3c2449228c420a97e7
 }
 
 type UserAccessCardInformation {

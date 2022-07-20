@@ -87,7 +87,11 @@ export class UserLearningDataAPI extends BaseEntity {
   @DeleteDateColumn()
   deleted_date: Date;
 
+<<<<<<< HEAD
   @Column({ name: 'fk_user_no', nullable: false })
+=======
+  @Column({ name: 'fk_user_no', nullable: true })
+>>>>>>> b0232f735548468240aacf3c2449228c420a97e7
   fk_user_no: string;
 
   @ManyToOne(() => User, (user) => user.userLearningDataAPI)
@@ -176,7 +180,11 @@ export class UserCourseExtension extends BaseEntity {
   @DeleteDateColumn()
   deleted_date: Date;
 
+<<<<<<< HEAD
   @Column({ name: 'fk_user_no', nullable: false })
+=======
+  @Column({ name: 'fk_user_no', nullable: true })
+>>>>>>> b0232f735548468240aacf3c2449228c420a97e7
   fk_user_no: string;
 
   @ManyToOne(() => User, (user) => user.userCourseExtension)
@@ -230,7 +238,11 @@ export class UserBlackhole extends BaseEntity {
   @DeleteDateColumn()
   deleted_date: Date;
 
+<<<<<<< HEAD
   @Column({ name: 'fk_user_no', nullable: false })
+=======
+  @Column({ name: 'fk_user_no', nullable: true })
+>>>>>>> b0232f735548468240aacf3c2449228c420a97e7
   fk_user_no: string;
 
   @ManyToOne(() => User, (user) => user.userBlackhole)
@@ -297,7 +309,11 @@ export class UserLeaveOfAbsence extends BaseEntity {
   @DeleteDateColumn()
   deleted_date: Date;
 
+<<<<<<< HEAD
   @Column({ name: 'fk_user_no', nullable: false })
+=======
+  @Column({ name: 'fk_user_no', nullable: true })
+>>>>>>> b0232f735548468240aacf3c2449228c420a97e7
   fk_user_no: string;
 
   @ManyToOne(() => User, (user) => user.userLeaveOfAbsence)
@@ -342,8 +358,13 @@ export class UserInterruptionOfCourse extends BaseEntity {
   @DeleteDateColumn()
   deleted_date: Date;
 
+<<<<<<< HEAD
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
+=======
+  @Column({ name: 'fk_user_no', nullable: true })
+  fk_user_no: number;
+>>>>>>> b0232f735548468240aacf3c2449228c420a97e7
 
   @ManyToOne(() => User, (user) => user.userInterruptionOfCourse)
   @JoinColumn({ name: 'fk_user_no' })
@@ -380,7 +401,11 @@ export class UserLapiscineInformation extends BaseEntity {
   @DeleteDateColumn()
   deleted_date: Date;
 
+<<<<<<< HEAD
   @Column({ name: 'fk_user_no', nullable: false })
+=======
+  @Column({ name: 'fk_user_no', nullable: true })
+>>>>>>> b0232f735548468240aacf3c2449228c420a97e7
   fk_user_no: string;
 
   @ManyToOne(() => User, (user) => user.userLapiscineInformation)

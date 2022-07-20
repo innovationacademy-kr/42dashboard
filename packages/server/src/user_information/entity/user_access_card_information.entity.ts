@@ -51,8 +51,13 @@ export class UserAccessCardInformation extends BaseEntity {
   @DeleteDateColumn()
   deleted_date: Date;
 
+<<<<<<< HEAD
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
+=======
+  // @Column({ name: 'fk_user_no', nullable: true })
+  // fk_user_no: string;
+>>>>>>> b0232f735548468240aacf3c2449228c420a97e7
 
   @ManyToOne(() => User, (user) => user.userAccessCardInformation)
   @JoinColumn({ name: 'fk_user_no' })
