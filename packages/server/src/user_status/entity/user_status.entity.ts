@@ -74,7 +74,7 @@ export class UserLearningData extends BaseEntity {
   @CreateDateColumn({ name: 'created_date' })
   created_date: Date;
 
-  @Field()
+  @Field({ nullable: true })
   @DeleteDateColumn()
   deleted_date: Date;
 
@@ -120,7 +120,7 @@ export class UserProcessProgress extends BaseEntity {
   @CreateDateColumn({ name: 'created_date' })
   created_date: Date;
 
-  @Field()
+  @Field({ nullable: true })
   @DeleteDateColumn()
   deleted_date: Date;
 
@@ -161,7 +161,7 @@ export class UserBlackhole extends BaseEntity {
   @CreateDateColumn({ name: 'created_date' })
   created_date: Date;
 
-  @Field()
+  @Field({ nullable: true })
   @DeleteDateColumn()
   deleted_date: Date;
 
@@ -216,7 +216,7 @@ export class UserLeaveOfAbsence extends BaseEntity {
   @CreateDateColumn({ name: 'created_date' })
   created_date: Date;
 
-  @Field()
+  @Field({ nullable: true })
   @DeleteDateColumn()
   deleted_date: Date;
 
@@ -252,7 +252,7 @@ export class UserReasonOfBreak extends BaseEntity {
   @CreateDateColumn({ name: 'created_date' })
   created_date: Date;
 
-  @Field()
+  @Field({ nullable: true })
   @DeleteDateColumn()
   deleted_date: Date;
 
@@ -290,7 +290,7 @@ export class UserLapiscineInformation extends BaseEntity {
   @CreateDateColumn({ name: 'created_date' })
   created_date: Date;
 
-  @Field()
+  @Field({ nullable: true })
   @DeleteDateColumn()
   deleted_date: Date;
 

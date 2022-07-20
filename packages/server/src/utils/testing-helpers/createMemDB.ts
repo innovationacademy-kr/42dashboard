@@ -15,6 +15,18 @@ export async function createMemDB(entities: Entity[]) {
   });
 }
 
+export async function createDB(entities: Entity[]) {
+  return await new DataSource({
+    // name, // let TypeORM manage the connections
+    type: 'postgres',
+    database: 'forTest',
+    entities: [__dirname + '/../../**/*.entity.{js,ts}'],
+    dropSchema: true,
+    synchronize: true,
+    logging: false,
+  });
+}
+
 // export async function createMemDB(entities: Entity[]) {
 //   return await new DataSource({
 //     // name, // let TypeORM manage the connections

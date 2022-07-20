@@ -1,12 +1,29 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { Bocal } from 'src/auth/entity/bocal.entity';
 import { UserAccessCardInformation } from 'src/user_information/entity/user_access_card_information.entity';
 import { User } from 'src/user_information/entity/user_information.entity';
 import { UserOtherInformation } from 'src/user_information/entity/user_other_information.entity';
 import { UserPersonalInformation } from 'src/user_information/entity/user_personal_information.entity';
 import {
+  UserEmploymentAndFound,
+  UserEmploymentStatus,
+  UserHrdNetUtilize,
+  UserInternStatus,
+} from 'src/user_job/entity/user_job.entity';
+import { UserComputationFund } from 'src/user_payment/entity/user_computation_fund.entity';
+import { UserEducationFundState } from 'src/user_payment/entity/user_education_fund_state.entity';
+import {
   UserBlackhole,
+  UserLapiscineInformation,
+  UserLearningData,
+  UserLeaveOfAbsence,
   UserProcessProgress,
+  UserReasonOfBreak,
 } from 'src/user_status/entity/user_status.entity';
 import {
   createQueryBuilder, //deprecated
@@ -39,7 +56,7 @@ import { Filter } from './filter';
 @Injectable()
 export class UserInformationService {
   private operatorToMethod;
-
+  private stringToEntity;
   constructor(
     // @InjectRepository(User)
     // private userRepository: Repository<User>,
@@ -72,6 +89,25 @@ export class UserInformationService {
     this.operatorToMethod['Any'] = Any;
     this.operatorToMethod['any'] = Any;
     this.operatorToMethod['null'] = IsNull;
+    this.stringToEntity = {};
+    this.stringToEntity['bocal'] = Bocal;
+    this.stringToEntity['user'] = User;
+    this.stringToEntity['userPersonalInformation'] = UserPersonalInformation;
+    this.stringToEntity['userOtherInformation'] = UserOtherInformation;
+    this.stringToEntity['userAccessCardInformation'] =
+      UserAccessCardInformation;
+    this.stringToEntity['userEmploymentAndFound'] = UserEmploymentAndFound;
+    this.stringToEntity['userInternStatus'] = UserInternStatus;
+    this.stringToEntity['userHrdNetUtilize'] = UserHrdNetUtilize;
+    this.stringToEntity['userEmploymentStatus'] = UserEmploymentStatus;
+    this.stringToEntity['userComputationFund'] = UserComputationFund;
+    this.stringToEntity['userEducationFundState'] = UserEducationFundState;
+    this.stringToEntity['userLearningData'] = UserLearningData;
+    this.stringToEntity['userProcessProgress'] = UserProcessProgress;
+    this.stringToEntity['userBlackhole'] = UserBlackhole;
+    this.stringToEntity['userLeaveOfAbsence'] = UserLeaveOfAbsence;
+    this.stringToEntity['userReasonOfBreak'] = UserReasonOfBreak;
+    this.stringToEntity['userLapiscineInformation'] = UserLapiscineInformation;
   }
 
   async createUser(user: User) {
@@ -355,6 +391,28 @@ export class UserInformationService {
     else return false;
   }
 
+  /**
+   * 아래 함수는 단순히 '관계 연결용'임
+   * 다른 관리자용 함수와는 다르게 이 함수는 Int값을 반환
+   */
+  async insertUserInformationForTest(cudDto: CudDto) {
+    // cudDto.entityName이 user이거나, user가 아니거나
+    const intra_no = cudDto.intra_no;
+    const entityName = this.stringToEntity(cudDto.entityName);
+    // 테스트 끝나면 아래 에러처리문 지우기
+    if (!entityName) throw new InternalServerErrorException();
+    const user = await this.dataSource
+      .getRepository(User)
+      .findOne({ where: { intra_no } });
+    // console.log(this.stringToEntity[entityName]);
+    const anyRepo = this.dataSource.getRepository(
+      this.stringToEntity[entityName],
+    );
+    const newEntity = anyRepo.create();
+    newEntity.user = user;
+    return (await anyRepo.save(newEntity)).pk;
+  }
+
   //--------------------------------------------------
   //                                                  |
   //                                                  |
@@ -373,9 +431,6 @@ export class UserInformationService {
   //                                                  |
   //--------------------------------------------------
 
-  /**
-   * 실습용 코드
-   */
   async softDeleteRemoveWithdrawTest(cudDto: CudDto) {
     const queryRunner = this.dataSource.createQueryRunner();
     // const obj = this.createFindObj(cudDto);
