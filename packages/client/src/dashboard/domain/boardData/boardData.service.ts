@@ -7,6 +7,11 @@ class BoardDataService {
   public createNewBoardData(): BoardDataType {
     return this.boardDataRepository.createBoard();
   }
+
+  public updateBoardData(newBoardData: BoardDataType) {
+    this.boardDataRepository.updateBoard(newBoardData);
+    return newBoardData;
+  }
 }
 
 export default BoardDataService;

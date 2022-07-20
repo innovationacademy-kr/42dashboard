@@ -6,7 +6,6 @@ import { Button } from '@mui/material';
 import { v4 as uuid } from 'uuid';
 import StickerDataType from '../../../domain/stickerDatas/stickerData.type';
 import createQuery from '../../../infrastructure/http/graphql/createQuery';
-import useSectionLayout from '../../../application/services/useSectionLayout';
 import RGL, { Layout, WidthProvider } from 'react-grid-layout';
 
 const ReactGridLayout = WidthProvider(RGL.Responsive);
@@ -48,14 +47,25 @@ const queryData = {
   },
 };
 
-export default function Section() {
-  // const { stickerDatas, addSticker, removeSticker } = useStickers();
+interface SectionProps {
+  id: string;
+  stickerLayouts: Layout[];
+  handleSectionRemove: (sectionId: string) => void;
+  handleStickerAdd: (sectionId: string, stickerId: string) => void;
+  handleStickerRemove: (sectionId: string, stickerId: string) => void;
+  handleStickerLayoutChange: (sectionId: string, newLayout: Layout[]) => void;
+}
+
+export default function Section(props: SectionProps) {
+  const { addSticker, removeSticker } = useStickers();
   const {
-    stickerLayout,
+    id,
+    stickerLayouts,
+    handleSectionRemove,
     handleStickerAdd,
     handleStickerLayoutChange,
     handleStickerRemove,
-  } = useSectionLayout();
+  } = props;
 
   const stickerData: StickerDataType = {
     id: uuid(),
@@ -71,14 +81,15 @@ export default function Section() {
   };
 
   function drawStickers() {
-    // layout length
-    console.log(stickerLayout.length);
-    return stickerLayout.map((sticker: Layout, idx: number) => (
+    return stickerLayouts.map((sticker: Layout) => (
       <div key={sticker.i}>
         <Sticker
           id={sticker.i}
           data={stickerData.data}
-          handleStickerRemove={handleStickerRemove}
+          handleStickerRemove={(stickerId) => {
+            removeSticker(stickerId);
+            handleStickerRemove(id, stickerId);
+          }}
         />
       </div>
     ));
@@ -86,13 +97,29 @@ export default function Section() {
 
   return (
     <>
-      <Button onClick={handleStickerAdd}>Add Sticker</Button>
+      <Button
+        onClick={() => {
+          addSticker(stickerData);
+          handleStickerAdd(id, stickerData.id);
+        }}
+      >
+        Add Sticker
+      </Button>
+      <Button
+        onClick={() => {
+          handleSectionRemove(id);
+        }}
+      >
+        Remove Section
+      </Button>
       <ReactGridLayout
         onDragStart={(a, b, c, d, e) => e.stopPropagation()}
-        layouts={{ lg: stickerLayout }}
+        layouts={{ lg: stickerLayouts }}
         breakpoints={{ lg: 600, md: 498, sm: 384, xs: 240, xxs: 0 }}
         cols={{ lg: 8, md: 5, sm: 4, xs: 2, xxs: 1 }}
-        onLayoutChange={handleStickerLayoutChange}
+        onLayoutChange={(newLayout) => {
+          handleStickerLayoutChange(id, newLayout);
+        }}
         className="layout"
         rowHeight={30}
       >

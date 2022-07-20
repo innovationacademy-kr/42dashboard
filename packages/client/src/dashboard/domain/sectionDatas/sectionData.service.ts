@@ -8,6 +8,9 @@ class SectionDatasService {
     return this.sectionDatasRepository.addSection(sectionData);
   }
 
+  public updateSectionData(sectionData: SectionDataType) {
+    return this.sectionDatasRepository.updateSectionData(sectionData);
+  }
   public async removeSectionData(id: string): Promise<void> {
     return this.sectionDatasRepository.removeSection(id);
   }
