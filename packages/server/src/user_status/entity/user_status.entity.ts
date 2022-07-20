@@ -90,41 +90,6 @@ export class UserLearningDataAPI extends BaseEntity {
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userLearningDataAPI)
-  @JoinColumn({ name: 'fk_user_no' })
-  user: User;
-}
-
-@ObjectType()
-@Entity()
-export class UserLoyaltyManagement extends BaseEntity {
-  @Field()
-  @PrimaryGeneratedColumn({ name: 'pk' })
-  pk: number;
-
-  @Field({ nullable: true, defaultValue: 0 }) //특정 데이터 때문에 널 허용중
-  @Column({ name: 'royalty_period', nullable: true, default: 0 })
-  royalty_period: string;
-
-  @Field({ nullable: true, defaultValue: 0 }) //특정 데이터 때문에 널 허용중
-  @Column({ name: 'royalty_presence', nullable: true, default: 0 })
-  royalty_presence: string;
-
-  @Field({ nullable: true, defaultValue: 'N' })
-  @Column({ name: 'royalty_circle', nullable: true, default: 'N' })
-  royalty_circle: string;
-
-  @Field({ nullable: false })
-  @CreateDateColumn({ name: 'created_date' })
-  created_date: Date;
-
-  @Field()
-  @DeleteDateColumn()
-  deleted_date: Date;
-
-  @Column({ name: 'fk_user_no', nullable: false })
-  fk_user_no: string;
-
   @ManyToOne(() => User, (user) => user.userLoyaltyManagement)
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
