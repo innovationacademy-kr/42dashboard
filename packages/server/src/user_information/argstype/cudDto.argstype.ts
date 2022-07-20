@@ -8,12 +8,12 @@ export class CudDto {
   @Field()
   entityName: string;
 
-  @Field((type) => Int)
+  @Field((type) => Int, { nullable: true })
   pk: number;
 
-  @Field()
+  @Field({ nullable: true })
   column: string;
 
-  @Field()
+  @Field({ nullable: true })
   value: string;
 }

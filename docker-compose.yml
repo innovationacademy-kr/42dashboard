@@ -1,31 +1,31 @@
 version: "3"
 services:
-    app:
-        image: awesome/backend
-        restart: always
-        build:
-          context: .
-          dockerfile: ./nestjs.dockerfile
-        ports:
-            - "3000:3000"
-        stdin_open: true
-        tty: true
-        depends_on:
-            - db
-        networks:
-            - default
-            - our_net
-        links:
-            - "db"
-        # network_mode: "host"
+    # app:
+    #     image: awesome/backend
+    #     restart: always
+    #     build:
+    #       context: .
+    #       dockerfile: ./nestjs.dockerfile
+    #     ports:
+    #         - "3000:3000"
+    #     stdin_open: true
+    #     tty: true
+    #     depends_on:
+    #         - db
+    #     networks:
+    #         - default
+    #         - our_net
+    #     links:
+    #         - "db"
+    #     # network_mode: "host"
     db:
         image: postgres:latest
         container_name: postgres
         restart: always
-        expose:
-            - 5432
-        # ports:
-        #     - "5432:5432"
+        # expose:
+        #     - 5432
+        ports:
+            - "5432:5432"
         environment:
             POSTGRES_USER: "dashBoard"
             POSTGRES_PASSWORD: "dashBoard"
@@ -37,6 +37,29 @@ services:
         # network_mode: "host"
         # volumes:
         #     - D:/postgresql/data/:/var/lib/postgresql/data
+    # pgAdmin:
+    #     image: dpage/pgadmin4
+    #     restart: always
+    #     # build:
+    #     #   context: .
+    #     #   dockerfile: ./nestjs.dockerfile
+    #     ports:
+    #         - "5431:80"
+    #     # 위 포트바인딩 실수에러 조심
+    #     stdin_open: true
+    #     tty: true
+    #     depends_on:
+    #         - db
+    #         - app
+    #     networks:
+    #         - default
+    #         - our_net
+    #     environment:
+    #         PGADMIN_DEFAULT_EMAIL: "dashBoard@nate.com"
+    #         PGADMIN_DEFAULT_PASSWORD: "dashBoard"
+    #     links:
+    #         - "db"
+    #     # network_mode: "host"
 networks:
   our_net:
     driver: bridge

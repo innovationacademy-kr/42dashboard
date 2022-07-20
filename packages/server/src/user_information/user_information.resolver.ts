@@ -66,14 +66,14 @@ export class UserInformationResolver {
   // @Mutation(() => Boolean)
   // updateManyUsersInformation() {}
 
-  // softDelete 사용할 예정
+  // softRemove 사용할 예정
   // [intra_no], [entityName, pk, column, value]
   @Mutation(() => Boolean)
   async deleteUserInformation(@Args() cudDto: CudDto) {
     return await this.userService.deleteUserInformation(cudDto);
   }
 
-  // softDelete 사용할 예정
+  // softRemove 사용할 예정
   // @Mutation(() => Boolean)
   // deleteManyUsersInformation() {}
 
@@ -87,5 +87,12 @@ export class UserInformationResolver {
   @Mutation(() => [JoinedTable])
   async softDeleteRemoveWithdrawTest(@Args() cudDto: CudDto) {
     return await this.userService.softDeleteRemoveWithdrawTest(cudDto);
+  }
+
+  // 이 mutation으로 user를 새로 만드는 상황은 없다고 가정
+  // user를 새로 만드는 작업은 42api module나 updater moduler에서 진행
+  @Mutation(() => Int)
+  async insertUserInformationForTest(@Args() cudDto: CudDto): Promise<number> {
+    return await this.userService.insertUserInformationForTest(cudDto);
   }
 }

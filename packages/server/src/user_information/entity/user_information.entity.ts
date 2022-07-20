@@ -80,7 +80,7 @@ export class User {
   @CreateDateColumn({ name: 'created_date' })
   created_date: Date;
 
-  @Field()
+  @Field({ nullable: true })
   @DeleteDateColumn()
   deleted_date: Date;
 
