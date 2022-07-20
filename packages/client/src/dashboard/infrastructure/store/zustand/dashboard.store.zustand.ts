@@ -12,7 +12,7 @@ export interface DashBoardState {
   preset: PresetType | null;
   controlMode: ControlModeType;
   filtersModal: boolean;
-  boardData: BoardDataType | null;
+  boardData: BoardDataType;
   sectionDatas: SectionDataType[];
   stickerDatas: StickerDataType[];
 }
@@ -23,7 +23,7 @@ const store = create<DashBoardState, [['zustand/devtools', DashBoardState]]>(
     preset: null,
     controlMode: 'view',
     filtersModal: false,
-    boardData: null,
+    boardData: { sectionIds: [], sectionLayouts: [] },
     sectionDatas: [],
     stickerDatas: [],
   })),

@@ -18,6 +18,12 @@ class SectionDatasStore {
   public getSectionDatas(): SectionDataType[] {
     return zustandStore.getState().sectionDatas;
   }
+
+  public getSectionDataById(id: string): SectionDataType | undefined {
+    return zustandStore
+      .getState()
+      .sectionDatas.find((value) => value.id === id);
+  }
 }
 
 export default new SectionDatasStore();

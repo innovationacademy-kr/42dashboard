@@ -3,9 +3,7 @@ import zustandStore from './zustand/dashboard.store.zustand';
 
 // ===================== ZUSTAND STORAGE =====================
 class BoardDataStore {
-  public subscribeToBoardData(
-    callback: (boardDatas: BoardDataType | null) => void,
-  ) {
+  public subscribeToBoardData(callback: (boardDatas: BoardDataType) => void) {
     zustandStore.subscribe(() => {
       callback(zustandStore.getState().boardData);
     });
@@ -15,7 +13,7 @@ class BoardDataStore {
     zustandStore.setState({ boardData });
   }
 
-  public getBoardData(): BoardDataType | null {
+  public getBoardData(): BoardDataType {
     return zustandStore.getState().boardData;
   }
 }

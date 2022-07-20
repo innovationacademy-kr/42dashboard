@@ -7,6 +7,15 @@ class SectionDatasRepository implements SectionDataRepositoryInterface {
     const sectionDatas = [...sectionDatasStore.getSectionDatas(), sectionData];
     sectionDatasStore.setSectionDatas(sectionDatas);
   }
+
+  public updateSectionData(sectionData: SectionDataType) {
+    const sectionDatas = sectionDatasStore
+      .getSectionDatas()
+      .filter((value) => value.id !== sectionData.id);
+    sectionDatas.push(sectionData);
+    sectionDatasStore.setSectionDatas(sectionDatas);
+  }
+
   public async removeSection(id: string) {
     const sectionDatas = sectionDatasStore
       .getSectionDatas()

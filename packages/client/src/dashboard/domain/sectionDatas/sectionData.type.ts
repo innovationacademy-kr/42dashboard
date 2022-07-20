@@ -1,9 +1,9 @@
-import { Layouts } from 'react-grid-layout';
+import { Layout } from 'react-grid-layout';
 
 interface SectionDataType {
   id: string;
   stickerIds: string[];
-  stickerLayouts: Layouts;
+  stickerLayouts: Layout[];
 }
 
 export default SectionDataType;
