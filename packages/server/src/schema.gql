@@ -150,6 +150,7 @@ type UserHrdNetUtilizeConsent {
   consent_to_provide_information: String!
   consented_date: DateTime
   created_date: DateTime!
+  date_of_break: DateTime!
   deleted_date: DateTime!
   pk: Float!
 }
@@ -165,6 +166,7 @@ type UserInterruptionOfCourse {
 }
 
 type UserLapiscineInformation {
+  Record_participate_lapiscine: String
   deleted_date: DateTime!
   lapiscine_degree: String
   lapiscine_final_score: Float

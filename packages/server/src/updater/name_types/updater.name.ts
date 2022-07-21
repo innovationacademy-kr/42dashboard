@@ -84,7 +84,7 @@ export const mapObj = [
     { spName: '복학_date', dbName: 'return_from_absence_date' },
     { spName: '휴학_reason', dbName: 'absence_reason' },
     { spName: 'AGU_reason', dbName: 'AGU_reason' },
-    { spNameb: '기타', dbName: 'remarks' },
+    { spName: '기타', dbName: 'remarks' },
   ],
   [
     //userBlackhole
@@ -195,6 +195,13 @@ export const mapObj = [
     { spName: 'La Piscine LaPiscine_기수', dbName: 'lapiscine_grade' },
     { spName: 'LaPiscine_차수', dbName: 'lapiscine_degree' },
     { spName: 'LaPiscine_참여이력', dbName: 'record_participate_lapiscine' },
+    { spName: 'LaPiscine_final_score', dbName: 'lapiscine_final_score' },
+  ],
+  [
+    //userLapiscineInformation
+    { spName: 'La Piscine LaPiscine_기수', dbName: 'lapiscine_grade' },
+    { spName: 'LaPiscine_차수', dbName: 'lapiscine_degree' },
+    { spName: 'LaPiscine_참여이력', dbName: 'Record_participate_lapiscine' },
     { spName: 'LaPiscine_final_score', dbName: 'lapiscine_final_score' },
   ],
 ];
