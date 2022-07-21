@@ -128,7 +128,7 @@ type UserEducationFundState {
 type UserEmploymentStatus {
   created_date: DateTime!
   deleted_date: DateTime!
-  employmented: String
+  employment: String!
   emplyment_date: DateTime
   enterprise: String
   pk: Float!
@@ -138,8 +138,8 @@ type UserHrdNetUtilize {
   business_registration_number: String
   created_date: DateTime!
   deleted_date: DateTime!
-  employment: String!
   employment_insurance_date: DateTime
+  employmented: String!
   enterprise_size: String
   health_insurance_enterprise: String
   hrd_net_date: DateTime
@@ -165,12 +165,12 @@ type UserInterruptionOfCourse {
 }
 
 type UserLapiscineInformation {
-  Record_participate_lapiscine: String
   deleted_date: DateTime!
-  lapiscine_degree: String!
-  lapiscine_final_score: String
+  lapiscine_degree: String
+  lapiscine_final_score: Float
   lapiscine_grade: String
   pk: Float!
+  record_participate_lapiscine: String
 }
 
 type UserLearningDataAPI {
@@ -220,11 +220,9 @@ type UserOtherEmploymentStatus {
 type UserOtherInformation {
   created_date: DateTime!
   deleted_date: DateTime!
-  experience_of_software_developing: String!
   highest_level_of_education: String!
   major_name: String!
   majored: String!
-  period_of_software_learning: Int!
   pk: Int!
 }
 

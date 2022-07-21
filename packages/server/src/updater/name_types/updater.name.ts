@@ -84,7 +84,7 @@ export const mapObj = [
     { spName: '복학_date', dbName: 'return_from_absence_date' },
     { spName: '휴학_reason', dbName: 'absence_reason' },
     { spName: 'AGU_reason', dbName: 'AGU_reason' },
-    { spName: '기타', dbName: 'remarks' },
+    { spNameb: '기타', dbName: 'remarks' },
   ],
   [
     //userBlackhole
@@ -101,7 +101,7 @@ export const mapObj = [
     { spName: '과정중단 과정중단일자', dbName: 'date_of_break' },
     { spName: '사유', dbName: 'reason_of_break' },
     { spName: 'HRD-Net 중도탈락 처리', dbName: 'HRD_Net_drop_out' },
-  ], //이 밑에 학습데이터(API)를 추가해야함
+  ],
   [
     //userLearningData -> userLearningDataAPI
     { spName: '학습데이터(API) Coalition Score', dbName: 'coalition_score' },
@@ -136,7 +136,7 @@ export const mapObj = [
   [
     //userHrdNetUtilize
     { spName: 'HRD-Net_data HRD-Net_출력_date', dbName: 'hrd_net_date' },
-    { spName: '취업여부', dbName: 'employment' }, //하위시트 참고 새롭게 추가
+    { spName: '취업여부', dbName: 'employmented' }, //하위시트 참고 새롭게 추가
     { spName: '취업_사업자등록번호', dbName: 'business_registration_number' },
     { spName: '고용보험가입일', dbName: 'employment_insurance_date' }, //하위시트 참고 새롭게 추가
     { spName: '기업규모', dbName: 'enterprise_size' }, //하위시트 참고 새롭게 추가
@@ -189,17 +189,12 @@ export const mapObj = [
     { spName: '기타정보 최종학력', dbName: 'highest_level_of_education' },
     { spName: '소프트웨어 관련전공여부', dbName: 'majored' },
     { spName: '전공명(복수전공기재)', dbName: 'major_name' },
-    { spName: '소프트웨어관련교육기간', dbName: 'period_of_software_learning' },
-    {
-      spName: '소프트웨어 개발경험',
-      dbName: 'experience_of_software_developing',
-    },
   ],
   [
     //userLapiscineInformation
     { spName: 'La Piscine LaPiscine_기수', dbName: 'lapiscine_grade' },
     { spName: 'LaPiscine_차수', dbName: 'lapiscine_degree' },
-    { spName: 'LaPiscine_참여이력', dbName: 'Record_participate_lapiscine' },
+    { spName: 'LaPiscine_참여이력', dbName: 'record_participate_lapiscine' },
     { spName: 'LaPiscine_final_score', dbName: 'lapiscine_final_score' },
   ],
 ];
