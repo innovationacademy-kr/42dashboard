@@ -10,20 +10,15 @@ import { User } from 'src/user_information/entity/user_information.entity';
 import { UserOtherInformation } from 'src/user_information/entity/user_other_information.entity';
 import { UserPersonalInformation } from 'src/user_information/entity/user_personal_information.entity';
 import {
-  UserEmploymentAndFound,
   UserEmploymentStatus,
   UserHrdNetUtilize,
-  UserInternStatus,
 } from 'src/user_job/entity/user_job.entity';
 import { UserComputationFund } from 'src/user_payment/entity/user_computation_fund.entity';
 import { UserEducationFundState } from 'src/user_payment/entity/user_education_fund_state.entity';
 import {
   UserBlackhole,
   UserLapiscineInformation,
-  UserLearningData,
   UserLeaveOfAbsence,
-  UserProcessProgress,
-  UserReasonOfBreak,
 } from 'src/user_status/entity/user_status.entity';
 import {
   createQueryBuilder, //deprecated
@@ -96,17 +91,12 @@ export class UserInformationService {
     this.stringToEntity['userOtherInformation'] = UserOtherInformation;
     this.stringToEntity['userAccessCardInformation'] =
       UserAccessCardInformation;
-    this.stringToEntity['userEmploymentAndFound'] = UserEmploymentAndFound;
-    this.stringToEntity['userInternStatus'] = UserInternStatus;
     this.stringToEntity['userHrdNetUtilize'] = UserHrdNetUtilize;
     this.stringToEntity['userEmploymentStatus'] = UserEmploymentStatus;
     this.stringToEntity['userComputationFund'] = UserComputationFund;
     this.stringToEntity['userEducationFundState'] = UserEducationFundState;
-    this.stringToEntity['userLearningData'] = UserLearningData;
-    this.stringToEntity['userProcessProgress'] = UserProcessProgress;
     this.stringToEntity['userBlackhole'] = UserBlackhole;
     this.stringToEntity['userLeaveOfAbsence'] = UserLeaveOfAbsence;
-    this.stringToEntity['userReasonOfBreak'] = UserReasonOfBreak;
     this.stringToEntity['userLapiscineInformation'] = UserLapiscineInformation;
   }
 
@@ -618,5 +608,19 @@ export class UserInformationService {
     const ret = await this.dataSource.getRepository(User).find(test);
     await queryRunner.release();
     return ret;
+  }
+  asyncTest() {
+    const data = 'data';
+    data.concat('data2');
+    console.log(data);
+    data.concat('data3');
+    console.log(data);
+    data.concat('data4');
+    console.log(data);
+    data.concat('data5');
+    console.log(data);
+    data.concat('data6');
+    console.log(data);
+    return data;
   }
 }

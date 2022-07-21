@@ -45,4 +45,9 @@ export class UserInformationController {
     // console.log('-------------------------calling twoJoin');
     return this.userService.towJoin(0, 0);
   }
+
+  @Get('/async')
+  asyncTest() {
+    return this.userService.asyncTest();
+  }
 }
