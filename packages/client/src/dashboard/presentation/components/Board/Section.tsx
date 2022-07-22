@@ -9,6 +9,9 @@ import createQuery from '../../../infrastructure/http/graphql/createQuery';
 import RGL, { Layout, WidthProvider } from 'react-grid-layout';
 import { QueryDataType } from '../../../application/services/useDataset';
 import { DocumentNode } from '@apollo/client';
+import ModalFrame from '../Modal/Modal';
+import useFiltersModal from '../../../application/services/useFiltersModal';
+import HorizontalLinearStepper from '../Modal/Stepper';
 
 const ReactGridLayout = WidthProvider(RGL.Responsive);
 
@@ -67,7 +70,9 @@ export default function Section(props: SectionProps) {
     handleStickerAdd,
     handleStickerLayoutChange,
     handleStickerRemove,
-  } = props;
+  } = useSectionLayout();
+  const { isOpen, openFiltersModal, applyFiltersModal, cancelFiltersModal } =
+    useFiltersModal();
 
   const stickerData: StickerDataType = {
     id: uuid(),
@@ -99,21 +104,12 @@ export default function Section(props: SectionProps) {
 
   return (
     <>
-      <Button
-        onClick={() => {
-          addSticker(stickerData);
-          handleStickerAdd(id, stickerData.id);
-        }}
-      >
-        Add Sticker
-      </Button>
-      <Button
-        onClick={() => {
-          handleSectionRemove(id);
-        }}
-      >
-        Remove Section
-      </Button>
+      <Button onClick={() => openFiltersModal()}>Add Sticker</Button>
+      <ModalFrame
+        // contents={HorizontalLinearStepper}
+        func={handleStickerAdd}
+      ></ModalFrame>
+      {/* Section이 여러개일 때 Modal이 두개 뜨는 현상 고치기 */}
       <ReactGridLayout
         onDragStart={(a, b, c, d, e) => e.stopPropagation()}
         layouts={{ lg: stickerLayouts }}
