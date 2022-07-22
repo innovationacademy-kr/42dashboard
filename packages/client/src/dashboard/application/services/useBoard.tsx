@@ -4,8 +4,14 @@ import BoardDataType from '../../domain/boardData/boardData.type';
 import boardDataRepository from '../../infrastructure/boardData.repository';
 import boardDataStore from '../../infrastructure/store/boardData.store';
 import { Layout } from 'react-grid-layout';
+import presetRepository from '../../infrastructure/preset.repository';
+import PresetService from '../../domain/preset/preset.service';
+import sectionDatasStore from '../../infrastructure/store/sectionDatas.store';
+import stickerDatasStore from '../../infrastructure/store/stickerDatas.store';
+import presetStore from '../../infrastructure/store/preset.store';
 
 const boardDataService = new BoardDataService(boardDataRepository);
+const presetService = new PresetService(presetRepository);
 
 function useBoard() {
   const [boardData, setBoardData] = useState(boardDataStore.getBoardData());
@@ -13,7 +19,23 @@ function useBoard() {
   boardDataStore.subscribeToBoardData((newBoardData: BoardDataType) => {
     setBoardData(newBoardData);
   });
-
+  const handleSavePreset = () => {
+    const preset = presetStore.getPreset();
+    if (!preset) return;
+    const boardData = boardDataStore.getBoardData();
+    const sectionDatas = sectionDatasStore.getSectionDatas();
+    const stickerDatas = stickerDatasStore.getStickerDatas();
+    const presetData = {
+      boardData,
+      sectionDatas,
+      stickerDatas,
+    };
+    presetService.addPreset({
+      id: preset.info.id,
+      data: presetData,
+      info: preset.info,
+    });
+  };
   const handleSectionAdd = (sectionId: string) => {
     const newLayout = [
       ...boardData.sectionLayouts,
@@ -50,6 +72,7 @@ function useBoard() {
     handleSectionAdd,
     handleSectionLayoutChange,
     handleSectionRemove,
+    handleSavePreset,
   };
 }
 

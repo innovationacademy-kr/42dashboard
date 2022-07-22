@@ -4,12 +4,16 @@ import PresetType from './preset.type';
 class PresetService {
   constructor(protected presetRepository: PresetRepositoryInterface) {}
 
-  public async getPreset(): Promise<PresetType | null> {
-    return this.presetRepository.getPreset();
+  public async getPreset(id: string): Promise<PresetType | null> {
+    return this.presetRepository.getPreset(id);
   }
 
   public async setPreset(preset: PresetType): Promise<void> {
     return this.presetRepository.setPreset(preset);
+  }
+
+  public async addPreset(preset: PresetType): Promise<void> {
+    return this.presetRepository.addPreset(preset);
   }
 
   // deletePreset(id: string): Promise<void> {

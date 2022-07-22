@@ -1,26 +1,20 @@
-import { Chart, ChartType } from 'chart.js';
-import { Layout } from 'react-grid-layout';
+import BoardDataType from '../boardData/boardData.type';
+import SectionDataType from '../sectionDatas/sectionData.type';
+import StickerDataType from '../stickerDatas/stickerData.type';
 export default interface PresetType {
   id: string;
-  title: string;
-  description?: string;
+  info: PresetInfoType;
   data: PresetDataType; //JSX raw string
 }
 
-interface PresetDataType {
-  // sections: SectionDataType[];
-  layouts: Layout[];
+export interface PresetDataType {
+  boardData: BoardDataType;
+  sectionDatas: SectionDataType[];
+  stickerDatas: StickerDataType[];
 }
 
-// interface SectionDataType {
-//   id: string;
-//   filters: FilterDataType[];
-//   stickers: StickerDataType[];
-//   layouts: LayoutDataType[];
-// }
-
-// interface StickerDataType {
-//   id: string;
-//   filters: FilterDataType[];
-//   // content: ChartType | TableType;
-// }
+export interface PresetInfoType {
+  id: string;
+  label: string;
+  description?: string;
+}
