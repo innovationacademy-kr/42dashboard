@@ -54,8 +54,22 @@ export class UserPersonalInformation {
   created_date: Date;
 
   @Field()
-  @DeleteDateColumn()
+  @DeleteDateColumn({ name: 'deleted_date' })
   deleted_date: Date;
+
+  @Field()
+  @CreateDateColumn({
+    name: 'validate_date',
+    nullable: false,
+  })
+  validate_date: Date;
+
+  @Field()
+  @Column({
+    name: 'expired_date',
+    nullable: true,
+  })
+  expired_date: Date;
 
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string; //외래키값을 선언하지 않으면 null으로 판단됨

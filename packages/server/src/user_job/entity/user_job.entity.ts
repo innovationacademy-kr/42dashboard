@@ -41,6 +41,20 @@ export class UserOtherEmploymentStatus extends BaseEntity {
   @DeleteDateColumn()
   deleted_date: Date;
 
+  @Field()
+  @CreateDateColumn({
+    name: 'validate_date',
+    nullable: false,
+  })
+  validate_date: Date;
+
+  @Field()
+  @Column({
+    name: 'expired_date',
+    nullable: true,
+  })
+  expired_date: Date;
+
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
@@ -143,6 +157,20 @@ export class UserHrdNetUtilizeConsent extends BaseEntity {
   @DeleteDateColumn()
   deleted_date: Date;
 
+  @Field()
+  @CreateDateColumn({
+    name: 'validate_date',
+    nullable: false,
+  })
+  validate_date: Date;
+
+  @Field()
+  @Column({
+    name: 'expired_date',
+    nullable: true,
+  })
+  expired_date: Date;
+
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
@@ -201,6 +229,20 @@ export class UserHrdNetUtilize extends BaseEntity {
   @DeleteDateColumn()
   deleted_date: Date;
 
+  @Field()
+  @CreateDateColumn({
+    name: 'validate_date',
+    nullable: false,
+  })
+  validate_date: Date;
+
+  @Field()
+  @Column({
+    name: 'expired_date',
+    nullable: true,
+  })
+  expired_date: Date;
+
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
@@ -241,6 +283,20 @@ export class UserEmploymentStatus extends BaseEntity {
   @Field()
   @DeleteDateColumn()
   deleted_date: Date;
+
+  @Field()
+  @CreateDateColumn({
+    name: 'validate_date',
+    nullable: false,
+  })
+  validate_date: Date;
+
+  @Field()
+  @Column({
+    name: 'expired_date',
+    nullable: true,
+  })
+  expired_date: Date;
 
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;

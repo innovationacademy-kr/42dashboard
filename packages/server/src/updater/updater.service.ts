@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadGatewayException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
 import { ApiService } from 'src/api/api.service';
@@ -40,6 +45,8 @@ import {
   pastDataOnSheet,
   TABLENUM,
   repoKeys,
+  DEFAULT_VALUE,
+  defaultVALUE,
 } from './name_types/updater.name';
 import {
   UserComputationFund,
@@ -167,7 +174,7 @@ export class UpdaterService {
 
   async updateData() {
     let tableNum = 0;
-    const index = 0;
+    //const index = 0;
 
     // eslint-disable-next-line prefer-const
     const jsonData = await this.spreadService.sendRequestToSpread(
@@ -186,7 +193,7 @@ export class UpdaterService {
     let table_name;
 
     /**
-     *  아래 for 문 두개 돌고 나온 tableArray 값 예시
+     *  아래 for 문 돌고 나온 tableArray 값 예시
     {
     "user": {
         "0": {
@@ -243,12 +250,13 @@ export class UpdaterService {
     //     );
     //     //  }
     //   }
-    //   //return await 'finish';
-    //   // }
-    //   // return table_array;
-    //   //    const db_array = this.getLatestData();
-    //   //    return db_array;
     // }
+    const latestData = await this.getLatestData();
+    const comparedData = await this.compareNewDataWithLatestData(
+      table_array,
+      latestData,
+    );
+    console.log(comparedData);
 
     return await 'All data has been updated';
   }
@@ -258,6 +266,7 @@ export class UpdaterService {
     //this.sendRequestToSpread();
     /* 테이블 별 과거 데이터 */
     let pastColumn;
+    let userTable = [];
 
     let jsonData;
     const index = 0;
@@ -272,7 +281,7 @@ export class UpdaterService {
     const cols = obj.table.cols;
     const rows = obj.table.rows;
 
-    await this.spreadService.parseSpread(
+    userTable = await this.spreadService.parseSpread(
       cols,
       rows,
       index,
@@ -281,6 +290,19 @@ export class UpdaterService {
       endOfTable[1],
       undefined,
     );
+
+    const latestUser = await this.repoDict['user']
+      .createQueryBuilder('user')
+      .getMany();
+
+    for (const user of userTable) {
+      await this.findTargetByKey(
+        this.repoDict['user'],
+        'user',
+        user,
+        latestUser,
+      );
+    }
     for (const sheetIdx in pastDataOnSheet) {
       //시트의 총 장수 만큼 반복
       if (pastDataOnSheet[sheetIdx].endPoint) {
@@ -297,75 +319,191 @@ export class UpdaterService {
     return await 'All old data has been updated';
   }
 
-  async updateDb(table_array) {
-    console.log('inin');
-    for (const table of table_array) {
-      console.log(table, 'taaa');
+  async getLatestData() {
+    const returnArray = {};
+    const valueArray = Object.values(repoKeys);
+
+    for (const repoKey of valueArray) {
+      if (repoKey == 'user') {
+        returnArray[repoKey] = await this.repoDict[repoKey]
+          .createQueryBuilder(repoKey)
+          .distinctOn([`${repoKey}.intra_no`])
+          .orderBy(`${repoKey}.intra_no`, 'DESC')
+          .addOrderBy(`${repoKey}.created_date`, 'DESC')
+          .getMany();
+        //     return returnArray;
+      } else {
+        returnArray[repoKey] = await this.repoDict[repoKey]
+          .createQueryBuilder(repoKey)
+          .distinctOn([`${repoKey}.fk_user_no`])
+          .orderBy(`${repoKey}.fk_user_no`, 'DESC')
+          .addOrderBy(`${repoKey}.created_date`, 'DESC')
+          .getMany();
+        //      return returnArray;
+      }
+    }
+
+    return returnArray;
+  }
+
+  async findTargetByKey(repo, repoKey, newOneData, targetObj) {
+    //  console.log(repoKey, 'in find target');
+    //  console.log(targetObj, 'targetObj');
+    //console.log('\n \t,', targetObj[0].intra_no);
+    try {
+      for (const target of targetObj) {
+        if (repoKey == 'user') {
+          // console.log('key : ', key, '  targetkey : ', target.intra_no);
+          if (newOneData.intra_no == target.intra_no) {
+            return await target;
+          }
+        } else {
+          if (newOneData.fk_user_no == target.fk_user_no) {
+            return await target;
+          }
+        }
+      }
+      console.log("insert due to dosend't exist spread data in db");
+      const newTuple = await repo.create(newOneData);
+      await repo.save(newTuple).catch(() => {
+        return 'error save';
+      });
+    } catch {
+      throw "can't find target by key";
     }
   }
 
-  async getLatestData() {
-    let ret;
-    let user;
-    // for (const repoName of repoArray) {
-    const repo = this.dataSource.getRepository(User);
-    const obj = {};
-    // obj['relations'] = {};
-    // obj['relations']['user'] = true;
-    // obj['order'] = {};
-    // obj['order']['created_at'] = 'DESC';
-    // ret = await repo.find(obj);
-    // console.log(ret, 'ret');
-    // return ret;
-    //   }
+  //newData -> spread
+  //latestData -> DB
+  async compareNewDataWithLatestData(newData, latestData) {
+    let targetObj;
 
-    let resultd;
-    await Object.keys(repoKeys).forEach(async (repoKey) => {
-      //console.log('repoKey: ', repoKey);
-      const latestDataObj = this.repoDict[repoKey];
+    console.log('compare in');
+    const repoNameArray = await Object.values(repoKeys); //.map((repoKey) => {
+    //db table 이름별로 받은 데이터를 구분해놓은것을 repoNameArray 배열로 구별하여 식별
+    for (const repoKey of repoNameArray) {
+      const repo = this.repoDict[repoKey];
+      const datas = newData[repoKey];
+      //스프레스에서 받아온 newData(table)가 비어있다면 밑에 for문에서 not iterable로 터지니까 예외처리
+      if (datas == undefined) {
+        console.log(datas);
+        continue;
+      }
+      //스프레드에서 table 명으로 나누어 파싱해 둔 데이터를 tableName 구별하여 같은 Db 데이터 테이블에서 해당하는 객체를 받아옴
+      for (const newOneData of datas) {
+        if (repoKey == 'user') {
+          targetObj = await this.findTargetByKey(
+            repo, //스프레드엔 있고 DB엔 없을 때 해당 학생 저장하기 위함
+            repoKey, //user entity인지 구분하기 위함, intra_no를 넘겨서 구분지어도 되긴하지만, 조금 더 범용성을 위해서 repoKey를 넘김
+            newOneData, //스프레드 테이블 내 객체들 중 하나
+            latestData[repoKey], //최신 데이터 테이블 중 하나
+          );
+        } else {
+          targetObj = await this.findTargetByKey(
+            repo,
+            repoKey,
+            newOneData,
+            latestData[repoKey],
+          );
+        }
+        //console.log(this.checkChangedData(repoKey, newOneData, targetObj));
+        //     while (1);
+        //바뀐게 있다면, 저장
+        await this.saveChangedData(
+          repo, //repoKey만 보내 해당 함수내에서 repoDict로 repo를 생성하여 save 시도하면 해당 함수내에선 repository를 명확히 특정할 수 없다 판단하므로 인자로 repo를 넘겨줌
+          repoKey,
+          newOneData,
+          targetObj,
+        );
+        //chageList.push(this.checkChangedData(repoKey, newOneData, targetObj));
+      }
+      console.log(repoKey, ' is done');
+    }
+    return 'done!!';
+  }
 
-      console.log(latestDataObj, 'ddd');
-      resultd = await latestDataObj
-        .createQueryBuilder(`${repoKey}`)
-        .select()
-        //.groupBy('user.intra_no')
-        .getMany();
-    });
-    //   console.log(resultd, 'ddsss');
-    // return resultd;
-    // });
-    // console.log(ojj, 'ccc');
-    // while (1);
-    // try {
-    //   user = await repo.find({
-    //     order: { intra_id: 'DESC', created_date: 'DESC' },
-    //   });
-    // } catch {
-    //   throw 'error';
-    // }
-    // //console.log(user[0].intra_no, 'ddd');
-    // let checkUser = '0';
-    // const userArray = [];
-    // for (const latest of user) {
-    //   if (latest.intra_id != checkUser) {
-    //     checkUser = latest.intra_id;
-    //     userArray.push(latest);
-    //   }
-    //   // if (latest.intra_no == checkUser) {
-    //   // }
-    // }
+  createDate(date) {
+    return new Date(date);
+  }
 
-    // console.log(userArray);
-    // return userArray;
-    //학생 개개인의 배열 모음으로 어떻게 구성 할 수 있을까??
-    //
-    // for (const idx of user) {
-    //   user.
-    // }
-    // for (const obj in user) {
-    //   user[obj].fk_user_no
-    // }
-    //  console.log(user);
-    return 'finish';
+  checkSpecialValue(newOneData, targetObj, key, repo) {
+    const date = /date$/;
+
+    if (date.test(key)) {
+      newOneData[key] = this.createDate(newOneData[key]);
+      targetObj[key] = this.createDate(targetObj[key]);
+      if (newOneData[key].getTime() != targetObj[key].getTime()) {
+        const changeData = repo.create(newOneData);
+        repo.save(changeData);
+        console.log('is saved due to date changed');
+        return DEFAULT_VALUE.CHANGED;
+      } else {
+        //date 변환시켰는데 값이 같다면 다음 컬럼을 비교하기 위해 DATE 를 리턴해줌
+        return DEFAULT_VALUE.DATE;
+      }
+    }
+    return DEFAULT_VALUE.NOT_DEFAULT;
+  }
+
+  //default 값을 갖는 column이 spread에 null인지 확인 후 default값으로 spread data 변환
+  initailizeSpreadNullValue(newOneData, key: string) {
+    //스프레드의 컬럼값이 null 인데,
+    if (newOneData[key] === null) {
+      const defaultArray = Object.keys(defaultVALUE);
+      //파라미어틔 key가 해당 table의 컬럼에 defualt 값을 갖는 컴럼이라면, default 값으로 초기화
+      if (defaultArray.includes(key)) {
+        console.log(`${key} ini`, newOneData[key], ' ', defaultVALUE[key]);
+        newOneData[key] = defaultVALUE[key];
+      }
+    }
+  }
+
+  async saveChangedData(repo, repoKey, newOneData, targetObj) {
+    // let newTuple = {};
+    // const repo = this.repoDict[repoKey];
+    //  console.log('in check changed');
+    // console.log(Object.keys(newOneData), 'a');
+    let checkedDefaulte;
+    try {
+      const keys = Object.keys(newOneData); //.map((key) => {
+
+      //각 테이블의 column을 뽑아옴
+      for (const key of keys) {
+        //new data의 key 값이 default 값을 갖는 column 일때, 값 파악 후 초기화
+        this.initailizeSpreadNullValue(newOneData, key);
+        //초기화 했는데 DB 와 값이 다르면 save후 넘어감 -> continue;
+        //값이 같다면 default 값으로 초기화 후 비교한 값이변화가 없으므로 넘어가야함 -> continue;
+        //date 값은 밑에 if 절로 구별이 안되어 같은 date type으로 바꾸어 비교해야됨
+        checkedDefaulte = this.checkSpecialValue(
+          newOneData,
+          targetObj,
+          key,
+          repo,
+        );
+        if (
+          checkedDefaulte === DEFAULT_VALUE.CHANGED ||
+          checkedDefaulte === DEFAULT_VALUE.DATE
+        ) {
+          continue;
+        }
+        //this.processChangeData(newOneData, targetObj, key, checkedDefaulte, repo);
+        //스프레드에 널값이라면 default 값으로 바꾸고, default가 아님에도 불구하고 값이 다르다면 save
+        if (newOneData[key] != targetObj[key]) {
+          console.log(
+            `repo : ${repoKey} \n key : ${key} \n value : ${newOneData[key]}
+              \n key : ${key} \n value : ${targetObj[key]}///////\n`,
+          );
+
+          // newTuple = await repo.create(newOneData); -> intra_no 가 이미 테이블에 있는 경우 삽입하지 않음 해서 create를 사용하지 않았음
+          await repo.save(newOneData); /*.catch(() => {
+            return 'error save';
+          });*/
+          return 'chaged'; //true; //changed
+        }
+      }
+      return 'net changed'; //false; //not changed
+    } catch {
+      throw "the spread column isn't in DataBase colume";
+    }
   }
 }

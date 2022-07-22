@@ -372,20 +372,122 @@ export const apiTable = ['학습데이터'];
 //key 값만 필요하지만, 지칭하는 repo를 명확하게 하기 위해서 value도 적었음
 export const repoKeys = {
   user: 'user',
-  userPersonal: 'userPersonal',
-  userCourseExtension: 'userCourseExtension',
-  userLeaveOfAbsence: 'userLeaveOfAbsence',
-  userBlackhole: 'userBlackhole',
-  userInterruptionOfCourse: 'userInterruptionOfCourse',
-  userLearningDataAPI: 'userLearningDataAPI',
-  userLoyaltyManagement: 'userLoyaltyManagement',
-  userEmploymentStatus: 'userEmploymentStatus',
-  userHrdNetUtilizeConsent: 'userHrdNetUtilizeConsent',
-  userHrdNetUtilize: 'userHrdNetUtilize',
-  userOtherEmploymentStatus: 'userOtherEmploymentStatus',
-  userEducationFundState: 'userEducationFundState',
-  userComputationFund: 'userComputationFund',
-  userAccessCard: 'userAccessCard',
-  userOtherInformation: 'userOtherInformation',
-  userLapiscineInformation: 'userLapiscineInformation',
+  userPersonal: 'user_personal_information',
+  userCourseExtension: 'user_course_extension',
+  userLeaveOfAbsence: 'user_leave_of_absence',
+  userBlackhole: 'user_blackhole',
+  userInterruptionOfCourse: 'user_interruption_of_course',
+  userLearningDataAPI: 'user_learning_data_api',
+  userLoyaltyManagement: 'user_loyalty_management',
+  userEmploymentStatus: 'user_employment_status',
+  userHrdNetUtilizeConsent: 'user_hrd_net_utilize_consent',
+  userHrdNetUtilize: 'user_hrd_net_utilize',
+  userOtherEmploymentStatus: 'user_other_employment_status',
+  userEducationFundState: 'user_education_fund_state',
+  userComputationFund: 'user_computation_fund',
+  userAccessCard: 'user_access_card',
+  userOtherInformation: 'user_other_information',
+  userLapiscineInformation: 'user_lapiscine_information',
 };
+
+export const enum DEFAULT_VALUE {
+  NOT_DEFAULT = 0, //조건절에 0이 아닌 값으로 넣기 위해 1부터 시작
+  CHANGED = 1,
+  DATE = 2,
+}
+
+//erd 를 참조하여 컬럼별 default 값을 찾아 스프레드에 null이 들어와도 db default 값과 구분하기 위한 객체
+export const defaultVALUE = {
+  //user
+  intra_id: 'NOT_EXIST',
+  name: 'NO_NAME',
+  grade: '0기',
+  academic_state: 'BLACK_HOLE',
+  start_process: '9999-12-31',
+
+  //user_learnig_data_api
+  circle: 0,
+  circled_date: '9999-12-31',
+  level: 0,
+  leveled_date: '9999-12-31',
+  coalition_score: 0,
+  out_circle: 'N',
+  out_circle_date: '9999-12-31',
+  scored_date: '9999-12-31',
+
+  //user_loyalty_management
+  royalty_period: '0',
+  royalty_presence: '0',
+  royalty_circle: '0',
+
+  //user_course_extension
+  basic_expiration_date: '9999-12-31',
+  final_expiration_date: '9999-12-31',
+
+  //user_other_information
+  major: '비전공',
+
+  //user_employment_status
+  employment_date: '9999-12-31',
+  employment: '미취업',
+  emplyment_date: '9999-12-31',
+
+  //user_hrd_net_utilize_consent
+  consent_to_provide_information: 'N',
+  consented_date: '9999-12-31',
+
+  //user_hrd_net_utilze
+  hrd_net_date: '9999-12-31',
+  employmented: 'N',
+  employment_insurance_date: '9999-12-31',
+
+  //user_blackhole
+  remaining_period: 0,
+  blackhost_date: '9999-12-31',
+  blackholed_level: 0,
+
+  //user_lapiscine_information
+  lapiscine_final_score: 0,
+  // lapiscine_grade: 9999,
+  // lapiscine_degree: 9999,
+  // participate_lapicin: 9999,
+  // number_of_rapicin_participation: 9999,
+
+  //user_computaion_fund
+  payment_date: '9999-12-31',
+  received: 'N',
+  recevied_amount: '0',
+
+  //user_education_fund_state
+  total_payment_of_number: 0,
+  total_payment_of_money: '0',
+  payment_end_date: '9999-12-31',
+  remarks: '0',
+
+  //user_leave_of_absence
+  begin_absence_date: '9999-12-31',
+  end_absence_date: '9999-12-31',
+  return_from_absence_date: '9999-12-31',
+
+  //user_interruption_of_course
+  date_of_break: '9999-12-31', //이름 변경 요망
+};
+
+// export const repoKeys = {
+//   user: 'user',
+//   user_personal_information: 'user_personal_information',
+//   user_process_progress: 'user_process_progress',
+//   user_leave_of_absence: 'user_leave_of_absence',
+//   user_blackhole: 'user_blackhole',
+//   user_reason_of_break: 'user_reason_of_break',
+//   user_other_information: 'user_other_information',
+//   user_lapiscine_information: 'user_lapiscine_information',
+//   user_employment_and_found: 'user_employment_and_found',
+//   user_employment_status: 'user_employment_status',
+//   user_hrd_net_utilize: 'user_hrd_net_utilize',
+//   user_education_fund_state: 'user_education_fund_state',
+//   user_computation_fund: 'user_computation_fund',
+//   user_access_card_information: 'user_access_card_information',
+//   user_learning_data: 'user_learning_data',
+//   user_intern_status: 'user_intern_status',
+// };

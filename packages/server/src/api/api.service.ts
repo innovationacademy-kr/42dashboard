@@ -66,12 +66,12 @@ export class ApiService {
 
   async requestApi(token) {
     let apiData = [];
-    let pageNum = 17;
+    let pageNum = 17; //cant find 발생할 수 있으니, 17정도로 줄여야됨
     const apiUrl = 'https://api.intra.42.fr';
     const apiEndPoint = 'v2/cursus/21/cursus_users';
     const filter = `filter[campus_id]=29`;
     let page = `page[number]=${pageNum}&page[size]=100`;
-    const sort = 'sort=-user_id';
+    const sort = 'sort=-user_id'; //작은 id 값부터 받아오는 것
 
     while (true) {
       try {
@@ -91,6 +91,7 @@ export class ApiService {
         //밖에만 선언하면 pageNum의 값이 바뀌어도 이미 선언된 page내의 pageNum 20의 값은 바뀌지 않아 계속 20번째의 page만 요청하게 됨.
         //pageNum만 따로 빼서 구성할 수 있긴 하지만, page만 따로 프로퍼티 별로 나누는것이 가독성에 더 안좋을 것같아 그렇게 하지 않음.
         page = `page[number]=${++pageNum}&page[size]=100`;
+        console.log(pageNum);
       } catch {
         throw BadRequestException;
       }
@@ -129,13 +130,14 @@ export class ApiService {
           ['level']: api42.level,
           ['email']: api42.user.email,
           ['phone_number']: api42.user.phone,
-          ['circle']: 9999,
+          ['circle']: 0,
           ['out_circle']: api42.grade,
           ['out_circle_date']: '9999-12-31',
           ['coalition_score']: 0,
-          //['staff'] : api42.user['staff?'],
           ['blackhole_time']: await this.parsingDate(api42.blackholed_at),
-          ['remaining_period']: await this.calculateDate(api42.blackholed_at),
+          ['remaining_period']: await this.calculateDateDiff(
+            api42.blackholed_at,
+          ),
         };
         // parsedData[idx]['intra_no'] = api42.user.id;
         // parsedData[idx]['intra_id'] = api42.user.login;
@@ -176,18 +178,25 @@ export class ApiService {
     return year + '-' + month + '-' + day;
   }
 
-  calculateDate(date) {
+  //endDate가 비어서 들어오면 현재 날짜 기준 Date 객체 생성
+  calculateDateDiff(startDate, endDate?) {
     let calculatedDate;
+    let tempEndDate;
+    // const today = new Date();
 
-    const today = new Date();
-
-    if (date === null) {
+    if (startDate === null) {
       calculatedDate = '9999';
       return calculatedDate;
     }
-    const dateTemp = new Date(date);
+    if (endDate == undefined) {
+      tempEndDate = new Date();
+    } else {
+      tempEndDate = new Date(endDate);
+    }
+    //문자열로 date가 들어올 수 있으니 date 객체 생성
+    const tempStartDate = new Date(startDate);
     // console.log(today.getUTCMonth());
-    calculatedDate = dateTemp.getTime() - today.getTime();
+    calculatedDate = tempStartDate.getTime() - tempEndDate.getTime();
     const second = calculatedDate / 1000;
     const minute = second / 60;
     const hour = minute / 60;
@@ -213,22 +222,23 @@ export class ApiService {
   }
 
   async parseApi(table_name, Repo, api42s) {
-    const api = new Api();
+    //const api = new UserLearningData();
     let apiTuple;
-    const tupleArray = {};
-    let tupleIdx = 0;
+    const tupleArray = [];
+    // let tupleIdx = 0;
     for (const api42 of api42s) {
       //   console.log(api42);
       //api.intra_no = api42.id;
-      api.circle = api42.circle;
-      api.level = api42.level;
-      api.coalition_score = api42.coalition_score;
-      api.out_circle = api42.out_circle;
-      api.out_circle_date = api42.out_circle_date;
-      api.fk_user_no = api42.intra_no;
-
-      apiTuple = await Repo.create(api);
-      tupleArray[tupleIdx++] = apiTuple;
+      const api = {
+        circle: api42.circle,
+        level: api42.level,
+        coalition_score: api42.coalition_score,
+        out_circle: api42.out_circle,
+        out_circle_date: api42.out_circle_date,
+        fk_user_no: api42.intra_no,
+      };
+      // apiTuple = await Repo.create(api);
+      tupleArray.push(api);
       //await Repo.save(apiTuple);
 
       // if (table_name === '학습데이터')
@@ -237,7 +247,7 @@ export class ApiService {
       // if (tupleLine === undefined) tupleLine = Repo.create(tuple);
       // else tupleLine = tuple;
       // //tupleLine['fk_user_no'] = row['c'][1]['f'];
-      await Repo.save(apiTuple);
+      //  await Repo.save(apiTuple);
     }
     //console.log(tupleArray, 'api');
     return tupleArray;
