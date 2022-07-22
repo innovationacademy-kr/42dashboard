@@ -70,7 +70,7 @@ export default function Section(props: SectionProps) {
     handleStickerAdd,
     handleStickerLayoutChange,
     handleStickerRemove,
-  } = useSectionLayout();
+  } = props;
   const { isOpen, openFiltersModal, applyFiltersModal, cancelFiltersModal } =
     useFiltersModal();
 
@@ -104,10 +104,11 @@ export default function Section(props: SectionProps) {
 
   return (
     <>
-      <Button onClick={() => openFiltersModal()}>Add Sticker</Button>
+      <Button onClick={openFiltersModal}>Add Sticker</Button>
       <ModalFrame
         // contents={HorizontalLinearStepper}
         func={handleStickerAdd}
+        // addSticker={addSticker}
       ></ModalFrame>
       {/* Section이 여러개일 때 Modal이 두개 뜨는 현상 고치기 */}
       <ReactGridLayout
