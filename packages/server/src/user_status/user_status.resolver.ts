@@ -1,10 +1,13 @@
-import { Query, Resolver } from '@nestjs/graphql';
+import { Args, Query, Resolver } from '@nestjs/graphql';
+import { CheckDuplication } from 'src/user_information/argstype/checkDuplication.argstype';
 import {
   UserBlackhole,
   UserCourseExtension,
   UserInterruptionOfCourse,
+  UserLapiscineInformation,
   UserLearningDataAPI,
   UserLeaveOfAbsence,
+  UserLoyaltyManagement,
 } from './entity/user_status.entity';
 import { UserStatusService } from './user_status.service';
 
@@ -13,24 +16,35 @@ export class UserStatusResolver {
   constructor(private readonly userStatusService: UserStatusService) {}
 
   @Query(() => [UserLearningDataAPI])
-  getUserLeaningData() {
-    return this.userStatusService.getUserLeaningDataAPI();
+  async getUserLeaningDataAPI(@Args() checkDuplication: CheckDuplication) {
+    return this.userStatusService.getUserLeaningDataAPI(checkDuplication);
+  }
+  @Query(() => [UserLoyaltyManagement])
+  async getUserLoyaltyManagement(@Args() checkDuplication: CheckDuplication) {
+    return this.userStatusService.getUserLoyaltyManagement(checkDuplication);
   }
   @Query(() => [UserCourseExtension])
-  getUserCourseExtension() {
-    return this.userStatusService.getUserCourseExtension();
+  async getUserCourseExtension(@Args() checkDuplication: CheckDuplication) {
+    return this.userStatusService.getUserCourseExtension(checkDuplication);
   }
   @Query(() => [UserBlackhole])
-  getUserBlackhole() {
-    return this.userStatusService.getUserBlackhole();
+  async getUserBlackhole(@Args() checkDuplication: CheckDuplication) {
+    return this.userStatusService.getUserBlackhole(checkDuplication);
   }
   @Query(() => [UserLeaveOfAbsence])
-  getUserLeaveOfAbsence() {
-    return this.userStatusService.getUserLeaveOfAbsence();
+  async getUserLeaveOfAbsence(@Args() checkDuplication: CheckDuplication) {
+    return this.userStatusService.getUserLeaveOfAbsence(checkDuplication);
   }
-
-  @Query(() => UserInterruptionOfCourse)
-  getUserInterruptionOfCourse() {
-    return this.userStatusService.getUserInterruptionOfCourse();
+  @Query(() => [UserInterruptionOfCourse])
+  async getUserInterruptionOfCourse(
+    @Args() checkDuplication: CheckDuplication,
+  ) {
+    return this.userStatusService.getUserInterruptionOfCourse(checkDuplication);
+  }
+  @Query(() => [UserLapiscineInformation])
+  async getUserLapiscineInformation(
+    @Args() checkDuplication: CheckDuplication,
+  ) {
+    return this.userStatusService.getUserLapiscineInformation(checkDuplication);
   }
 }

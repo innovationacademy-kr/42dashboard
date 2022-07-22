@@ -12,29 +12,39 @@ import { JoinedTable } from './argstype/joinedTable';
 import { UserInformationService } from './user_information.service';
 import { CudDto } from './argstype/cudDto.argstype';
 import { InjectDataSource } from '@nestjs/typeorm';
+import { CheckDuplication } from './argstype/checkDuplication.argstype';
 
 @Resolver() //graphql에서 controler가 resolver
 export class UserInformationResolver {
   constructor(private readonly userService: UserInformationService) {}
-
-  @Query(() => [UserPersonalInformation])
-  getUserPersonalInformation() {
-    return this.userService.getUserPersonalInformation();
-  }
 
   @Query(() => [JoinedTable])
   async tempFunction() {
     return await this.tempFunction();
   }
 
+  @Query(() => [User])
+  async getUser(@Args() checkDuplication: CheckDuplication) {
+    return await this.userService.getUser(checkDuplication);
+  }
+
+  @Query(() => [UserPersonalInformation])
+  async getUserPersonalInformation(@Args() checkDuplication: CheckDuplication) {
+    return this.userService.getUserPersonalInformation(checkDuplication);
+  }
+
   @Query(() => [UserOtherInformation])
-  async getUserOtherInformation(@Args() args: GetUserOtherInformationArgs) {
-    return await this.userService.getUserOtherInformation();
+  async getUserOtherInformation(@Args() checkDuplication: CheckDuplication) {
+    return await this.userService.getUserOtherInformation(checkDuplication);
   }
 
   @Query(() => [UserAccessCardInformation])
-  async getUserAccessCardInformation() {
-    return await this.userService.getUserAccessCardInformation();
+  async getUserAccessCardInformation(
+    @Args() checkDuplication: CheckDuplication,
+  ) {
+    return await this.userService.getUserAccessCardInformation(
+      checkDuplication,
+    );
   }
 
   @Query(() => [JoinedTable])
@@ -45,6 +55,11 @@ export class UserInformationResolver {
   @Query(() => Int)
   async getNumOfPeopleByFilter(@Args() filterArg: FilterArgs) {
     return await this.userService.getNumOfPeopleByFilter(filterArg);
+  }
+
+  @Query(() => [JoinedTable])
+  async getDomainOfColumnFilter(@Args() filterArg: FilterArgs) {
+    return await this.userService.getDomainOfColumnFilter(filterArg);
   }
 
   //관리자를 위한 쿼리문

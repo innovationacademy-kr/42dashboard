@@ -84,7 +84,7 @@ export const mapObj = [
     { spName: '복학_date', dbName: 'return_from_absence_date' },
     { spName: '휴학_reason', dbName: 'absence_reason' },
     { spName: 'AGU_reason', dbName: 'AGU_reason' },
-    { spName: '기타', dbName: 'remarks' },
+    { spName: '특이사항', dbName: 'remarks' },
   ],
   [
     //userBlackhole
@@ -115,9 +115,9 @@ export const mapObj = [
   ],
   [
     //userLoyaltyManagement
-    { spName: '로열티 관리 대상기간', dbName: 'royalty_period' },
-    { spName: '대상유무', dbName: 'royalty_presence' },
-    { spName: '서클(대상기간기준)', dbName: 'royalty_circle' },
+    { spName: '로열티 관리 대상기간', dbName: 'loyalty_period' },
+    { spName: '대상유무', dbName: 'loyalty_presence' },
+    { spName: '서클(대상기간기준)', dbName: 'loyalty_circle' },
   ],
   [
     //userEmploymentStatus

@@ -1,4 +1,5 @@
-import { Query, Resolver } from '@nestjs/graphql';
+import { Args, Query, Resolver } from '@nestjs/graphql';
+import { CheckDuplication } from 'src/user_information/argstype/checkDuplication.argstype';
 import {
   UserComputationFund,
   UserEducationFundState,
@@ -10,12 +11,12 @@ export class UserPaymentResolver {
   constructor(private readonly userPaymentService: UserPaymentService) {}
 
   @Query(() => [UserComputationFund])
-  getUserComputationFund(): Promise<UserComputationFund[]> {
-    return this.userPaymentService.getUserComputationFund();
+  async getUserComputationFund(@Args() checkDuplication: CheckDuplication) {
+    return this.userPaymentService.getUserComputationFund(checkDuplication);
   }
 
   @Query(() => [UserEducationFundState])
-  getUserInternStatus(): Promise<UserEducationFundState[]> {
-    return this.userPaymentService.getUserEducationFundState();
+  async getUserEducationFundState(@Args() checkDuplication: CheckDuplication) {
+    return this.userPaymentService.getUserEducationFundState(checkDuplication);
   }
 }
