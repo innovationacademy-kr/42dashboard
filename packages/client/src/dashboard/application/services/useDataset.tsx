@@ -8,11 +8,13 @@ export interface QueryFilterType {
   latest: boolean;
 }
 
+export interface QueryVariablesType {
+  [filterName: string]: QueryFilterType;
+}
+
 export interface QueryDataType {
-  query: DocumentNode; // createQuery()
-  filters: {
-    [filterName: string]: QueryFilterType;
-  };
+  query: DocumentNode;
+  filters: QueryVariablesType;
 }
 
 function useChartDataset(queryData: QueryDataType) {
