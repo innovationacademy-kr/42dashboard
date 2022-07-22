@@ -4,9 +4,11 @@ import styled from '@emotion/styled';
 import useFiltersModal from '../../../application/services/useFiltersModal';
 import ModalDatasType from './Stepper';
 import HorizontalLinearStepper from './Stepper';
+import { v4 as uuid } from 'uuid';
 
 interface ModalProps {
-  func: () => void;
+  func: (sectionId: string, stickerId: string) => void;
+  // addSticker: (sticker: StickerDataType) => Promise<void>;
 }
 
 const style = {
@@ -38,7 +40,8 @@ const ModalFrame = (props: ModalProps) => {
   const [filters, setFilters] = useState<QueryFilterType[]>([]);
 
   function AddStickerDataset() {
-    func();
+    func('section-1', uuid());
+    // addSticker();
     applyFiltersModal();
     const str = JSON.stringify(filters);
     console.log(

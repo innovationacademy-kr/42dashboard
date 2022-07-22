@@ -3,16 +3,11 @@ import './styles2.css';
 import RGL, { Layout, WidthProvider } from 'react-grid-layout';
 import Section from './Section';
 import PresetType from '../../../domain/preset/preset.type';
-import ModalFrame from '../Modal/Modal';
-import TestComponent from '../Modal/TestComponent';
 import useFiltersModal from '../../../application/services/useFiltersModal';
 import useSections from '../../../application/services/useSectionDatas';
 import useBoard from '../../../application/services/useBoard';
 import { v4 as uuid } from 'uuid';
 import SectionDataType from '../../../domain/sectionDatas/sectionData.type';
-import useBoardLayout, {
-  NestedLayout,
-} from '../../../application/services/useBoardLayout';
 
 const ReactGridLayout = WidthProvider(RGL.Responsive);
 
@@ -45,7 +40,6 @@ export default function Board() {
     stickerIds: [],
     stickerLayouts: [],
   };
-  const { preset, getPreset, changePreset } = usePreset();
 
   function drawSections() {
     return boardData.sectionLayouts.map((section: Layout) => {
@@ -72,7 +66,14 @@ export default function Board() {
 
   return (
     <>
-      <button onClick={handleSectionAdd}>Add Section Item</button>
+      <button
+        onClick={() => {
+          addSectionData(sectionData);
+          handleSectionAdd(sectionData.id);
+        }}
+      >
+        Add Section Item
+      </button>
       <ReactGridLayout
         onDragStart={(a, b, c, d, e) => e.stopPropagation()}
         layouts={{ lg: boardData.sectionLayouts || [] }}
