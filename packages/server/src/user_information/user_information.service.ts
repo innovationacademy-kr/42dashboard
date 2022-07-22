@@ -27,10 +27,12 @@ import {
   JoinTable,
   DeepPartial,
 } from 'typeorm';
+import { CheckDuplication } from './argstype/checkDuplication.argstype';
 import { CudDto } from './argstype/cudDto.argstype';
 import { FilterArgs } from './argstype/filter.argstype';
 import { JoinedTable } from './argstype/joinedTable';
 import { Filter } from './filter';
+import { entityArray, getDomain } from './utils/getDomain.utils';
 
 @Injectable()
 export class UserInformationService {
@@ -74,18 +76,36 @@ export class UserInformationService {
     user = await this.dataSource.getRepository(User).create(user);
     return await this.dataSource.getRepository(User).save(user);
   }
-  async getUserPersonalInformation() {
-    return await this.dataSource
-      .getRepository(UserPersonalInformation)
-      .find({});
+
+  async getUser(checkDuplication: CheckDuplication) {
+    return getDomain(this.dataSource, checkDuplication, entityArray, 'user');
   }
-  async getUserOtherInformation() {
-    return await this.dataSource.getRepository(UserOtherInformation).find({});
+
+  async getUserPersonalInformation(checkDuplication: CheckDuplication) {
+    return getDomain(
+      this.dataSource,
+      checkDuplication,
+      entityArray,
+      'userPersonalInformation',
+    );
   }
-  async getUserAccessCardInformation() {
-    return await this.dataSource
-      .getRepository(UserAccessCardInformation)
-      .find({});
+
+  async getUserOtherInformation(checkDuplication: CheckDuplication) {
+    return getDomain(
+      this.dataSource,
+      checkDuplication,
+      entityArray,
+      'userOtherInformation',
+    );
+  }
+
+  async getUserAccessCardInformation(checkDuplication: CheckDuplication) {
+    return getDomain(
+      this.dataSource,
+      checkDuplication,
+      entityArray,
+      'userAccessCardInformation',
+    );
   }
 
   /**
@@ -264,7 +284,6 @@ export class UserInformationService {
 
   async getPeopleByFiter(filterArgs: FilterArgs) {
     const { findObj, filterObj } = this.filtersToObj(filterArgs);
-    // console.log('OBJ is', findObj);
     let data = await this.dataSource.getRepository(User).find(findObj);
     data = this.makeLimit(data, filterObj);
     // console.log(data);
@@ -290,14 +309,18 @@ export class UserInformationService {
     return data;
   }
 
-  // async getDomainOfColumnFilter(filterArgs: FilterArgs) {
-  //   const { findObj, filterObj } = this.filtersToObj(filterArgs);
-  //   // console.log('OBJ is', findObj);
-  //   const data = await this.dataSource.getRepository(User).find(findObj);
-  //   // console.log(data);
-  //   // this.makeLimit(data, filterObj);
-  //   return data;
-  // }
+  async getDomainOfColumnFilter(filterArgs: FilterArgs) {
+    const { findObj, filterObj } = this.filtersToObj(filterArgs);
+    console.log('find is', findObj);
+    console.log('filter is', filterObj);
+    // console.log('OBJ is', findObj);
+    const data = await this.dataSource.getRepository(User).find(findObj);
+    console.log(data);
+    console.log('------------------------------');
+    this.makeLimit(data, filterObj);
+    console.log(data);
+    return data;
+  }
 
   // 아래는 mutation을 위한 service code
   createFindObj(cudDto: CudDto) {

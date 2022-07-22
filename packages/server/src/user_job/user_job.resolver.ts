@@ -1,5 +1,6 @@
-import { Query } from '@nestjs/graphql';
+import { Args, Query } from '@nestjs/graphql';
 import { Resolver } from '@nestjs/graphql';
+import { CheckDuplication } from 'src/user_information/argstype/checkDuplication.argstype';
 import {
   UserEmploymentStatus,
   UserHrdNetUtilize,
@@ -14,23 +15,27 @@ export class UserJobResolver {
   constructor(private readonly userJobService: UserJobService) {}
 
   @Query(() => [UserOtherEmploymentStatus])
-  getUserEmploymentAndFound() {
-    return this.userJobService.getUserEmploymentAndFound();
+  async getUserOtherEmploymentStatus(
+    @Args() checkDuplication: CheckDuplication,
+  ) {
+    return this.userJobService.getUserOtherEmploymentStatus(checkDuplication);
   }
 
   @Query(() => [UserEmploymentStatus])
-  getUserEmploymentStatus() {
-    return this.userJobService.getUserEmploymentStatus();
+  async getUserEmploymentStatus(@Args() checkDuplication: CheckDuplication) {
+    return this.userJobService.getUserEmploymentStatus(checkDuplication);
   }
 
   @Query(() => [UserHrdNetUtilizeConsent])
-  getUserHrdNetUtilizeConsent() {
-    return this.userJobService.getUserHrdNetUtilizeConsent();
+  async getUserHrdNetUtilizeConsent(
+    @Args() checkDuplication: CheckDuplication,
+  ) {
+    return this.userJobService.getUserHrdNetUtilizeConsent(checkDuplication);
   }
 
   @Query(() => [UserHrdNetUtilize])
-  getUserHrdNetUtilize() {
-    return this.userJobService.getUserHrdNetUtilize();
+  async getUserHrdNetUtilize(@Args() checkDuplication: CheckDuplication) {
+    return this.userJobService.getUserHrdNetUtilize(checkDuplication);
   }
 
   // @Query(() => [UserInternStatus])

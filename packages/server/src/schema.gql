@@ -49,27 +49,42 @@ type Mutation {
 }
 
 type Query {
+  getDomainOfColumnFilter(filters: [Filter!]!, skip: Int, take: Int): [JoinedTable!]!
   getLatestData: String!
   getNumOfPeopleByFilter(filters: [Filter!]!, skip: Int, take: Int): Int!
   getPeopleByFilter(filters: [Filter!]!, skip: Int, take: Int): [JoinedTable!]!
   getPeopleByFilterForAdmin(filters: [Filter!]!, skip: Int, take: Int): [JoinedTable!]!
-  getUserAccessCardInformation: [UserAccessCardInformation!]!
-  getUserBlackhole: [UserBlackhole!]!
-  getUserComputationFund: [UserComputationFund!]!
-  getUserCourseExtension: [UserCourseExtension!]!
-  getUserEmploymentAndFound: [UserOtherEmploymentStatus!]!
-  getUserEmploymentStatus: [UserEmploymentStatus!]!
-  getUserHrdNetUtilize: [UserHrdNetUtilize!]!
-  getUserHrdNetUtilizeConsent: [UserHrdNetUtilizeConsent!]!
-  getUserInternStatus: [UserEducationFundState!]!
-  getUserInterruptionOfCourse: UserInterruptionOfCourse!
-  getUserLeaningData: [UserLearningDataAPI!]!
-  getUserLeaveOfAbsence: [UserLeaveOfAbsence!]!
-  getUserOtherInformation(created_date: DateTime!, experience_of_software_developing: String!, highest_level_of_education: String!, major: String!, major_field: String!, major_name: String!, period_of_software_learning: Int, pk: Int): [UserOtherInformation!]!
-  getUserPersonalInformation: [UserPersonalInformation!]!
+  getUser(column: String, duplicated: String!): [User!]!
+  getUserAccessCardInformation(column: String, duplicated: String!): [UserAccessCardInformation!]!
+  getUserBlackhole(column: String, duplicated: String!): [UserBlackhole!]!
+  getUserComputationFund(column: String, duplicated: String!): [UserComputationFund!]!
+  getUserCourseExtension(column: String, duplicated: String!): [UserCourseExtension!]!
+  getUserEducationFundState(column: String, duplicated: String!): [UserEducationFundState!]!
+  getUserEmploymentStatus(column: String, duplicated: String!): [UserEmploymentStatus!]!
+  getUserHrdNetUtilize(column: String, duplicated: String!): [UserHrdNetUtilize!]!
+  getUserHrdNetUtilizeConsent(column: String, duplicated: String!): [UserHrdNetUtilizeConsent!]!
+  getUserInterruptionOfCourse(column: String, duplicated: String!): [UserInterruptionOfCourse!]!
+  getUserLapiscineInformation(column: String, duplicated: String!): [UserLapiscineInformation!]!
+  getUserLeaningDataAPI(column: String, duplicated: String!): [UserLearningDataAPI!]!
+  getUserLeaveOfAbsence(column: String, duplicated: String!): [UserLeaveOfAbsence!]!
+  getUserLoyaltyManagement(column: String, duplicated: String!): [UserLoyaltyManagement!]!
+  getUserOtherEmploymentStatus(column: String, duplicated: String!): [UserOtherEmploymentStatus!]!
+  getUserOtherInformation(column: String, duplicated: String!): [UserOtherInformation!]!
+  getUserPersonalInformation(column: String, duplicated: String!): [UserPersonalInformation!]!
   tempFunction: [JoinedTable!]!
   updateData: String!
   updateOldData: String!
+}
+
+type User {
+  academic_state: String!
+  coalition: String!
+  created_date: DateTime!
+  deleted_date: DateTime!
+  grade: String!
+  intra_id: String!
+  intra_no: Int!
+  name: String!
 }
 
 type UserAccessCardInformation {
@@ -203,10 +218,10 @@ type UserLeaveOfAbsence {
 type UserLoyaltyManagement {
   created_date: DateTime!
   deleted_date: DateTime!
+  loyalty_circle: String
+  loyalty_period: String
+  loyalty_presence: String
   pk: Float!
-  royalty_circle: String
-  royalty_period: String
-  royalty_presence: String
 }
 
 type UserOtherEmploymentStatus {

@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { CheckDuplication } from 'src/user_information/argstype/checkDuplication.argstype';
+import {
+  entityArray,
+  getDomain,
+} from 'src/user_information/utils/getDomain.utils';
+import { DataSource, Repository } from 'typeorm';
 import {
   UserEmploymentStatus,
   UserHrdNetUtilize,
@@ -22,21 +27,43 @@ export class UserJobService {
     private readonly userEmploymentAndFoundRepo: Repository<UserOtherEmploymentStatus>,
     @InjectRepository(UserEmploymentStatus)
     private readonly userEmploymentStatusRepo: Repository<UserEmploymentStatus>,
+    @InjectDataSource()
+    private dataSource: DataSource,
   ) {}
 
-  async getUserEmploymentAndFound() {
-    return await this.userEmploymentAndFoundRepo.find({});
+  async getUserOtherEmploymentStatus(checkDuplication: CheckDuplication) {
+    return getDomain(
+      this.dataSource,
+      checkDuplication,
+      entityArray,
+      'userOtherEmploymentStatus',
+    );
   }
-  async getUserEmploymentStatus() {
-    return await this.userEmploymentStatusRepo.find({});
+
+  async getUserEmploymentStatus(checkDuplication: CheckDuplication) {
+    return getDomain(
+      this.dataSource,
+      checkDuplication,
+      entityArray,
+      'userEmploymentStatus',
+    );
   }
-  async getUserHrdNetUtilizeConsent() {
-    return await this.userHrdNetUtilizeConsentRepo.find({});
+
+  async getUserHrdNetUtilizeConsent(checkDuplication: CheckDuplication) {
+    return getDomain(
+      this.dataSource,
+      checkDuplication,
+      entityArray,
+      'userHrdNetUtilizeConsent',
+    );
   }
-  async getUserHrdNetUtilize() {
-    return await this.userHrdNetUtilizeRepo.find({});
+
+  async getUserHrdNetUtilize(checkDuplication: CheckDuplication) {
+    return getDomain(
+      this.dataSource,
+      checkDuplication,
+      entityArray,
+      'userHrdNetUtilize',
+    );
   }
-  // async getUserInternStatus() {
-  //   return await this.userInternStatusRepo.find({});
-  // }
 }

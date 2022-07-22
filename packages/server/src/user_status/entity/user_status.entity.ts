@@ -103,16 +103,16 @@ export class UserLoyaltyManagement extends BaseEntity {
   pk: number;
 
   @Field({ nullable: true, defaultValue: 0 }) //특정 데이터 때문에 널 허용중
-  @Column({ name: 'royalty_period', nullable: true, default: 0 })
-  royalty_period: string;
+  @Column({ name: 'loyalty_period', nullable: true, default: 0 })
+  loyalty_period: string;
 
   @Field({ nullable: true, defaultValue: 0 }) //특정 데이터 때문에 널 허용중
-  @Column({ name: 'royalty_presence', nullable: true, default: 0 })
-  royalty_presence: string;
+  @Column({ name: 'loyalty_presence', nullable: true, default: 0 })
+  loyalty_presence: string;
 
   @Field({ nullable: true, defaultValue: 'N' })
-  @Column({ name: 'royalty_circle', nullable: true, default: 'N' })
-  royalty_circle: string;
+  @Column({ name: 'loyalty_circle', nullable: true, default: 'N' })
+  loyalty_circle: string;
 
   @Field({ nullable: false })
   @CreateDateColumn({ name: 'created_date' })
