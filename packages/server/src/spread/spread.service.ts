@@ -131,8 +131,8 @@ export class SpreadService {
   ) {
     let tupleLine;
     let colRowIdx; //컬럼의 위치 튜플의 도메인 위치 맞춰주기 위한 색인
-    const tupleArray = {};
-    let tableIdx = 0;
+    const tupleArray = [];
+    //let tableIdx = 0;
     //console.log(`brefore table : ${cols[colIdx]['label']}`);
     const tableName = await this.getTableName(cols[colIdx]['label']);
     //  console.log(tableName, 'sssdfdsfsdfsdfssds');
@@ -168,13 +168,13 @@ export class SpreadService {
           tuple['blackhole_time'] = api42.blackhole_time;
         } //여기 학습데이터를 추가해야함.
       }
-      tuple['fk_user_no'] = row['c'][1]['f'];
+      if (tableName != 'user') tuple['fk_user_no'] = row['c'][1]['f']; //usertable은 해당 컬럼이 필요가 없음
       //      console.log(tuple, 'tupleeee');
       //    console.log(`tablename: ${tableName}`);
-      tupleLine = Repo.create(tuple);
+      //  tupleLine = Repo.create(tuple);
       //  console.log(tupleLine, 'lidldidl');
-      await Repo.save(tupleLine);
-      tupleArray[tableIdx++] = tupleLine;
+      //   await Repo.save(tupleLine);
+      tupleArray.push(tuple);
     }
     //console.log(tupleArray, 'sss');
     return tupleArray;

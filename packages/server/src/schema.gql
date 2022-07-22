@@ -90,12 +90,14 @@ type User {
 type UserAccessCardInformation {
   created_date: DateTime!
   deleted_date: DateTime!
+  expired_date: DateTime!
   lapiscine_logical_number: Int!
   lapiscine_physical_number: Int!
   logical_number_for_main_course: Int!
   name_of_entry_card_for_main_course: String!
   pk: Int!
   profile_picture_path: String!
+  validate_date: DateTime!
 }
 
 type UserBlackhole {
@@ -104,9 +106,11 @@ type UserBlackhole {
   blackholed_level: Float
   created_date: DateTime!
   deleted_date: DateTime!
+  expired_date: DateTime!
   pk: Float!
   reason_of_blackhole: String
   remarks: String
+  validate_date: DateTime!
 }
 
 type UserComputationFund {
@@ -122,11 +126,13 @@ type UserCourseExtension {
   basic_expiration_date: DateTime!
   created_date: DateTime!
   deleted_date: DateTime!
+  expired_date: DateTime!
   extension_circle: String
   extension_level: String
   final_expiration_date: DateTime!
   pk: Float!
   request_extension: String
+  validate_date: DateTime!
 }
 
 type UserEducationFundState {
@@ -146,7 +152,9 @@ type UserEmploymentStatus {
   employment: String!
   emplyment_date: DateTime
   enterprise: String
+  expired_date: DateTime!
   pk: Float!
+  validate_date: DateTime!
 }
 
 type UserHrdNetUtilize {
@@ -156,9 +164,11 @@ type UserHrdNetUtilize {
   employment_insurance_date: DateTime
   employmented: String!
   enterprise_size: String
+  expired_date: DateTime!
   health_insurance_enterprise: String
   hrd_net_date: DateTime
   pk: Float!
+  validate_date: DateTime!
 }
 
 type UserHrdNetUtilizeConsent {
@@ -166,7 +176,9 @@ type UserHrdNetUtilizeConsent {
   consented_date: DateTime
   created_date: DateTime!
   deleted_date: DateTime!
+  expired_date: DateTime!
   pk: Float!
+  validate_date: DateTime!
 }
 
 type UserInterruptionOfCourse {
@@ -175,17 +187,21 @@ type UserInterruptionOfCourse {
   created_date: DateTime!
   date_of_break: DateTime!
   deleted_date: DateTime!
+  expired_date: DateTime!
   pk: Float!
   reason_of_break: String
+  validate_date: DateTime!
 }
 
 type UserLapiscineInformation {
   deleted_date: DateTime!
+  expired_date: DateTime!
   lapiscine_degree: String
   lapiscine_final_score: Float
   lapiscine_grade: String
   pk: Float!
   record_participate_lapiscine: String
+  validate_date: DateTime!
 }
 
 type UserLearningDataAPI {
@@ -194,12 +210,14 @@ type UserLearningDataAPI {
   coalition_score: Float
   created_date: DateTime!
   deleted_date: DateTime!
+  expired_date: DateTime!
   level: Float
   leveled_date: DateTime
   out_circle: String
   out_circle_date: DateTime
   pk: Float!
   scored_date: DateTime
+  validate_date: DateTime!
 }
 
 type UserLeaveOfAbsence {
@@ -210,9 +228,11 @@ type UserLeaveOfAbsence {
   created_date: DateTime!
   deleted_date: DateTime!
   end_absence_date: DateTime
+  expired_date: DateTime!
   pk: Float!
   remarks: String
   return_from_absence_date: DateTime
+  validate_date: DateTime!
 }
 
 type UserLoyaltyManagement {
@@ -229,16 +249,20 @@ type UserOtherEmploymentStatus {
   deleted_date: DateTime!
   employment_date: DateTime
   enterprise: String
+  expired_date: DateTime!
   pk: Float!
+  validate_date: DateTime!
 }
 
 type UserOtherInformation {
   created_date: DateTime!
   deleted_date: DateTime!
+  expired_date: DateTime!
   highest_level_of_education: String!
   major_name: String!
   majored: String!
   pk: Int!
+  validate_date: DateTime!
 }
 
 type UserPersonalInformation {
@@ -247,9 +271,11 @@ type UserPersonalInformation {
   created_date: DateTime!
   deleted_date: DateTime!
   email: String!
+  expired_date: DateTime!
   gender: String!
   phone_number: String!
   pk: Int!
   region: String!
   social_security_key: String!
+  validate_date: DateTime!
 }
