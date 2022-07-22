@@ -10,6 +10,9 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { QueryFilterType } from './Modal';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import { EntityColumn, Operator } from 'common';
+
+type EntityColumnType = typeof EntityColumn;
 
 const Section = styled.div`
   margin-top: 1rem;
@@ -83,9 +86,11 @@ function LabelFilter(props: LabelFilterProps) {
           <MenuItem value="">
             <em>None</em>
           </MenuItem>
-          <MenuItem value={1}>1</MenuItem>
-          <MenuItem value={2}>2</MenuItem>
-          <MenuItem value={3}>3</MenuItem>
+          {Object.keys(EntityColumn).map((entity) => (
+            <MenuItem key={entity} value={entity}>
+              {entity}
+            </MenuItem>
+          ))}
         </Select>
       </FormControl>
       <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
@@ -100,9 +105,17 @@ function LabelFilter(props: LabelFilterProps) {
           <MenuItem value="">
             <em>None</em>
           </MenuItem>
-          <MenuItem value={10}>Ten</MenuItem>
-          <MenuItem value={20}>Twenty</MenuItem>
-          <MenuItem value={30}>Thirty</MenuItem>
+          {entityName &&
+            EntityColumn[entityName as keyof EntityColumnType].map(
+              (column: { spName: string; dbName: string }) => {
+                console.log(column);
+                return (
+                  <MenuItem key={column.dbName} value={column.dbName}>
+                    {column.spName}
+                  </MenuItem>
+                );
+              },
+            )}
         </Select>
       </FormControl>
       <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
@@ -117,9 +130,11 @@ function LabelFilter(props: LabelFilterProps) {
           <MenuItem value="">
             <em>None</em>
           </MenuItem>
-          <MenuItem value={1}>1</MenuItem>
-          <MenuItem value={2}>2</MenuItem>
-          <MenuItem value={3}>3</MenuItem>
+          {Object.values(Operator).map((operator) => (
+            <MenuItem key={operator} value={operator}>
+              {operator}
+            </MenuItem>
+          ))}
         </Select>
       </FormControl>
       <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
