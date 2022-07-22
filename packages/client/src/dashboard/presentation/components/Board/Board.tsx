@@ -8,6 +8,7 @@ import useSections from '../../../application/services/useSectionDatas';
 import useBoard from '../../../application/services/useBoard';
 import { v4 as uuid } from 'uuid';
 import SectionDataType from '../../../domain/sectionDatas/sectionData.type';
+import { Button } from '@mui/material';
 
 const ReactGridLayout = WidthProvider(RGL.Responsive);
 
@@ -30,6 +31,7 @@ export default function Board() {
     handleSectionAdd,
     handleSectionLayoutChange,
     handleSectionRemove,
+    handleSavePreset,
   } = useBoard();
 
   const { isOpen, openFiltersModal, applyFiltersModal, cancelFiltersModal } =
@@ -66,14 +68,21 @@ export default function Board() {
 
   return (
     <>
-      <button
+      <Button
         onClick={() => {
           addSectionData(sectionData);
           handleSectionAdd(sectionData.id);
         }}
       >
         Add Section Item
-      </button>
+      </Button>
+      <Button
+        onClick={() => {
+          handleSavePreset();
+        }}
+      >
+        프리셋 저장
+      </Button>
       <ReactGridLayout
         onDragStart={(a, b, c, d, e) => e.stopPropagation()}
         layouts={{ lg: boardData.sectionLayouts || [] }}
