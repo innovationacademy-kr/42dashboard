@@ -218,12 +218,8 @@ export class UserEmploymentStatus extends BaseEntity {
   pk: number;
 
   @Field({ nullable: false, defaultValue: '미취업' })
-  @Column({ name: 'employmented', nullable: false, default: 'N' })
+  @Column({ name: 'employmented', nullable: false, default: '미취업' })
   employment: string;
-
-  @Field({ nullable: true })
-  @Column({ name: 'employmented', nullable: true })
-  employmented: string;
 
   @Field({ nullable: true })
   @Column({
