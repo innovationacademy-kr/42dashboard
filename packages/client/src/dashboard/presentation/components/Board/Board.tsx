@@ -10,6 +10,9 @@ import useSections from '../../../application/services/useSectionDatas';
 import useBoard from '../../../application/services/useBoard';
 import { v4 as uuid } from 'uuid';
 import SectionDataType from '../../../domain/sectionDatas/sectionData.type';
+import useBoardLayout, {
+  NestedLayout,
+} from '../../../application/services/useBoardLayout';
 
 const ReactGridLayout = WidthProvider(RGL.Responsive);
 
@@ -42,6 +45,7 @@ export default function Board() {
     stickerIds: [],
     stickerLayouts: [],
   };
+  const { preset, getPreset, changePreset } = usePreset();
 
   function drawSections() {
     return boardData.sectionLayouts.map((section: Layout) => {
@@ -68,16 +72,7 @@ export default function Board() {
 
   return (
     <>
-      <button onClick={() => openFiltersModal()}>OPEN</button>
-      <ModalFrame contents={TestComponent}></ModalFrame>
-      <button
-        onClick={() => {
-          addSectionData(sectionData);
-          handleSectionAdd(sectionData.id);
-        }}
-      >
-        Add Section Item
-      </button>
+      <button onClick={handleSectionAdd}>Add Section Item</button>
       <ReactGridLayout
         onDragStart={(a, b, c, d, e) => e.stopPropagation()}
         layouts={{ lg: boardData.sectionLayouts || [] }}
