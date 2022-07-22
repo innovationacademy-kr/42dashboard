@@ -1,8 +1,18 @@
 import { DocumentNode, useQuery } from '@apollo/client';
 
+export interface FilterType {
+  entityName: string;
+  column: string;
+  operator: string;
+  givenValue: string;
+  latest: boolean;
+}
+
 export interface QueryDataType {
-  query: DocumentNode;
-  filters: object;
+  query: DocumentNode; // createQuery()
+  filters: {
+    [filterName: string]: FilterType;
+  };
 }
 
 function useChartDataset(queryData: QueryDataType) {

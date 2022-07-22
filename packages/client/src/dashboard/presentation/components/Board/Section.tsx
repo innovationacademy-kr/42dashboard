@@ -7,10 +7,12 @@ import { v4 as uuid } from 'uuid';
 import StickerDataType from '../../../domain/stickerDatas/stickerData.type';
 import createQuery from '../../../infrastructure/http/graphql/createQuery';
 import RGL, { Layout, WidthProvider } from 'react-grid-layout';
+import { QueryDataType } from '../../../application/services/useDataset';
+import { DocumentNode } from '@apollo/client';
 
 const ReactGridLayout = WidthProvider(RGL.Responsive);
 
-const weMadeQuery = createQuery(
+const weMadeQuery: DocumentNode = createQuery(
   ['filtersGrade', 'filtersMan', 'filtersWoman'],
   ['man', 'woman'],
   [
@@ -20,7 +22,7 @@ const weMadeQuery = createQuery(
     ['filtersWoman'],
   ],
 );
-const queryData = {
+const queryData: QueryDataType = {
   query: weMadeQuery,
   filters: {
     filtersMan: {
