@@ -73,6 +73,10 @@ export class UserInformationService {
     // this.operatorToMethod['notNull'] = Not(IsNull());
   }
 
+  async getUser(checkDuplication: CheckDuplication) {
+    return getDomain(this.dataSource, checkDuplication, entityArray, 'user');
+  }
+
   async getUserPersonalInformation(checkDuplication: CheckDuplication) {
     return getDomain(
       this.dataSource,
