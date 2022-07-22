@@ -9,7 +9,10 @@ import store from './dashboard/infrastructure/store/redux/store';
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 
 const client = new ApolloClient({
-  uri: 'http://localhost:3000/graphql',
+  uri:
+    process.env.NODE_ENV === 'development'
+      ? 'http://dashboard42.com:3000/graphql'
+      : 'http://localhost:3000/graphql',
   cache: new InMemoryCache(),
 });
 
