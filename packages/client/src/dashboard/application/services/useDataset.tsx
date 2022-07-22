@@ -1,6 +1,6 @@
 import { DocumentNode, useQuery } from '@apollo/client';
 
-export interface FilterType {
+export interface QueryFilterType {
   entityName: string;
   column: string;
   operator: string;
@@ -11,7 +11,7 @@ export interface FilterType {
 export interface QueryDataType {
   query: DocumentNode; // createQuery()
   filters: {
-    [filterName: string]: FilterType;
+    [filterName: string]: QueryFilterType;
   };
 }
 
