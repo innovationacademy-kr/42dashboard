@@ -101,6 +101,7 @@ export class UserInformationService {
    *      UserPersonalInformation:[{entityName:UserPersonalInformation, column:"gender", operaotr:"=", givenValue:"남"}, {...}, {...}]
    *    }
    */
+
   filtersToObj(filterArgs: FilterArgs, withDeleted = false) {
     const filterObj = {};
     let filter;
@@ -288,6 +289,15 @@ export class UserInformationService {
     // this.makeLimit(data, filterObj);
     return data;
   }
+
+  // async getDomainOfColumnFilter(filterArgs: FilterArgs) {
+  //   const { findObj, filterObj } = this.filtersToObj(filterArgs);
+  //   // console.log('OBJ is', findObj);
+  //   const data = await this.dataSource.getRepository(User).find(findObj);
+  //   // console.log(data);
+  //   // this.makeLimit(data, filterObj);
+  //   return data;
+  // }
 
   // 아래는 mutation을 위한 service code
   createFindObj(cudDto: CudDto) {
