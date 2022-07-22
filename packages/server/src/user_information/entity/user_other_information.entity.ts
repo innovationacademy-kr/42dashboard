@@ -32,14 +32,6 @@ export class UserOtherInformation extends BaseEntity {
   @Column({ name: 'major_name', nullable: true })
   major_name: string;
 
-  @Field((type) => Int)
-  @Column({ name: 'period_of_software_learning', nullable: true })
-  period_of_software_learning: number;
-
-  @Field()
-  @Column({ name: 'experience_of_software_developing', nullable: true })
-  experience_of_software_developing: string;
-
   @Field()
   @CreateDateColumn({ name: 'created_date' })
   created_date: Date;

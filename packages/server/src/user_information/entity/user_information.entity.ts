@@ -147,14 +147,6 @@ export class User {
   )
   userEmploymentStatus: UserEmploymentStatus[];
 
-  // @OneToMany(
-  //   //사용미정
-  //   () => UserInternStatus,
-  //   (userInternStatus) => userInternStatus.user,
-  //   { cascade: true },
-  // )
-  // userInternStatus: UserInternStatus[];
-
   /***********************************
    *               Payment           *
    ***********************************/

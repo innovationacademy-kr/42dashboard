@@ -14,7 +14,7 @@ import { User } from '../../user_information/entity/user_information.entity';
 //!!하나의 파일에 하나의 엔터티? -> 컨벤션을 정할것!
 //목적에 따라 하나의 파일에 넣을수도...
 
-//학습데이터
+//학습데이터api
 @ObjectType()
 @Entity()
 export class UserLearningDataAPI extends BaseEntity {
@@ -326,17 +326,22 @@ export class UserLapiscineInformation extends BaseEntity {
   @Column({ name: 'lapiscine_grade', nullable: true })
   lapiscine_grade: string;
 
-  @Field({ nullable: false, defaultValue: '0' })
-  @Column({ name: 'lapiscine_degree', nullable: false, default: '0' })
+  @Field({ nullable: true })
+  @Column({ name: 'lapiscine_degree', nullable: true })
   lapiscine_degree: string;
 
   @Field({ nullable: true })
-  @Column({ name: 'Record_participate_lapiscine', nullable: true })
-  Record_participate_lapiscine: string;
+  @Column({ name: 'record_participate_lapiscine', nullable: true })
+  record_participate_lapiscine: string;
 
-  @Field({ nullable: true })
-  @Column({ name: 'lapiscine_final_score', nullable: true })
-  lapiscine_final_score: string; //float일 수도 있음.
+  @Field({ nullable: true, defaultValue: 0 })
+  @Column({
+    type: 'float',
+    name: 'lapiscine_final_score',
+    nullable: true,
+    default: 0,
+  })
+  lapiscine_final_score: number;
 
   @CreateDateColumn({ name: 'created_date' })
   created_date: Date;

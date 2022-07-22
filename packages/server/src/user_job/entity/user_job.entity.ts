@@ -118,7 +118,7 @@ export class UserHrdNetUtilizeConsent extends BaseEntity {
   @PrimaryGeneratedColumn({ name: 'pk' })
   pk: number;
 
-  @Field({ nullable: false }) //현재 userEmploymentAndFound와 중복됨.
+  @Field({ nullable: false })
   @Column({
     name: 'consent_to_provide_information',
     nullable: false,
@@ -169,8 +169,8 @@ export class UserHrdNetUtilize extends BaseEntity {
   hrd_net_date: Date;
 
   @Field({ nullable: false, defaultValue: 'N' })
-  @Column({ name: 'employment', nullable: false, default: 'N' })
-  employment: string;
+  @Column({ name: 'employmented', nullable: false, default: 'N' })
+  employmented: string;
 
   @Field({ nullable: true })
   @Column({ name: 'business_registration_number', nullable: true })
@@ -217,9 +217,9 @@ export class UserEmploymentStatus extends BaseEntity {
   @PrimaryGeneratedColumn({ name: 'pk' })
   pk: number;
 
-  @Field({ nullable: true })
-  @Column({ name: 'employmented', nullable: true })
-  employmented: string;
+  @Field({ nullable: false, defaultValue: '미취업' })
+  @Column({ name: 'employmented', nullable: false, default: '미취업' })
+  employment: string;
 
   @Field({ nullable: true })
   @Column({
