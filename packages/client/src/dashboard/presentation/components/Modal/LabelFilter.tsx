@@ -1,10 +1,9 @@
 import * as React from 'react';
-import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Select from '@mui/material/Select';
 import styled from '@emotion/styled';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { QueryFilterType } from './Modal';
