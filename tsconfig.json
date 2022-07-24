@@ -5,9 +5,9 @@
     "sourceMap": true,
     "baseUrl": "./packages",
     "paths": {
-      "@dashboard/client": ["packages/client/src"],
-      "@dashboard/common": ["packages/common/src"],
-      "@dashboard/server": ["packages/server/src"],
+      "@dashboard/client": ["client/src"],
+      "@dashboard/common": ["common/src"],
+      "@dashboard/server": ["server/src"],
     },
   },
   "include": ["packages/common/src",
