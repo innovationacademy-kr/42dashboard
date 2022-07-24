@@ -16,6 +16,8 @@ const LoginButton = styled.button`
   cursor: pointer;
 `;
 
+// TODO: hybae
+// 이미 로그인이 되어있는 경우, dashboard 페이지로 라우팅
 const Login = () => {
   function handleClick() {
     window.location.href = 'http://dashboard42.com:3000/auth/42';
