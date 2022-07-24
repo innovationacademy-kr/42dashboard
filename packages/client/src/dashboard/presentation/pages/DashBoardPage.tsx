@@ -11,6 +11,8 @@ import MainArea from '../components/MainArea/MainArea';
 import ModeDial from '../components/ModeDial/ModeDial';
 import SideBar from '../components/SideBar/SideBar';
 
+// TODO: hybae
+// userData가 null일 때, setUserData
 function DashBoardPage() {
   const appBarTitle = (
     <Typography
