@@ -220,7 +220,6 @@ describe('User Service', () => {
     queryRunner.release();
   });
 
-  // 테스트 코드 템플릿
   it('', async () => {
     //given
     queryRunner = db.createQueryRunner();

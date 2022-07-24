@@ -27,7 +27,10 @@ export class AuthController {
   async redirect(@Query('code') code: string, @Res() res: Response) {
     // console.log(code);
     const access_token = await this.authService.authentication(code);
-    res.cookie('access_token', `${access_token}`, { httpOnly: true }); //res.cookie()는 하나만 적용됨. 여러개 호출하면 제일 마지막에 호출된것만 적용됨(??)
+    res.cookie('access_token', `${access_token}`, {
+      httpOnly: true,
+      domain: 'dashboard42.com',
+    }); //res.cookie()는 하나만 적용됨. 여러개 호출하면 제일 마지막에 호출된것만 적용됨(??)
     // res.setHeader('WWW-authenticate', `Bearer: realm="DashBoard"`);
     // res.redirect('http://localhost:3000/auth/test'); //redirection해도 됨. 나중에 front Home으로 redirection되게 할 예정.
     // res.redirect('10.18.246.245'); //for hybae
