@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "module": "CommonJS",
+    "target": "es5",
+    "sourceMap": true,
+    "baseUrl": "./packages",
+    "paths": {
+      "@dashboard/client": ["packages/client/src"],
+      "@dashboard/common": ["packages/common/src"],
+      "@dashboard/server": ["packages/server/src"],
+    },
+  },
+  "include": ["packages/common/src",
+    "packages/client/src",
+    "packages/server/src"],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
+}
