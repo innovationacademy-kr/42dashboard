@@ -34,14 +34,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload) {
     // const { email, login, first_name, last_name, usual_full_name } = payload;
-    const { id, login } = payload;
-    console.log(`${login} is login`);
-    return this.validateUser(payload);
+    const { id, intraName, email, image_url, isStaff } = payload;
+    console.log(`${intraName} is login`);
+    return payload;
+    // return this.validateUser(payload);
   }
 
   async validateUser(payload) {
-    //DB에서 해당 사용자에 대한 정보가 있는지 체크 <- repo.findOne()하면 될듯?
-    const user = this.dataSource.getRepository(Bocal).findOne(payload);
+    const user = await this.dataSource
+      .getRepository(Bocal)
+      .findOne({ where: { id: payload.id } });
     if (user) return payload;
     else return null;
   }

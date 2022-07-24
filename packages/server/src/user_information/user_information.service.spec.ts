@@ -1,6 +1,6 @@
-import { last } from 'rxjs';
+import { filter, last } from 'rxjs';
 import { UserBlackhole } from 'src/user_status/entity/user_status.entity';
-import { Repository } from 'typeorm';
+import { QueryRunner, Repository } from 'typeorm';
 import { createMemDB } from '../utils/testing-helpers/createMemDB';
 import { Test, TestingModule } from '@nestjs/testing';
 
@@ -15,12 +15,13 @@ import { UserAccessCardInformation } from './entity/user_access_card_information
 import { User } from './entity/user_information.entity';
 import { UserPersonalInformation } from './entity/user_personal_information.entity';
 import { UserInformationService } from './user_information.service';
+import { FilterArgs } from './argstype/filter.argstype';
 
 const userList = [
   {
     intra_no: 1,
     intra_id: 'huchoi',
-    name: 'hunjin',
+    name: 'hunjin-choi',
     grade: '3기',
     start_process: new Date('2020-12-31'),
     academic_state: '재학',
@@ -62,12 +63,12 @@ const userBlackholeObject = {
     {
       remaining_period: 88,
       reason_of_blackhole: null,
-      blackhole_date: new Date('2021-01-01'),
+      blackhole_date: new Date('2021-01-02'),
     },
     {
       remaining_period: 87,
       reason_of_blackhole: null,
-      blackhole_date: new Date('2021-01-01'),
+      blackhole_date: new Date('2021-01-03'),
     },
   ],
   2: [
@@ -79,12 +80,12 @@ const userBlackholeObject = {
     {
       remaining_period: 199,
       reason_of_blackhole: null,
-      blackhole_date: new Date('2021-01-01'),
+      blackhole_date: new Date('2021-01-02'),
     },
     {
       remaining_period: 198,
       reason_of_blackhole: null,
-      blackhole_date: new Date('2021-01-01'),
+      blackhole_date: new Date('2021-01-03'),
     },
   ],
 };
@@ -109,11 +110,10 @@ describe('User Service', () => {
   let db: DataSource;
   let userService: UserInformationService;
   let userRepository: Repository<User>;
-  let queryRunner;
+  let queryRunner: QueryRunner;
 
   beforeAll(async () => {
     db = await createMemDB([User]);
-    queryRunner = db.createQueryRunner();
     await db.initialize();
     userService = new UserInformationService(db); // <--- manually inject
     //given
@@ -121,23 +121,25 @@ describe('User Service', () => {
     const userPersonalRepo = db.getRepository(UserPersonalInformation);
     const userBlackholeRepo = db.getRepository(UserBlackhole);
     let userEntity, userPersonalEntity, userBlackholeEntity;
-    for (const idx in userList) {
-      userEntity = userRepo.create(userList[idx]);
-      for (const jdx in userPersonalInformationObject[userEntity.intra_no]) {
+    let index;
+    for (index in userList) {
+      userEntity = userRepo.create(userList[index]);
+      userEntity = await userRepo.save(userEntity);
+      for (index in userPersonalInformationObject[userEntity.intra_no]) {
         userPersonalEntity = userPersonalRepo.create(
-          userPersonalInformationObject[userEntity.intra_no][jdx],
+          userPersonalInformationObject[userEntity.intra_no][index],
         );
-        userEntity.userPersonalInformation = userPersonalEntity;
+        userPersonalEntity.user = userEntity;
         await userPersonalRepo.save(userPersonalEntity); //cascade 쓰면 이 작업 불필요 -> cascade, eager 쓸지말지 고민해보기
-        await userRepo.save(userEntity);
+        userEntity = await userRepo.save(userEntity);
       }
-      for (const kdx in userBlackholeObject[userEntity.intra_no]) {
+      for (index in userBlackholeObject[userEntity.intra_no]) {
         userBlackholeEntity = await userPersonalRepo.create(
-          userBlackholeObject[userEntity.intra_no][kdx],
+          userBlackholeObject[userEntity.intra_no][index],
         );
-        userBlackholeEntity.user = userEntity; //반대로는 안됨
+        userBlackholeEntity.user = userEntity;
         await userBlackholeRepo.save(userBlackholeEntity); //cascade 쓰면 이 작업 불필요 -> cascade, eager 쓸지말지 고민해보기
-        await userRepo.save(userEntity);
+        userEntity = await userRepo.save(userEntity);
       }
     }
   });
@@ -147,62 +149,86 @@ describe('User Service', () => {
   it('필터 [gender = 남]', async () => {
     // given
     // when
+    queryRunner = db.createQueryRunner();
     await queryRunner.startTransaction();
     const filters = [];
     filters.push(
       makeFilter('userPersonalInformation', 'gender', '=', '남', true),
     );
+    const filterArgs: FilterArgs = new FilterArgs();
+    filterArgs.filters = filters;
     // then
-    expect(await userService.getNumOfPeopleByFilter(filters)).not.toBeNull();
-    expect(await userService.getNumOfPeopleByFilter(filters)).toBe(1);
+    expect(await userService.getNumOfPeopleByFilter(filterArgs)).not.toBeNull();
+    expect(await userService.getNumOfPeopleByFilter(filterArgs)).toBe(1);
     await queryRunner.rollbackTransaction();
     await queryRunner.release();
   });
 
   it('필터 [region = 부산]', async () => {
     // given
+    queryRunner = db.createQueryRunner();
     await queryRunner.startTransaction();
     // when
     const filters = [];
     filters.push(
       makeFilter('userPersonalInformation', 'region', '=', '부산', true),
     );
+    const filterArgs: FilterArgs = new FilterArgs();
+    filterArgs.filters = filters;
     // then
-    console.log(await userService.getPeopleByFiter(filters));
-    expect(await userService.getNumOfPeopleByFilter(filters)).not.toBeNull();
-    expect(await userService.getNumOfPeopleByFilter(filters)).toBe(2);
+    expect(await userService.getNumOfPeopleByFilter(filterArgs)).not.toBeNull();
+    expect(await userService.getNumOfPeopleByFilter(filterArgs)).toBe(2);
     await queryRunner.rollbackTransaction();
-    await queryRunner.release();
+    queryRunner.release();
   });
 
   it('필터 [gender= 남], [acdemic_state != 블랙홀]', async () => {
     //given
     //when
+    queryRunner = db.createQueryRunner();
     await queryRunner.startTransaction();
     const filters = [];
     filters.push(
       makeFilter('userPersonalInformation', 'gender', '=', '남', true),
     );
     filters.push(makeFilter('user', 'academic_state', '!=', '블랙홀', true));
+    const filterArgs: FilterArgs = new FilterArgs();
+    filterArgs.filters = filters;
     //then
-    expect(await userService.getNumOfPeopleByFilter(filters)).not.toBeNull();
-    expect(await userService.getNumOfPeopleByFilter(filters)).toBe(1);
+    expect(await userService.getNumOfPeopleByFilter(filterArgs)).not.toBeNull();
+    expect(await userService.getNumOfPeopleByFilter(filterArgs)).toBe(1);
+    await queryRunner.rollbackTransaction();
+    queryRunner.release();
   });
 
   it('필터 [region = 부산], [acdemic_state != 블랙홀]', async () => {
     //given
+    queryRunner = db.createQueryRunner();
+    await queryRunner.startTransaction();
     const filters = [];
     //when
-    // filters.push(
-    //   makeFilter('userPersonalInformation', 'gender', '=', '남', true),
-    // );
     filters.push(
       makeFilter('userPersonalInformation', 'region', '=', '부산', true),
     );
     filters.push(makeFilter('user', 'academic_state', '!=', '블랙홀', true));
+    const filterArgs: FilterArgs = new FilterArgs();
+    filterArgs.filters = filters;
     //then
-    expect(await userService.getNumOfPeopleByFilter(filters)).not.toBeNull();
-    expect(await userService.getNumOfPeopleByFilter(filters)).toBe(2);
+    expect(await userService.getNumOfPeopleByFilter(filterArgs)).not.toBeNull();
+    expect(await userService.getNumOfPeopleByFilter(filterArgs)).toBe(2);
+    await queryRunner.rollbackTransaction();
+    queryRunner.release();
   });
-  it.todo('findByUserStatus은 반드시 ~~~을 return 해야합니다.');
+
+  // 테스트 코드 템플릿
+  it('', async () => {
+    //given
+    queryRunner = db.createQueryRunner();
+    await queryRunner.startTransaction();
+    //when
+
+    //then
+    await queryRunner.rollbackTransaction();
+    await queryRunner.release();
+  });
 });
