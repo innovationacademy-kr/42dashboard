@@ -10,7 +10,7 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { QueryFilterType } from './Modal';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import { EntityColumn, Operator } from 'common';
+import { EntityColumn, Operator } from 'common/src';
 
 type EntityColumnType = typeof EntityColumn;
 
