@@ -1,8 +1,10 @@
 import { Controller, Get, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiCookieAuth, ApiCreatedResponse } from '@nestjs/swagger';
 import { Response } from 'express';
 import { OAUTHURL } from 'src/config/42oauth';
 import { AuthService } from './auth.service';
+import { Bocal } from './entity/bocal.entity';
 
 //authentication 과 authorization은 다름
 @Controller('auth')
@@ -26,15 +28,27 @@ export class AuthController {
     // console.log(code);
     const access_token = await this.authService.authentication(code);
     res.cookie('access_token', `${access_token}`, { httpOnly: true }); //res.cookie()는 하나만 적용됨. 여러개 호출하면 제일 마지막에 호출된것만 적용됨(??)
-    res.redirect('http://localhost:3000/auth/test'); //redirection해도 됨. 나중에 front Home으로 redirection되게 할 예정.
     // res.setHeader('WWW-authenticate', `Bearer: realm="DashBoard"`);
-    // res.send('login success!!');
+    // res.redirect('http://localhost:3000/auth/test'); //redirection해도 됨. 나중에 front Home으로 redirection되게 할 예정.
+    // res.redirect('10.18.246.245'); //for hybae
+    res.send('login success!!');
   }
 
-  // @Get('/test')
-  // @UseGuards(AuthGuard('jwt'))
-  // test(@Req() req: Request, @Res() res: Response) {
-  //   // guard를 무사히 통과하면 아래 메시지가 전송
-  //   res.send('access_token 인가 완료!');
-  // }
+  @Get('/test')
+  @UseGuards(AuthGuard('jwt'))
+  test(@Req() req, @Res() res: Response) {
+    // guard를 무사히 통과하면 아래 메시지가 전송
+    res.send('access_token 인가 완료!');
+  }
+
+  @Get('/userInfo')
+  @ApiCreatedResponse({
+    description: '로그인한 유저의 정보',
+    type: Bocal,
+  })
+  @UseGuards(AuthGuard('jwt'))
+  getUserInfo(@Req() req) {
+    // console.log(req.user);
+    return req.user;
+  }
 }

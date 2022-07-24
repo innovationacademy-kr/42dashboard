@@ -35,7 +35,6 @@ import { Filter } from './filter';
 @Injectable()
 export class UserInformationService {
   private operatorToMethod;
-
   constructor(
     // @InjectRepository(User)
     // private userRepository: Repository<User>,
@@ -54,13 +53,14 @@ export class UserInformationService {
     this.operatorToMethod['<'] = LessThan;
     this.operatorToMethod['<='] = LessThanOrEqual;
     this.operatorToMethod['='] = Equal;
+    this.operatorToMethod['=='] = Equal;
     this.operatorToMethod['!='] = Not;
     this.operatorToMethod['Like'] = Like;
     this.operatorToMethod['like'] = Like;
     this.operatorToMethod['ILike'] = ILike;
     this.operatorToMethod['iLike'] = ILike;
-    this.operatorToMethod['ilike'] = ILike;
     this.operatorToMethod['Ilike'] = ILike;
+    this.operatorToMethod['ilike'] = ILike;
     this.operatorToMethod['In'] = In;
     this.operatorToMethod['in'] = In;
     this.operatorToMethod['Between'] = Between;
@@ -68,12 +68,9 @@ export class UserInformationService {
     this.operatorToMethod['Any'] = Any;
     this.operatorToMethod['any'] = Any;
     this.operatorToMethod['null'] = IsNull;
+    // this.operatorToMethod['notNull'] = Not(IsNull());
   }
 
-  async createUser(user: User) {
-    user = await this.dataSource.getRepository(User).create(user);
-    return await this.dataSource.getRepository(User).save(user);
-  }
   async getUserPersonalInformation() {
     return await this.dataSource
       .getRepository(UserPersonalInformation)
@@ -127,9 +124,9 @@ export class UserInformationService {
     findObj['order'] = { intra_id: 'ASC', grade: 'ASC' }; //정렬할 필요가 있는건지?
     if ('take' in filterArgs) {
       findObj['take'] = filterArgs['amount'];
-      if ('skip' in filterArgs) findObj['skip'] = filterArgs['skip'];
-      else findObj['skip'] = 0;
     }
+    if ('skip' in filterArgs) findObj['skip'] = filterArgs['skip'];
+    else findObj['skip'] = 0;
     return { findObj, filterObj };
   }
 
@@ -379,9 +376,6 @@ export class UserInformationService {
   //                                                  |
   //--------------------------------------------------
 
-  /**
-   * 실습용 코드
-   */
   async softDeleteRemoveWithdrawTest(cudDto: CudDto) {
     const queryRunner = this.dataSource.createQueryRunner();
     // const obj = this.createFindObj(cudDto);

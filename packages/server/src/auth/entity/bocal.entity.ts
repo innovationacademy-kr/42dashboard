@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 export enum BocalRole {
@@ -10,19 +11,31 @@ export enum BocalRole {
 
 @Entity()
 export class Bocal {
+  @ApiProperty()
   @PrimaryColumn({ name: 'id' })
   id: number;
 
+  @ApiProperty()
   @Column({ name: 'login', nullable: false })
-  login: string;
+  intraName: string;
 
+  @ApiProperty()
   @Column({ name: 'staff', nullable: false })
-  staff: boolean; //의미 없는 컬럼일수도...?
+  isStaff: boolean; //의미 없는 컬럼일수도...?
+
+  @ApiProperty()
+  @Column({ name: 'email', nullable: false })
+  email: string;
+
+  @ApiProperty()
+  @Column({ name: 'image_url', nullable: false })
+  image_url: string;
 
   /**
    * api에서 오는 스태프 정보중에서 식별정보가 무엇무엇이 있는지 알아내서 column 추가하기
    */
 
+  @ApiProperty()
   @Column({
     type: 'enum',
     enum: BocalRole,

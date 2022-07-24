@@ -24,9 +24,11 @@ export class AuthService {
     // if (obj['staff'] == false) throw new BadRequestException();
     const bocal = this.dataSource.getRepository(Bocal).create();
     bocal.id = obj.id;
-    bocal.login = obj.login;
+    bocal.intraName = obj.intraName;
+    bocal.image_url = obj.image_url;
+    bocal.email = obj.email;
     bocal.role = BocalRole.ADMIN; //이 부분 나중에 분기문으로 처리
-    bocal.staff = true;
+    bocal.isStaff = true;
     await this.dataSource.getRepository(Bocal).save(bocal);
     const payload = obj;
     console.log(payload);
@@ -48,7 +50,7 @@ export class AuthService {
       response42 = await axios.post(url);
     } catch (what) {
       console.log('42 token reqest error', what);
-      return new BadRequestException();
+      throw new BadRequestException();
     } finally {
       const {
         access_token,
@@ -67,8 +69,10 @@ export class AuthService {
     // 아래에서 id는 고유 number임 ("huchoi"같은 intra_id가 아님)
     const payload = {
       id: response42.data.id,
-      login: response42.data.login,
-      staff: response42.data['staff?'],
+      intraName: response42.data.login,
+      email: response42.data.email,
+      image_url: response42.data.image_url,
+      isStaff: response42.data['staff?'],
     };
     return await this.createJwt(payload);
   }
