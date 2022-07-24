@@ -36,7 +36,8 @@ function useBoard() {
       info: preset.info,
     });
   };
-  const handleSectionAdd = (sectionId: string) => {
+  const handleSectionAdd = (sectionId: string | undefined) => {
+    if (sectionId === undefined) return;
     const newLayout = [
       ...boardData.sectionLayouts,
       {

@@ -6,7 +6,7 @@ class ControlModeService {
     protected controlModeRepository: ControlModeRepositoryInterface,
   ) {}
 
-  public async getControlMode(): Promise<ControlModeType> {
+  public getControlMode(): string {
     return this.controlModeRepository.getControlMode();
   }
 

@@ -19,7 +19,8 @@ function useSections() {
     },
   );
 
-  const addSectionData = (sectionDatas: SectionDataType) => {
+  const addSectionData = (sectionDatas: SectionDataType | undefined) => {
+    if (sectionDatas === undefined) return;
     return sectionDatasService.addSectionData(sectionDatas);
   };
 

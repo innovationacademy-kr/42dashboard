@@ -3,7 +3,7 @@ import ControlModeType from '../domain/controlMode/controlMode.type';
 import controlModeStore from './store/controlMode.store';
 
 class ControlModeRepository implements ControlModeRepositoryInterface {
-  public async getControlMode(): Promise<ControlModeType> {
+  public getControlMode(): string {
     return controlModeStore.getControlMode();
   }
 

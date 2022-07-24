@@ -1,7 +1,7 @@
 import ControlModeType from './controlMode.type';
 
 interface ControlModeRepositoryInterface {
-  getControlMode(): Promise<ControlModeType>;
+  getControlMode(): string;
   setControlMode(controlMode: ControlModeType): Promise<void>;
 }
 
