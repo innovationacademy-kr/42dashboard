@@ -1,11 +1,11 @@
 import * as axios from './axios.instance';
 
 // login api의 url
-const loginURL = '/auth/42';
+const getUserInfoURL = '/auth/userInfo';
 
-export const axiosLogin = async () => {
+export const axiosGetUserInfo = async () => {
   try {
-    const response = await axios.instance.get(loginURL);
+    const response = await axios.instance.get(getUserInfoURL);
     console.log(response);
     return response;
   } catch (error) {
