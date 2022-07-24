@@ -151,11 +151,4 @@ export const EntityColumn = {
     { spName: 'LaPiscine_참여이력', dbName: 'record_participate_lapiscine' },
     { spName: 'LaPiscine_final_score', dbName: 'lapiscine_final_score' },
   ],
-  userLapiscineInformation: [
-    //userLapiscineInformation
-    { spName: 'La Piscine LaPiscine_기수', dbName: 'lapiscine_grade' },
-    { spName: 'LaPiscine_차수', dbName: 'lapiscine_degree' },
-    { spName: 'LaPiscine_참여이력', dbName: 'Record_participate_lapiscine' },
-    { spName: 'LaPiscine_final_score', dbName: 'lapiscine_final_score' },
-  ],
 };
