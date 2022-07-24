@@ -3,13 +3,13 @@ import { gql } from '@apollo/client';
 export default function createQuery(
   filterNames: string[],
   labels: string[],
-  filterSets: string[][],
+  filterSetsPerData: string[][],
 ) {
   return gql`
     query GetDatasets(
       ${filterNames.map((filterName) => `$${filterName}: Filter!`).join('\n')}
     ) {
-     ${filterSets
+     ${filterSetsPerData
        .map((filterSet, index) => {
          const alias = `${labels[index % labels.length]}${Math.floor(
            index / labels.length,

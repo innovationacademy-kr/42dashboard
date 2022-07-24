@@ -1,36 +1,69 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { CheckDuplication } from 'src/user_information/argstype/checkDuplication.argstype';
 import {
-  UserEmploymentAndFound,
+  entityArray,
+  getDomain,
+} from 'src/user_information/utils/getDomain.utils';
+import { DataSource, Repository } from 'typeorm';
+import {
   UserEmploymentStatus,
   UserHrdNetUtilize,
-  UserInternStatus,
+  UserHrdNetUtilizeConsent,
+  //UserInternStatus,
+  UserOtherEmploymentStatus,
 } from './entity/user_job.entity';
 
 @Injectable()
 export class UserJobService {
   constructor(
-    @InjectRepository(UserInternStatus)
-    private readonly userInternStatusRepo: Repository<UserInternStatus>,
+    // @InjectRepository(UserInternStatus)
+    // private readonly userInternStatusRepo: Repository<UserInternStatus>,
+    @InjectRepository(UserHrdNetUtilizeConsent)
+    private readonly userHrdNetUtilizeConsentRepo: Repository<UserHrdNetUtilizeConsent>,
     @InjectRepository(UserHrdNetUtilize)
     private readonly userHrdNetUtilizeRepo: Repository<UserHrdNetUtilize>,
-    @InjectRepository(UserEmploymentAndFound)
-    private readonly userEmploymentAndFoundRepo: Repository<UserEmploymentAndFound>,
+    @InjectRepository(UserOtherEmploymentStatus)
+    private readonly userEmploymentAndFoundRepo: Repository<UserOtherEmploymentStatus>,
     @InjectRepository(UserEmploymentStatus)
     private readonly userEmploymentStatusRepo: Repository<UserEmploymentStatus>,
+    @InjectDataSource()
+    private dataSource: DataSource,
   ) {}
 
-  async getUserEmploymentAndFound() {
-    return await this.userEmploymentAndFoundRepo.find({});
+  async getUserOtherEmploymentStatus(checkDuplication: CheckDuplication) {
+    return getDomain(
+      this.dataSource,
+      checkDuplication,
+      entityArray,
+      'userOtherEmploymentStatus',
+    );
   }
-  async getUserEmploymentStatus() {
-    return await this.userEmploymentStatusRepo.find({});
+
+  async getUserEmploymentStatus(checkDuplication: CheckDuplication) {
+    return getDomain(
+      this.dataSource,
+      checkDuplication,
+      entityArray,
+      'userEmploymentStatus',
+    );
   }
-  async getUserHrdNetUtilize() {
-    return await this.userHrdNetUtilizeRepo.find({});
+
+  async getUserHrdNetUtilizeConsent(checkDuplication: CheckDuplication) {
+    return getDomain(
+      this.dataSource,
+      checkDuplication,
+      entityArray,
+      'userHrdNetUtilizeConsent',
+    );
   }
-  async getUserInternStatus() {
-    return await this.userInternStatusRepo.find({});
+
+  async getUserHrdNetUtilize(checkDuplication: CheckDuplication) {
+    return getDomain(
+      this.dataSource,
+      checkDuplication,
+      entityArray,
+      'userHrdNetUtilize',
+    );
   }
 }

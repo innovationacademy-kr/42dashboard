@@ -14,25 +14,29 @@ import {
 } from 'typeorm';
 import {
   UserBlackhole,
+  UserCourseExtension,
+  UserInterruptionOfCourse,
   UserLapiscineInformation,
-  UserLearningData,
+  UserLearningDataAPI,
   UserLeaveOfAbsence,
-  UserProcessProgress,
-  UserReasonOfBreak,
+  UserLoyaltyManagement,
 } from '../../user_status/entity/user_status.entity';
 import {
-  UserEmploymentAndFound,
   UserEmploymentStatus,
   UserHrdNetUtilize,
-  UserInternStatus,
+  UserHrdNetUtilizeConsent,
+  //UserInternStatus,
+  UserOtherEmploymentStatus,
 } from '../../user_job/entity/user_job.entity';
 
 import { UserPersonalInformation } from './user_personal_information.entity';
 import { UserAccessCardInformation } from './user_access_card_information.entity';
 import { UserOtherInformation } from './user_other_information.entity';
 import { Field, Int, ObjectType } from '@nestjs/graphql';
-import { UserComputationFund } from 'src/user_payment/entity/user_computation_fund.entity';
-import { UserEducationFundState } from 'src/user_payment/entity/user_education_fund_state.entity';
+import {
+  UserComputationFund,
+  UserEducationFundState,
+} from 'src/user_payment/entity/user_payment.entity';
 
 //인덱스
 //유저
@@ -73,6 +77,14 @@ export class User {
   coalition: string;
 
   @Field()
+  @Column({ name: 'uniqueness', nullable: true })
+  uniqueness: string;
+
+  @Field()
+  @Column({ name: 'anonymization', nullable: true })
+  anonymization: string;
+
+  @Field()
   @CreateDateColumn({ name: 'created_date' })
   created_date: Date;
 
@@ -90,7 +102,6 @@ export class User {
    *               User               *
    ***********************************/
 
-  // @Field()
   @OneToMany(
     () => UserPersonalInformation,
     (userPersonalInformation) => userPersonalInformation.user,
@@ -98,15 +109,6 @@ export class User {
   )
   userPersonalInformation: UserPersonalInformation;
 
-  // @Field(()=>UserAccessCardInformation)
-  @OneToMany(
-    () => UserAccessCardInformation,
-    (userAccessCardInformation) => userAccessCardInformation.user,
-    { cascade: true },
-  )
-  userAccessCardInformation: UserAccessCardInformation;
-
-  // @Field((type) => [UserOtherInformation])
   @OneToMany(
     () => UserOtherInformation,
     (userOtherInformation) => userOtherInformation.user,
@@ -114,97 +116,31 @@ export class User {
   )
   userOtherInformation: UserOtherInformation[];
 
-  /***********************************
-   *             Academic             *
-   ***********************************/
-
-  // @Field((type) => [UserLearningData])
   @OneToMany(
-    () => UserLearningData,
-    (userLearningDate) => userLearningDate.user,
+    () => UserAccessCardInformation,
+    (userAccessCardInformation) => userAccessCardInformation.user,
     { cascade: true },
   )
-  userLearningDate: UserLearningData[];
-
-  // @Field((type) => [UserProcessProgress])
-  @OneToMany(
-    () => UserProcessProgress,
-    (userProcessProgress) => userProcessProgress.user,
-    { cascade: true },
-  )
-  userProcessProgress: UserProcessProgress[];
-
-  // @Field((type) => [UserBlackhole])
-  @OneToMany(() => UserBlackhole, (userBlackhole) => userBlackhole.user, {
-    cascade: true,
-  })
-  userBlackhole: UserBlackhole[];
-
-  // @Field((type) => [UserLeaveOfAbsence])
-  @OneToMany(
-    () => UserLeaveOfAbsence,
-    (userLeaveOfAbsence) => userLeaveOfAbsence.user,
-    { cascade: true },
-  )
-  userLeaveOfAbsence: UserLeaveOfAbsence[];
-
-  // @Field((type) => [UserReasonOfBreak])
-  @OneToMany(
-    () => UserReasonOfBreak,
-    (userReasonOfBreak) => userReasonOfBreak.user,
-    { cascade: true },
-  )
-  userReasonOfBreak: UserReasonOfBreak[];
-
-  // @Field((type) => [UserLapiscineInformation])
-  @OneToMany(
-    () => UserLapiscineInformation,
-    (userLapiscineInformation) => userLapiscineInformation.user,
-    { cascade: true },
-  )
-  userLapiscineInformation: UserLapiscineInformation[];
+  userAccessCardInformation: UserAccessCardInformation;
 
   /***********************************
-   *               Fund               *
+   *               Job               *
    ***********************************/
 
-  // @Field((type) => [UserComputationFund])
   @OneToMany(
-    () => UserComputationFund,
-    (userComputationFund) => userComputationFund.user,
+    () => UserOtherEmploymentStatus,
+    (userOtherEmploymentStatus) => userOtherEmploymentStatus.user,
     { cascade: true },
   )
-  userComputationFund: UserComputationFund[];
+  userOtherEmploymentStatus: UserOtherEmploymentStatus[];
 
-  // @Field((type) => [UserEducationFundState])
   @OneToMany(
-    () => UserEducationFundState,
-    (userEducationFundState) => userEducationFundState.user,
+    () => UserHrdNetUtilizeConsent,
+    (userHrdNetUtilizeConsent) => userHrdNetUtilizeConsent.user,
     { cascade: true },
   )
-  userEducationFundState: UserEducationFundState[];
+  userHrdNetUtilizeConsent: UserHrdNetUtilizeConsent[];
 
-  /***********************************
-   *              employ              *
-   ***********************************/
-
-  // @Field((type) => [UserEmploymentAndFound])
-  @OneToMany(
-    () => UserEmploymentAndFound,
-    (UserEmploymentAndFound) => UserEmploymentAndFound.user,
-    { cascade: true },
-  )
-  userEmploymentAndFound: UserEmploymentAndFound[];
-
-  // @Field((type) => [UserInternStatus])
-  @OneToMany(
-    () => UserInternStatus,
-    (userInternStatus) => userInternStatus.user,
-    { cascade: true },
-  )
-  userInternStatus: UserInternStatus[];
-
-  // @Field((type) => [UserHrdNetUtilize])
   @OneToMany(
     () => UserHrdNetUtilize,
     (userHrdNetUtilize) => userHrdNetUtilize.user,
@@ -212,94 +148,79 @@ export class User {
   )
   userHrdNetUtilize: UserHrdNetUtilize[];
 
-  // @Field((type) => [UserEmploymentStatus])
   @OneToMany(
     () => UserEmploymentStatus,
     (userEmploymentStatus) => userEmploymentStatus.user,
     { cascade: true },
   )
   userEmploymentStatus: UserEmploymentStatus[];
+
+  /***********************************
+   *               Payment           *
+   ***********************************/
+
+  @OneToMany(
+    () => UserEducationFundState,
+    (userEducationFundState) => userEducationFundState.user,
+    { cascade: true },
+  )
+  userEducationFundState: UserEducationFundState[];
+
+  @OneToMany(
+    () => UserComputationFund,
+    (userComputationFund) => userComputationFund.user,
+    { cascade: true },
+  )
+  userComputationFund: UserComputationFund[];
+
+  /***********************************
+   *               Status            *
+   ***********************************/
+
+  @OneToMany(
+    () => UserLearningDataAPI,
+    (userLearningDataAPI) => userLearningDataAPI.user,
+    { cascade: true },
+  )
+  userLearningDataAPI: UserLearningDataAPI[];
+
+  @OneToMany(
+    () => UserLoyaltyManagement,
+    (userLoyaltyManagement) => userLoyaltyManagement.user,
+    { cascade: true },
+  )
+  userLoyaltyManagement: UserLoyaltyManagement[];
+
+  @OneToMany(
+    () => UserCourseExtension,
+    (userCourseExtension) => userCourseExtension.user,
+    { cascade: true },
+  )
+  userCourseExtension: UserCourseExtension[];
+
+  @OneToMany(() => UserBlackhole, (userBlackhole) => userBlackhole.user, {
+    cascade: true,
+  })
+  userBlackhole: UserBlackhole[];
+
+  @OneToMany(
+    () => UserLeaveOfAbsence,
+    (userLeaveOfAbsence) => userLeaveOfAbsence.user,
+    { cascade: true },
+  )
+  userLeaveOfAbsence: UserLeaveOfAbsence[];
+
+  @OneToMany(
+    () => UserInterruptionOfCourse,
+    (userInterruptionOfCourse) => userInterruptionOfCourse.user,
+    { cascade: true },
+  )
+  userInterruptionOfCourse: UserInterruptionOfCourse[];
+
+  @OneToMany(
+    () => UserLapiscineInformation,
+    (userLapiscineInformation) => userLapiscineInformation.user,
+    { cascade: true },
+  )
+  userLapiscineInformation: UserLapiscineInformation[];
 }
-
-// //개인정보관리
-// @Entity()
-// export class UserPersonalInformation extends BaseEntity {
-
-//     @Column({name: "region", nullable: true })
-//     region: string;
-
-//     @Column({name: "gender", nullable: true })
-//     gender: string;
-
-//     @Column({name: "birthday", nullable: true})
-//     birthday: string;
-
-//     @Column({name: "phone_number", nullable: true })
-//     phone_number: Date;
-
-//     @Column({name: "email", nullable: true })
-//     email: string;
-
-//     @Column({name: "created_date", nullable: false })
-//     created_date: Date;
-
-//     @OneToOne(() => User, user => user.intra_no)
-//     user: User;
-// }
-
-// //기타정보
-// @Entity()
-// export class UserOtherInformation extends BaseEntity {
-//     @PrimaryGeneratedColumn({name: "pk"})
-//     pk: number
-
-//     @Column({name: "highest_level_of_education", nullable: true })
-//     highest_level_of_education: string;
-
-//     @Column({name: "major", nullable: false, default: "비전공" })
-//     major: string;
-
-//     @Column({name: "major_field", nullable: true})
-//     major_field: string;
-
-//     @Column({name: "major_name", nullable: true })
-//     major_name: Date;
-
-//     @Column({name: "period_of_software_learning", nullable: true })
-//     period_of_software_learning: string;
-
-//     @Column({name: "experience_of_software_developing", nullable: true })
-//     experience_of_software_developing: Date;
-
-//     @Column({name: "created_date", nullable: false })
-//     created_date: Date;
-
-//     @ManyToOne(() => User, user => user.intra_no)
-//     user: User;
-// }
-
-// //출입카드정보
-// @Entity()
-// export class UserAccessCardInformation extends BaseEntity {
-
-//     @Column({name: "profile_picture", nullable: true })
-//     profile_picture: string;
-
-//     @Column({name: "lapiscine_physical_number", nullable: true })
-//     lapiscine_physical_number: number;
-
-//     @Column({name: "lapiscine_logical_number", nullable: true})
-//     lapiscine_logical_number: number;
-
-//     @Column({name: "logical_number_for_main_course", nullable: true })
-//     logical_number_for_main_course: number;
-
-//     @Column({name: "name_of_entry_card_for_main_course", nullable: true })
-//     name_of_entry_card_for_main_course: string;
-
-//     @Column({name: "created_date", nullable: false })
-//     created_date: Date;
-
-//     @OneToOne(() => User, user => user.intra_no)
-//     user: User;
-// }

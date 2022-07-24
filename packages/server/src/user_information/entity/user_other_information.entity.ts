@@ -25,24 +25,12 @@ export class UserOtherInformation extends BaseEntity {
   highest_level_of_education: string;
 
   @Field()
-  @Column({ name: 'major', nullable: false, default: '비전공' })
-  major: string;
-
-  @Field()
-  @Column({ name: 'major_field', nullable: true })
-  major_field: string;
+  @Column({ name: 'majored', nullable: false, default: '비전공' })
+  majored: string;
 
   @Field()
   @Column({ name: 'major_name', nullable: true })
   major_name: string;
-
-  @Field((type) => Int)
-  @Column({ name: 'period_of_software_learning', nullable: true })
-  period_of_software_learning: number;
-
-  @Field()
-  @Column({ name: 'experience_of_software_developing', nullable: true })
-  experience_of_software_developing: string;
 
   @Field()
   @CreateDateColumn({ name: 'created_date' })

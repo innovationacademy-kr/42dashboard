@@ -1,25 +1,31 @@
-import { StickerDataType } from './../../../domain/stickers/stickers.type';
+import StickerDataType from '../../../domain/stickerDatas/stickerData.type';
 import create from 'zustand';
 import { devtools } from 'zustand/middleware';
 import ControlModeType from '../../../domain/controlMode/controlMode.type';
 import PresetType from '../../../domain/preset/preset.type';
 import UserType from '../../../domain/user/user.type';
+import SectionDataType from '../../../domain/sectionDatas/sectionData.type';
+import BoardDataType from '../../../domain/boardData/boardData.type';
 
 export interface DashBoardState {
   user: UserType | null;
   preset: PresetType | null;
-  // presetList: PresetType[];
   controlMode: ControlModeType;
-  stickers: StickerDataType[];
+  filtersModal: boolean;
+  boardData: BoardDataType;
+  sectionDatas: SectionDataType[];
+  stickerDatas: StickerDataType[];
 }
 
 const store = create<DashBoardState, [['zustand/devtools', DashBoardState]]>(
   devtools((set) => ({
     user: null,
     preset: null,
-    // presetList: [],
     controlMode: 'view',
-    stickers: [],
+    filtersModal: false,
+    boardData: { sectionIds: [], sectionLayouts: [] },
+    sectionDatas: [],
+    stickerDatas: [],
   })),
 );
 

@@ -5,10 +5,6 @@ import { User } from 'src/user_information/entity/user_information.entity';
 import { UserOtherInformation } from 'src/user_information/entity/user_other_information.entity';
 import { UserPersonalInformation } from 'src/user_information/entity/user_personal_information.entity';
 import {
-  UserBlackhole,
-  UserProcessProgress,
-} from 'src/user_status/entity/user_status.entity';
-import {
   createQueryBuilder, //deprecated
   DataSource,
   Repository,
@@ -31,15 +27,16 @@ import {
   JoinTable,
   DeepPartial,
 } from 'typeorm';
+import { CheckDuplication } from './argstype/checkDuplication.argstype';
 import { CudDto } from './argstype/cudDto.argstype';
 import { FilterArgs } from './argstype/filter.argstype';
 import { JoinedTable } from './argstype/joinedTable';
 import { Filter } from './filter';
+import { entityArray, getDomain } from './utils/getDomain.utils';
 
 @Injectable()
 export class UserInformationService {
   private operatorToMethod;
-
   constructor(
     // @InjectRepository(User)
     // private userRepository: Repository<User>,
@@ -58,13 +55,14 @@ export class UserInformationService {
     this.operatorToMethod['<'] = LessThan;
     this.operatorToMethod['<='] = LessThanOrEqual;
     this.operatorToMethod['='] = Equal;
+    this.operatorToMethod['=='] = Equal;
     this.operatorToMethod['!='] = Not;
     this.operatorToMethod['Like'] = Like;
     this.operatorToMethod['like'] = Like;
     this.operatorToMethod['ILike'] = ILike;
     this.operatorToMethod['iLike'] = ILike;
-    this.operatorToMethod['ilike'] = ILike;
     this.operatorToMethod['Ilike'] = ILike;
+    this.operatorToMethod['ilike'] = ILike;
     this.operatorToMethod['In'] = In;
     this.operatorToMethod['in'] = In;
     this.operatorToMethod['Between'] = Between;
@@ -72,24 +70,38 @@ export class UserInformationService {
     this.operatorToMethod['Any'] = Any;
     this.operatorToMethod['any'] = Any;
     this.operatorToMethod['null'] = IsNull;
+    // this.operatorToMethod['notNull'] = Not(IsNull());
   }
 
-  async createUser(user: User) {
-    user = await this.dataSource.getRepository(User).create(user);
-    return await this.dataSource.getRepository(User).save(user);
+  async getUser(checkDuplication: CheckDuplication) {
+    return getDomain(this.dataSource, checkDuplication, entityArray, 'user');
   }
-  async getUserPersonalInformation() {
-    return await this.dataSource
-      .getRepository(UserPersonalInformation)
-      .find({});
+
+  async getUserPersonalInformation(checkDuplication: CheckDuplication) {
+    return getDomain(
+      this.dataSource,
+      checkDuplication,
+      entityArray,
+      'userPersonalInformation',
+    );
   }
-  async getUserOtherInformation() {
-    return await this.dataSource.getRepository(UserOtherInformation).find({});
+
+  async getUserOtherInformation(checkDuplication: CheckDuplication) {
+    return getDomain(
+      this.dataSource,
+      checkDuplication,
+      entityArray,
+      'userOtherInformation',
+    );
   }
-  async getUserAccessCardInformation() {
-    return await this.dataSource
-      .getRepository(UserAccessCardInformation)
-      .find({});
+
+  async getUserAccessCardInformation(checkDuplication: CheckDuplication) {
+    return getDomain(
+      this.dataSource,
+      checkDuplication,
+      entityArray,
+      'userAccessCardInformation',
+    );
   }
 
   /**
@@ -105,6 +117,7 @@ export class UserInformationService {
    *      UserPersonalInformation:[{entityName:UserPersonalInformation, column:"gender", operaotr:"=", givenValue:"남"}, {...}, {...}]
    *    }
    */
+
   filtersToObj(filterArgs: FilterArgs, withDeleted = false) {
     const filterObj = {};
     let filter;
@@ -130,9 +143,9 @@ export class UserInformationService {
     findObj['order'] = { intra_id: 'ASC', grade: 'ASC' }; //정렬할 필요가 있는건지?
     if ('take' in filterArgs) {
       findObj['take'] = filterArgs['amount'];
-      if ('skip' in filterArgs) findObj['skip'] = filterArgs['skip'];
-      else findObj['skip'] = 0;
     }
+    if ('skip' in filterArgs) findObj['skip'] = filterArgs['skip'];
+    else findObj['skip'] = 0;
     return { findObj, filterObj };
   }
 
@@ -267,7 +280,6 @@ export class UserInformationService {
 
   async getPeopleByFiter(filterArgs: FilterArgs) {
     const { findObj, filterObj } = this.filtersToObj(filterArgs);
-    // console.log('OBJ is', findObj);
     let data = await this.dataSource.getRepository(User).find(findObj);
     data = this.makeLimit(data, filterObj);
     // console.log(data);
@@ -290,6 +302,19 @@ export class UserInformationService {
     const data = await this.dataSource.getRepository(User).count(findObj);
     // console.log(data);
     // this.makeLimit(data, filterObj);
+    return data;
+  }
+
+  async getDomainOfColumnFilter(filterArgs: FilterArgs) {
+    const { findObj, filterObj } = this.filtersToObj(filterArgs);
+    console.log('find is', findObj);
+    console.log('filter is', filterObj);
+    // console.log('OBJ is', findObj);
+    const data = await this.dataSource.getRepository(User).find(findObj);
+    console.log(data);
+    console.log('------------------------------');
+    this.makeLimit(data, filterObj);
+    console.log(data);
     return data;
   }
 
@@ -373,9 +398,6 @@ export class UserInformationService {
   //                                                  |
   //--------------------------------------------------
 
-  /**
-   * 실습용 코드
-   */
   async softDeleteRemoveWithdrawTest(cudDto: CudDto) {
     const queryRunner = this.dataSource.createQueryRunner();
     // const obj = this.createFindObj(cudDto);

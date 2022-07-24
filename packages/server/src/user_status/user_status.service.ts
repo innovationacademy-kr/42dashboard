@@ -1,41 +1,102 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { CheckDuplication } from 'src/user_information/argstype/checkDuplication.argstype';
+import {
+  entityArray,
+  getDomain,
+} from 'src/user_information/utils/getDomain.utils';
+import { DataSource, Repository } from 'typeorm';
 import {
   UserBlackhole,
-  UserLearningData,
+  UserCourseExtension,
+  UserInterruptionOfCourse,
+  UserLapiscineInformation,
+  UserLearningDataAPI,
   UserLeaveOfAbsence,
-  UserProcessProgress,
-  UserReasonOfBreak,
+  UserLoyaltyManagement,
 } from './entity/user_status.entity';
 
 @Injectable()
 export class UserStatusService {
   constructor(
-    @InjectRepository(UserLearningData)
-    private userLearningDataRepository: Repository<UserLearningData>,
-    @InjectRepository(UserProcessProgress)
-    private userProcessProgressPersonalRepository: Repository<UserProcessProgress>,
+    @InjectDataSource()
+    private dataSource: DataSource,
+    @InjectRepository(UserLearningDataAPI)
+    private userLearningDataAPIRepository: Repository<UserLearningDataAPI>,
+    @InjectRepository(UserCourseExtension)
+    private userCourseExtensionRepository: Repository<UserCourseExtension>,
     @InjectRepository(UserBlackhole)
     private userBlackholeRepository: Repository<UserBlackhole>,
     @InjectRepository(UserLeaveOfAbsence)
     private userLeaveOfAbsenceRepository: Repository<UserLeaveOfAbsence>,
-    @InjectRepository(UserReasonOfBreak)
-    private userReasonOfBreakRepository: Repository<UserReasonOfBreak>,
+    @InjectRepository(UserInterruptionOfCourse)
+    private userInterruptionOfCourseRepository: Repository<UserInterruptionOfCourse>,
+    @InjectRepository(UserLoyaltyManagement)
+    private userLoyaltyManagementRepository: Repository<UserLoyaltyManagement>,
+    @InjectRepository(UserLapiscineInformation)
+    private userLapiscineInformationRepository: Repository<UserLapiscineInformation>,
   ) {}
-  async getUserReasonOfBreak() {
-    return await this.userReasonOfBreakRepository.find({});
+  async getUserLeaningDataAPI(checkDuplication: CheckDuplication) {
+    return getDomain(
+      this.dataSource,
+      checkDuplication,
+      entityArray,
+      'userLearningDataAPI',
+    );
   }
-  async getUserLeaveOfAbsence() {
-    return await this.userLeaveOfAbsenceRepository.find({});
+
+  async getUserCourseExtension(checkDuplication: CheckDuplication) {
+    return getDomain(
+      this.dataSource,
+      checkDuplication,
+      entityArray,
+      'userCourseExtension',
+    );
   }
-  async getUserBlackhole() {
-    return await this.userBlackholeRepository.find({});
+
+  async getUserBlackhole(checkDuplication: CheckDuplication) {
+    return getDomain(
+      this.dataSource,
+      checkDuplication,
+      entityArray,
+      'userBlackhole',
+    );
   }
-  async getUserProcessProgress() {
-    return await this.userProcessProgressPersonalRepository.find({});
+
+  async getUserLeaveOfAbsence(checkDuplication: CheckDuplication) {
+    return getDomain(
+      this.dataSource,
+      checkDuplication,
+      entityArray,
+      'userLeaveOfAbsence',
+    );
   }
-  async getUserLeaningData() {
-    return await this.userLearningDataRepository.find({});
+
+  async getUserInterruptionOfCourse(checkDuplication: CheckDuplication) {
+    return getDomain(
+      this.dataSource,
+      checkDuplication,
+      entityArray,
+      'userInterruptionOfCourse',
+    );
   }
+
+  async getUserLoyaltyManagement(checkDuplication: CheckDuplication) {
+    return getDomain(
+      this.dataSource,
+      checkDuplication,
+      entityArray,
+      'userLoyaltyManagement',
+    );
+  }
+
+  async getUserLapiscineInformation(checkDuplication: CheckDuplication) {
+    // return getDomain(
+    //   this.dataSource,
+    //   checkDuplication,
+    //   entityArray,
+    //   'userLapiscineInformation',
+    // );
+    return this.userLapiscineInformationRepository.find({});
+  } //로얄티 추가됨.
 }

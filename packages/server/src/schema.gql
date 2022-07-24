@@ -27,18 +27,18 @@ type JoinedTable {
   userAccessCardInformation: [UserAccessCardInformation!]
   userBlackhole: [UserBlackhole!]
   userComputationFund: [UserComputationFund!]
+  userCourseExtension: [UserCourseExtension!]
   userEducationFundState: [UserEducationFundState!]
-  userEmploymentAndFound: [UserEmploymentAndFound!]
+  userEmploymentAndFound: [UserEmploymentStatus!]
   userEmploymentStatus: [UserEmploymentStatus!]
   userHrdNetUtilize: [UserHrdNetUtilize!]
-  userInternStatus: [UserInternStatus!]
+  userInterruptionOfCourse: [UserInterruptionOfCourse!]
   userLapiscineInformation: [UserLapiscineInformation!]
-  userLearningData: [UserLearningData!]
+  userLearningDataAPI: [UserLearningDataAPI!]
   userLeaveOfAbsence: [UserLeaveOfAbsence!]
+  userLoyaltyManagement: [UserLoyaltyManagement!]
   userOtherInformation: [UserOtherInformation!]
   userPersonalInformation: [UserPersonalInformation!]
-  userProcessProgress: [UserProcessProgress!]
-  userReasonOfBreak: [UserReasonOfBreak!]
 }
 
 type Mutation {
@@ -49,26 +49,42 @@ type Mutation {
 }
 
 type Query {
+  getDomainOfColumnFilter(filters: [Filter!]!, skip: Int, take: Int): [JoinedTable!]!
   getLatestData: String!
   getNumOfPeopleByFilter(filters: [Filter!]!, skip: Int, take: Int): Int!
   getPeopleByFilter(filters: [Filter!]!, skip: Int, take: Int): [JoinedTable!]!
   getPeopleByFilterForAdmin(filters: [Filter!]!, skip: Int, take: Int): [JoinedTable!]!
-  getUserAccessCardInformation: [UserAccessCardInformation!]!
-  getUserBlackhole: [UserBlackhole!]!
-  getUserComputationFund: [UserComputationFund!]!
-  getUserEmploymentAndFound: [UserEmploymentAndFound!]!
-  getUserEmploymentStatus: [UserEmploymentStatus!]!
-  getUserHrdNetUtilize: [UserHrdNetUtilize!]!
-  getUserInternStatus: [UserEducationFundState!]!
-  getUserLeaningData: [UserLearningData!]!
-  getUserLeaveOfAbsence: [UserLeaveOfAbsence!]!
-  getUserOtherInformation(created_date: DateTime!, experience_of_software_developing: String!, highest_level_of_education: String!, major: String!, major_field: String!, major_name: String!, period_of_software_learning: Int, pk: Int): [UserOtherInformation!]!
-  getUserPersonalInformation: [UserPersonalInformation!]!
-  getUserProcessProgress: [UserProcessProgress!]!
-  getUserReasonOfBreak: UserReasonOfBreak!
+  getUser(column: String, duplicated: String!): [User!]!
+  getUserAccessCardInformation(column: String, duplicated: String!): [UserAccessCardInformation!]!
+  getUserBlackhole(column: String, duplicated: String!): [UserBlackhole!]!
+  getUserComputationFund(column: String, duplicated: String!): [UserComputationFund!]!
+  getUserCourseExtension(column: String, duplicated: String!): [UserCourseExtension!]!
+  getUserEducationFundState(column: String, duplicated: String!): [UserEducationFundState!]!
+  getUserEmploymentStatus(column: String, duplicated: String!): [UserEmploymentStatus!]!
+  getUserHrdNetUtilize(column: String, duplicated: String!): [UserHrdNetUtilize!]!
+  getUserHrdNetUtilizeConsent(column: String, duplicated: String!): [UserHrdNetUtilizeConsent!]!
+  getUserInterruptionOfCourse(column: String, duplicated: String!): [UserInterruptionOfCourse!]!
+  getUserLapiscineInformation(column: String, duplicated: String!): [UserLapiscineInformation!]!
+  getUserLeaningDataAPI(column: String, duplicated: String!): [UserLearningDataAPI!]!
+  getUserLeaveOfAbsence(column: String, duplicated: String!): [UserLeaveOfAbsence!]!
+  getUserLoyaltyManagement(column: String, duplicated: String!): [UserLoyaltyManagement!]!
+  getUserOtherEmploymentStatus(column: String, duplicated: String!): [UserOtherEmploymentStatus!]!
+  getUserOtherInformation(column: String, duplicated: String!): [UserOtherInformation!]!
+  getUserPersonalInformation(column: String, duplicated: String!): [UserPersonalInformation!]!
   tempFunction: [JoinedTable!]!
   updateData: String!
   updateOldData: String!
+}
+
+type User {
+  academic_state: String!
+  coalition: String!
+  created_date: DateTime!
+  deleted_date: DateTime!
+  grade: String!
+  intra_id: String!
+  intra_no: Int!
+  name: String!
 }
 
 type UserAccessCardInformation {
@@ -83,127 +99,150 @@ type UserAccessCardInformation {
 }
 
 type UserBlackhole {
-  blackhole_time: DateTime!
+  blackhole_date: DateTime!
+  blackholed: String
+  blackholed_level: Float
   created_date: DateTime!
   deleted_date: DateTime!
   pk: Float!
   reason_of_blackhole: String
-  remaining_period: Float
+  remarks: String
 }
 
 type UserComputationFund {
   created_date: DateTime!
   deleted_date: DateTime!
-  is_received_fund: String!
-  no_duplicate_collection: String!
   payment_date: DateTime
   pk: Int!
-  reason_of_no_duplicate: String
-  recevied_amount: Int!
+  received: String!
+  recevied_amount: String!
+}
+
+type UserCourseExtension {
+  basic_expiration_date: DateTime!
+  created_date: DateTime!
+  deleted_date: DateTime!
+  extension_circle: String
+  extension_level: String
+  final_expiration_date: DateTime!
+  pk: Float!
+  request_extension: String
 }
 
 type UserEducationFundState {
   created_date: DateTime!
   deleted_date: DateTime!
-  fund_period: DateTime!
-  payment_delay_period: Int
-  payment_end_date: DateTime!
-  payment_give_start_date: DateTime!
-  pk: Int!
-  remaining_period_of_fund: Int
-  total_calculated_month: Int!
-  total_payment_of_money: Int!
-  total_payment_of_number: Int!
-}
-
-type UserEmploymentAndFound {
-  consent_to_provide_information: String!
-  created_date: DateTime!
-  deleted_date: DateTime!
-  employment: String!
-  employment_date: DateTime
-  enterprise: String
+  payment_end_date: DateTime
+  payment_ended: String
   pk: Float!
+  remarks: String
+  total_payment_of_money: String
+  total_payment_of_number: Float
 }
 
 type UserEmploymentStatus {
   created_date: DateTime!
   deleted_date: DateTime!
+  employment: String!
   emplyment_date: DateTime
   enterprise: String
-  enterprise_size: String
   pk: Float!
 }
 
 type UserHrdNetUtilize {
-  consent_to_provide_information: String!
+  business_registration_number: String
   created_date: DateTime!
   deleted_date: DateTime!
-  employment: String!
   employment_insurance_date: DateTime
-  enterprise: String
+  employmented: String!
   enterprise_size: String
+  health_insurance_enterprise: String
+  hrd_net_date: DateTime
   pk: Float!
 }
 
-type UserInternStatus {
+type UserHrdNetUtilizeConsent {
+  consent_to_provide_information: String!
+  consented_date: DateTime
   created_date: DateTime!
   deleted_date: DateTime!
-  end_intern_date: Float
-  enterprise: DateTime
-  given_blackhole_day: Float
-  intern_note: Float
-  intern_part_of_job: Float
-  is_given_blackhole: String!
   pk: Float!
-  start_intern_date: Float
+}
+
+type UserInterruptionOfCourse {
+  HRD_Net_drop_out: String
+  breaked: String
+  created_date: DateTime!
+  date_of_break: DateTime!
+  deleted_date: DateTime!
+  pk: Float!
+  reason_of_break: String
 }
 
 type UserLapiscineInformation {
   deleted_date: DateTime!
-  lapiscine_degree: String!
+  lapiscine_degree: String
+  lapiscine_final_score: Float
   lapiscine_grade: String
-  number_of_rapicin_participation: String
-  participate_lapicin: String
   pk: Float!
+  record_participate_lapiscine: String
 }
 
-type UserLearningData {
+type UserLearningDataAPI {
   circle: Float
-  circle_date: DateTime
+  circled_date: DateTime
   coalition_score: Float
   created_date: DateTime!
   deleted_date: DateTime!
   level: Float
-  level_date: DateTime
+  leveled_date: DateTime
   out_circle: String
   out_circle_date: DateTime
   pk: Float!
+  scored_date: DateTime
 }
 
 type UserLeaveOfAbsence {
+  AGU_reason: String
   absence_reason: String
+  absenced: String
+  begin_absence_date: DateTime
   created_date: DateTime!
   deleted_date: DateTime!
   end_absence_date: DateTime
   pk: Float!
+  remarks: String
   return_from_absence_date: DateTime
-  start_absence_date: DateTime
+}
+
+type UserLoyaltyManagement {
+  created_date: DateTime!
+  deleted_date: DateTime!
+  loyalty_circle: String
+  loyalty_period: String
+  loyalty_presence: String
+  pk: Float!
+}
+
+type UserOtherEmploymentStatus {
+  created_date: DateTime!
+  deleted_date: DateTime!
+  employment_date: DateTime
+  enterprise: String
+  pk: Float!
 }
 
 type UserOtherInformation {
   created_date: DateTime!
   deleted_date: DateTime!
-  experience_of_software_developing: String!
   highest_level_of_education: String!
-  major: String!
-  major_field: String!
   major_name: String!
-  period_of_software_learning: Int!
+  majored: String!
   pk: Int!
 }
 
 type UserPersonalInformation {
+  age: String!
   birthday: String!
   created_date: DateTime!
   deleted_date: DateTime!
@@ -212,21 +251,5 @@ type UserPersonalInformation {
   phone_number: String!
   pk: Int!
   region: String!
-}
-
-type UserProcessProgress {
-  basic_expiration_date: DateTime!
-  created_date: DateTime!
-  deleted_date: DateTime!
-  final_expiration_date: DateTime!
-  pk: Float!
-  request_extension: String
-}
-
-type UserReasonOfBreak {
-  created_date: DateTime!
-  date_of_break: DateTime!
-  deleted_date: DateTime!
-  pk: Float!
-  reason_of_break: String
+  social_security_key: String!
 }

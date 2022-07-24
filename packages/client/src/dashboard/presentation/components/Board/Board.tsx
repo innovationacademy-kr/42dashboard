@@ -1,12 +1,14 @@
 import './styles.css';
 import './styles2.css';
-import RGL, { WidthProvider } from 'react-grid-layout';
+import RGL, { Layout, WidthProvider } from 'react-grid-layout';
 import Section from './Section';
-import usePreset from '../../../application/services/usePreset';
 import PresetType from '../../../domain/preset/preset.type';
-import useBoardLayout, {
-  NestedLayout,
-} from '../../../application/services/useBoardLayout';
+import useFiltersModal from '../../../application/services/useFiltersModal';
+import useSections from '../../../application/services/useSectionDatas';
+import useBoard from '../../../application/services/useBoard';
+import { v4 as uuid } from 'uuid';
+import SectionDataType from '../../../domain/sectionDatas/sectionData.type';
+
 const ReactGridLayout = WidthProvider(RGL.Responsive);
 
 export interface BoardProps {
@@ -15,20 +17,48 @@ export interface BoardProps {
 
 export default function Board() {
   const {
-    sectionLayout,
+    addSectionData,
+    removeSectionData,
+    getSectionDatas,
+    handleStickerAdd,
+    handleStickerRemove,
+    handleStickerLayoutChange,
+  } = useSections();
+
+  const {
+    boardData,
     handleSectionAdd,
     handleSectionLayoutChange,
-    handleStickerLayoutChange,
     handleSectionRemove,
-  } = useBoardLayout();
+  } = useBoard();
 
-  const { preset, getPreset, changePreset } = usePreset();
+  const { isOpen, openFiltersModal, applyFiltersModal, cancelFiltersModal } =
+    useFiltersModal();
+
+  const sectionData: SectionDataType = {
+    id: uuid(),
+    stickerIds: [],
+    stickerLayouts: [],
+  };
 
   function drawSections() {
-    return sectionLayout.map((section: NestedLayout) => {
+    return boardData.sectionLayouts.map((section: Layout) => {
+      const stickerLayouts = getSectionDatas(section.i)?.stickerLayouts;
+      console.log(stickerLayouts, section.i);
       return (
         <div key={section.i}>
-          <Section key={section.i} />
+          <Section
+            key={section.i}
+            id={section.i}
+            stickerLayouts={stickerLayouts || []}
+            handleSectionRemove={(sectionId) => {
+              removeSectionData(sectionId);
+              handleSectionRemove(sectionId);
+            }}
+            handleStickerAdd={handleStickerAdd}
+            handleStickerLayoutChange={handleStickerLayoutChange}
+            handleStickerRemove={handleStickerRemove}
+          />
         </div>
       );
     });
@@ -36,10 +66,17 @@ export default function Board() {
 
   return (
     <>
-      <button onClick={handleSectionAdd}>Add Section Item</button>
+      <button
+        onClick={() => {
+          addSectionData(sectionData);
+          handleSectionAdd(sectionData.id);
+        }}
+      >
+        Add Section Item
+      </button>
       <ReactGridLayout
         onDragStart={(a, b, c, d, e) => e.stopPropagation()}
-        layouts={{ lg: sectionLayout }}
+        layouts={{ lg: boardData.sectionLayouts || [] }}
         breakpoints={{ lg: 600, md: 498, sm: 384, xs: 240, xxs: 0 }}
         cols={{ lg: 8, md: 5, sm: 4, xs: 2, xxs: 1 }}
         onLayoutChange={handleSectionLayoutChange}

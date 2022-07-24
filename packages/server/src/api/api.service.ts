@@ -16,7 +16,6 @@ import { Repository } from 'typeorm';
 import { CreateApiDto } from './dto/create-api.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { finished } from 'stream';
-import { UserLearningData } from 'src/user_status/entity/user_status.entity';
 
 @Injectable()
 export class ApiService {
@@ -67,7 +66,7 @@ export class ApiService {
 
   async requestApi(token) {
     let apiData = [];
-    let pageNum = 20;
+    let pageNum = 17;
     const apiUrl = 'https://api.intra.42.fr';
     const apiEndPoint = 'v2/cursus/21/cursus_users';
     const filter = `filter[campus_id]=29`;
@@ -202,7 +201,9 @@ export class ApiService {
       //console.log(api42);
       //   console.log('1', intra_no);
       // console.log('2', api42.intra_no);
+      //console.log('???', intra_no, ':', api42.intra_no);
       if (intra_no == api42.intra_no) {
+        //console.log('here');
         // console.log(`we got intra no: ${intra_no}\n`);
         return api42;
       }

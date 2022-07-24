@@ -14,13 +14,26 @@ import { User } from '../../user_information/entity/user_information.entity';
 //!!하나의 파일에 하나의 엔터티? -> 컨벤션을 정할것!
 //목적에 따라 하나의 파일에 넣을수도...
 
-//학습데이터
+//학습데이터api
 @ObjectType()
 @Entity()
-export class UserLearningData extends BaseEntity {
+export class UserLearningDataAPI extends BaseEntity {
   @Field()
   @PrimaryGeneratedColumn({ name: 'pk' })
   pk: number;
+
+  @Field({ nullable: true, defaultValue: 0 }) //특정 데이터 때문에 널 허용중
+  @Column({ name: 'coalition_score', nullable: true, default: 0 })
+  coalition_score: number;
+
+  @Field({ nullable: true })
+  @Column({
+    name: 'scored_date',
+    nullable: true,
+    default: '9999-12-31',
+    type: 'date',
+  })
+  scored_date: Date;
 
   @Field({ nullable: true, defaultValue: 0 }) //특정 데이터 때문에 널 허용중
   @Column({ name: 'circle', nullable: true, default: 0 })
@@ -33,7 +46,7 @@ export class UserLearningData extends BaseEntity {
     default: '9999-12-31',
     type: 'date',
   })
-  circle_date: Date;
+  circled_date: Date;
 
   @Field({ nullable: true, defaultValue: 0 })
   @Column({
@@ -51,11 +64,7 @@ export class UserLearningData extends BaseEntity {
     default: '9999-12-31',
     type: 'date',
   })
-  level_date: Date;
-
-  @Field({ nullable: true, defaultValue: 0 })
-  @Column({ name: 'coalition_score', nullable: true, default: 0 }) //구글 스프레드 데이터에 없을 수도 있기 때문에 널이 올 수 있도록 처리하였습니다.
-  coalition_score: number;
+  leveled_date: Date;
 
   @Field({ nullable: true, defaultValue: 'N' })
   @Column({ name: 'out_circle', nullable: true, default: 'N' })
@@ -81,7 +90,42 @@ export class UserLearningData extends BaseEntity {
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userLearningDate)
+  @ManyToOne(() => User, (user) => user.userLearningDataAPI)
+  @JoinColumn({ name: 'fk_user_no' })
+  user: User;
+}
+
+@ObjectType()
+@Entity()
+export class UserLoyaltyManagement extends BaseEntity {
+  @Field()
+  @PrimaryGeneratedColumn({ name: 'pk' })
+  pk: number;
+
+  @Field({ nullable: true, defaultValue: 0 }) //특정 데이터 때문에 널 허용중
+  @Column({ name: 'loyalty_period', nullable: true, default: 0 })
+  loyalty_period: string;
+
+  @Field({ nullable: true, defaultValue: 0 }) //특정 데이터 때문에 널 허용중
+  @Column({ name: 'loyalty_presence', nullable: true, default: 0 })
+  loyalty_presence: string;
+
+  @Field({ nullable: true, defaultValue: 'N' })
+  @Column({ name: 'loyalty_circle', nullable: true, default: 'N' })
+  loyalty_circle: string;
+
+  @Field({ nullable: false })
+  @CreateDateColumn({ name: 'created_date' })
+  created_date: Date;
+
+  @Field()
+  @DeleteDateColumn()
+  deleted_date: Date;
+
+  @Column({ name: 'fk_user_no', nullable: false })
+  fk_user_no: string;
+
+  @ManyToOne(() => User, (user) => user.userLoyaltyManagement)
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }
@@ -89,7 +133,7 @@ export class UserLearningData extends BaseEntity {
 //과정진행여부
 @ObjectType()
 @Entity()
-export class UserProcessProgress extends BaseEntity {
+export class UserCourseExtension extends BaseEntity {
   @Field()
   @PrimaryGeneratedColumn({ name: 'pk' })
   pk: number;
@@ -116,6 +160,14 @@ export class UserProcessProgress extends BaseEntity {
   })
   final_expiration_date: Date;
 
+  @Field({ nullable: true })
+  @Column({ name: 'extension_level', nullable: true })
+  extension_level: string;
+
+  @Field({ nullable: true })
+  @Column({ name: 'extension_circle', nullable: true })
+  extension_circle: string;
+
   @Field({ nullable: false })
   @CreateDateColumn({ name: 'created_date' })
   created_date: Date;
@@ -127,7 +179,7 @@ export class UserProcessProgress extends BaseEntity {
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userProcessProgress)
+  @ManyToOne(() => User, (user) => user.userCourseExtension)
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }
@@ -141,21 +193,34 @@ export class UserBlackhole extends BaseEntity {
   pk: number;
 
   @Field({ nullable: true })
-  @Column({ name: 'remaining_period', nullable: true })
-  remaining_period: number;
+  @Column({ name: 'blackholed', nullable: true })
+  blackholed: string;
 
   @Field({ nullable: false, defaultValue: '9999-12-31' })
   @Column({
-    name: 'blackhole_time',
+    name: 'blackhole_date',
     nullable: false,
     default: '9999-12-31',
     type: 'date',
   })
-  blackhole_time: Date;
+  blackhole_date: Date;
 
   @Field({ nullable: true })
   @Column({ name: 'reason_of_blackhole', nullable: true })
   reason_of_blackhole: string;
+
+  @Field({ nullable: true, defaultValue: 0 })
+  @Column({
+    type: 'float',
+    name: 'blackholed_level',
+    nullable: true,
+    default: 0,
+  })
+  blackholed_level: number;
+
+  @Field({ nullable: true })
+  @Column({ name: 'remarks', nullable: true })
+  remarks: string;
 
   @Field({ nullable: false })
   @CreateDateColumn({ name: 'created_date' })
@@ -182,13 +247,17 @@ export class UserLeaveOfAbsence extends BaseEntity {
   pk: number;
 
   @Field({ nullable: true })
+  @Column({ name: 'absenced', nullable: true })
+  absenced: string;
+
+  @Field({ nullable: true })
   @Column({
-    name: 'start_absence_date',
+    name: 'begin_absence_date',
     nullable: false,
     default: '9999-12-31',
     type: 'date',
   })
-  start_absence_date: Date;
+  begin_absence_date: Date;
 
   @Field({ nullable: true })
   @Column({
@@ -212,6 +281,14 @@ export class UserLeaveOfAbsence extends BaseEntity {
   @Column({ name: 'absence_reason', nullable: true })
   absence_reason: string;
 
+  @Field({ nullable: true })
+  @Column({ name: 'AGU_reason', nullable: true })
+  AGU_reason: string;
+
+  @Field({ nullable: true })
+  @Column({ name: 'remarks', nullable: true })
+  remarks: string;
+
   @Field({ nullable: false })
   @CreateDateColumn({ name: 'created_date' })
   created_date: Date;
@@ -227,13 +304,18 @@ export class UserLeaveOfAbsence extends BaseEntity {
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }
+
 //과정중단
 @ObjectType()
 @Entity()
-export class UserReasonOfBreak extends BaseEntity {
+export class UserInterruptionOfCourse extends BaseEntity {
   @Field()
   @PrimaryGeneratedColumn({ name: 'pk' })
   pk: number;
+
+  @Field({ nullable: true })
+  @Column({ name: 'breaked', nullable: true })
+  breaked: string;
 
   @Field({ nullable: false, defaultValue: '9999-12-31' })
   @Column({
@@ -248,6 +330,10 @@ export class UserReasonOfBreak extends BaseEntity {
   @Column({ name: 'reason_of_break', nullable: true })
   reason_of_break: string;
 
+  @Field({ nullable: true })
+  @Column({ name: 'HRD_Net_drop_out', nullable: true })
+  HRD_Net_drop_out: string;
+
   @Field({ nullable: false })
   @CreateDateColumn({ name: 'created_date' })
   created_date: Date;
@@ -259,7 +345,7 @@ export class UserReasonOfBreak extends BaseEntity {
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userReasonOfBreak)
+  @ManyToOne(() => User, (user) => user.userInterruptionOfCourse)
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }
@@ -275,17 +361,22 @@ export class UserLapiscineInformation extends BaseEntity {
   @Column({ name: 'lapiscine_grade', nullable: true })
   lapiscine_grade: string;
 
-  @Field({ nullable: false, defaultValue: '0' })
-  @Column({ name: 'lapiscine_degree', nullable: false, default: '0' })
+  @Field({ nullable: true })
+  @Column({ name: 'lapiscine_degree', nullable: true })
   lapiscine_degree: string;
 
   @Field({ nullable: true })
-  @Column({ name: 'participate_lapicin', nullable: true })
-  participate_lapicin: string;
+  @Column({ name: 'record_participate_lapiscine', nullable: true })
+  record_participate_lapiscine: string;
 
-  @Field({ nullable: true })
-  @Column({ name: 'number_of_rapicin_participation', nullable: true })
-  number_of_rapicin_participation: string;
+  @Field({ nullable: true, defaultValue: 0 })
+  @Column({
+    type: 'float',
+    name: 'lapiscine_final_score',
+    nullable: true,
+    default: 0,
+  })
+  lapiscine_final_score: number;
 
   @CreateDateColumn({ name: 'created_date' })
   created_date: Date;
