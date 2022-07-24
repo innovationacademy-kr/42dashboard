@@ -5,9 +5,11 @@ import Section from './Section';
 import PresetType from '../../../domain/preset/preset.type';
 import useSections from '../../../application/services/useSectionDatas';
 import useBoard from '../../../application/services/useBoard';
+import useMode from '../../../application/services/useMode';
 import { v4 as uuid } from 'uuid';
 import SectionDataType from '../../../domain/sectionDatas/sectionData.type';
 import { Button } from '@mui/material';
+import EditToolBar from '../Common/EditToolBar';
 
 const ReactGridLayout = WidthProvider(RGL.Responsive);
 
@@ -32,6 +34,8 @@ export default function Board() {
     handleSectionRemove,
     handleSavePreset,
   } = useBoard();
+
+  const { getControlMode } = useMode();
 
   const sectionData: SectionDataType = {
     id: uuid(),
@@ -64,14 +68,13 @@ export default function Board() {
 
   return (
     <>
-      <Button
-        onClick={() => {
-          addSectionData(sectionData);
-          handleSectionAdd(sectionData.id);
-        }}
-      >
-        Add Section Item
-      </Button>
+      {getControlMode() === 'edit' && (
+        <EditToolBar
+          type="Board"
+          sectionData={sectionData}
+          sectionId={sectionData.id}
+        />
+      )}
       <Button
         onClick={() => {
           handleSavePreset();

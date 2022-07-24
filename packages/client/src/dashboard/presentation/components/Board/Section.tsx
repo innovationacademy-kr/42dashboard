@@ -2,10 +2,14 @@ import './styles.css';
 import './styles2.css';
 import Sticker from '../Sticker/Sticker';
 import useStickers from '../../../application/services/useStickers';
+import useMode from '../../../application/services/useMode';
 import { Button } from '@mui/material';
 import RGL, { Layout, WidthProvider } from 'react-grid-layout';
 import ModalFrame from '../Modal/Modal';
 import { useState } from 'react';
+import HorizontalLinearStepper from '../Modal/Stepper';
+import makeStickerData from '../Modal/makeStickerData';
+import EditToolBar from '../Common/EditToolBar';
 
 const ReactGridLayout = WidthProvider(RGL.Responsive);
 
@@ -29,6 +33,8 @@ export default function Section(props: SectionProps) {
     handleStickerRemove,
   } = props;
   const [isOpen, setIsOpen] = useState(false);
+  const { getControlMode } = useMode();
+
   function drawStickers() {
     return stickerLayouts.map((sticker: Layout, idx) => (
       <div key={sticker.i}>
@@ -47,6 +53,9 @@ export default function Section(props: SectionProps) {
   return (
     <>
       <Button onClick={() => setIsOpen(false)}>Add Sticker</Button>
+      {getControlMode() === 'edit' && (
+        <EditToolBar type="Section" setIsOpen={setIsOpen} />
+      )}
       <ModalFrame
         isOpen={isOpen}
         setIsOpen={setIsOpen}
