@@ -12,7 +12,8 @@
   },
   "include": ["packages/common/src",
     "packages/client/src",
-    "packages/server/src"],
+    "packages/server/src",
+    "packages/@types/common"],
   "exclude": [
     "node_modules",
     "dist"
