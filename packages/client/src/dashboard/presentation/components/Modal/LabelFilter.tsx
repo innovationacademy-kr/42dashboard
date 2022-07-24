@@ -10,6 +10,10 @@ import { QueryFilterType } from './Modal';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { EntityColumn, Operator } from 'common/src';
+import createValueQuery from '../../../infrastructure/http/graphql/createValueQuery';
+import { useLazyQuery, useQuery } from '@apollo/client';
+import useValueDataset from './useValueDataset';
+import { SelectAllRounded } from '@mui/icons-material';
 
 type EntityColumnType = typeof EntityColumn;
 
@@ -27,13 +31,30 @@ interface LabelFilterProps {
 
 function LabelFilter(props: LabelFilterProps) {
   const { setLabels, setFilters } = props;
-
   const [value, setValue] = React.useState('');
-  const [entityName, setEntityName] = React.useState('');
-  const [column, setColumn] = React.useState('');
+  const [entityName, setEntityName] = React.useState('User');
+  const [column, setColumn] = React.useState('coalition');
   const [operator, setOperator] = React.useState('');
   const [givenValue, setGivenValue] = React.useState('');
   const [latest, setLatest] = React.useState(true);
+  const [select, { data, loading, error }] = useLazyQuery(
+    createValueQuery(entityName, column),
+  );
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error :(</p>;
+
+  const findValue = (data: any, entityName: string, column: string) => {
+    if (data) {
+      const entity = 'get' + entityName;
+      const datasets = [];
+      console.log();
+      for (let i = 0; i < data[entity].length; i++) {
+        datasets.push(data[entity][i][column]);
+      }
+      return datasets;
+    }
+    return [];
+  };
 
   const addFilter = () => {
     const filter = { entityName, column, operator, givenValue, latest };
@@ -50,6 +71,7 @@ function LabelFilter(props: LabelFilterProps) {
 
   const handleColumnChange = (event: any) => {
     setColumn(event.target.value);
+    select();
   };
 
   const handleOperatorChange = (event: any) => {
@@ -107,7 +129,6 @@ function LabelFilter(props: LabelFilterProps) {
           {entityName &&
             EntityColumn[entityName as keyof EntityColumnType].map(
               (column: { spName: string; dbName: string }) => {
-                console.log(column);
                 return (
                   <MenuItem key={column.dbName} value={column.dbName}>
                     {column.spName}
@@ -148,27 +169,16 @@ function LabelFilter(props: LabelFilterProps) {
           <MenuItem value="">
             <em>None</em>
           </MenuItem>
-          <MenuItem value={1}>1</MenuItem>
-          <MenuItem value={2}>2</MenuItem>
-          <MenuItem value={3}>3</MenuItem>
+          {column &&
+            entityName &&
+            data &&
+            findValue(data, entityName, column).map((value: string) => (
+              <MenuItem key={value} value={value}>
+                {value}
+              </MenuItem>
+            ))}
         </Select>
       </FormControl>
-      {/* <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
-        <InputLabel id="Latest">Latest</InputLabel>
-        <Select
-          labelId="Latest"
-          id="Latest"
-          value={latest}
-          onChange={handleLatestChange}
-          label="Latest"
-        >
-          <MenuItem value="">
-            <em>None</em>
-          </MenuItem>
-          <MenuItem value="true">true</MenuItem>
-          <MenuItem value="false">false</MenuItem>
-        </Select>
-      </FormControl> */}
       <FormControlLabel
         control={<Checkbox />}
         label="Latest"

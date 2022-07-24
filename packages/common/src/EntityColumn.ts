@@ -1,5 +1,5 @@
 export const EntityColumn = {
-  user: [
+  User: [
     //user
     { spName: 'Intra No.', dbName: 'intra_no' },
     { spName: 'Intra ID', dbName: 'intra_id' },
@@ -11,7 +11,7 @@ export const EntityColumn = {
     { spName: '특이사항', dbName: 'uniqueness' },
     { spName: '익명화', dbName: 'anonymization' },
   ],
-  userPersonalInformation: [
+  UserPersonalInformation: [
     //userPersonalInformation
     { spName: '인적정보 지역', dbName: 'region' },
     { spName: '성별', dbName: 'gender' },
@@ -22,7 +22,7 @@ export const EntityColumn = {
     { spName: '이메일', dbName: 'email' }, // [api]
     //이메일, 전화번호는 api
   ],
-  userCourseExtension: [
+  UserCourseExtension: [
     // userCourseExtension
     { spName: '과정연장 기본종료일자', dbName: 'basic_expiration_date' },
     { spName: '과정연장', dbName: 'request_extension' },
@@ -30,7 +30,7 @@ export const EntityColumn = {
     { spName: '과정연장_level', dbName: 'extension_level' },
     { spName: '과정연장_circle', dbName: 'extension_circle' },
   ],
-  userLeaveOfAbsence: [
+  UserLeaveOfAbsence: [
     // userLeaveOfAbsence
     { spName: '휴학 휴학', dbName: 'absenced' },
     { spName: '휴학_begin_date', dbName: 'begin_absence_date' },
@@ -40,7 +40,7 @@ export const EntityColumn = {
     { spName: 'AGU_reason', dbName: 'AGU_reason' },
     { spName: '기타', dbName: 'remarks' },
   ],
-  userBlackhole: [
+  UserBlackhole: [
     // userBlackhole
     { spName: 'BLACKHOLE Blackholed', dbName: 'blackholed' },
     { spName: 'Blackholed_date', dbName: 'blackhole_date' },
@@ -49,14 +49,14 @@ export const EntityColumn = {
     { spName: '비고', dbName: 'remarks' },
     //잔여기간, 블랙홀일자는 api -> 추가함
   ],
-  userInterruptionOfCourse: [
+  UserInterruptionOfCourse: [
     // userInterruptionOfCourse
     { spName: '과정중단 과정중단', dbName: 'breaked' },
     { spName: '과정중단 과정중단일자', dbName: 'date_of_break' },
     { spName: '사유', dbName: 'reason_of_break' },
     { spName: 'HRD-Net 중도탈락 처리', dbName: 'HRD_Net_drop_out' },
   ],
-  userLearningDataAPI: [
+  UserLearningDataAPI: [
     // userLearningDataAPI
     { spName: '학습데이터(API) Coalition Score', dbName: 'coalition_score' },
     { spName: 'Scored_date', dbName: 'scored_date' },
@@ -67,19 +67,19 @@ export const EntityColumn = {
     { spName: 'OUTCIRCLE', dbName: 'outcircle' },
     { spName: 'OUTCIRCLED_date', dbName: 'outcircled_date' },
   ],
-  userLoyaltyManagement: [
+  UserLoyaltyManagement: [
     //userLoyaltyManagement
     { spName: '로열티 관리 대상기간', dbName: 'royalty_period' },
     { spName: '대상유무', dbName: 'royalty_presence' },
     { spName: '서클(대상기간기준)', dbName: 'royalty_circle' },
   ],
-  userEmploymentStatus: [
+  UserEmploymentStatus: [
     //userEmploymentStatus
     { spName: '취업현황 취업현황', dbName: 'employmented' },
     { spName: '취업일자', dbName: 'employment_date' },
     { spName: '사업장명', dbName: 'enterprise' },
   ],
-  userHrdNetUtilizeConsent: [
+  UserHrdNetUtilizeConsent: [
     //userHrdNetUtilizeConsent
     {
       spName: 'HRD-Net 동의 정보제공동의',
@@ -87,7 +87,7 @@ export const EntityColumn = {
     },
     { spName: '정보제공동의_일자', dbName: 'consented_date' },
   ],
-  userHrdNetUtilize: [
+  UserHrdNetUtilize: [
     //userHrdNetUtilize
     { spName: 'HRD-Net_data HRD-Net_출력_date', dbName: 'hrd_net_date' },
     { spName: '취업여부', dbName: 'employmented' },
@@ -96,12 +96,12 @@ export const EntityColumn = {
     { spName: '기업규모', dbName: 'enterprise_size' },
     { spName: '건강보험취득_사업장명', dbName: 'health_insurance_enterprise' },
   ],
-  userOtherEmploymentStatus: [
+  UserOtherEmploymentStatus: [
     //userOtherEmploymentStatus
     { spName: '취업_기타수집_data 취업일자', dbName: 'emplyment_date' },
     { spName: '사업장명', dbName: 'enterprise' },
   ],
-  userEducationFundState: [
+  UserEducationFundState: [
     //userEducationFundState
     {
       spName: '지원금 관리 총 지급 개월',
@@ -112,13 +112,13 @@ export const EntityColumn = {
     { spName: '지원만료', dbName: 'payment_ended' },
     { spName: '특이사항', dbName: 'remarks' },
   ],
-  userComputationFund: [
+  UserComputationFund: [
     //userComputationFund
     { spName: '지원금 산정 지급일', dbName: 'payment_date' },
     { spName: '수령여부', dbName: 'received' },
     { spName: '수령금액', dbName: 'recevied_amount' },
   ],
-  userAccessCardInformation: [
+  UserAccessCardInformation: [
     //userAccessCardInformation
     { spName: '출입카드_info 사진이미지파일', dbName: 'profile_picture_path' },
     {
@@ -138,13 +138,13 @@ export const EntityColumn = {
       dbName: 'name_of_entry_card_for_main_course',
     },
   ],
-  userOtherInformation: [
+  UserOtherInformation: [
     // userOtherInformation
     { spName: '기타정보 최종학력', dbName: 'highest_level_of_education' },
     { spName: '소프트웨어 관련전공여부', dbName: 'majored' },
     { spName: '전공명(복수전공기재)', dbName: 'major_name' },
   ],
-  userLapiscineInformation: [
+  UserLapiscineInformation: [
     //userLapiscineInformation
     { spName: 'La Piscine LaPiscine_기수', dbName: 'lapiscine_grade' },
     { spName: 'LaPiscine_차수', dbName: 'lapiscine_degree' },
