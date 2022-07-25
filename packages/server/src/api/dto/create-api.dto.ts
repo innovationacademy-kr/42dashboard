@@ -23,8 +23,8 @@ export class CreateApiDto {
   coaltion_score: number;
 
   //  @IsNotEmpty()
-  blackhole_time: Date;
+  blackhole_date: Date;
 
-  //  @IsNotEmpty()
-  remaining_period: number;
+  // //  @IsNotEmpty()
+  // remaining_period: number;
 }

@@ -83,8 +83,8 @@ export class UserEducationFundState extends BaseEntity {
   payment_ended: string;
 
   @Field({ nullable: true })
-  @Column({ name: 'remarks', nullable: true, default: 0 })
-  remarks: string;
+  @Column({ name: 'uniqueness', nullable: true, default: 0 })
+  uniqueness: string;
 
   @Field({ nullable: false })
   @CreateDateColumn({ name: 'created_date' })

@@ -66,7 +66,7 @@ export class ApiService {
 
   async requestApi(token) {
     let apiData = [];
-    let pageNum = 17; //cant find 발생할 수 있으니, 17정도로 줄여야됨
+    let pageNum = 19; //cant find 발생할 수 있으니, 17정도로 줄여야됨
     const apiUrl = 'https://api.intra.42.fr';
     const apiEndPoint = 'v2/cursus/21/cursus_users';
     const filter = `filter[campus_id]=29`;
@@ -107,11 +107,11 @@ export class ApiService {
         "email": "ddddd@student.42seoul.kr",
         "phone_number": "hidden",
         "circle": 9999,
-        "out_circle": "Learner",
-        "out_circle_date": "9999-12-31",
+        "outcircle": "Learner",
+        "outcircled_date": "9999-12-31",
         "coalition_score": 0,
         "staff": false,
-        "blackhole_time": "2022-09-19",
+        "blackhole_date": "2022-09-19",
         "remaining_period": 74
     },
    */
@@ -131,13 +131,13 @@ export class ApiService {
           ['email']: api42.user.email,
           ['phone_number']: api42.user.phone,
           ['circle']: 0,
-          ['out_circle']: api42.grade,
-          ['out_circle_date']: '9999-12-31',
+          ['outcircle']: api42.grade,
+          ['outcircled_date']: '9999-12-31',
           ['coalition_score']: 0,
-          ['blackhole_time']: await this.parsingDate(api42.blackholed_at),
-          ['remaining_period']: await this.calculateDateDiff(
-            api42.blackholed_at,
-          ),
+          ['blackhole_date']: await this.parsingDate(api42.blackholed_at),
+          // ['remaining_period']: await this.calculateDateDiff(
+          //   api42.blackholed_at,
+          // ),
         };
         // parsedData[idx]['intra_no'] = api42.user.id;
         // parsedData[idx]['intra_id'] = api42.user.login;
@@ -145,11 +145,11 @@ export class ApiService {
         // parsedData[idx]['email'] = api42.user.email;
         // parsedData[idx]['phone_number'] = api42.user.phone;
         // parsedData[idx]['circle'] = 9999;
-        // parsedData[idx]['out_circle'] = api42.grade;
-        // parsedData[idx]['out_circle_date'] = '9999-12-31';
+        // parsedData[idx]['outcircle'] = api42.grade;
+        // parsedData[idx]['outcircled_date'] = '9999-12-31';
         // parsedData[idx]['coalition_score'] = 0;
         // //parsedData[idx]['staff'] = api42.user['staff?'];
-        // parsedData[idx]['blackhole_time'] = await this.parsingDate(
+        // parsedData[idx]['blackhole_date'] = await this.parsingDate(
         //   api42.blackholed_at,
         // );
         // parsedData[idx]['remaining_period'] = await this.calculateDate(
@@ -233,8 +233,8 @@ export class ApiService {
         circle: api42.circle,
         level: api42.level,
         coalition_score: api42.coalition_score,
-        out_circle: api42.out_circle,
-        out_circle_date: api42.out_circle_date,
+        outcircle: api42.outcircle,
+        outcircled_date: api42.outcircled_date,
         fk_user_no: api42.intra_no,
       };
       // apiTuple = await Repo.create(api);

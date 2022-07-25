@@ -24,11 +24,11 @@ import {
 } from 'src/user_status/entity/user_status.entity';
 import { UpdaterController } from './updater.controller';
 import { ApiService } from 'src/api/api.service';
-import { SpreadService } from 'src/spread/spread.service';
 import {
   UserComputationFund,
   UserEducationFundState,
 } from 'src/user_payment/entity/user_payment.entity';
+import { SpreadService } from 'src/spread/spread.service';
 
 @Module({
   imports: [

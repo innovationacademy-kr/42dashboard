@@ -54,6 +54,7 @@ type Query {
   getNumOfPeopleByFilter(filters: [Filter!]!, skip: Int, take: Int): Int!
   getPeopleByFilter(filters: [Filter!]!, skip: Int, take: Int): [JoinedTable!]!
   getPeopleByFilterForAdmin(filters: [Filter!]!, skip: Int, take: Int): [JoinedTable!]!
+<<<<<<< HEAD
   getUser(column: String, duplicated: String!): [User!]!
   getUserAccessCardInformation(column: String, duplicated: String!): [UserAccessCardInformation!]!
   getUserBlackhole(column: String, duplicated: String!): [UserBlackhole!]!
@@ -71,6 +72,22 @@ type Query {
   getUserOtherEmploymentStatus(column: String, duplicated: String!): [UserOtherEmploymentStatus!]!
   getUserOtherInformation(column: String, duplicated: String!): [UserOtherInformation!]!
   getUserPersonalInformation(column: String, duplicated: String!): [UserPersonalInformation!]!
+=======
+  getUserAccessCardInformation: [UserAccessCardInformation!]!
+  getUserBlackhole: [UserBlackhole!]!
+  getUserComputationFund: [UserComputationFund!]!
+  getUserCourseExtension: [UserCourseExtension!]!
+  getUserEmploymentAndFound: [UserOtherEmploymentStatus!]!
+  getUserEmploymentStatus: [UserEmploymentStatus!]!
+  getUserHrdNetUtilize: [UserHrdNetUtilize!]!
+  getUserHrdNetUtilizeConsent: [UserHrdNetUtilizeConsent!]!
+  getUserInternStatus: [UserEducationFundState!]!
+  getUserInterruptionOfCourse: UserInterruptionOfCourse!
+  getUserLeaningData: [UserLearningDataAPI!]!
+  getUserLeaveOfAbsence: [UserLeaveOfAbsence!]!
+  getUserOtherInformation(created_date: DateTime!, highest_level_of_education: String!, major_name: String!, majored: String!, pk: Int): [UserOtherInformation!]!
+  getUserPersonalInformation: [UserPersonalInformation!]!
+>>>>>>> e0a48ac (feat(server/updater): updater 구현)
   tempFunction: [JoinedTable!]!
   updateData: String!
   updateOldData: String!
@@ -141,16 +158,16 @@ type UserEducationFundState {
   payment_end_date: DateTime
   payment_ended: String
   pk: Float!
-  remarks: String
   total_payment_of_money: String
   total_payment_of_number: Float
+  uniqueness: String
 }
 
 type UserEmploymentStatus {
   created_date: DateTime!
   deleted_date: DateTime!
-  employment: String!
-  emplyment_date: DateTime
+  employment_date: DateTime
+  employmented: String!
   enterprise: String
   expired_date: DateTime!
   pk: Float!
@@ -183,9 +200,9 @@ type UserHrdNetUtilizeConsent {
 
 type UserInterruptionOfCourse {
   HRD_Net_drop_out: String
+  break_date: DateTime!
   breaked: String
   created_date: DateTime!
-  date_of_break: DateTime!
   deleted_date: DateTime!
   expired_date: DateTime!
   pk: Float!
@@ -213,8 +230,8 @@ type UserLearningDataAPI {
   expired_date: DateTime!
   level: Float
   leveled_date: DateTime
-  out_circle: String
-  out_circle_date: DateTime
+  outcircle: String
+  outcircled_date: DateTime
   pk: Float!
   scored_date: DateTime
   validate_date: DateTime!
@@ -230,8 +247,8 @@ type UserLeaveOfAbsence {
   end_absence_date: DateTime
   expired_date: DateTime!
   pk: Float!
-  remarks: String
   return_from_absence_date: DateTime
+  uniqueness: String
   validate_date: DateTime!
 }
 

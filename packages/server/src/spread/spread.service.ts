@@ -164,8 +164,8 @@ export class SpreadService {
           tuple['phone_number'] = api42.phone_number;
         }
         if (tableName === 'user_blackhole') {
-          tuple['remaining_period'] = api42.remaining_period;
-          tuple['blackhole_time'] = api42.blackhole_time;
+          //tuple['remaining_period'] = api42.remaining_period;
+          tuple['blackhole_date'] = api42.blackhole_date;
         } //여기 학습데이터를 추가해야함.
       }
       if (tableName != 'user') tuple['fk_user_no'] = row['c'][1]['f']; //usertable은 해당 컬럼이 필요가 없음
@@ -357,7 +357,9 @@ export class SpreadService {
       return 'user_loyalty_management';
     else if (spreadTable == '취업현황 취업현황')
       return 'user_employment_status';
-    else if (spreadTable == 'HRD-Net 활용 정보제공동의')
+    else if (spreadTable == 'HRD-Net 동의 정보제공동의')
+      return 'user_hrd_net_utilize_consent';
+    else if (spreadTable == 'HRD-Net_data HRD-Net_출력_date')
       return 'user_hrd_net_utilize';
     else if (spreadTable == '취업_기타수집_data 취업일자')
       return 'user_other_employment_status';

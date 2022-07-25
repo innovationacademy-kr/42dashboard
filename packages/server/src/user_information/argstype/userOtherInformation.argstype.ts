@@ -17,19 +17,19 @@ export class GetUserOtherInformationArgs {
   highest_level_of_education: string;
 
   @Field()
-  major: string;
+  majored: string;
 
-  @Field()
-  major_field: string;
+  // @Field()
+  // major_field: string;
 
   @Field()
   major_name: string;
 
-  @Field((type) => Int, { nullable: true })
-  period_of_software_learning: number;
+  // @Field((type) => Int, { nullable: true })
+  // period_of_software_learning: number;
 
-  @Field()
-  experience_of_software_developing: string;
+  // @Field()
+  // experience_of_software_developing: string;
 
   @Field()
   created_date: Date;

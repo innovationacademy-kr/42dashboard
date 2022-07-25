@@ -118,7 +118,7 @@ export class UpdaterService {
   ) {
     //repoKeys에 선언된 문자열 value 를 받음
   }
-
+  //repoDict.user_personal_inforamtion = repository;
   repoDict: RepoDict = {
     [repoKeys.user]: this.userRepository,
     [repoKeys.userPersonal]: this.userPersonalInformationRepository,
@@ -137,7 +137,8 @@ export class UpdaterService {
       this.userOtherEmploymentStatusRepository,
     [repoKeys.userEducationFundState]: this.userEducationFundStateRepository,
     [repoKeys.userComputationFund]: this.userComputationFundRepository,
-    [repoKeys.userAccessCard]: this.userAccessCardInformationRepository,
+    [repoKeys.userAccessCardInformation]:
+      this.userAccessCardInformationRepository,
     [repoKeys.userOtherInformation]: this.userOtherInformationRepository,
     [repoKeys.userLapiscineInformation]:
       this.userLapiscineInformationRepository,
@@ -165,11 +166,11 @@ export class UpdaterService {
     // this.userLearningDataRepository,
   ];
 
-  apiOfRepo = [this.userLearningDataAPIRepository];
+  // apiOfRepo = [this.userLearningDataAPIRepository];
 
   @Cron('00 00 00 * * *') //24시간마다 업데이트
   updatePerDay() {
-    console.log(this.updateData());
+    console.log('start update', this.updateData());
   }
 
   async updateData() {
@@ -252,11 +253,7 @@ export class UpdaterService {
     //   }
     // }
     const latestData = await this.getLatestData();
-    const comparedData = await this.compareNewDataWithLatestData(
-      table_array,
-      latestData,
-    );
-    console.log(comparedData);
+    await this.compareNewDataWithLatestData(table_array, latestData);
 
     return await 'All data has been updated';
   }
@@ -291,17 +288,12 @@ export class UpdaterService {
       undefined,
     );
 
-    const latestUser = await this.repoDict['user']
+    const allUser = await this.repoDict['user']
       .createQueryBuilder('user')
       .getMany();
 
     for (const user of userTable) {
-      await this.findTargetByKey(
-        this.repoDict['user'],
-        'user',
-        user,
-        latestUser,
-      );
+      await this.findTargetByKey(this.repoDict['user'], 'user', user, allUser);
     }
     for (const sheetIdx in pastDataOnSheet) {
       //시트의 총 장수 만큼 반복
@@ -347,10 +339,12 @@ export class UpdaterService {
   }
 
   async findTargetByKey(repo, repoKey, newOneData, targetObj) {
-    //  console.log(repoKey, 'in find target');
+    const emptyObj = {};
+
     //  console.log(targetObj, 'targetObj');
     //console.log('\n \t,', targetObj[0].intra_no);
     try {
+      //스프레드 데이터가 db 데이터에 있는지 확인.
       for (const target of targetObj) {
         if (repoKey == 'user') {
           // console.log('key : ', key, '  targetkey : ', target.intra_no);
@@ -363,48 +357,54 @@ export class UpdaterService {
           }
         }
       }
-      console.log("insert due to dosend't exist spread data in db");
+
+      console.log(`insert ${repoKey} due to dosend't exist spread data in db`);
       const newTuple = await repo.create(newOneData);
-      await repo.save(newTuple).catch(() => {
+      await repo.save(newTuple); /*.catch(() => {
         return 'error save';
-      });
+      });*/
+      //빈 객체를 리턴해줌으로써 호출한 곳에서 target을 못찾았다는 것을 알려줌
+      return await emptyObj;
     } catch {
       throw "can't find target by key";
     }
   }
 
+  isEmptyObj(obj): boolean {
+    if (obj.constructor === Object || Object.keys(obj).length === 0)
+      return true;
+    return false;
+  }
+
   //newData -> spread
   //latestData -> DB
   async compareNewDataWithLatestData(newData, latestData) {
-    let targetObj;
+    let targetObj = {};
 
-    console.log('compare in');
-    const repoNameArray = await Object.values(repoKeys); //.map((repoKey) => {
+    //console.log('compare in');
+    const repoNameArray = Object.values(repoKeys); //.map((repoKey) => {
     //db table 이름별로 받은 데이터를 구분해놓은것을 repoNameArray 배열로 구별하여 식별
     for (const repoKey of repoNameArray) {
+      //console.log(repoKey);
       const repo = this.repoDict[repoKey];
       const datas = newData[repoKey];
       //스프레스에서 받아온 newData(table)가 비어있다면 밑에 for문에서 not iterable로 터지니까 예외처리
       if (datas == undefined) {
-        console.log(datas);
+        console.log('datas : ', datas);
         continue;
       }
       //스프레드에서 table 명으로 나누어 파싱해 둔 데이터를 tableName 구별하여 같은 Db 데이터 테이블에서 해당하는 객체를 받아옴
       for (const newOneData of datas) {
-        if (repoKey == 'user') {
-          targetObj = await this.findTargetByKey(
-            repo, //스프레드엔 있고 DB엔 없을 때 해당 학생 저장하기 위함
-            repoKey, //user entity인지 구분하기 위함, intra_no를 넘겨서 구분지어도 되긴하지만, 조금 더 범용성을 위해서 repoKey를 넘김
-            newOneData, //스프레드 테이블 내 객체들 중 하나
-            latestData[repoKey], //최신 데이터 테이블 중 하나
-          );
-        } else {
-          targetObj = await this.findTargetByKey(
-            repo,
-            repoKey,
-            newOneData,
-            latestData[repoKey],
-          );
+        // if (repoKey == 'user') {
+        targetObj = await this.findTargetByKey(
+          repo, //스프레드엔 있고 DB엔 없을 때 해당 학생 저장하기 위함
+          repoKey, //user entity인지 구분하기 위함, intra_no를 넘겨서 구분지어도 되긴하지만, 조금 더 범용성을 위해서 repoKey를 넘김
+          newOneData, //스프레드 테이블 내 객체들 중 하나
+          latestData[repoKey], //최신 데이터 테이블 중 하나
+        );
+        //반환한 객체가 비어있다면 내부에서 save를 하고 나오므로 contitnue;
+        if (this.isEmptyObj(targetObj) === true) {
+          continue;
         }
         //console.log(this.checkChangedData(repoKey, newOneData, targetObj));
         //     while (1);
@@ -417,32 +417,53 @@ export class UpdaterService {
         );
         //chageList.push(this.checkChangedData(repoKey, newOneData, targetObj));
       }
-      console.log(repoKey, ' is done');
+      //console.log(repoKey, 'is update done');
     }
-    return 'done!!';
+    //return 'done!!';
   }
 
   createDate(date) {
     return new Date(date);
   }
 
-  checkSpecialValue(newOneData, targetObj, key, repo) {
-    const date = /date$/;
+  isDefaultColumn(repoKey, key) {
+    // console.log(repoKey, key);
+    if (
+      Object.keys(defaultVALUE).find((table) => table === repoKey) === undefined
+    )
+      return DEFAULT_VALUE.NOT_DEFAULT;
+    if (
+      Object.keys(defaultVALUE[repoKey]).find((col) => col === key) ===
+      undefined
+    )
+      return DEFAULT_VALUE.NOT_DEFAULT;
+    return DEFAULT_VALUE.DEFAULT;
+  }
 
+  checkSpecialValue(newOneData, targetObj, repoKey, key, repo) {
+    const date = /date$/;
+    // if (repoKey == 'user_other_employment_status') {
+    //   console.log(key, ': ', targetObj[key]);
+    // }
     if (date.test(key)) {
       newOneData[key] = this.createDate(newOneData[key]);
       targetObj[key] = this.createDate(targetObj[key]);
+
       if (newOneData[key].getTime() != targetObj[key].getTime()) {
         const changeData = repo.create(newOneData);
         repo.save(changeData);
-        console.log('is saved due to date changed');
+        console.log(
+          `column name is ${key} \n`,
+          targetObj[key],
+          'is date changed to ',
+          newOneData[key],
+        );
         return DEFAULT_VALUE.CHANGED;
       } else {
         //date 변환시켰는데 값이 같다면 다음 컬럼을 비교하기 위해 DATE 를 리턴해줌
         return DEFAULT_VALUE.DATE;
       }
     }
-    return DEFAULT_VALUE.NOT_DEFAULT;
   }
 
   //default 값을 갖는 column이 spread에 null인지 확인 후 default값으로 spread data 변환
@@ -465,22 +486,26 @@ export class UpdaterService {
     // console.log(Object.keys(newOneData), 'a');
     let checkedDefaulte;
     try {
-      const keys = Object.keys(newOneData); //.map((key) => {
+      const keys: string[] = Object.keys(newOneData); //.map((key) => {
 
       //각 테이블의 column을 뽑아옴
       for (const key of keys) {
-        //new data의 key 값이 default 값을 갖는 column 일때, 값 파악 후 초기화
-        this.initailizeSpreadNullValue(newOneData, key);
+        //new data(spread)의 key 값이 default 값을 갖는 column 일때, null 값 파악 후 초기화
+        if (this.isDefaultColumn(repoKey, key) === DEFAULT_VALUE.DEFAULT) {
+          this.initailizeSpreadNullValue(newOneData, key);
+        }
         //초기화 했는데 DB 와 값이 다르면 save후 넘어감 -> continue;
         //값이 같다면 default 값으로 초기화 후 비교한 값이변화가 없으므로 넘어가야함 -> continue;
         //date 값은 밑에 if 절로 구별이 안되어 같은 date type으로 바꾸어 비교해야됨
         checkedDefaulte = this.checkSpecialValue(
           newOneData,
           targetObj,
+          repoKey,
           key,
           repo,
         );
         if (
+          //날짜의 변경을 확인하고 바꾸었던가, 날짜인 데이터지만 바뀌지 않았을 때 다음 column 조회
           checkedDefaulte === DEFAULT_VALUE.CHANGED ||
           checkedDefaulte === DEFAULT_VALUE.DATE
         ) {
@@ -498,10 +523,10 @@ export class UpdaterService {
           await repo.save(newOneData); /*.catch(() => {
             return 'error save';
           });*/
-          return 'chaged'; //true; //changed
+          //return 'chaged'; //true; //changed
         }
       }
-      return 'net changed'; //false; //not changed
+      //return 'not changed'; //false; //not changed
     } catch {
       throw "the spread column isn't in DataBase colume";
     }
