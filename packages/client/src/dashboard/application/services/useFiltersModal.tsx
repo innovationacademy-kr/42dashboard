@@ -16,8 +16,8 @@ function useFiltersModal() {
     return filtersModalService.openFilters();
   };
 
-  const applyFiltersModal = async (/** selected options */) => {
-    return await filtersModalService.applyFilters(/** selected options */);
+  const applyFiltersModal = async () => {
+    return await filtersModalService.applyFilters();
   };
 
   const cancelFiltersModal = async () => {

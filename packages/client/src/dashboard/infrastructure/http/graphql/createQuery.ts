@@ -5,21 +5,23 @@ export default function createQuery(
   labels: string[],
   filterSetsPerData: string[][],
 ) {
-  return gql`
-    query GetDatasets(
-      ${filterNames.map((filterName) => `$${filterName}: Filter!`).join('\n')}
-    ) {
-     ${filterSetsPerData
-       .map((filterSet, index) => {
-         const alias = `${labels[index % labels.length]}${Math.floor(
-           index / labels.length,
-         )}`;
-         const queryName = `getNumOfPeopleByFilter`;
-         const filters = `filters: [${filterSet
-           .map((filterName) => `$${filterName}`)
-           .join(', ')}]`;
-         return `${alias}: ${queryName}(${filters})`;
-       })
-       .join('\n')}
-      }`;
+  const result = `
+  query GetDatasets(
+    ${filterNames.map((filterName) => `$${filterName}: Filter!`).join('\n')}
+  ) {
+   ${filterSetsPerData
+     .map((filterSet, index) => {
+       const alias = `${labels[index % labels.length]}${Math.floor(
+         index / labels.length,
+       )}`;
+       const queryName = `getNumOfPeopleByFilter`;
+       const filters = `filters: [${filterSet
+         .map((filterName) => `$${filterName}`)
+         .join(', ')}]`;
+       return `${alias}: ${queryName}(${filters})`;
+     })
+     .join('\n')}
+    }`;
+  console.log(result);
+  return gql(result);
 }
