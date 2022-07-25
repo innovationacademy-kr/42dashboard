@@ -84,7 +84,7 @@ export const mapObj = [
     { spName: '복학_date', dbName: 'return_from_absence_date' },
     { spName: '휴학_reason', dbName: 'absence_reason' },
     { spName: 'AGU_reason', dbName: 'AGU_reason' },
-    { spName: '특이사항', dbName: 'remarks' },
+    { spName: '특이사항', dbName: 'uniqueness' },
   ],
   [
     //userBlackhole
@@ -156,7 +156,7 @@ export const mapObj = [
     { spName: '총 지급액', dbName: 'total_payment_of_money' },
     { spName: '지원만료일', dbName: 'payment_end_date' },
     { spName: '지원만료', dbName: 'payment_ended' },
-    { spName: '특이사항', dbName: 'remarks' },
+    { spName: '특이사항', dbName: 'uniqueness' },
   ],
   [
     //userComputationFund

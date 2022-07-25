@@ -78,6 +78,7 @@ type Query {
 
 type User {
   academic_state: String!
+  anonymization: String!
   coalition: String!
   created_date: DateTime!
   deleted_date: DateTime!
@@ -85,6 +86,7 @@ type User {
   intra_id: String!
   intra_no: Int!
   name: String!
+  uniqueness: String!
 }
 
 type UserAccessCardInformation {
