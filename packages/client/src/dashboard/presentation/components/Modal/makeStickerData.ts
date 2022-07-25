@@ -23,6 +23,12 @@ function returnFilterName(filter: QueryFilterType): string {
   )}${stringToUnicode(filter.givenValue)}`;
 }
 
+function changeFirstCharOfEntity(entityName: string) {
+  const changedName = Array.from(entityName);
+  changedName[0] = entityName[0].toLowerCase();
+  return changedName.join('');
+}
+
 function makeQueryFilterVariables(
   filters: QueryFilterType[],
 ): QueryVariablesType {
@@ -30,7 +36,10 @@ function makeQueryFilterVariables(
 
   filters.forEach((filter: QueryFilterType) => {
     const filterName = returnFilterName(filter);
-    queryVariables[filterName] = filter;
+    queryVariables[filterName] = {
+      ...filter,
+      entityName: changeFirstCharOfEntity(filter.entityName),
+    };
   });
 
   return queryVariables;
