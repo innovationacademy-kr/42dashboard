@@ -7,6 +7,7 @@ import Section from '../components/Board/Section';
 import BarChart from '../components/Charts/BarChart';
 import LineChart from '../components/Charts/LineChart';
 import PieChart from '../components/Charts/PieChart';
+import Logo from '../components/Logo/logo';
 import MainArea from '../components/MainArea/MainArea';
 import ModeDial from '../components/ModeDial/ModeDial';
 import SideBar from '../components/SideBar/SideBar';
@@ -56,7 +57,7 @@ function DashBoardPage() {
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       <AppBar>
-        {appBarTitle}
+        <Logo />
         <div style={{ flexGrow: 1 }}></div>
         {profileMenu}
       </AppBar>
