@@ -2,7 +2,7 @@ import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOu
 import LabelFilter from './LabelFilter';
 import styled from '@emotion/styled';
 import { useState } from 'react';
-import { QueryFilterType } from './Modal';
+import { QueryFilterType } from '../../../application/services/useDataset';
 
 const Button = styled(AddCircleOutlineOutlinedIcon)`
   margin-top: 1rem;
@@ -17,7 +17,7 @@ interface FiltersProps {
 
 function Filters(props: FiltersProps) {
   const { setLabels, setFilters } = props;
-  const [count, setCount] = useState(1);
+  const [count, setCount] = useState(0);
 
   function AddFilter() {
     setCount(count + 1);
