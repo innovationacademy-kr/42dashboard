@@ -3,14 +3,9 @@ import './styles2.css';
 import Sticker from '../Sticker/Sticker';
 import useStickers from '../../../application/services/useStickers';
 import { Button } from '@mui/material';
-import StickerDataType from '../../../domain/stickerDatas/stickerData.type';
 import RGL, { Layout, WidthProvider } from 'react-grid-layout';
-import { QueryDataType } from '../../../application/services/useDataset';
-import { DocumentNode } from '@apollo/client';
 import ModalFrame from '../Modal/Modal';
 import useFiltersModal from '../../../application/services/useFiltersModal';
-import HorizontalLinearStepper from '../Modal/Stepper';
-import makeStickerData from '../Modal/makeStickerData';
 
 const ReactGridLayout = WidthProvider(RGL.Responsive);
 
@@ -24,7 +19,7 @@ interface SectionProps {
 }
 
 export default function Section(props: SectionProps) {
-  const { addSticker, removeSticker } = useStickers();
+  const { stickerDatas, addSticker, removeSticker } = useStickers();
   const {
     id,
     stickerLayouts,
@@ -35,16 +30,12 @@ export default function Section(props: SectionProps) {
   } = props;
   const { isOpen, openFiltersModal, applyFiltersModal, cancelFiltersModal } =
     useFiltersModal();
-
-  const stickerData: StickerDataType = makeStickerData();
-  console.log('************', stickerData);
-
   function drawStickers() {
-    return stickerLayouts.map((sticker: Layout) => (
+    return stickerLayouts.map((sticker: Layout, idx) => (
       <div key={sticker.i}>
         <Sticker
           id={sticker.i}
-          data={stickerData.data}
+          data={stickerDatas[idx].data}
           handleStickerRemove={(stickerId) => {
             removeSticker(stickerId);
             handleStickerRemove(id, stickerId);
@@ -59,8 +50,9 @@ export default function Section(props: SectionProps) {
       <Button onClick={openFiltersModal}>Add Sticker</Button>
       <ModalFrame
         // contents={HorizontalLinearStepper}
+        sectionId={id}
         func={handleStickerAdd}
-        // addSticker={addSticker}
+        addSticker={addSticker}
       ></ModalFrame>
       {/* Section이 여러개일 때 Modal이 두개 뜨는 현상 고치기 */}
       <ReactGridLayout
