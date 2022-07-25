@@ -52,9 +52,13 @@ export default function Section(props: SectionProps) {
 
   return (
     <>
-      <Button onClick={() => setIsOpen(false)}>Add Sticker</Button>
       {getControlMode() === 'edit' && (
-        <EditToolBar type="Section" setIsOpen={setIsOpen} />
+        <EditToolBar
+          type="Section"
+          setIsOpen={setIsOpen}
+          removeItem={handleSectionRemove}
+          id={id}
+        />
       )}
       <ModalFrame
         isOpen={isOpen}

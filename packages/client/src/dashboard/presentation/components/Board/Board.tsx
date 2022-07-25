@@ -75,13 +75,6 @@ export default function Board() {
           sectionId={sectionData.id}
         />
       )}
-      <Button
-        onClick={() => {
-          handleSavePreset();
-        }}
-      >
-        프리셋 저장
-      </Button>
       <ReactGridLayout
         onDragStart={(a, b, c, d, e) => e.stopPropagation()}
         layouts={{ lg: boardData.sectionLayouts || [] }}
