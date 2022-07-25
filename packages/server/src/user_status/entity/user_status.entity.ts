@@ -67,17 +67,17 @@ export class UserLearningDataAPI extends BaseEntity {
   leveled_date: Date;
 
   @Field({ nullable: true, defaultValue: 'N' })
-  @Column({ name: 'out_circle', nullable: true, default: 'N' })
-  out_circle: string;
+  @Column({ name: 'outcircle', nullable: true, default: 'N' })
+  outcircle: string;
 
   @Field({ nullable: true })
   @Column({
-    name: 'out_circle_date',
+    name: 'outcircled_date',
     nullable: true,
     default: '9999-12-31',
     type: 'date',
   })
-  out_circle_date: Date;
+  outcircled_date: Date;
 
   @Field({ nullable: false })
   @CreateDateColumn({ name: 'created_date' })
@@ -325,8 +325,8 @@ export class UserLeaveOfAbsence extends BaseEntity {
   AGU_reason: string;
 
   @Field({ nullable: true })
-  @Column({ name: 'remarks', nullable: true })
-  remarks: string;
+  @Column({ name: 'uniqueness', nullable: true })
+  uniqueness: string;
 
   @Field({ nullable: false })
   @CreateDateColumn({ name: 'created_date' })
@@ -372,12 +372,12 @@ export class UserInterruptionOfCourse extends BaseEntity {
 
   @Field({ nullable: false, defaultValue: '9999-12-31' })
   @Column({
-    name: 'date_of_break',
+    name: 'break_date',
     nullable: false,
     default: '9999-12-31',
     type: 'date',
   })
-  date_of_break: Date;
+  break_date: Date;
 
   @Field({ nullable: true })
   @Column({ name: 'reason_of_break', nullable: true })

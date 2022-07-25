@@ -261,16 +261,16 @@ export class UserEmploymentStatus extends BaseEntity {
 
   @Field({ nullable: false, defaultValue: '미취업' })
   @Column({ name: 'employmented', nullable: false, default: '미취업' })
-  employment: string;
+  employmented: string;
 
   @Field({ nullable: true })
   @Column({
-    name: 'emplyment_date',
+    name: 'employment_date',
     nullable: false,
     default: '9999-12-31',
     type: 'date',
   })
-  emplyment_date: Date;
+  employment_date: Date;
 
   @Field({ nullable: true })
   @Column({ name: 'enterprise', nullable: true })

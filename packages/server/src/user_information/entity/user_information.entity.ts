@@ -69,12 +69,20 @@ export class User {
   start_process: Date;
 
   @Field()
+  @Column({ name: 'coalition', nullable: true })
+  coalition: string;
+
+  @Field()
   @Column({ name: 'academic_state', nullable: false, default: 'BLACK_HOLE' })
   academic_state: string;
 
   @Field()
-  @Column({ name: 'coalition', nullable: true })
-  coalition: string;
+  @Column({ name: 'uniqueness', nullable: true })
+  uniqueness: string;
+
+  @Field()
+  @Column({ name: 'anonymization', nullable: true })
+  anonymization: string;
 
   @Field()
   @Column({ name: 'uniqueness', nullable: true })

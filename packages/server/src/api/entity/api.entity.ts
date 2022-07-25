@@ -1,6 +1,5 @@
 import { ObjectType, Field, Int, Float } from '@nestjs/graphql';
 
-//안씀
 @ObjectType()
 export class Api {
   @Field(() => Int)
@@ -19,16 +18,16 @@ export class Api {
   circle: number;
 
   @Field(() => Int)
-  out_circle: string;
+  outcircle: string;
 
   @Field(() => Int)
-  out_circle_date: Date;
+  outcircled_date: Date;
 
   @Field(() => Int)
   coalition_score: number;
 
   @Field(() => Int)
-  blackhole_time: Date;
+  blackhole_date: Date;
 
   @Field(() => Int)
   remaining_period: number;
