@@ -12,6 +12,8 @@ interface EditToolBarProps {
   sectionData?: SectionDataType | undefined;
   sectionId?: string | undefined;
   setIsOpen?: ((isOpen: boolean) => void) | undefined;
+  removeItem?: ((id: string) => void) | undefined;
+  id?: string;
 }
 
 const EditToolBarArea = styled.div`
@@ -29,7 +31,7 @@ const EditToolBarArea = styled.div`
 const EditToolBar = (props: EditToolBarProps) => {
   const { addSectionData } = useSections();
   const { handleSectionAdd, handleSavePreset } = useBoard();
-  const { type, sectionData, sectionId, setIsOpen } = props;
+  const { type, sectionData, sectionId, setIsOpen, removeItem, id } = props;
 
   return (
     <EditToolBarArea>
@@ -48,10 +50,20 @@ const EditToolBar = (props: EditToolBarProps) => {
           Add Sticekr
         </Button>
       )}
+      {type === 'Sticker' && <Button>Apply Filter</Button>}
       {type === 'Board' && (
         <Button onClick={() => handleSavePreset()}>Save Preset</Button>
       )}
-      {type === 'Section' && <Button>Remove</Button>}
+      {type === 'Section' && (
+        <Button onClick={() => removeItem && id && removeItem(id)}>
+          Remove
+        </Button>
+      )}
+      {type === 'Sticker' && (
+        <Button onClick={() => removeItem && id && removeItem(id)}>
+          Remove
+        </Button>
+      )}
     </EditToolBarArea>
   );
 };
