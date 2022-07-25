@@ -1,9 +1,9 @@
 import * as React from 'react';
 import styled from '@emotion/styled';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import createValueQuery from '../../../infrastructure/http/graphql/createValueQuery';
+import { QueryFilterType } from '../../../application/services/useDataset';
 import { useLazyQuery } from '@apollo/client';
-import LabelForm from './forms/LabelForm';
+import createValueQuery from '../../../infrastructure/http/graphql/createValueQuery';
 import LatestForm from './forms/LatestForm';
 import returnColumns from './forms/menuItems/returnColumns';
 import returnEntities from './forms/menuItems/returnEntities';
@@ -18,14 +18,13 @@ const Section = styled.div`
   align-items: center;
 `;
 
-interface LabelFilterProps {
-  setLabels: React.Dispatch<React.SetStateAction<string[]>>;
-  setFilters: any;
+interface DatasetFilterProps {
+  id: number;
+  setDataSets: React.Dispatch<React.SetStateAction<QueryFilterType[][]>>;
 }
 
-function LabelFilter(props: LabelFilterProps) {
-  const { setLabels, setFilters } = props;
-  const [value, setValue] = React.useState('');
+function DatasetFilter(props: DatasetFilterProps) {
+  const { id, setDataSets } = props;
   const [entityName, setEntityName] = React.useState('User');
   const [column, setColumn] = React.useState('coalition');
   const [operator, setOperator] = React.useState('');
@@ -39,13 +38,13 @@ function LabelFilter(props: LabelFilterProps) {
 
   const addFilter = () => {
     const filter = { entityName, column, operator, givenValue, latest };
-    setLabels((labels) => [...labels, value]);
-    setFilters((filters: any) => [...filters, filter]);
+    setDataSets((prev) => {
+      const newFilters = [...prev];
+      newFilters[id].push(filter);
+      return newFilters;
+    });
   };
 
-  const handleLabelChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(event.target.value);
-  };
   const handleEntityChange = (event: any) => {
     setEntityName(event.target.value);
   };
@@ -69,7 +68,6 @@ function LabelFilter(props: LabelFilterProps) {
 
   return (
     <Section>
-      <LabelForm value={value} onChange={handleLabelChange} />
       <FilterAttribute
         id={'EntityName'}
         value={entityName}
@@ -104,4 +102,4 @@ function LabelFilter(props: LabelFilterProps) {
   );
 }
 
-export default LabelFilter;
+export default DatasetFilter;

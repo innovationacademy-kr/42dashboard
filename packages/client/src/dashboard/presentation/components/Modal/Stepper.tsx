@@ -6,10 +6,11 @@ import StepLabel from '@mui/material/StepLabel';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import TypeBox from './TypeBox';
-import LabelFilter from './LabelFilter';
 import Filters from './Filters';
 import styled from '@emotion/styled';
-import { QueryFilterType } from './Modal';
+import InputDataset from './InputDataset';
+import { QueryFilterType } from '../../../application/services/useDataset';
+import { StickerContentType } from '../Sticker/StickerContent.type';
 
 const steps = ['Type 정하기!', 'label 정하기!', 'dataset 정하기!'];
 
@@ -19,14 +20,23 @@ const StyledDiv = styled.div`
 `;
 
 interface ModalDatasType {
-  setType: React.Dispatch<React.SetStateAction<string>>;
+  dataSets: QueryFilterType[][];
+  setType: React.Dispatch<React.SetStateAction<StickerContentType>>;
   setLabels: React.Dispatch<React.SetStateAction<string[]>>;
   setFilters: React.Dispatch<React.SetStateAction<QueryFilterType[]>>;
+  setDataSets: React.Dispatch<React.SetStateAction<QueryFilterType[][]>>;
   applyFiltersModal: () => void;
 }
 
 export default function HorizontalLinearStepper(props: ModalDatasType) {
-  const { setType, setLabels, setFilters, applyFiltersModal } = props;
+  const {
+    setType,
+    setLabels,
+    setFilters,
+    dataSets,
+    setDataSets,
+    applyFiltersModal,
+  } = props;
   const [activeStep, setActiveStep] = React.useState(0);
 
   const handleNext = () => {
@@ -50,7 +60,7 @@ export default function HorizontalLinearStepper(props: ModalDatasType) {
     } else if (activeStep === 1) {
       return <Filters setLabels={setLabels} setFilters={setFilters} />;
     } else {
-      return <p>ADD DATASET</p>;
+      return <InputDataset dataSets={dataSets} setDataSets={setDataSets} />;
     }
   }
 
