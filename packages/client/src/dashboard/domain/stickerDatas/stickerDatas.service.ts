@@ -8,8 +8,8 @@ class StickersService {
     return this.stickerDatasRepository.getSticker(id);
   }
 
-  public async addSticker(sticker: StickerDataType): Promise<void> {
-    return this.stickerDatasRepository.addSticker(sticker);
+  public async addSticker(newStickerData: StickerDataType): Promise<void> {
+    return this.stickerDatasRepository.addSticker(newStickerData);
   }
 
   public async removeSticker(id: string): Promise<void> {

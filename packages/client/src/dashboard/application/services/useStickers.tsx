@@ -23,8 +23,8 @@ function useStickers() {
     return stickersService.getSticker(id);
   };
 
-  const addSticker = async (sticker: StickerDataType) => {
-    return await stickersService.addSticker(sticker);
+  const addSticker = async (newSticker: StickerDataType) => {
+    return await stickersService.addSticker(newSticker);
   };
 
   const removeSticker = async (id: string) => {

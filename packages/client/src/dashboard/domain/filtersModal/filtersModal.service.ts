@@ -1,5 +1,4 @@
 import FiltersModalRepositoryInterface from './filtersModal.repository.interface';
-
 class FiltersModalService {
   constructor(
     protected filtersModalRepository: FiltersModalRepositoryInterface,
@@ -10,9 +9,7 @@ class FiltersModalService {
     return this.filtersModalRepository.openFilters();
   }
 
-  public async applyFilters(/** 모달에서 받을 옵션들*/): Promise<void> {
-    // TODO: apply filters option
-    console.log('apply selected options');
+  public async applyFilters(): Promise<void> {
     return this.filtersModalRepository.applyFilters();
   }
 

@@ -1,8 +1,8 @@
-import StickersRepositoryInterface from '../domain/stickerDatas/stickerDatas.repository.interface';
+import StickersDatasRepositoryInterface from '../domain/stickerDatas/stickerDatas.repository.interface';
 import StickerDataType from '../domain/stickerDatas/stickerData.type';
 import stickerDatasStore from './store/stickerDatas.store';
 
-class StickerDatasRepository implements StickersRepositoryInterface {
+class StickerDatasRepository implements StickersDatasRepositoryInterface {
   public getSticker(id: string) {
     const stickerDatas = stickerDatasStore.getStickerDatas();
     return stickerDatas.find(
@@ -10,8 +10,11 @@ class StickerDatasRepository implements StickersRepositoryInterface {
     ) as StickerDataType;
   }
 
-  public async addSticker(stickerData: StickerDataType) {
-    const stickerDatas = [...stickerDatasStore.getStickerDatas(), stickerData];
+  public async addSticker(newStickerData: StickerDataType) {
+    const stickerDatas = [
+      ...stickerDatasStore.getStickerDatas(),
+      newStickerData,
+    ];
     stickerDatasStore.setStickerDatas(stickerDatas);
   }
 
