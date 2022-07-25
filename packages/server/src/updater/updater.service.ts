@@ -249,7 +249,7 @@ export class UpdaterService {
     //this.sendRequestToSpread();
     /* 테이블 별 과거 데이터 */
     let pastColumn;
-    let userTable = [];
+    const userTable = [];
 
     let jsonData;
     const index = 0;
@@ -264,11 +264,10 @@ export class UpdaterService {
     const cols = obj.table.cols;
     const rows = obj.table.rows;
 
-    userTable = await this.spreadService.parseSpread(
+    userTable['user'] = await this.spreadService.parseSpread(
       cols,
       rows,
       index,
-      this.userRepository,
       mapObj[0],
       endOfTable[1],
       undefined,
@@ -324,7 +323,7 @@ export class UpdaterService {
 
   async findTargetByKey(repo, repoKey, newOneData, targetObj) {
     const emptyObj = {};
-
+    console.log(repoKey, '\n', 'new:', newOneData, '!!');
     try {
       //스프레드 데이터가 db 데이터에 있는지 확인.
       for (const target of targetObj) {
@@ -369,7 +368,7 @@ export class UpdaterService {
       const datas = newData[repoKey];
       //스프레스에서 받아온 newData(table)가 비어있다면 밑에 for문에서 not iterable로 터지니까 예외처리
       if (datas == undefined) {
-        console.log('datas : ', datas);
+        console.log('datas : ', datas, 'datas');
         continue;
       }
       //스프레드에서 table 명으로 나누어 파싱해 둔 데이터를 tableName 구별하여 같은 Db 데이터 테이블에서 해당하는 객체를 받아옴

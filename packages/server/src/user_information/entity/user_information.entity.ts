@@ -85,14 +85,6 @@ export class User {
   anonymization: string;
 
   @Field()
-  @Column({ name: 'uniqueness', nullable: true })
-  uniqueness: string;
-
-  @Field()
-  @Column({ name: 'anonymization', nullable: true })
-  anonymization: string;
-
-  @Field()
   @CreateDateColumn({ name: 'created_date' })
   created_date: Date;
 

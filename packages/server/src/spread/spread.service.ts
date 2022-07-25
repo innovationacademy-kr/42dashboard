@@ -167,6 +167,7 @@ export class SpreadService {
       //  console.log(tupleLine, 'lidldidl');
       //   await Repo.save(tupleLine);
       tupleArray.push(tuple);
+      console.log(tableName, tuple, '123411');
     }
     //console.log(tupleArray, 'sss');
     return tupleArray;

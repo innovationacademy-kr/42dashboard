@@ -54,7 +54,6 @@ type Query {
   getNumOfPeopleByFilter(filters: [Filter!]!, skip: Int, take: Int): Int!
   getPeopleByFilter(filters: [Filter!]!, skip: Int, take: Int): [JoinedTable!]!
   getPeopleByFilterForAdmin(filters: [Filter!]!, skip: Int, take: Int): [JoinedTable!]!
-<<<<<<< HEAD
   getUser(column: String, duplicated: String!): [User!]!
   getUserAccessCardInformation(column: String, duplicated: String!): [UserAccessCardInformation!]!
   getUserBlackhole(column: String, duplicated: String!): [UserBlackhole!]!
@@ -72,22 +71,6 @@ type Query {
   getUserOtherEmploymentStatus(column: String, duplicated: String!): [UserOtherEmploymentStatus!]!
   getUserOtherInformation(column: String, duplicated: String!): [UserOtherInformation!]!
   getUserPersonalInformation(column: String, duplicated: String!): [UserPersonalInformation!]!
-=======
-  getUserAccessCardInformation: [UserAccessCardInformation!]!
-  getUserBlackhole: [UserBlackhole!]!
-  getUserComputationFund: [UserComputationFund!]!
-  getUserCourseExtension: [UserCourseExtension!]!
-  getUserEmploymentAndFound: [UserOtherEmploymentStatus!]!
-  getUserEmploymentStatus: [UserEmploymentStatus!]!
-  getUserHrdNetUtilize: [UserHrdNetUtilize!]!
-  getUserHrdNetUtilizeConsent: [UserHrdNetUtilizeConsent!]!
-  getUserInternStatus: [UserEducationFundState!]!
-  getUserInterruptionOfCourse: UserInterruptionOfCourse!
-  getUserLeaningData: [UserLearningDataAPI!]!
-  getUserLeaveOfAbsence: [UserLeaveOfAbsence!]!
-  getUserOtherInformation(created_date: DateTime!, highest_level_of_education: String!, major_name: String!, majored: String!, pk: Int): [UserOtherInformation!]!
-  getUserPersonalInformation: [UserPersonalInformation!]!
->>>>>>> e0a48ac (feat(server/updater): updater 구현)
   tempFunction: [JoinedTable!]!
   updateData: String!
   updateOldData: String!
