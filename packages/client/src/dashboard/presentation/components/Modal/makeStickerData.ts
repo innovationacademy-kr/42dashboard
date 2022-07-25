@@ -8,10 +8,19 @@ import {
 } from '../../../application/services/useDataset';
 import { DocumentNode } from '@apollo/client';
 import { StickerContentType } from '../Sticker/StickerContent.type';
-let count = 0;
+
+function stringToUnicode(str: string): string {
+  let ret = '';
+  for (let i = 0; i < str.length; i++) {
+    ret += str.charCodeAt(i);
+  }
+  return ret;
+}
 
 function returnFilterName(filter: QueryFilterType): string {
-  return `${filter.entityName}${filter.column}${(count += 1)}`;
+  return `${filter.entityName}${filter.column}${stringToUnicode(
+    filter.operator,
+  )}${stringToUnicode(filter.givenValue)}`;
 }
 
 function makeQueryFilterVariables(
@@ -50,38 +59,48 @@ function returnFilterSets(
   return filterSets;
 }
 
+export interface MakeStickerType {
+  sectionId: string;
+  type: StickerContentType;
+  labels: string[];
+  labelFilter: QueryFilterType[];
+  arrayOfDataSet: QueryFilterType[][];
+}
+
 export default function makeStickerData(
-  sectionId = 'section-1',
-  type: StickerContentType = 'pieChart',
-  labels: string[] = ['man', 'woman'],
-  labelFilter: QueryFilterType[] = [
-    {
-      entityName: 'userPersonalInformation',
-      column: 'gender',
-      operator: '=',
-      givenValue: '여',
-      latest: true,
-    },
-    {
-      entityName: 'userPersonalInformation',
-      column: 'gender',
-      operator: '=',
-      givenValue: '남',
-      latest: true,
-    },
-  ],
-  arrayOfDataSet: QueryFilterType[][] = [
-    [
+  { sectionId, type, labels, labelFilter, arrayOfDataSet }: MakeStickerType = {
+    sectionId: 'section-1',
+    type: 'pieChart',
+    labels: ['man', 'woman'],
+    labelFilter: [
       {
-        entityName: 'user',
-        column: 'grade',
+        entityName: 'userPersonalInformation',
+        column: 'gender',
         operator: '=',
-        givenValue: '2기',
+        givenValue: '여',
+        latest: true,
+      },
+      {
+        entityName: 'userPersonalInformation',
+        column: 'gender',
+        operator: '=',
+        givenValue: '남',
         latest: true,
       },
     ],
-    [],
-  ],
+    arrayOfDataSet: [
+      [
+        {
+          entityName: 'user',
+          column: 'grade',
+          operator: '=',
+          givenValue: '2기',
+          latest: true,
+        },
+      ],
+      [],
+    ],
+  },
 ): StickerDataType {
   const queryVariables: QueryVariablesType = {
     ...makeQueryFilterVariables(labelFilter),
@@ -89,14 +108,12 @@ export default function makeStickerData(
   };
   const fileNames: string[] = returnFileNames(queryVariables);
   const filterSets: string[][] = returnFilterSets(arrayOfDataSet, labelFilter);
-  console.log('queryVariables', queryVariables);
-  console.log('fileNames', fileNames);
-  console.log('filterSets', filterSets);
   const query: DocumentNode = createQuery(fileNames, labels, filterSets);
   const queryData: QueryDataType = {
     query: query,
     filters: queryVariables,
   };
+
   return {
     id: uuid(),
     sectionId: sectionId,
