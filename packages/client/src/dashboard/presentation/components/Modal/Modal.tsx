@@ -43,9 +43,11 @@ const ModalFrame = (props: ModalProps) => {
       labelFilter: filters,
       arrayOfDataSet: dataSets,
     });
-    console.log('newsticker', newStickerData);
+    /** turn off modal */
     applyFiltersModal();
+    /** store sticker data to store */
     addSticker(newStickerData);
+    /** render sticker */
     func(sectionId, newStickerData.id);
     const str = JSON.stringify(filters);
     const data = JSON.stringify(dataSets);
