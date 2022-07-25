@@ -5,7 +5,7 @@ import useStickers from '../../../application/services/useStickers';
 import { Button } from '@mui/material';
 import RGL, { Layout, WidthProvider } from 'react-grid-layout';
 import ModalFrame from '../Modal/Modal';
-import useFiltersModal from '../../../application/services/useFiltersModal';
+import { useState } from 'react';
 
 const ReactGridLayout = WidthProvider(RGL.Responsive);
 
@@ -28,8 +28,7 @@ export default function Section(props: SectionProps) {
     handleStickerLayoutChange,
     handleStickerRemove,
   } = props;
-  const { isOpen, openFiltersModal, applyFiltersModal, cancelFiltersModal } =
-    useFiltersModal();
+  const [isOpen, setIsOpen] = useState(false);
   function drawStickers() {
     return stickerLayouts.map((sticker: Layout, idx) => (
       <div key={sticker.i}>
@@ -47,14 +46,14 @@ export default function Section(props: SectionProps) {
 
   return (
     <>
-      <Button onClick={openFiltersModal}>Add Sticker</Button>
+      <Button onClick={() => setIsOpen(false)}>Add Sticker</Button>
       <ModalFrame
-        // contents={HorizontalLinearStepper}
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
         sectionId={id}
         func={handleStickerAdd}
         addSticker={addSticker}
       ></ModalFrame>
-      {/* Section이 여러개일 때 Modal이 두개 뜨는 현상 고치기 */}
       <ReactGridLayout
         onDragStart={(a, b, c, d, e) => e.stopPropagation()}
         layouts={{ lg: stickerLayouts }}

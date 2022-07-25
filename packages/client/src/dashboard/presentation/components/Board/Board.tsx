@@ -3,7 +3,6 @@ import './styles2.css';
 import RGL, { Layout, WidthProvider } from 'react-grid-layout';
 import Section from './Section';
 import PresetType from '../../../domain/preset/preset.type';
-import useFiltersModal from '../../../application/services/useFiltersModal';
 import useSections from '../../../application/services/useSectionDatas';
 import useBoard from '../../../application/services/useBoard';
 import { v4 as uuid } from 'uuid';
@@ -33,9 +32,6 @@ export default function Board() {
     handleSectionRemove,
     handleSavePreset,
   } = useBoard();
-
-  const { isOpen, openFiltersModal, applyFiltersModal, cancelFiltersModal } =
-    useFiltersModal();
 
   const sectionData: SectionDataType = {
     id: uuid(),
