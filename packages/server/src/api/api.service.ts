@@ -4,26 +4,11 @@ import {
   HttpStatus,
   Injectable,
 } from '@nestjs/common';
-import { Observable } from 'rxjs';
-import { AxiosResponse } from 'axios'; //????
-import { raw } from 'body-parser';
-import { response } from 'express';
 import axios from 'axios';
-import { app_api, app_id, app_secret } from 'src/config/key';
-import { json } from 'stream/consumers';
-import { Api } from './entity/api.entity';
-import { Repository } from 'typeorm';
-import { CreateApiDto } from './dto/create-api.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { finished } from 'stream';
+import { app_id, app_secret } from 'src/config/key';
 
 @Injectable()
 export class ApiService {
-  // constructor(
-  // //  @InjectRepository(Api)
-  // //  private readonly apiRepository: Repository<Api>,
-  // ) {}
-
   ///////////////////////////////////////////////////////////////
   /////////////////////////start get api/////////////////////////
   ///////////////////////////////////////////////////////////////
@@ -39,8 +24,6 @@ export class ApiService {
     } catch {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
-
-    return parsedApi;
   }
 
   async getToken() {
@@ -77,7 +60,6 @@ export class ApiService {
       try {
         const temp = await axios({
           method: 'get', // 요청 방식
-          //url: `https://api.intra.42.fr/v2/cursus/21/cursus_users?filter[campus_id]=29&page[number]=${pageNum}&page[size]=100$sort=user_id`,
           url: `${apiUrl}/${apiEndPoint}?${filter}&${page}&${sort}`,
           headers: {
             Authorization: `Bearer ${token}`,
@@ -135,26 +117,7 @@ export class ApiService {
           ['outcircled_date']: '9999-12-31',
           ['coalition_score']: 0,
           ['blackhole_date']: await this.parsingDate(api42.blackholed_at),
-          // ['remaining_period']: await this.calculateDateDiff(
-          //   api42.blackholed_at,
-          // ),
         };
-        // parsedData[idx]['intra_no'] = api42.user.id;
-        // parsedData[idx]['intra_id'] = api42.user.login;
-        // parsedData[idx]['level'] = api42.level;
-        // parsedData[idx]['email'] = api42.user.email;
-        // parsedData[idx]['phone_number'] = api42.user.phone;
-        // parsedData[idx]['circle'] = 9999;
-        // parsedData[idx]['outcircle'] = api42.grade;
-        // parsedData[idx]['outcircled_date'] = '9999-12-31';
-        // parsedData[idx]['coalition_score'] = 0;
-        // //parsedData[idx]['staff'] = api42.user['staff?'];
-        // parsedData[idx]['blackhole_date'] = await this.parsingDate(
-        //   api42.blackholed_at,
-        // );
-        // parsedData[idx]['remaining_period'] = await this.calculateDate(
-        //   api42.blackholed_at,
-        // );
         idx++;
       }
     }
@@ -169,7 +132,6 @@ export class ApiService {
       return parsedDate;
     }
     const dateTemp = new Date(date);
-    // let year = dateTemp.getUTCFullYear;
     const year = dateTemp.getFullYear();
     const tmpMonth = dateTemp.getMonth() + 1;
     const tmpDay = dateTemp.getDate();
@@ -182,7 +144,6 @@ export class ApiService {
   calculateDateDiff(startDate, endDate?) {
     let calculatedDate;
     let tempEndDate;
-    // const today = new Date();
 
     if (startDate === null) {
       calculatedDate = '9999';
@@ -195,7 +156,6 @@ export class ApiService {
     }
     //문자열로 date가 들어올 수 있으니 date 객체 생성
     const tempStartDate = new Date(startDate);
-    // console.log(today.getUTCMonth());
     calculatedDate = tempStartDate.getTime() - tempEndDate.getTime();
     const second = calculatedDate / 1000;
     const minute = second / 60;
@@ -207,13 +167,7 @@ export class ApiService {
 
   getTupleFromApi(intra_no: number, api42s) {
     for (const api42 of api42s) {
-      //console.log(api42);
-      //   console.log('1', intra_no);
-      // console.log('2', api42.intra_no);
-      //console.log('???', intra_no, ':', api42.intra_no);
       if (intra_no == api42.intra_no) {
-        //console.log('here');
-        // console.log(`we got intra no: ${intra_no}\n`);
         return api42;
       }
     }
@@ -221,14 +175,10 @@ export class ApiService {
     return -1;
   }
 
-  async parseApi(table_name, Repo, api42s) {
-    //const api = new UserLearningData();
-    let apiTuple;
+  async parseApi(api42s) {
     const tupleArray = [];
-    // let tupleIdx = 0;
+
     for (const api42 of api42s) {
-      //   console.log(api42);
-      //api.intra_no = api42.id;
       const api = {
         circle: api42.circle,
         level: api42.level,
@@ -237,22 +187,10 @@ export class ApiService {
         outcircled_date: api42.outcircled_date,
         fk_user_no: api42.intra_no,
       };
-      // apiTuple = await Repo.create(api);
       tupleArray.push(api);
-      //await Repo.save(apiTuple);
-
-      // if (table_name === '학습데이터')
-      //   tupleLine = Repo.findOne({ where: { intra_id: row['c'][1]['f'] } });
-      // else tupleLine = Repo.findOne({ where: { pk: 1 } });
-      // if (tupleLine === undefined) tupleLine = Repo.create(tuple);
-      // else tupleLine = tuple;
-      // //tupleLine['fk_user_no'] = row['c'][1]['f'];
-      //  await Repo.save(apiTuple);
     }
-    //console.log(tupleArray, 'api');
     return tupleArray;
   }
-
   /////////////////////////////////////////////////////////////
   /////////////////////////end get api/////////////////////////
   /////////////////////////////////////////////////////////////
