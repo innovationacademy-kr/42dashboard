@@ -1,18 +1,6 @@
-import {
-  BadGatewayException,
-  HttpException,
-  HttpStatus,
-  Injectable,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import axios from 'axios';
 import { ApiService } from 'src/api/api.service';
-import {
-  app_id,
-  app_secret,
-  MAIN_SHEET,
-  SPREAD_END_POINT,
-} from 'src/config/key';
 import { SpreadService } from 'src/spread/spread.service';
 import { UserAccessCardInformation } from 'src/user_information/entity/user_access_card_information.entity';
 import { User } from 'src/user_information/entity/user_information.entity';
@@ -38,12 +26,10 @@ import {
 import { Cron } from '@nestjs/schedule';
 import { DataSource, Repository } from 'typeorm';
 import {
-  apiTable,
   endOfTable,
   mapObj,
   pastDataOnColumn,
   pastDataOnSheet,
-  TABLENUM,
   repoKeys,
   DEFAULT_VALUE,
   defaultVALUE,
@@ -52,6 +38,7 @@ import {
   UserComputationFund,
   UserEducationFundState,
 } from 'src/user_payment/entity/user_payment.entity';
+import { MAIN_SHEET, SPREAD_END_POINT } from 'src/config/key';
 
 interface RepoDict {
   [repositoryName: string]:
@@ -227,7 +214,6 @@ export class UpdaterService {
           cols,
           rows,
           +col, //typescrit에서 string을 number로 바꾸기 위함
-          this.repoArray[tableNum],
           mapObj[tableNum],
           endOfTable,
           ++tableNum,
@@ -323,7 +309,6 @@ export class UpdaterService {
           .orderBy(`${repoKey}.intra_no`, 'DESC')
           .addOrderBy(`${repoKey}.created_date`, 'DESC')
           .getMany();
-        //     return returnArray;
       } else {
         returnArray[repoKey] = await this.repoDict[repoKey]
           .createQueryBuilder(repoKey)
@@ -331,7 +316,6 @@ export class UpdaterService {
           .orderBy(`${repoKey}.fk_user_no`, 'DESC')
           .addOrderBy(`${repoKey}.created_date`, 'DESC')
           .getMany();
-        //      return returnArray;
       }
     }
 
@@ -341,13 +325,10 @@ export class UpdaterService {
   async findTargetByKey(repo, repoKey, newOneData, targetObj) {
     const emptyObj = {};
 
-    //  console.log(targetObj, 'targetObj');
-    //console.log('\n \t,', targetObj[0].intra_no);
     try {
       //스프레드 데이터가 db 데이터에 있는지 확인.
       for (const target of targetObj) {
         if (repoKey == 'user') {
-          // console.log('key : ', key, '  targetkey : ', target.intra_no);
           if (newOneData.intra_no == target.intra_no) {
             return await target;
           }
@@ -381,11 +362,9 @@ export class UpdaterService {
   async compareNewDataWithLatestData(newData, latestData) {
     let targetObj = {};
 
-    //console.log('compare in');
-    const repoNameArray = Object.values(repoKeys); //.map((repoKey) => {
+    const repoNameArray = Object.values(repoKeys);
     //db table 이름별로 받은 데이터를 구분해놓은것을 repoNameArray 배열로 구별하여 식별
     for (const repoKey of repoNameArray) {
-      //console.log(repoKey);
       const repo = this.repoDict[repoKey];
       const datas = newData[repoKey];
       //스프레스에서 받아온 newData(table)가 비어있다면 밑에 for문에서 not iterable로 터지니까 예외처리
@@ -395,7 +374,6 @@ export class UpdaterService {
       }
       //스프레드에서 table 명으로 나누어 파싱해 둔 데이터를 tableName 구별하여 같은 Db 데이터 테이블에서 해당하는 객체를 받아옴
       for (const newOneData of datas) {
-        // if (repoKey == 'user') {
         targetObj = await this.findTargetByKey(
           repo, //스프레드엔 있고 DB엔 없을 때 해당 학생 저장하기 위함
           repoKey, //user entity인지 구분하기 위함, intra_no를 넘겨서 구분지어도 되긴하지만, 조금 더 범용성을 위해서 repoKey를 넘김
@@ -406,8 +384,6 @@ export class UpdaterService {
         if (this.isEmptyObj(targetObj) === true) {
           continue;
         }
-        //console.log(this.checkChangedData(repoKey, newOneData, targetObj));
-        //     while (1);
         //바뀐게 있다면, 저장
         await this.saveChangedData(
           repo, //repoKey만 보내 해당 함수내에서 repoDict로 repo를 생성하여 save 시도하면 해당 함수내에선 repository를 명확히 특정할 수 없다 판단하므로 인자로 repo를 넘겨줌
@@ -415,9 +391,7 @@ export class UpdaterService {
           newOneData,
           targetObj,
         );
-        //chageList.push(this.checkChangedData(repoKey, newOneData, targetObj));
       }
-      //console.log(repoKey, 'is update done');
     }
     //return 'done!!';
   }
@@ -427,7 +401,6 @@ export class UpdaterService {
   }
 
   isDefaultColumn(repoKey, key) {
-    // console.log(repoKey, key);
     if (
       Object.keys(defaultVALUE).find((table) => table === repoKey) === undefined
     )
@@ -442,9 +415,7 @@ export class UpdaterService {
 
   checkSpecialValue(newOneData, targetObj, repoKey, key, repo) {
     const date = /date$/;
-    // if (repoKey == 'user_other_employment_status') {
-    //   console.log(key, ': ', targetObj[key]);
-    // }
+
     if (date.test(key)) {
       newOneData[key] = this.createDate(newOneData[key]);
       targetObj[key] = this.createDate(targetObj[key]);
@@ -480,14 +451,9 @@ export class UpdaterService {
   }
 
   async saveChangedData(repo, repoKey, newOneData, targetObj) {
-    // let newTuple = {};
-    // const repo = this.repoDict[repoKey];
-    //  console.log('in check changed');
-    // console.log(Object.keys(newOneData), 'a');
     let checkedDefaulte;
     try {
-      const keys: string[] = Object.keys(newOneData); //.map((key) => {
-
+      const keys: string[] = Object.keys(newOneData);
       //각 테이블의 column을 뽑아옴
       for (const key of keys) {
         //new data(spread)의 key 값이 default 값을 갖는 column 일때, null 값 파악 후 초기화
@@ -523,10 +489,8 @@ export class UpdaterService {
           await repo.save(newOneData); /*.catch(() => {
             return 'error save';
           });*/
-          //return 'chaged'; //true; //changed
         }
       }
-      //return 'not changed'; //false; //not changed
     } catch {
       throw "the spread column isn't in DataBase colume";
     }

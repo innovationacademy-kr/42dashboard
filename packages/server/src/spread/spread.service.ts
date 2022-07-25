@@ -1,13 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
-import axios from 'axios';
 import { ApiService } from 'src/api/api.service';
-import {
-  endOfTable,
-  mapObj,
-  pastDataOnSheet,
-  TABLENUM,
-} from 'src/updater/name_types/updater.name';
+import { mapObj, TABLENUM } from 'src/updater/name_types/updater.name';
 import { UserHrdNetUtilizeConsent } from 'src/user_job/entity/user_job.entity';
 import { UserComputationFund } from 'src/user_payment/entity/user_payment.entity';
 import { UserLearningDataAPI } from 'src/user_status/entity/user_status.entity';
@@ -123,13 +117,11 @@ export class SpreadService {
     cols,
     rows,
     colIdx: number,
-    Repo,
     mapObj,
     endOfTable,
     tableNum?,
     api42s?,
   ) {
-    let tupleLine;
     let colRowIdx; //컬럼의 위치 튜플의 도메인 위치 맞춰주기 위한 색인
     const tupleArray = [];
     //let tableIdx = 0;
@@ -278,7 +270,6 @@ export class SpreadService {
   makeColumnsInTable(cols, rows, datas, value, date, mapObj) {
     //한테이블에 두개이상 컬럼을 추가하는 경우
     let data;
-    let column;
     let monthData;
 
     for (const col in cols) {

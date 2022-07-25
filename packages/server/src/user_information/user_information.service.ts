@@ -466,7 +466,8 @@ export class UserInformationService {
     // queryRunner.createTable({})
     temp = await queryRunner.manager
       .createQueryBuilder(User, 'user')
-      .leftJoinAndSelect( //remaining_period column은 더이상 사용되지 않음
+      .leftJoinAndSelect(
+        //remaining_period column은 더이상 사용되지 않음
         'user.userBlackhole',
         'blackhole', //innerJoin == Join인듯?
         'blackhole.remaining_period > :period AND blackhole.remaining_period > 0',
