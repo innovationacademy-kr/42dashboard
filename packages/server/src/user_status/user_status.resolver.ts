@@ -16,7 +16,7 @@ export class UserStatusResolver {
   constructor(private readonly userStatusService: UserStatusService) {}
 
   @Query(() => [UserLearningDataAPI])
-  async getUserLeaningDataAPI(@Args() checkDuplication: CheckDuplication) {
+  async getUserLearningDataAPI(@Args() checkDuplication: CheckDuplication) {
     return this.userStatusService.getUserLeaningDataAPI(checkDuplication);
   }
   @Query(() => [UserLoyaltyManagement])

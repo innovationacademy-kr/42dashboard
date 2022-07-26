@@ -49,6 +49,7 @@ type Mutation {
 }
 
 type Query {
+  extractDataIntoSpreadsheet: String!
   getDomainOfColumnFilter(filters: [Filter!]!, skip: Int, take: Int): [JoinedTable!]!
   getLatestData: String!
   getNumOfPeopleByFilter(filters: [Filter!]!, skip: Int, take: Int): Int!
@@ -65,12 +66,13 @@ type Query {
   getUserHrdNetUtilizeConsent(column: String, duplicated: String!): [UserHrdNetUtilizeConsent!]!
   getUserInterruptionOfCourse(column: String, duplicated: String!): [UserInterruptionOfCourse!]!
   getUserLapiscineInformation(column: String, duplicated: String!): [UserLapiscineInformation!]!
-  getUserLeaningDataAPI(column: String, duplicated: String!): [UserLearningDataAPI!]!
+  getUserLearningDataAPI(column: String, duplicated: String!): [UserLearningDataAPI!]!
   getUserLeaveOfAbsence(column: String, duplicated: String!): [UserLeaveOfAbsence!]!
   getUserLoyaltyManagement(column: String, duplicated: String!): [UserLoyaltyManagement!]!
   getUserOtherEmploymentStatus(column: String, duplicated: String!): [UserOtherEmploymentStatus!]!
   getUserOtherInformation(column: String, duplicated: String!): [UserOtherInformation!]!
   getUserPersonalInformation(column: String, duplicated: String!): [UserPersonalInformation!]!
+  sendRequestToSpreadWithGoogleAPI: String!
   tempFunction: [JoinedTable!]!
   updateData: String!
   updateOldData: String!
@@ -78,6 +80,7 @@ type Query {
 
 type User {
   academic_state: String!
+  anonymization: String!
   coalition: String!
   created_date: DateTime!
   deleted_date: DateTime!
@@ -85,6 +88,7 @@ type User {
   intra_id: String!
   intra_no: Int!
   name: String!
+  uniqueness: String!
 }
 
 type UserAccessCardInformation {
