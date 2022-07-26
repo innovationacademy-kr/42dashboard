@@ -9,6 +9,10 @@ export default function PieChart(props: ChartProps) {
   const { labels, queryData, options } = props;
   const { data, loading, error } = useChartDataset(queryData);
   const datasets = [];
+  const defaultOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+  };
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error :(</p>;
@@ -26,5 +30,12 @@ export default function PieChart(props: ChartProps) {
     })),
   };
 
-  return <Pie data={pieData} options={options} />;
+  return (
+    <Pie
+      data={pieData}
+      options={
+        options ? Object.assign(defaultOptions, options) : defaultOptions
+      }
+    />
+  );
 }

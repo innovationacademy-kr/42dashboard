@@ -9,6 +9,10 @@ export default function BarChart(props: ChartProps) {
   const { labels, queryData, options } = props;
   const { data, loading, error } = useChartDataset(queryData);
   const datasets = [];
+  const defaultOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+  };
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error :(</p>;
@@ -25,5 +29,12 @@ export default function BarChart(props: ChartProps) {
     })),
   };
 
-  return <Bar data={barData} options={options} />;
+  return (
+    <Bar
+      data={barData}
+      options={
+        options ? Object.assign(defaultOptions, options) : defaultOptions
+      }
+    />
+  );
 }
