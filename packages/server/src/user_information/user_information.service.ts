@@ -32,7 +32,9 @@ import { CudDto } from './argstype/cudDto.argstype';
 import { FilterArgs } from './argstype/filter.argstype';
 import { JoinedTable } from './argstype/joinedTable';
 import { Filter } from './filter';
+import { valExColumnEntity } from './utils/entityArray.utils';
 import { entityArray, getDomain } from './utils/getDomain.utils';
+import { opeatorDict } from './utils/operatorDict.utils';
 
 @Injectable()
 export class UserInformationService {
@@ -137,7 +139,11 @@ export class UserInformationService {
       }
     }
     // console.log(filterObj);
-    const findObj = this.getObj(filterObj, withDeleted);
+    const findObj = this.createFindObj(
+      filterObj,
+      filterArgs.timeReference,
+      withDeleted,
+    );
     // console.log(findObj);
     findObj['cache'] = true; //typeORM에서 제공하는 cache 기능
     findObj['order'] = { intra_id: 'ASC', grade: 'ASC' }; //정렬할 필요가 있는건지?
@@ -150,7 +156,7 @@ export class UserInformationService {
   }
 
   /**
-   * getObj 함수에서 반환하는 객체의 구조 예시
+   * createFindObj 함수에서 반환하는 객체의 구조 예시
    *    {
    *      relation:{
    *        UserOtherInformation: true,
@@ -171,7 +177,7 @@ export class UserInformationService {
    *    }
    */
 
-  private getObj(filterObj, withDeleted = false) {
+  private createFindObj(filterObj, timeReference = null, withDeleted = false) {
     let filter;
     let column;
     let operator;
@@ -186,7 +192,7 @@ export class UserInformationService {
         filter = filterObj['user'][idx];
         operator = filter['operator'];
         column = filter['column'];
-        if (column == null) continue; // 예외처리
+        if (column == 'null' || column == null) continue; // 예외처리
         if (
           operator == 'In' ||
           operator == 'in' ||
@@ -204,13 +210,24 @@ export class UserInformationService {
       if (entityName == 'user') continue; // user는 이미 위의 for문에서 처리
       ret['relations'][entityName] = true;
       ret['where'][entityName] = {};
+      if (entityName in valExColumnEntity && timeReference) {
+        ret['where'][entityName]['expired_date'] = MoreThan(timeReference);
+        ret['where'][entityName]['validate_date'] = LessThan(timeReference);
+      } else if (timeReference) {
+        ret['where'][entityName]['created_date'] = LessThan(timeReference);
+      }
       ret['order'][entityName] = {};
       for (const idx in filterObj[entityName]) {
         filter = filterObj[entityName][idx];
         operator = filter['operator'];
         column = filter['column'];
         if (column == 'null' || column == null) continue; // 예외처리 <- 명세서에 적어주기
-        if (operator == 'In' || operator == 'in')
+        if (
+          operator == 'In' ||
+          operator == 'in' ||
+          operator == 'Between' ||
+          operator == 'between'
+        )
           filter['givenValue'] = filter['givenValue'].split(';');
         ret['where'][entityName][column] = this.operatorToORMMethod(
           filter['operator'],
@@ -235,7 +252,7 @@ export class UserInformationService {
    *    filter.latest값이 false이면 최신정보+로깅정보 반환
    *    filter.latest값이 true이면 최신정보만 반환
    */
-  private makeLimit(data, filterObj) {
+  private makeLimit(data, filterObj, numOfPeople = 0) {
     let filter;
     let row;
     // let temp: JoinedTable[];
@@ -268,10 +285,20 @@ export class UserInformationService {
             row[joinedTable] = row[joinedTable].slice(0, 1);
             // console.log(row[joinedTable]);
           }
+          if (
+            'latest' in filter &&
+            filter['latest'] == true &&
+            opeatorDict[filter['operator']](
+              filter['givenValue'],
+              row[joinedTable][0][filter['column']],
+            )
+          ) {
+            numOfPeople--;
+          }
         }
       }
     }
-    return data;
+    return { data, numOfPeople };
   }
 
   private operatorToORMMethod(operator: string) {
@@ -281,28 +308,31 @@ export class UserInformationService {
   async getPeopleByFiter(filterArgs: FilterArgs) {
     const { findObj, filterObj } = this.filtersToObj(filterArgs);
     let data = await this.dataSource.getRepository(User).find(findObj);
-    data = this.makeLimit(data, filterObj);
-    // console.log(data);
+    const limetedData = this.makeLimit(data, filterObj);
+    data = limetedData.data;
     return data;
   }
 
   async getPeopleByFilterForAdmin(filterArgs: FilterArgs) {
     const { findObj, filterObj } = this.filtersToObj(filterArgs, true);
-    // console.log('OBJ is', findObj);
     let data = await this.dataSource.getRepository(User).find(findObj);
-    // console.log(data);
-    data = this.makeLimit(data, filterObj);
-    // console.log(data);
+    const limetedData = this.makeLimit(data, filterObj);
+    data = limetedData.data;
     return data;
   }
 
   async getNumOfPeopleByFilter(filterArgs: FilterArgs): Promise<number> {
-    const { findObj } = this.filtersToObj(filterArgs);
-    // console.log('OBJ is', findObj);
-    const data = await this.dataSource.getRepository(User).count(findObj);
-    // console.log(data);
-    // this.makeLimit(data, filterObj);
-    return data;
+    const { findObj, filterObj } = this.filtersToObj(filterArgs);
+    // findAndCount의 return 값 = 배열
+    // 첫번째 인덱스 = find의 결과
+    // 두번째 인덱스 = count의 결과
+    const dataAndCount = await this.dataSource
+      .getRepository(User)
+      .findAndCount(findObj);
+    const data = dataAndCount[0];
+    const count = dataAndCount[1];
+    const limetedData = this.makeLimit(data, filterObj, count);
+    return limetedData.numOfPeople;
   }
 
   async getDomainOfColumnFilter(filterArgs: FilterArgs) {
@@ -319,7 +349,7 @@ export class UserInformationService {
   }
 
   // 아래는 mutation을 위한 service code
-  createFindObj(cudDto: CudDto) {
+  createFindObjForMutation(cudDto: CudDto) {
     const ret = {};
     ret['relations'] = {};
     ret['where'] = {};
@@ -436,7 +466,7 @@ export class UserInformationService {
    */
   private async joinTableByFiltersTemp(filterObj) {
     // console.log(filterObj);
-    const obj = this.getObj(filterObj);
+    const obj = this.createFindObj(filterObj);
     // await this.dataSource
     //   .getRepository(UserProcessProgress)
     //   .update({ request_extension: '세번째' }, { deleted_at: new Date() }); //컬럼명 멘토님께 추천받기
