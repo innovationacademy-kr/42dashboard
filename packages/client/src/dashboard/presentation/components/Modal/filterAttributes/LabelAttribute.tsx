@@ -5,7 +5,7 @@ export interface LabelFormPropsType {
   onChange: (event: any) => void;
 }
 
-export default function LabelForm(props: LabelFormPropsType) {
+export default function LabelAttribute(props: LabelFormPropsType) {
   const { value, onChange } = props;
   return (
     <TextField

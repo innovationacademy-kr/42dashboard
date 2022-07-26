@@ -4,12 +4,12 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { QueryFilterType } from '../../../application/services/useDataset';
 import { useLazyQuery } from '@apollo/client';
 import createValueQuery from '../../../infrastructure/http/graphql/createValueQuery';
-import LatestForm from './forms/LatestForm';
-import returnColumns from './forms/menuItems/returnColumns';
-import returnEntities from './forms/menuItems/returnEntities';
-import returnValues from './forms/menuItems/returnValues';
-import returnOperators from './forms/menuItems/returnOperators';
-import FilterAttribute from './forms/FilterAttribute';
+import returnColumns from './filterAttributes/menuItems/returnColumns';
+import returnEntities from './filterAttributes/menuItems/returnEntities';
+import returnValues from './filterAttributes/menuItems/returnValues';
+import returnOperators from './filterAttributes/menuItems/returnOperators';
+import FilterAttribute from './filterAttributes/FilterAttribute';
+import LatestAttribute from './filterAttributes/LatestAttribute';
 
 const Section = styled.div`
   margin-top: 1rem;
@@ -92,7 +92,11 @@ function DatasetFilter(props: DatasetFilterProps) {
         onChange={handleGivenValueChange}
         menuItems={returnValues({ entityName, column, data })}
       />
-      <LatestForm id={'Latest'} value={latest} onChange={handleLatestChange} />
+      <LatestAttribute
+        id={'Latest'}
+        value={latest}
+        onChange={handleLatestChange}
+      />
       <CheckCircleOutlineIcon
         onClick={addFilter}
         color="primary"
