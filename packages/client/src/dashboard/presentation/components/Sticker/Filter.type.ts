@@ -1,19 +1,17 @@
-import { useQuery } from '@apollo/client';
-
 export type EntityNameType =
-  | 'user'
-  | 'userPersonalInformation'
-  | 'userProcessProgress'
-  | 'userLeaveOfAbsence'
-  | 'userBlackhole'
-  | 'userReasonOfBreak'
-  | 'userOtherInformation'
-  | 'userLapiscineInformation'
-  | 'userEmploymentAndFound'
-  | 'userHrdNetUtilize'
-  | 'userEducationFundState'
-  | 'userComputationFund'
-  | 'userAccessCardInformation';
+  | 'User'
+  | 'UserPersonalInformation'
+  | 'UserProcessProgress'
+  | 'UserLeaveOfAbsence'
+  | 'UserBlackhole'
+  | 'UserReasonOfBreak'
+  | 'UserOtherInformation'
+  | 'UserLapiscineInformation'
+  | 'UserEmploymentAndFound'
+  | 'UserHrdNetUtilize'
+  | 'UserEducationFundState'
+  | 'UserComputationFund'
+  | 'UserAccessCardInformation';
 
 export type ColumnType = string;
 
@@ -45,14 +43,14 @@ export type OperatorType =
 
 export type GivenValueType = any; // 이후 모든 필드의 데이터 타입이 정해진다면 타입정의 가능
 
-export default interface FilterConfigType {
+export interface FilterConfigType {
   entityName: EntityNameType;
   column: ColumnType;
   operator: OperatorType;
   givenValue: GivenValueType;
 }
 
-export default interface FilterType {
+export interface FilterType {
   name: string;
   config: FilterConfigType;
 }

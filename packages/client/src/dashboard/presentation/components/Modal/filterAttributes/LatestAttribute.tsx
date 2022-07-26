@@ -5,7 +5,7 @@ interface Props {
   onChange: (event: any) => void;
 }
 
-export default function LatestForm(props: Props) {
+export default function LatestAttribute(props: Props) {
   const { id, value, onChange } = props;
   return (
     <FormControlLabel
