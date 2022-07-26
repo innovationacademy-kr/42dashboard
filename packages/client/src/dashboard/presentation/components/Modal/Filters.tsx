@@ -37,7 +37,7 @@ function Filters(props: FiltersProps) {
 
   function renderSelectedFilters() {
     return selectedLabels.map((label, idx) => (
-      <SelectedFilter key={idx} data={label} />
+      <SelectedFilter idx={idx} data={label} />
     ));
   }
 
