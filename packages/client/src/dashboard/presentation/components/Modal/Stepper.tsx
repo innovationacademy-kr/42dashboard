@@ -6,7 +6,7 @@ import StepLabel from '@mui/material/StepLabel';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import TypeBox from './TypeBox';
-import Filters from './Filters';
+import Filters, { SelectedLabelFilters } from './Filters';
 import styled from '@emotion/styled';
 import InputDataset from './InputDataset';
 import { QueryFilterType } from '../../../application/services/useDataset';
@@ -38,6 +38,9 @@ export default function HorizontalLinearStepper(props: ModalDatasType) {
     applyFiltersModal,
   } = props;
   const [activeStep, setActiveStep] = React.useState(0);
+  const [selectedLabels, setSelectedLabels] = React.useState<
+    SelectedLabelFilters[]
+  >([]);
 
   const handleNext = () => {
     if (activeStep === steps.length) {
@@ -54,13 +57,34 @@ export default function HorizontalLinearStepper(props: ModalDatasType) {
     setActiveStep(0);
   };
 
+  const [focus, setFocus] = React.useState(0);
+  function focusing(i: number) {
+    return () => {
+      setFocus(i);
+    };
+  }
+
   function PageComponent() {
     if (activeStep === 0) {
       return <TypeBox handleType={setType} />;
     } else if (activeStep === 1) {
-      return <Filters setLabels={setLabels} setFilters={setFilters} />;
+      return (
+        <Filters
+          setLabels={setLabels}
+          setFilters={setFilters}
+          selectedLabels={selectedLabels}
+          setSelectedLabels={setSelectedLabels}
+        />
+      );
     } else {
-      return <InputDataset dataSets={dataSets} setDataSets={setDataSets} />;
+      return (
+        <InputDataset
+          dataSets={dataSets}
+          setDataSets={setDataSets}
+          focus={focus}
+          onChange={focusing}
+        />
+      );
     }
   }
 

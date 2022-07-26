@@ -10,6 +10,12 @@ import returnValues from './filterAttributes/menuItems/returnValues';
 import returnOperators from './filterAttributes/menuItems/returnOperators';
 import FilterAttribute from './filterAttributes/FilterAttribute';
 import LatestAttribute from './filterAttributes/LatestAttribute';
+import {
+  ColumnType,
+  EntityNameType,
+  GivenValueType,
+  OperatorType,
+} from '../Sticker/Filter.type';
 
 const Section = styled.div`
   margin-top: 1rem;
@@ -25,11 +31,11 @@ interface DatasetFilterProps {
 
 function DatasetFilter(props: DatasetFilterProps) {
   const { id, setDataSets } = props;
-  const [entityName, setEntityName] = React.useState('User');
-  const [column, setColumn] = React.useState('coalition');
-  const [operator, setOperator] = React.useState('');
-  const [givenValue, setGivenValue] = React.useState('');
-  const [latest, setLatest] = React.useState(true);
+  const [entityName, setEntityName] = React.useState<EntityNameType>('User');
+  const [column, setColumn] = React.useState<ColumnType>('coalition');
+  const [operator, setOperator] = React.useState<OperatorType>('=');
+  const [givenValue, setGivenValue] = React.useState<GivenValueType>('');
+  const [latest, setLatest] = React.useState<boolean>(true);
   const [getValues, { data, loading, error }] = useLazyQuery(
     createValueQuery(entityName, column),
   );

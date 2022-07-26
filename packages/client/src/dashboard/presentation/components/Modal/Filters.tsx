@@ -3,6 +3,8 @@ import LabelFilter from './LabelFilter';
 import styled from '@emotion/styled';
 import { useState } from 'react';
 import { QueryFilterType } from '../../../application/services/useDataset';
+import { FilterConfigType } from '../Sticker/Filter.type';
+import SelectedFilter from './selectedFilter/SelectedFilter';
 
 const Button = styled(AddCircleOutlineOutlinedIcon)`
   margin-top: 1rem;
@@ -10,33 +12,45 @@ const Button = styled(AddCircleOutlineOutlinedIcon)`
   position: relative;
 `;
 
+export interface SelectedLabelFilters extends FilterConfigType {
+  label?: string;
+  latest?: boolean;
+}
+
 interface FiltersProps {
   setLabels: React.Dispatch<React.SetStateAction<string[]>>;
   setFilters: React.Dispatch<React.SetStateAction<QueryFilterType[]>>;
+  selectedLabels: SelectedLabelFilters[];
+  setSelectedLabels: React.Dispatch<
+    React.SetStateAction<SelectedLabelFilters[]>
+  >;
 }
 
 function Filters(props: FiltersProps) {
-  const { setLabels, setFilters } = props;
+  const { setLabels, setFilters, selectedLabels, setSelectedLabels } = props;
   const [count, setCount] = useState(0);
 
-  function AddFilter() {
+  function addFilter(newFilter: SelectedLabelFilters) {
     setCount(count + 1);
+    setSelectedLabels((prevLabels) => [...prevLabels, newFilter]);
   }
 
-  function renderDatasets() {
-    const ret = [];
-    for (let i = 1; i <= count; i++) {
-      ret.push(
-        <LabelFilter key={i} setLabels={setLabels} setFilters={setFilters} />,
-      );
-    }
-    return ret;
+  function renderSelectedFilters() {
+    return selectedLabels.map((label, idx) => (
+      <SelectedFilter key={idx} data={label} />
+    ));
   }
 
   return (
     <>
-      {renderDatasets()}
-      <Button onClick={AddFilter} color="primary" fontSize="large" />
+      <LabelFilter
+        addFilter={addFilter}
+        setLabels={setLabels}
+        setFilters={setFilters}
+      />
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        {renderSelectedFilters()}
+      </div>
     </>
   );
 }

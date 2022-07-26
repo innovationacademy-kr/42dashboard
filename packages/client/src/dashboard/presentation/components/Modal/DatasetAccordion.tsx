@@ -5,32 +5,32 @@ import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { QueryFilterType } from '../../../application/services/useDataset';
 import DatasetFilter from './DatasetFilter';
+import SelectedFilter from './selectedFilter/SelectedFilter';
 
 export interface DatasetAccordionProps {
   id: number;
   dataSet: QueryFilterType[];
   setDataSets: React.Dispatch<React.SetStateAction<QueryFilterType[][]>>;
+  focus: number;
+  onChange: () => void;
 }
 
 export default function DatasetAccordion({
   id,
   dataSet,
   setDataSets,
+  focus,
+  onChange,
 }: DatasetAccordionProps) {
   function renderFilters() {
     return dataSet.map((filter, index) => {
-      return (
-        <div key={index}>
-          <Typography>{`${filter.entityName} ${filter.column} ${filter.givenValue}`}</Typography>
-          <button>삭제(필터)</button>
-        </div>
-      );
+      return SelectedFilter({ data: { ...filter } });
     });
   }
 
   return (
     <div>
-      <Accordion>
+      <Accordion expanded={id === focus} onChange={onChange}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls={`${id}`}

@@ -44,7 +44,7 @@ export type OperatorType =
 export type GivenValueType = any; // 이후 모든 필드의 데이터 타입이 정해진다면 타입정의 가능
 
 export interface FilterConfigType {
-  entityName: EntityNameType;
+  entityName: EntityNameType | string;
   column: ColumnType;
   operator: OperatorType;
   givenValue: GivenValueType;
