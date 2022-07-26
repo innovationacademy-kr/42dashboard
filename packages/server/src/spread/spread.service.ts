@@ -47,6 +47,36 @@ export class SpreadService {
     }
   }
 
+  // async createSpreadsheet(endPoint: string, title) {
+  //   const authorize = new google.auth.JWT(client_email, null, private_key, [
+  //     'https://www.googleapis.com/auth/spreadsheets',
+  //   ]);
+
+  //   // google spread sheet api 가져오기
+  //   const googleSheet = google.sheets({
+  //     version: 'v4',
+  //     auth: authorize,
+  //   });
+  //   try {
+  //     const sheetBody = {
+  //       auth: authorize,
+  //       requestBody: { properties: { title } },
+  //     };
+  //     const spreadsheet = await googleSheet.spreadsheets.create(sheetBody);
+  //     if (spreadsheet.status === 200) {
+  //       const spreadsheetId = spreadsheet.data.spreadsheetId;
+  //       const spreadsheetUrl = spreadsheet.data.spreadsheetUrl;
+  //     } else {
+  //       throw new Error('Spreadsheet creation failed. Kindly try again!');
+  //     }
+  //     console.log(`Spreadsheet ID: ${spreadsheet.data.spreadsheetId}`);
+  //     return spreadsheet.data.spreadsheetId;
+  //   } catch (err) {
+  //     // TODO (developer) - Handle exception
+  //     throw err;
+  //   }
+  // }
+
   async createSpreadsheet(endPoint: string, title) {
     const authorize = new google.auth.JWT(client_email, null, private_key, [
       'https://www.googleapis.com/auth/spreadsheets',
