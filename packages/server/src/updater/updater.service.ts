@@ -26,8 +26,6 @@ import {
 import { Cron } from '@nestjs/schedule';
 import { DataSource, Repository } from 'typeorm';
 import {
-  endOfTable,
-  mapObj,
   pastDataOnColumn,
   pastDataOnSheet,
   repoKeys,
@@ -59,6 +57,14 @@ interface RepoDict {
     | Repository<UserAccessCardInformation>
     | Repository<UserOtherInformation>
     | Repository<UserLapiscineInformation>;
+}
+
+export interface TableSet {
+  name: string; //테이블 이름
+  start: number; //테이블의 시작 인덱스
+  end: number; //테이블의 종료 인덱스
+  repo: any; //테이블저장을 위한 repository
+  mapCol: any; //테이블 별 컬럼 맵핑 값
 }
 
 @Injectable() //총 16개의 테이블
@@ -149,8 +155,6 @@ export class UpdaterService {
     this.userAccessCardInformationRepository,
     this.userOtherInformationRepository,
     this.userLapiscineInformationRepository,
-    //api 데이터를 담당하는 repository
-    // this.userLearningDataRepository,
   ];
 
   // apiOfRepo = [this.userLearningDataAPIRepository];
@@ -161,27 +165,35 @@ export class UpdaterService {
   }
 
   async updateData() {
-    let tableNum = 0;
-    //const index = 0;
-
-    // eslint-disable-next-line prefer-const
-    const jsonData = await this.spreadService.sendRequestToSpread(
-      SPREAD_END_POINT,
-      MAIN_SHEET,
-    );
-
-    const obj = JSON.parse(jsonData);
-    const cols = obj.table.cols;
-    const rows = obj.table.rows;
+    const tableSet = [] as TableSet[];
+    const spreadData =
+      await this.spreadService.sendRequestToSpreadWithGoogleAPI(
+        SPREAD_END_POINT,
+        MAIN_SHEET,
+      );
+    await this.spreadService.composeTableData(spreadData, tableSet, false); //시트를 테이블 별로 나눠 정보를 저장 TableSet 배열 구성
+    const columns = spreadData[1]; //모든 테이블의 컬럼 ex) [Intra No., Intra ID, 성명 ...]
+    const rows = (await spreadData).filter((value, index) => index > 1); //모든 테이블의 로우 [1,	68641,	kilee, ...]
     const api42s = await this.apiService.getApi();
+    const tableArray = {};
 
-    //console.log(api42s, 'wht');
-    //return api42s;
-    const table_array = {};
-    let table_name;
+    for (const table of tableSet) {
+      tableArray[table['name']] = {};
+      tableArray[table['name']] = await this.spreadService.parseSpread(
+        columns,
+        rows,
+        table,
+        api42s,
+      );
+    }
+    const latestData = await this.getLatestData();
+    await this.compareNewDataWithLatestData(tableArray, latestData);
 
-    /**
-     *  아래 for 문 돌고 나온 tableArray 값 예시
+    return await 'All data has been updated';
+  }
+
+  /**
+     *  위 updateData 함수의 for문 돌고 나온 tableArray 값 예시
     {
     "user": {
         "0": {
@@ -204,82 +216,35 @@ export class UpdaterService {
         },
      */
 
-    for (const col in cols) {
-      //console.log(col, 'col', tableNum, 'table');
-      if (cols[col]['label'] === endOfTable[tableNum]) {
-        table_name = await this.spreadService.getTableName(cols[col]['label']);
-        table_array[table_name] = {};
-        //tablle num 을 추가시키면서 label과 같은지 찾기, endoftable과 clos의 수가 같아서 가능
-        table_array[table_name] = await this.spreadService.parseSpread(
-          cols,
-          rows,
-          +col, //typescrit에서 string을 number로 바꾸기 위함
-          mapObj[tableNum],
-          endOfTable,
-          ++tableNum,
-          api42s,
-        );
-      } else if (
-        //endOfTable에 하위시트를 대비하여 메인에 없는 시트들이 생김
-        cols.find((Column) => Column.label === endOfTable[tableNum]) ===
-        undefined
-      )
-        tableNum++;
-    }
-    // for (const api_table_idx in apiTable) {
-    //   if (apiTable[api_table_idx] == '학습데이터') {
-    //     table_name = await this.spreadService.getTableName('학습데이터');
-    //     table_array[table_name] = {}; //학습데이터
-    //     table_array[table_name] = await this.apiService.parseApi(
-    //       apiTable[api_table_idx],
-    //       this.apiOfRepo[api_table_idx],
-    //       api42s,
-    //     );
-    //     //  }
-    //   }
-    // }
-    const latestData = await this.getLatestData();
-    await this.compareNewDataWithLatestData(table_array, latestData);
-
-    return await 'All data has been updated';
-  }
-
   async updateOldData() {
     /* 지원금 관련 월별 지금액 시트 */
     //this.sendRequestToSpread();
     /* 테이블 별 과거 데이터 */
     let pastColumn;
-    const userTable = [];
+    const userTable = {};
+    const tableSet = [] as TableSet[];
 
-    let jsonData;
-    const index = 0;
-
-    // eslint-disable-next-line prefer-const
-    jsonData = await this.spreadService.sendRequestToSpread(
-      SPREAD_END_POINT,
-      MAIN_SHEET,
-    );
-
-    const obj = JSON.parse(jsonData);
-    const cols = obj.table.cols;
-    const rows = obj.table.rows;
-
+    const spreadData =
+      await this.spreadService.sendRequestToSpreadWithGoogleAPI(
+        SPREAD_END_POINT,
+        MAIN_SHEET,
+      );
+    await this.spreadService.composeTableData(spreadData, tableSet, true);
+    const columns = spreadData[1];
+    const rows = (await spreadData).filter((value, index) => index > 1);
     userTable['user'] = await this.spreadService.parseSpread(
-      cols,
+      columns,
       rows,
-      index,
-      mapObj[0],
-      endOfTable[1],
+      tableSet[0],
       undefined,
-    );
-
+    ); //기본 키값이 되는 유저정보 가져오기
     const allUser = await this.repoDict['user']
       .createQueryBuilder('user')
       .getMany();
-
-    for (const user of userTable) {
+    for (const user of userTable['user']) {
       await this.findTargetByKey(this.repoDict['user'], 'user', user, allUser);
     }
+
     for (const sheetIdx in pastDataOnSheet) {
       //시트의 총 장수 만큼 반복
       if (pastDataOnSheet[sheetIdx].endPoint) {
@@ -319,6 +284,13 @@ export class UpdaterService {
     }
 
     return returnArray;
+  }
+
+  async extractDataIntoSpreadsheet() {
+    return await this.spreadService.createSpreadsheet(
+      SPREAD_END_POINT,
+      'googleapi/newpage',
+    );
   }
 
   async findTargetByKey(repo, repoKey, newOneData, targetObj) {

@@ -15,6 +15,7 @@ import { UpdaterModule } from './updater/updater.module';
 import { DataSource } from 'typeorm';
 import { AuthModule } from './auth/auth.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { SpreadModule } from './spread/spread.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     UserJobModule,
     UserPaymentModule,
     UserStatusModule,
+    SpreadModule,
     ApiModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
