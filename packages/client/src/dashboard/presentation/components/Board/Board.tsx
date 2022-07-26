@@ -8,7 +8,6 @@ import useBoard from '../../../application/services/useBoard';
 import useMode from '../../../application/services/useMode';
 import { v4 as uuid } from 'uuid';
 import SectionDataType from '../../../domain/sectionDatas/sectionData.type';
-import { Button } from '@mui/material';
 import EditToolBar from '../Common/EditToolBar';
 
 const ReactGridLayout = WidthProvider(RGL.Responsive);
@@ -46,7 +45,6 @@ export default function Board() {
   function drawSections() {
     return boardData.sectionLayouts.map((section: Layout) => {
       const stickerLayouts = getSectionDatas(section.i)?.stickerLayouts;
-      console.log(stickerLayouts, section.i);
       return (
         <div key={section.i}>
           <Section

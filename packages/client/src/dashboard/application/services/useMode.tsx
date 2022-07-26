@@ -11,8 +11,6 @@ function useMode() {
     ControlModeStore.getControlMode(),
   );
 
-  console.log('stateMode : ', controlModeData);
-
   ControlModeStore.subscribeToControlMode(
     (newControlModeData: ControlModeType) => {
       setcontrolModeData(newControlModeData);

@@ -11,8 +11,6 @@ function useStickers() {
     stickersStore.getStickerDatas(),
   );
 
-  console.log('stateStickers', stickerDatas);
-
   stickersStore.subscribeToStickers(
     (newStickerDatas: Array<StickerDataType>) => {
       setStickerDatas(newStickerDatas);
@@ -20,18 +18,18 @@ function useStickers() {
   );
 
   const getSticker = (id: string) => {
-    return stickersService.getSticker(id);
+    return stickersService.getStickerData(id);
   };
 
-  const addSticker = async (newSticker: StickerDataType) => {
-    return await stickersService.addSticker(newSticker);
+  const addStickerData = async (newSticker: StickerDataType) => {
+    return await stickersService.addStickerData(newSticker);
   };
 
   const removeSticker = async (id: string) => {
-    return await stickersService.removeSticker(id);
+    return await stickersService.removeStickerData(id);
   };
 
-  return { stickerDatas, getSticker, addSticker, removeSticker };
+  return { stickerDatas, getSticker, addStickerData, removeSticker };
 }
 
 export default useStickers;
