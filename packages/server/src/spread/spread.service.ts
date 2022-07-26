@@ -1,11 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { ApiService } from 'src/api/api.service';
-import { mapObj, TABLENUM } from 'src/updater/name_types/updater.name';
+import { google } from 'googleapis';
+import { client_email, private_key } from 'src/config/credentials.json';
+import {
+  mapObj,
+  pastDataOnSheet,
+  TABLENUM,
+} from 'src/updater/name_types/updater.name';
 import { UserHrdNetUtilizeConsent } from 'src/user_job/entity/user_job.entity';
 import { UserComputationFund } from 'src/user_payment/entity/user_payment.entity';
 import { UserLearningDataAPI } from 'src/user_status/entity/user_status.entity';
-import { DataSource } from 'typeorm';
+import { Column, DataSource } from 'typeorm';
+import { MAIN_SHEET, SPREAD_END_POINT } from 'src/config/key';
+import { TableSet } from 'src/updater/updater.service';
 
 @Injectable()
 export class SpreadService {
@@ -15,30 +23,58 @@ export class SpreadService {
     private dataSource: DataSource,
   ) {}
 
-  async sendRequestToSpread(endPoint: string, id: string) {
-    let spreadData;
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const axios = require('axios'); //필요성 의문.. 체크 필요
+  async sendRequestToSpreadWithGoogleAPI(endPoint: string, id: string) {
+    const authorize = new google.auth.JWT(client_email, null, private_key, [
+      'https://www.googleapis.com/auth/spreadsheets',
+    ]);
+    // google spread sheet api 가져오기
+    const googleSheet = google.sheets({
+      version: 'v4',
+      auth: authorize,
+    });
 
-    await axios({
-      method: 'get',
-      url: `http://spreadsheets.google.com/tq?key=${endPoint}&pub=1&gid=${id}`,
-    })
-      .then(function (response) {
-        const rawdata = response.data;
-
-        const temp = '/*O_o*/\ngoogle.visualization.Query.setResponse(';
-        const temp2 = '';
-        const temp3 = ');';
-
-        const rawdata2 = rawdata.replace(temp, temp2);
-        spreadData = rawdata2.replace(temp3, temp2);
-      })
-      .catch(function (err) {
-        console.log(err); // 에러 처리 내용
+    // 실제 스프레드시트 내용 가져오기
+    try {
+      const context = await googleSheet.spreadsheets.values.get({
+        spreadsheetId: endPoint,
+        range: id,
+        dateTimeRenderOption: 'FORMATTED_STRING',
       });
+      return context.data.values;
+    } catch (err) {
+      // TODO (developer) - Handle exception
+      throw err;
+    }
+  }
 
-    return await spreadData;
+  async createSpreadsheet(endPoint: string, title) {
+    const authorize = new google.auth.JWT(client_email, null, private_key, [
+      'https://www.googleapis.com/auth/spreadsheets',
+    ]);
+
+    // google spread sheet api 가져오기
+    const googleSheet = google.sheets({
+      version: 'v4',
+      auth: authorize,
+    });
+    try {
+      const sheetBody = {
+        auth: authorize,
+        requestBody: { properties: { title } },
+      };
+      const spreadsheet = await googleSheet.spreadsheets.create(sheetBody);
+      if (spreadsheet.status === 200) {
+        const spreadsheetId = spreadsheet.data.spreadsheetId;
+        const spreadsheetUrl = spreadsheet.data.spreadsheetUrl;
+      } else {
+        throw new Error('Spreadsheet creation failed. Kindly try again!');
+      }
+      console.log(`Spreadsheet ID: ${spreadsheet.data.spreadsheetId}`);
+      return spreadsheet.data.spreadsheetId;
+    } catch (err) {
+      // TODO (developer) - Handle exception
+      throw err;
+    }
   }
 
   onlyNumbers(str) {
@@ -97,79 +133,47 @@ export class SpreadService {
   //테이블 별 하나의 로우 완성하는 함수
   makeRowPerColumn(row, cols, rowIdx, tuple, mapObjs) {
     let columnLabel;
+    const datePattern =
+      /[0-9]{4}. (0?[1-9]|1[012]). (0?[1-9]|[12][0-9]|3[0-1])$/; // yyyy-mm-dd 형식인지 체크
 
     if (
-      row['c'][rowIdx] !== null &&
-      (columnLabel = mapObjs.find(
-        this.compareSpname(cols[rowIdx]['label']),
-      )) !== undefined
+      row[rowIdx] !== null &&
+      (columnLabel = mapObjs.find(this.compareSpname(cols[rowIdx]))) !==
+        undefined
     ) {
-      //타입이 date인 경우 변환처리해줘야 db에 적용됨.
-      if (cols[rowIdx]['type'] === 'date') {
-        tuple[`${columnLabel.dbName}`] = this.changeDate(row['c'][rowIdx]['f']);
-      } else if (row['c'][rowIdx]['v'] !== null) {
-        tuple[`${columnLabel.dbName}`] = row['c'][rowIdx]['v'];
+      if (datePattern.test(row[rowIdx])) {
+        tuple[`${columnLabel.dbName}`] = this.changeDate(row[rowIdx]);
+      } else if (row[rowIdx] !== '') {
+        tuple[`${columnLabel.dbName}`] = row[rowIdx];
       }
-    }
+    } else if (row[rowIdx] === null) tuple[`${columnLabel.dbName}`] = null;
   }
 
-  async parseSpread(
-    cols,
-    rows,
-    colIdx: number,
-    mapObj,
-    endOfTable,
-    tableNum?,
-    api42s?,
-  ) {
-    let colRowIdx; //컬럼의 위치 튜플의 도메인 위치 맞춰주기 위한 색인
+  async parseSpread(cols, rows, table, api42s?) {
     const tupleArray = [];
-    //let tableIdx = 0;
-    //console.log(`brefore table : ${cols[colIdx]['label']}`);
-    const tableName = await this.getTableName(cols[colIdx]['label']);
-    //  console.log(tableName, 'sssdfdsfsdfsdfssds');
 
-    //console.log(`tablename: ${tableName}, taable_idx: ${tableIdx}`);
-    //tupleArray[tableName] = { 1: 1, 2: 2 };
-    //console.log(tupleArray, 'dd');
-
-    //console.log(rows, 'rowss');
     for (const row of rows) {
       const tuple = {};
-      colRowIdx = colIdx; //특정 테이블의 시작에 해당하는 컬럼의 색인으로 초기화
-      while (
-        cols[colRowIdx] !== undefined &&
-        !this.checkEnd(tableNum, endOfTable, cols[colRowIdx]['label'])
-      ) {
-        this.makeRowPerColumn(row, cols, colRowIdx, tuple, mapObj);
-        colRowIdx++;
+      for (let col = table['start']; col < table['end']; col++) {
+        this.makeRowPerColumn(row, cols, col, tuple, table['mapCol']);
       }
-      //console.log('before intra', tuple, '111111111111');
       if (api42s != undefined) {
-        const api42 = await this.apiService.getTupleFromApi(
-          row['c'][1]['f'],
-          api42s,
-        );
-        //console.log(api42);
-        if (tableName === 'user_personal_information') {
+        const api42 = await this.apiService.getTupleFromApi(row[1], api42s);
+        if (table['name'] === 'user_personal_information') {
           tuple['email'] = api42.email;
           tuple['phone_number'] = api42.phone_number;
         }
-        if (tableName === 'user_blackhole') {
-          //tuple['remaining_period'] = api42.remaining_period;
+        if (table['name'] === 'user_blackhole') {
           tuple['blackhole_date'] = api42.blackhole_date;
         } //여기 학습데이터를 추가해야함.
+        if (table['name'] === 'user_learning_data_api') {
+          tuple['level'] = api42.level;
+          //tuple['leveled_date'] = ''; //동환님께 여쭤보자
+        } //여기 학습데이터를 추가해야함.
       }
-      if (tableName != 'user') tuple['fk_user_no'] = row['c'][1]['f']; //usertable은 해당 컬럼이 필요가 없음
-      //      console.log(tuple, 'tupleeee');
-      //    console.log(`tablename: ${tableName}`);
-      //  tupleLine = Repo.create(tuple);
-      //  console.log(tupleLine, 'lidldidl');
-      //   await Repo.save(tupleLine);
+      if (table['name'] != 'user') tuple['fk_user_no'] = row[1]; //usertable은 해당 컬럼이 필요가 없음
       tupleArray.push(tuple);
-      console.log(tableName, tuple, '123411');
     }
-    //console.log(tupleArray, 'sss');
     return tupleArray;
   }
 
@@ -180,20 +184,20 @@ export class SpreadService {
 
     for (const idx in colObj.Id) {
       //시트의 총 장수 만큼 반복
-      const jsonData = await this.sendRequestToSpread(
+      const spreadData = await this.sendRequestToSpreadWithGoogleAPI(
         colObj.endPoint,
         colObj.Id[idx],
       );
-      const obj = JSON.parse(jsonData);
+      const obj = spreadData;
       colDatas.push(obj);
     }
     if (colObj.table === TABLENUM.USERCOMPUTATIONFUND) {
-      // 메인시트와 동일한 형태로 저장된 경우F
+      // 메인시트와 동일한 형태로 저장된 경우
       const datas = [];
       for (const colData of colDatas) {
-        const cols = colData.table.cols;
-        const rows = colData.table.rows;
-        this.makeAColumnInTable(cols, rows, datas, date);
+        const columns = colData[0];
+        const rows = (await colData).filter((value, index) => index > 0);
+        this.makeAColumnInTable(columns, rows, datas, date);
       }
       await this.insertArrayToDB(UserComputationFund, datas);
     } else if (
@@ -204,18 +208,19 @@ export class SpreadService {
       const sheet = [];
       for (const colData in colDatas) {
         const datas = [];
-        const cols = colDatas[colData].table.cols;
-        const rows = colDatas[colData].table.rows;
+        const columns = colDatas[colData][0];
+        const rows = await colDatas[colData].filter((v, index) => index > 0);
 
         this.makeColumnsInTable(
-          cols,
+          columns,
           rows,
           datas,
-          mapObj[colObj.table][Number(colData) * 2]['spName'],
-          mapObj[colObj.table][Number(colData) * 2 + 1]['spName'],
+          mapObj[colObj.table][Number(colData) * 2]['spName'], //데이터
+          mapObj[colObj.table][Number(colData) * 2 + 1]['spName'], //데이터 일자
           mapObj[colObj.table],
         );
         for (const data of datas) {
+          // 같은 일자에 저장된 시트들을 합쳐주는 작업
           let flag = false;
           for (const col of sheet) {
             if (colData === '0') break;
@@ -232,7 +237,9 @@ export class SpreadService {
               break;
             }
           }
-          if (flag === false) sheet.push(data);
+          if (flag === false) {
+            sheet.push(data);
+          }
         }
       }
       if (colObj.table === TABLENUM.USERLEARNINGDATAAPI)
@@ -244,24 +251,21 @@ export class SpreadService {
   }
 
   makeAColumnInTable(cols, rows, datas, date) {
+    const pattern = /[0-9]{4}. (0?[1-9]|1[012]). (0?[1-9]|[12][0-9]|3[0-1])$/; // yyyy. mm. dd 형식인지 체크
     for (const col in cols) {
-      if (cols[col]['pattern'] === 'yyyy. mm. dd') {
+      date = cols[col];
+      if (pattern.test(cols[col])) {
         for (const row in rows) {
           const payment_data = {};
-          if (row === '0') {
-            date = rows[row]['c'][col]['f'];
-            continue;
-          }
-          if (rows[row]['c'][col] === null || rows[row]['c'][col]['v'] === null)
-            continue;
+          if (rows[row][col] === undefined) continue;
           payment_data[mapObj[TABLENUM.USERCOMPUTATIONFUND][0].dbName] =
-            this.changeDate(date);
+            this.changeDate(date); //yyyy. mm. dd -> yyyy-mm-dd
           payment_data[mapObj[TABLENUM.USERCOMPUTATIONFUND][2].dbName] = Number(
-            rows[row]['c'][col]['f'].replace(/\,/g, ''),
-          );
-          if (rows[row]['c'][col]['f'] != '0')
+            rows[row][col].replace(/\,/g, ''),
+          ); //1,000,000 -> 1000000
+          if (rows[row][col] != '0')
             payment_data[mapObj[TABLENUM.USERCOMPUTATIONFUND][1].dbName] = 'Y';
-          payment_data['fk_user_no'] = rows[row]['c'][1]['f'];
+          payment_data['fk_user_no'] = rows[row][1];
           datas.push(payment_data);
         }
       }
@@ -270,19 +274,22 @@ export class SpreadService {
 
   makeColumnsInTable(cols, rows, datas, value, date, mapObj) {
     //한테이블에 두개이상 컬럼을 추가하는 경우
+    //monthData
     let data;
-    let monthData;
+    let monthData; //value, date, fk_user_no 를 저장
 
     for (const col in cols) {
-      if (cols[col]['label'] !== value && cols[col]['label'] !== date) continue;
-      if (cols[col]['label'] === value) {
-        monthData = [];
+      if (cols[col] !== value && cols[col] !== date) continue;
+      if (cols[col] === value) {
+        monthData = []; //새로운 value & date 묶음을 만날때마다 초기화
       }
       for (const row of rows) {
         const prop = {};
+        if (row[col] === undefined) continue;
         this.makeRowPerColumn(row, cols, col, prop, mapObj);
-        prop['fk_user_no'] = row['c'][1]['f'];
-        if (cols[col]['label'] === date) {
+        prop['fk_user_no'] = row[1];
+        if (cols[col] === date) {
+          //이미 있는 유저의 경우 value와 date동일 라인에 저장
           if (
             (data = monthData.find(this.compareFk(prop['fk_user_no']))) ===
             undefined
@@ -291,11 +298,11 @@ export class SpreadService {
           } else {
             Object.assign(data, prop);
           }
-        } else if (cols[col]['label'] === value) {
+        } else if (cols[col] === value) {
           monthData.push(prop);
         }
       }
-      if (cols[col]['label'] === date) {
+      if (cols[col] === date) {
         datas.push(...monthData);
       }
     }
@@ -307,12 +314,12 @@ export class SpreadService {
     for (const row of rows) {
       //학생의 수 만큼 반복
       const tuple = {};
-      const columns = pastSheetData.columns; // 해당 시트 테이블의 컬럼들
+      const mapCols = pastSheetData.columns; // 해당 시트 테이블의 컬럼들
       for (const col in cols) {
         //컬럼 수 만큼 반복
-        this.makeRowPerColumn(row, cols, col, tuple, columns);
+        this.makeRowPerColumn(row, cols, col, tuple, mapCols);
       }
-      tuple['fk_user_no'] = row['c'][1]['f']; //취업정보, 고용보험 시트의 경우 변경을 해줘야함.
+      tuple['fk_user_no'] = row[1]; //취업정보, 고용보험 시트의 경우 변경을 해줘야함.
       tupleLine = pastSheetData['repo'].create(tuple);
       await pastSheetData['repo'].save(tupleLine);
     }
@@ -321,49 +328,74 @@ export class SpreadService {
 
   async getOldSheetTable(pastSheetData) {
     // let colDatas;
-    const jsonData = await this.sendRequestToSpread(
+    const spreadData = await this.sendRequestToSpreadWithGoogleAPI(
       pastSheetData.endPoint,
       pastSheetData.Id[0],
     );
-    const obj = JSON.parse(jsonData);
-    const cols = obj.table.cols;
-    const rows = obj.table.rows;
+    const columns = spreadData[0];
+    const rows = (await spreadData).filter((value, index) => index > 0);
 
     //지급일 시트 정보 받아서 저장해두기 테이블 관계수정 //확장성을 고려하려 했으나, 지원금 시트(LogColumn)의 특징이 강력하여 함수를 하나 더 만들기로 결정
 
-    await this.parseOldSpread(cols, rows, pastSheetData);
+    await this.parseOldSpread(columns, rows, pastSheetData);
+  }
+
+  async composeTableData(spreadData, tableSet: TableSet[], old: boolean) {
+    let tableNames;
+    const table = spreadData[0]; //맨 윗 줄 테이블이름
+    const endOfTables = await table // 테이블이름(공백포함) -> 테이블의 인덱스(공백포함) -> 공백제거된 테이블의 인덱스 [0, 10, ...]
+      .map((value, index) => {
+        if (value != '') return index;
+        else return '';
+      })
+      .filter((value, index) => {
+        if (value != '') return index;
+      });
+    endOfTables.unshift(0); //생략된 첫번째 인덱스 0추가
+    if (old) {
+      //old데이터를 가져올 시에는 user테이블만 필요함
+      tableNames = await table.filter(
+        (value, index) => index < 1 && value != '',
+      );
+    } else {
+      const lengthArray = await spreadData.map((value) => value.length); //모든 로우 중 가장 긴 로우기준
+      endOfTables.push(Math.max.apply(null, lengthArray));
+      tableNames = await table.filter((value) => value != '');
+    }
+
+    this.makeTableSet(tableSet, endOfTables, mapObj, tableNames);
+  }
+
+  makeTableSet(tableSet: TableSet[], endOfTables, mapObjs, tableNames) {
+    //table의 모든 정보를 TableSet인스턴스에 담는 작업을 하는 함수입니다.
+    for (const tableName in tableNames) {
+      const table = {} as TableSet;
+      table.name = this.getTableName(tableNames[tableName]);
+      table['start'] = endOfTables[tableName];
+      table['end'] = endOfTables[+tableName + 1];
+      table['mapCol'] = mapObjs[tableName];
+      tableSet.push(table);
+    }
   }
 
   getTableName(spreadTable: string) {
-    if (spreadTable == '학사정보 no.') return 'user';
-    else if (spreadTable == '인적정보 지역') return 'user_personal_information';
-    else if (spreadTable == '과정연장 기본종료일자')
-      return 'user_course_extension';
-    else if (spreadTable == '휴학 휴학') return 'user_leave_of_absence';
-    else if (spreadTable == 'BLACKHOLE Blackholed') return 'user_blackhole';
-    else if (spreadTable == '과정중단 과정중단')
-      return 'user_interruption_of_course';
-    else if (spreadTable == '학습데이터(API) Coalition Score')
-      return 'user_learning_data_api';
-    else if (spreadTable == '로열티 관리 대상기간')
-      return 'user_loyalty_management';
-    else if (spreadTable == '취업현황 취업현황')
-      return 'user_employment_status';
-    else if (spreadTable == 'HRD-Net 동의 정보제공동의')
-      return 'user_hrd_net_utilize_consent';
-    else if (spreadTable == 'HRD-Net_data HRD-Net_출력_date')
-      return 'user_hrd_net_utilize';
-    else if (spreadTable == '취업_기타수집_data 취업일자')
+    if (spreadTable == '학사정보') return 'user';
+    else if (spreadTable == '인적정보') return 'user_personal_information';
+    else if (spreadTable == '과정연장') return 'user_course_extension';
+    else if (spreadTable == '휴학') return 'user_leave_of_absence';
+    else if (spreadTable == 'BLACKHOLE') return 'user_blackhole';
+    else if (spreadTable == '과정중단') return 'user_interruption_of_course';
+    else if (spreadTable == '학습데이터(API)') return 'user_learning_data_api';
+    else if (spreadTable == '로열티 관리') return 'user_loyalty_management';
+    else if (spreadTable == '취업현황') return 'user_employment_status';
+    else if (spreadTable == 'HRD-Net 활용') return 'user_hrd_net_utilize';
+    else if (spreadTable == '취업_기타수집_data')
       return 'user_other_employment_status';
-    else if (spreadTable == '지원금 관리 총 지급 개월')
-      return 'user_education_fund_state';
-    else if (spreadTable == '지원금 산정 지급일')
-      return 'user_computation_fund';
-    else if (spreadTable == '출입카드_info 사진이미지파일')
+    else if (spreadTable == '지원금 관리') return 'user_education_fund_state';
+    else if (spreadTable == '지원금 산정') return 'user_computation_fund';
+    else if (spreadTable == '출입카드_info')
       return 'user_access_card_information';
-    else if (spreadTable == '기타정보 최종학력')
-      return 'user_other_information';
-    else if (spreadTable == 'La Piscine LaPiscine_기수')
-      return 'user_lapiscine_information';
+    else if (spreadTable == '기타정보') return 'user_other_information';
+    else if (spreadTable == 'La Piscine') return 'user_lapiscine_information';
   }
 }

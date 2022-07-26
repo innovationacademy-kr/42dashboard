@@ -19,6 +19,11 @@ export class UpdaterResolver {
   }
 
   @Query(() => String)
+  extractDataIntoSpreadsheet() {
+    return this.updaterService.extractDataIntoSpreadsheet();
+  }
+
+  @Query(() => String)
   getLatestData() {
     return this.updaterService.getLatestData();
   }
