@@ -5,27 +5,68 @@ import {
 } from './StickerContent.type';
 import LineChart from '../Charts/LineChart';
 import BarChart from '../Charts/BarChart';
-
+import styled from '@emotion/styled';
+import useMode from '../../../application/services/useMode';
 export interface StickerContentFactoryProps {
   type: StickerContentType;
   contentProps: StickerContentPropType;
 }
 
+const StickerContentWrapper = styled.div`
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+  align-items: center;
+  height: calc(100% - 3rem);
+  width: calc(100% - 1rem);
+  top: 1rem;
+  &.edit {
+    top: 0rem;
+  }
+`;
+
 function StickerContentFactory(props: StickerContentFactoryProps) {
   const { type, contentProps } = props;
+  const { getControlMode } = useMode();
+  const mode = getControlMode();
+
   switch (type) {
     case 'pieChart':
-      return <PieChart {...contentProps} />;
+      return (
+        <StickerContentWrapper className={mode}>
+          <PieChart {...contentProps} />
+        </StickerContentWrapper>
+      );
     case 'lineChart':
-      return <LineChart {...contentProps} />;
+      return (
+        <StickerContentWrapper className={mode}>
+          <LineChart {...contentProps} />
+        </StickerContentWrapper>
+      );
     case 'barChart':
-      return <BarChart {...contentProps} />;
+      return (
+        <StickerContentWrapper className={mode}>
+          <BarChart {...contentProps} />
+        </StickerContentWrapper>
+      );
     case 'text':
-      return <div>개발 중</div>;
+      return (
+        <StickerContentWrapper className={mode}>
+          <div>개발 중</div>
+        </StickerContentWrapper>
+      );
     case 'table':
-      return <div>개발 중</div>;
+      return (
+        <StickerContentWrapper className={mode}>
+          <div>개발 중</div>
+        </StickerContentWrapper>
+      );
     default:
-      return <div>개발 중</div>;
+      return (
+        <StickerContentWrapper className={mode}>
+          <div>개발 중</div>
+        </StickerContentWrapper>
+      );
   }
 }
 

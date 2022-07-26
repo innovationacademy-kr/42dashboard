@@ -9,6 +9,10 @@ export default function LineChart(props: ChartProps) {
   const { labels, queryData, options } = props;
   const { data, loading, error } = useChartDataset(queryData);
   const datasets = [];
+  const defaultOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+  };
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error :(</p>;
@@ -25,5 +29,12 @@ export default function LineChart(props: ChartProps) {
     })),
   };
 
-  return <Line data={lineData} options={options} />;
+  return (
+    <Line
+      data={lineData}
+      options={
+        options ? Object.assign(defaultOptions, options) : defaultOptions
+      }
+    />
+  );
 }

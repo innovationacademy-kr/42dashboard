@@ -19,6 +19,7 @@ interface EditToolBarProps {
 const EditToolBarArea = styled.div`
   display: flex;
   width: 100%;
+  height: 2rem;
   justify-content: space-between;
   border: 1px solid blue;
 `;
