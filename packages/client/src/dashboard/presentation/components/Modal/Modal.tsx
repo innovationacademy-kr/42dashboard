@@ -8,8 +8,8 @@ import makeStickerData from './makeStickerData';
 
 interface ModalProps {
   sectionId: string;
-  func: (sectionId: string, stickerId: string) => void;
-  addSticker: (sticker: StickerDataType) => Promise<void>;
+  renderAddedSticker: (sectionId: string, stickerId: string) => void;
+  addStickerData: (sticker: StickerDataType) => Promise<void>;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
 }
@@ -28,7 +28,9 @@ const style = {
 };
 
 const ModalFrame = (props: ModalProps) => {
-  const { sectionId, func, addSticker, isOpen, setIsOpen } = props;
+  const { sectionId, renderAddedSticker, addStickerData, isOpen, setIsOpen } =
+    props;
+
   const [type, setType] = useState<StickerContentType>('lineChart');
   const [labels, setLabels] = useState<string[]>([]);
   const [filters, setFilters] = useState<QueryFilterType[]>([]);
@@ -45,9 +47,9 @@ const ModalFrame = (props: ModalProps) => {
     /** turn off modal */
     setIsOpen(false);
     /** store sticker data to store */
-    addSticker(newStickerData);
+    addStickerData(newStickerData);
     /** render sticker */
-    func(sectionId, newStickerData.id);
+    renderAddedSticker(sectionId, newStickerData.id);
   }
 
   return (

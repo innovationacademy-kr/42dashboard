@@ -1,7 +1,7 @@
 import StickerDataType from './stickerData.type';
 
 export default interface StickersDatasRepositoryInterface {
-  getSticker: (id: string) => StickerDataType;
-  addSticker: (sticker: StickerDataType) => void;
-  removeSticker: (id: string) => void;
+  getStickerData: (id: string) => StickerDataType;
+  addStickerData: (newStickerData: StickerDataType) => void;
+  removeStickerData: (id: string) => void;
 }

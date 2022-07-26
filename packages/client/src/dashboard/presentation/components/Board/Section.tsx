@@ -3,12 +3,9 @@ import './styles2.css';
 import Sticker from '../Sticker/Sticker';
 import useStickers from '../../../application/services/useStickers';
 import useMode from '../../../application/services/useMode';
-import { Button } from '@mui/material';
 import RGL, { Layout, WidthProvider } from 'react-grid-layout';
 import ModalFrame from '../Modal/Modal';
 import { useState } from 'react';
-import HorizontalLinearStepper from '../Modal/Stepper';
-import makeStickerData from '../Modal/makeStickerData';
 import EditToolBar from '../Common/EditToolBar';
 
 const ReactGridLayout = WidthProvider(RGL.Responsive);
@@ -23,7 +20,7 @@ interface SectionProps {
 }
 
 export default function Section(props: SectionProps) {
-  const { stickerDatas, addSticker, removeSticker } = useStickers();
+  const { stickerDatas, addStickerData, removeSticker } = useStickers();
   const {
     id,
     stickerLayouts,
@@ -64,8 +61,8 @@ export default function Section(props: SectionProps) {
         isOpen={isOpen}
         setIsOpen={setIsOpen}
         sectionId={id}
-        func={handleStickerAdd}
-        addSticker={addSticker}
+        renderAddedSticker={handleStickerAdd}
+        addStickerData={addStickerData}
       ></ModalFrame>
       <ReactGridLayout
         onDragStart={(a, b, c, d, e) => e.stopPropagation()}

@@ -22,6 +22,5 @@ export default function createQuery(
      })
      .join('\n')}
     }`;
-  console.log(result);
   return gql(result);
 }

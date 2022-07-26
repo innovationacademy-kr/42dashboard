@@ -1,20 +1,20 @@
 import StickerDataType from './stickerData.type';
 import StickersRepositoryInterface from './stickerDatas.repository.interface';
 
-class StickersService {
+class StickerDatasService {
   constructor(protected stickerDatasRepository: StickersRepositoryInterface) {}
 
-  public async getSticker(id: string): Promise<StickerDataType> {
-    return this.stickerDatasRepository.getSticker(id);
+  public async getStickerData(id: string): Promise<StickerDataType> {
+    return this.stickerDatasRepository.getStickerData(id);
   }
 
-  public async addSticker(newStickerData: StickerDataType): Promise<void> {
-    return this.stickerDatasRepository.addSticker(newStickerData);
+  public async addStickerData(newStickerData: StickerDataType): Promise<void> {
+    return this.stickerDatasRepository.addStickerData(newStickerData);
   }
 
-  public async removeSticker(id: string): Promise<void> {
-    return this.stickerDatasRepository.removeSticker(id);
+  public async removeStickerData(id: string): Promise<void> {
+    return this.stickerDatasRepository.removeStickerData(id);
   }
 }
 
-export default StickersService;
+export default StickerDatasService;
