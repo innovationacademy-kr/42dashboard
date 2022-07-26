@@ -12,7 +12,9 @@ import ModeDial from '../components/ModeDial/ModeDial';
 import SideBar from '../components/SideBar/SideBar';
 
 // TODO: hybae
-// userData가 null일 때, setUserData
+// userData가 null일 때 처리 추가
+// userInfo API를 통해 데이터 받아올 경우, userData set
+// 그 외의 경우, 로그인 페이지로 라우팅
 function DashBoardPage() {
   const appBarTitle = (
     <Typography
