@@ -2,12 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { ApiService } from 'src/api/api.service';
 import { google } from 'googleapis';
-import { client_email, private_key } from 'src/config/credentials.json';
-import {
-  mapObj,
-  pastDataOnSheet,
-  TABLENUM,
-} from 'src/updater/name_types/updater.name';
+import { credentials } from 'src/config/credentials';
+import { mapObj, TABLENUM } from 'src/updater/name_types/updater.name';
 import { UserHrdNetUtilizeConsent } from 'src/user_job/entity/user_job.entity';
 import { UserComputationFund } from 'src/user_payment/entity/user_payment.entity';
 import { UserLearningDataAPI } from 'src/user_status/entity/user_status.entity';
@@ -24,9 +20,12 @@ export class SpreadService {
   ) {}
 
   async sendRequestToSpreadWithGoogleAPI(endPoint: string, id: string) {
-    const authorize = new google.auth.JWT(client_email, null, private_key, [
-      'https://www.googleapis.com/auth/spreadsheets',
-    ]);
+    const authorize = new google.auth.JWT(
+      credentials['client_email'],
+      null,
+      credentials['private_key'],
+      ['https://www.googleapis.com/auth/spreadsheets'],
+    );
     // google spread sheet api 가져오기
     const googleSheet = google.sheets({
       version: 'v4',
@@ -48,9 +47,12 @@ export class SpreadService {
   }
 
   async createSpreadsheet(endPoint: string, title) {
-    const authorize = new google.auth.JWT(client_email, null, private_key, [
-      'https://www.googleapis.com/auth/spreadsheets',
-    ]);
+    const authorize = new google.auth.JWT(
+      credentials['client_email'],
+      null,
+      credentials['private_key'],
+      ['https://www.googleapis.com/auth/spreadsheets'],
+    );
 
     // google spread sheet api 가져오기
     const googleSheet = google.sheets({
