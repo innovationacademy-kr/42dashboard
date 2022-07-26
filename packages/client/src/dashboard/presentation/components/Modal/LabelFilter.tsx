@@ -44,6 +44,10 @@ function LabelFilter(props: LabelFilterProps) {
 
   const saveSelectedFilter = () => {
     const filter = { entityName, column, operator, givenValue, latest };
+    if (!entityName || !column || !operator || !givenValue || !latest) {
+      alert('Please fill all the fields');
+      return;
+    }
     setLabels((labels) => [...labels, label]);
     setFilters((filters: any) => [...filters, filter]);
     addFilter({

@@ -24,7 +24,7 @@ export default function DatasetAccordion({
 }: DatasetAccordionProps) {
   function renderFilters() {
     return dataSet.map((filter, index) => {
-      return SelectedFilter({ data: { ...filter } });
+      return SelectedFilter({ data: { ...filter }, idx: index });
     });
   }
 

@@ -44,6 +44,10 @@ function DatasetFilter(props: DatasetFilterProps) {
 
   const addFilter = () => {
     const filter = { entityName, column, operator, givenValue, latest };
+    if (!entityName || !column || !operator || !givenValue || !latest) {
+      alert('Please fill all the fields');
+      return;
+    }
     setDataSets((prev) => {
       const newFilters = [...prev];
       newFilters[id].push(filter);
