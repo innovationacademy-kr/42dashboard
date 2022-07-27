@@ -2,7 +2,6 @@ import StickerContentFactory, {
   StickerContentFactoryProps,
 } from './StickerContentFactory';
 import useMode from '../../../application/services/useMode';
-import { Button } from '@mui/material';
 import EditToolBar from '../Common/EditToolBar';
 
 interface StickerProps {
