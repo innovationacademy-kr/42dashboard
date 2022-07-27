@@ -36,7 +36,7 @@ export default function InputLabels(props: FiltersProps) {
 
   function renderSelectedFilters() {
     return selectedLabels.map((label, idx) => (
-      <SelectedFilter idx={idx} data={label} />
+      <SelectedFilter key={idx} idx={idx} data={label} />
     ));
   }
 
