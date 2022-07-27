@@ -9,14 +9,18 @@ import {
 import { DocumentNode } from '@apollo/client';
 import { StickerContentType } from '../Sticker/StickerContent.type';
 
-function stringToBase64(str: string): string {
-  return Buffer.from(str).toString('base64');
+function stringToUnicode(str: string): string {
+  let ret = '';
+  for (let i = 0; i < str.length; i++) {
+    ret += str.charCodeAt(i);
+  }
+  return ret;
 }
 
 function returnFilterName(filter: QueryFilterType): string {
-  return `${filter.entityName}${filter.column}${stringToBase64(
+  return `${filter.entityName}${filter.column}${stringToUnicode(
     filter.operator,
-  )}${stringToBase64(filter.givenValue)}`;
+  )}${stringToUnicode(filter.givenValue)}`;
 }
 
 function changeFirstCharOfEntity(entityName: string) {
@@ -85,7 +89,7 @@ export default function makeStickerData({
   };
   const filterNames: string[] = returnFilterNames(queryVariables);
   const filterSets: string[][] = returnFilterSets(arrayOfDataSet, labelFilter);
-  //ERROR: this.
+  console.log('label', labels);
   console.log('labelFilter', labelFilter);
   console.log('filtersets', filterSets);
   const query: DocumentNode = createQuery(filterNames, labels, filterSets);
