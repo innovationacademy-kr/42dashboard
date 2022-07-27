@@ -38,7 +38,7 @@ const ModalFrame = (props: ModalProps) => {
 
   function AddStickerDataset() {
     const newStickerData = makeStickerData({
-      sectionId: sectionId,
+      sectionId,
       type,
       labels,
       labelFilter: filters,
@@ -50,6 +50,9 @@ const ModalFrame = (props: ModalProps) => {
     addStickerData(newStickerData);
     /** render sticker */
     renderAddedSticker(sectionId, newStickerData.id);
+    setLabels([]);
+    setFilters([]);
+    setDataSets([[]]);
   }
 
   return (
