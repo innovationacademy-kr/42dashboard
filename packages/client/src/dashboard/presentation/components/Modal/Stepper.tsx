@@ -41,6 +41,7 @@ export default function HorizontalLinearStepper(props: ModalDatasType) {
   const [selectedLabels, setSelectedLabels] = React.useState<
     SelectedLabelFilters[]
   >([]);
+  const [datasetExpand, setDatasetExpand] = React.useState(0);
 
   const handleNext = () => {
     if (activeStep === steps.length) {
@@ -57,10 +58,12 @@ export default function HorizontalLinearStepper(props: ModalDatasType) {
     setActiveStep(0);
   };
 
-  const [focus, setFocus] = React.useState(0);
   function focusing(i: number) {
     return () => {
-      setFocus(i);
+      setDatasetExpand((prev) => {
+        if (prev === i) return -1;
+        else return i;
+      });
     };
   }
 
@@ -81,7 +84,7 @@ export default function HorizontalLinearStepper(props: ModalDatasType) {
         <InputDataset
           dataSets={dataSets}
           setDataSets={setDataSets}
-          focus={focus}
+          focus={datasetExpand}
           onChange={focusing}
         />
       );
