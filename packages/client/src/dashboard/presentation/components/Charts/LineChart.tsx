@@ -17,13 +17,15 @@ export default function LineChart(props: ChartProps) {
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error :(</p>;
 
+  /** alias로 설정한 이름이 data object의 key값 */
   const dataArray = Object.values(data);
   while (dataArray.length > 0) {
     datasets.push(dataArray.splice(0, labels.length));
   }
   const lineData = {
     labels,
-    datasets: datasets.map((dataset) => ({
+    datasets: datasets.map((dataset, index) => ({
+      label: `line ${index}`, //TODO(jinbekim): dataset 이름 받기
       data: dataset,
       backgroundColor: ['#36A2EB', '#FF6384'],
     })),
