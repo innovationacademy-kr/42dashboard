@@ -35,7 +35,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload) {
     // const { email, login, first_name, last_name, usual_full_name } = payload;
     const { id, intraName, email, image_url, isStaff } = payload;
-    console.log(`${intraName} is login`);
+    console.log(`In authGuard: ${intraName} is login`);
     return payload;
     // return this.validateUser(payload);
   }

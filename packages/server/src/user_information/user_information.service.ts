@@ -141,7 +141,8 @@ export class UserInformationService {
     // console.log(filterObj);
     const findObj = this.createFindObj(
       filterObj,
-      filterArgs.timeReference,
+      filterArgs.startDate,
+      filterArgs.endDate,
       withDeleted,
     );
     // console.log(findObj);
@@ -177,7 +178,12 @@ export class UserInformationService {
    *    }
    */
 
-  private createFindObj(filterObj, timeReference = null, withDeleted = false) {
+  private createFindObj(
+    filterObj,
+    startDate = null,
+    endDate = null,
+    withDeleted = false,
+  ) {
     let filter;
     let column;
     let operator;
@@ -210,12 +216,6 @@ export class UserInformationService {
       if (entityName == 'user') continue; // user는 이미 위의 for문에서 처리
       ret['relations'][entityName] = true;
       ret['where'][entityName] = {};
-      if (entityName in valExColumnEntity && timeReference) {
-        ret['where'][entityName]['expired_date'] = MoreThan(timeReference);
-        ret['where'][entityName]['validate_date'] = LessThan(timeReference);
-      } else if (timeReference) {
-        ret['where'][entityName]['created_date'] = LessThan(timeReference);
-      }
       ret['order'][entityName] = {};
       for (const idx in filterObj[entityName]) {
         filter = filterObj[entityName][idx];
@@ -237,6 +237,26 @@ export class UserInformationService {
         } else {
           ret['order'][entityName]['created_at'] = 'ASC';
         }
+      }
+      if (entityName in valExColumnEntity && startDate && endDate) {
+        /**
+         * or 조건을 적용시키는게 맞나?
+         * 결과가 0또는 1만 나와야함 이 부분 나중에 테스트 해볼것
+         * 0 또는 1 이외의 결과가 나오면 DB가 잘못된거.
+         */
+        const log = ret['where'][entityName];
+        const latest = ret['where'][entityName];
+        ret['where'][entityName] = [];
+        log['expired_date'] = MoreThan(endDate);
+        log['validate_date'] = LessThan(startDate);
+        ret['where'][entityName].push(log);
+        latest['expired_date'] = MoreThan(endDate);
+        latest['validate_date'] = IsNull();
+        ret['where'][entityName].push(latest);
+      } else if (startDate && endDate) {
+        // 이건 보류
+        // startDate == endDate 옵션도 줘야하나?
+        ret['where'][entityName]['created_date'] = LessThan(endDate);
       }
     }
     return ret;
@@ -288,7 +308,7 @@ export class UserInformationService {
           if (
             'latest' in filter &&
             filter['latest'] == true &&
-            opeatorDict[filter['operator']](
+            !opeatorDict[filter['operator']](
               filter['givenValue'],
               row[joinedTable][0][filter['column']],
             )

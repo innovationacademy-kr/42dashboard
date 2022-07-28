@@ -20,32 +20,6 @@ opeatorDict['=='] = (lhs, rhs) => {
 opeatorDict['!='] = (lhs, rhs) => {
   return lhs != rhs;
 };
-opeatorDict['Like'] = (lhs, rhs) => {
-  return rhs.contain(lhs);
-};
-opeatorDict['like'] = (lhs, rhs) => {
-  return rhs.contain(lhs);
-};
-opeatorDict['ILike'] = (lhs, rhs) => {
-  lhs = lhs.toLowerCase();
-  rhs = rhs.toLowerCase();
-  return rhs.contain(lhs);
-};
-opeatorDict['iLike'] = (lhs, rhs) => {
-  lhs = lhs.toLowerCase();
-  rhs = rhs.toLowerCase();
-  return rhs.contain(lhs);
-};
-opeatorDict['Ilike'] = (lhs, rhs) => {
-  lhs = lhs.toLowerCase();
-  rhs = rhs.toLowerCase();
-  return rhs.contain(lhs);
-};
-opeatorDict['ilike'] = (lhs, rhs) => {
-  lhs = lhs.toLowerCase();
-  rhs = rhs.toLowerCase();
-  return rhs.contain(lhs);
-};
 opeatorDict['In'] = (lhs, rhs) => {
   const arr = lhs.split(';');
   return arr.includes(rhs);
@@ -65,5 +39,32 @@ opeatorDict['between'] = (lhs, rhs) => {
 opeatorDict['null'] = (lhs, rhs) => {
   return rhs == null;
 };
+
+// opeatorDict['Like'] = (lhs, rhs) => {
+//   return rhs.contain(lhs);
+// };
+// opeatorDict['like'] = (lhs, rhs) => {
+//   return rhs.contain(lhs);
+// };
+// opeatorDict['ILike'] = (lhs, rhs) => {
+//   lhs = lhs.toLowerCase();
+//   rhs = rhs.toLowerCase();
+//   return rhs.contain(lhs);
+// };
+// opeatorDict['iLike'] = (lhs, rhs) => {
+//   lhs = lhs.toLowerCase();
+//   rhs = rhs.toLowerCase();
+//   return rhs.contain(lhs);
+// };
+// opeatorDict['Ilike'] = (lhs, rhs) => {
+//   lhs = lhs.toLowerCase();
+//   rhs = rhs.toLowerCase();
+//   return rhs.contain(lhs);
+// };
+// opeatorDict['ilike'] = (lhs, rhs) => {
+//   lhs = lhs.toLowerCase();
+//   rhs = rhs.toLowerCase();
+//   return rhs.contain(lhs);
+// };
 
 export { opeatorDict };

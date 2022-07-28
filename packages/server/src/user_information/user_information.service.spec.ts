@@ -109,7 +109,6 @@ function makeFilter(
 describe('User Service', () => {
   let db: DataSource;
   let userService: UserInformationService;
-  let userRepository: Repository<User>;
   let queryRunner: QueryRunner;
 
   beforeAll(async () => {
@@ -220,13 +219,19 @@ describe('User Service', () => {
     queryRunner.release();
   });
 
-  it('', async () => {
+  it('where 쿼리문 적용시 OR 조건이 어떻게 적용되는지 테스트', async () => {
     //given
     queryRunner = db.createQueryRunner();
     await queryRunner.startTransaction();
     //when
-
+    const userRepository = db.getRepository(User);
+    const num = await userRepository.count({
+      where: {
+        userPersonalInformation: [{ gender: '남' }, { region: '부산' }],
+      },
+    });
     //then
+    expect(num).toBe(2);
     await queryRunner.rollbackTransaction();
     await queryRunner.release();
   });
