@@ -14,6 +14,7 @@ import { _DeepPartialObject } from 'chart.js/types/utils';
 import { ChartProps } from '../Charts/ChartData';
 
 export interface StickerContent {
+  none: null;
   pieChart: PieChartStickerType;
   lineChart: LineChartStickerType;
   barChart: BarChartStickerType;

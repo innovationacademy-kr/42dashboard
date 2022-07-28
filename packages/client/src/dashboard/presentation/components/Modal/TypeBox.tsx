@@ -7,7 +7,7 @@ interface typeProps {
   handleType: any;
 }
 
-const types = ['pieChart', 'lineChart', 'barChart', 'table', 'title'];
+const types = ['pieChart', 'lineChart', 'barChart', 'table', 'text'];
 
 const StyledDiv = styled.div`
   margin-top: 5rem;
@@ -24,10 +24,7 @@ const TypeBox = (props: typeProps) => {
 
   return (
     <StyledDiv>
-      <RadioGroup
-        // defaultValue="PieChart"
-        onChange={(event: any) => handleType(event.target.value)}
-      >
+      <RadioGroup onChange={(event: any) => handleType(event.target.value)}>
         {types.map((type) => (
           <div key={type}>
             <StyledRadio value={type} label={type} />
