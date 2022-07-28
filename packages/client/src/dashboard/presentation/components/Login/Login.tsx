@@ -1,4 +1,6 @@
 import styled from '@emotion/styled';
+import { useNavigate } from 'react-router-dom';
+import useUser from '../../../application/services/useUser';
 
 const LoginPage = styled.div`
   display: flex;
@@ -19,6 +21,13 @@ const LoginButton = styled.button`
 // TODO: hybae
 // 이미 로그인이 되어있는 경우, dashboard 페이지로 라우팅
 const Login = () => {
+  const { userInfo } = useUser();
+  const navigate = useNavigate();
+
+  if (userInfo !== null) {
+    navigate(`/dashboard`);
+  }
+
   function handleClick() {
     window.location.href = 'http://dashboard42.com:3000/auth/42';
   }
