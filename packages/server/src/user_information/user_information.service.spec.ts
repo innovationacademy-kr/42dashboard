@@ -307,4 +307,42 @@ describe('User Service', () => {
     await queryRunner.rollbackTransaction();
     await queryRunner.release();
   });
+
+  it('기간 필터링 적용', async () => {
+    //given
+    queryRunner = db.createQueryRunner();
+    await queryRunner.startTransaction();
+    const filters = [];
+    const filterArgs: FilterArgs = new FilterArgs();
+    //when
+    filters.push(
+      makeFilter('userLeaveOfAbsence', 'absenced', '==', '휴학', false),
+    );
+    filterArgs.startDate = '2021-03-01';
+    filterArgs.endDate = '2021-05-01';
+    filterArgs.filters = filters;
+    //then
+    expect(await userService.getNumOfPeopleByFilter(filterArgs)).toBe(1);
+    await queryRunner.rollbackTransaction();
+    await queryRunner.release();
+  });
+
+  it('기간 필터링 적용', async () => {
+    //given
+    queryRunner = db.createQueryRunner();
+    await queryRunner.startTransaction();
+    const filters = [];
+    const filterArgs: FilterArgs = new FilterArgs();
+    //when
+    filters.push(
+      makeFilter('userLeaveOfAbsence', 'absenced', '==', '휴학', false),
+    );
+    filterArgs.startDate = '2021-03-01';
+    filterArgs.endDate = '2021-05-01';
+    filterArgs.filters = filters;
+    //then
+    expect(await userService.getNumOfPeopleByFilter(filterArgs)).toBe(1);
+    await queryRunner.rollbackTransaction();
+    await queryRunner.release();
+  });
 });
