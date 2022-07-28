@@ -1,10 +1,10 @@
 import { Box, Modal } from '@mui/material';
 import { useState } from 'react';
-import HorizontalLinearStepper from './Stepper';
 import { QueryFilterType } from '../../../application/services/useDataset';
 import { StickerContentType } from '../Sticker/StickerContent.type';
 import StickerDataType from '../../../domain/stickerDatas/stickerData.type';
 import makeStickerData from './makeStickerData';
+import StickerStepper from './StickerStepper';
 
 interface ModalProps {
   sectionId: string;
@@ -66,7 +66,7 @@ const ModalFrame = (props: ModalProps) => {
       }}
     >
       <Box sx={style}>
-        <HorizontalLinearStepper
+        <StickerStepper
           dataSets={dataSets}
           setType={setType}
           setLabels={setLabels}

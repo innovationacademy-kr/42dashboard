@@ -4,10 +4,10 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { QueryFilterType } from '../../../application/services/useDataset';
-import DatasetFilter from './DatasetFilter';
-import SelectedFilter from './selectedFilter/SelectedFilter';
+import QueryFilterAttribute from './QueryFilterAttribute';
+import SelectedFilter from './SelectedFilter';
 
-export interface DatasetAccordionProps {
+export interface DatasetProps {
   id: number;
   dataSet: QueryFilterType[];
   setDataSets: React.Dispatch<React.SetStateAction<QueryFilterType[][]>>;
@@ -15,18 +15,26 @@ export interface DatasetAccordionProps {
   onChange: () => void;
 }
 
-export default function DatasetAccordion({
+export default function Dataset({
   id,
   dataSet,
   setDataSets,
   focus,
   onChange,
-}: DatasetAccordionProps) {
-  function renderFilters() {
+}: DatasetProps) {
+  function renderSelectedFilters() {
     return dataSet.map((filter, index) => {
       return SelectedFilter({ data: { ...filter }, idx: index });
     });
   }
+
+  const saveSelectedFilter = (queryFilter: QueryFilterType) => {
+    setDataSets((prev) => {
+      const newFilters = [...prev];
+      newFilters[id].push(queryFilter);
+      return newFilters;
+    });
+  };
 
   return (
     <div>
@@ -39,8 +47,8 @@ export default function DatasetAccordion({
           <Typography>Dataset {id}</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <DatasetFilter id={id} setDataSets={setDataSets} />
-          {renderFilters()}
+          <QueryFilterAttribute saveSelectedFilter={saveSelectedFilter} />
+          {renderSelectedFilters()}
         </AccordionDetails>
       </Accordion>
     </div>

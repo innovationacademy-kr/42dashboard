@@ -4,7 +4,7 @@ import styled from '@emotion/styled';
 import { useState } from 'react';
 import { QueryFilterType } from '../../../application/services/useDataset';
 import { FilterConfigType } from '../Sticker/Filter.type';
-import SelectedFilter from './selectedFilter/SelectedFilter';
+import SelectedFilter from './SelectedFilter';
 
 const Button = styled(AddCircleOutlineOutlinedIcon)`
   margin-top: 1rem;
@@ -18,16 +18,15 @@ export interface SelectedLabelFilters extends FilterConfigType {
 }
 
 interface FiltersProps {
-  setLabels: React.Dispatch<React.SetStateAction<string[]>>;
-  setFilters: React.Dispatch<React.SetStateAction<QueryFilterType[]>>;
+  setLabelAndFilter: (label: string, filter: QueryFilterType) => void;
   selectedLabels: SelectedLabelFilters[];
   setSelectedLabels: React.Dispatch<
     React.SetStateAction<SelectedLabelFilters[]>
   >;
 }
 
-function Filters(props: FiltersProps) {
-  const { setLabels, setFilters, selectedLabels, setSelectedLabels } = props;
+export default function InputLabels(props: FiltersProps) {
+  const { setLabelAndFilter, selectedLabels, setSelectedLabels } = props;
   const [count, setCount] = useState(0);
 
   function addFilter(newFilter: SelectedLabelFilters) {
@@ -44,9 +43,8 @@ function Filters(props: FiltersProps) {
   return (
     <>
       <LabelFilter
+        setLabelAndFilter={setLabelAndFilter}
         addFilter={addFilter}
-        setLabels={setLabels}
-        setFilters={setFilters}
       />
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         {renderSelectedFilters()}
@@ -54,5 +52,3 @@ function Filters(props: FiltersProps) {
     </>
   );
 }
-
-export default Filters;
