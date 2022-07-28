@@ -4,6 +4,7 @@ import { UserAccessCardInformation } from 'src/user_information/entity/user_acce
 import { User } from 'src/user_information/entity/user_information.entity';
 import { UserOtherInformation } from 'src/user_information/entity/user_other_information.entity';
 import { UserPersonalInformation } from 'src/user_information/entity/user_personal_information.entity';
+import { UserLeaveOfAbsence } from 'src/user_status/entity/user_status.entity';
 import {
   createQueryBuilder, //deprecated
   DataSource,
@@ -238,7 +239,7 @@ export class UserInformationService {
           ret['order'][entityName]['created_at'] = 'ASC';
         }
       }
-      if (entityName in valExColumnEntity && startDate && endDate) {
+      if (valExColumnEntity.includes(entityName) && startDate && endDate) {
         /**
          * or 조건을 적용시키는게 맞나?
          * 결과가 0또는 1만 나와야함 이 부분 나중에 테스트 해볼것

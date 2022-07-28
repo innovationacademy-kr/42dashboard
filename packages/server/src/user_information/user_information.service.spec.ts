@@ -1,5 +1,8 @@
 import { filter, last } from 'rxjs';
-import { UserBlackhole } from 'src/user_status/entity/user_status.entity';
+import {
+  UserBlackhole,
+  UserLeaveOfAbsence,
+} from 'src/user_status/entity/user_status.entity';
 import { QueryRunner, Repository } from 'typeorm';
 import { createMemDB } from '../utils/testing-helpers/createMemDB';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -89,7 +92,26 @@ const userBlackholeObject = {
     },
   ],
 };
-
+const userLeaveOfAbsenceObject = {
+  1: [
+    {
+      absenced: '휴학',
+      begin_absence_date: '2022-01-01',
+      end_absence_date: '2022-12-01',
+      validate_date: '2022-01-01',
+      expired_date: '2022-12-01',
+    },
+  ],
+  2: [
+    {
+      absenced: '휴학',
+      validate_date: '2021-01-01',
+      expired_date: '2021-12-01',
+      begin_absence_date: '2021-01-01',
+      end_absence_date: '2021-12-01',
+    },
+  ],
+};
 function makeFilter(
   entityName: string,
   column: string,
@@ -119,7 +141,11 @@ describe('User Service', () => {
     const userRepo = db.getRepository(User);
     const userPersonalRepo = db.getRepository(UserPersonalInformation);
     const userBlackholeRepo = db.getRepository(UserBlackhole);
-    let userEntity, userPersonalEntity, userBlackholeEntity;
+    const userLeaveOfAbsenceRepo = db.getRepository(UserLeaveOfAbsence);
+    let userEntity,
+      userPersonalEntity,
+      userBlackholeEntity,
+      userLeaveOfAbsenceEntity;
     let index;
     for (index in userList) {
       userEntity = userRepo.create(userList[index]);
@@ -138,6 +164,14 @@ describe('User Service', () => {
         );
         userBlackholeEntity.user = userEntity;
         await userBlackholeRepo.save(userBlackholeEntity); //cascade 쓰면 이 작업 불필요 -> cascade, eager 쓸지말지 고민해보기
+        userEntity = await userRepo.save(userEntity);
+      }
+      for (index in userLeaveOfAbsenceObject[userEntity.intra_no]) {
+        userLeaveOfAbsenceEntity = await userLeaveOfAbsenceRepo.create(
+          userLeaveOfAbsenceObject[userEntity.intra_no][index],
+        );
+        userLeaveOfAbsenceEntity.user = userEntity;
+        await userLeaveOfAbsenceRepo.save(userLeaveOfAbsenceEntity); //cascade 쓰면 이 작업 불필요 -> cascade, eager 쓸지말지 고민해보기
         userEntity = await userRepo.save(userEntity);
       }
     }
@@ -232,6 +266,44 @@ describe('User Service', () => {
     });
     //then
     expect(num).toBe(2);
+    await queryRunner.rollbackTransaction();
+    await queryRunner.release();
+  });
+
+  it('기간 필터링 적용', async () => {
+    //given
+    queryRunner = db.createQueryRunner();
+    await queryRunner.startTransaction();
+    const filters = [];
+    const filterArgs: FilterArgs = new FilterArgs();
+    //when
+    filters.push(
+      makeFilter('userLeaveOfAbsence', 'absenced', '==', '휴학', false),
+    );
+    filterArgs.startDate = '2021-03-01';
+    filterArgs.endDate = '2021-05-01';
+    filterArgs.filters = filters;
+    //then
+    expect(await userService.getNumOfPeopleByFilter(filterArgs)).toBe(1);
+    await queryRunner.rollbackTransaction();
+    await queryRunner.release();
+  });
+
+  it('기간 필터링 적용', async () => {
+    //given
+    queryRunner = db.createQueryRunner();
+    await queryRunner.startTransaction();
+    const filters = [];
+    const filterArgs: FilterArgs = new FilterArgs();
+    //when
+    filters.push(
+      makeFilter('userLeaveOfAbsence', 'absenced', '==', '휴학', false),
+    );
+    filterArgs.startDate = '2021-03-01';
+    filterArgs.endDate = '2021-05-01';
+    filterArgs.filters = filters;
+    //then
+    expect(await userService.getNumOfPeopleByFilter(filterArgs)).toBe(1);
     await queryRunner.rollbackTransaction();
     await queryRunner.release();
   });
