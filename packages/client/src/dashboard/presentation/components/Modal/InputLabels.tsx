@@ -2,7 +2,6 @@ import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOu
 import LabelFilter from './LabelFilter';
 import styled from '@emotion/styled';
 import { useState } from 'react';
-import { QueryFilterType } from '../../../application/services/useDataset';
 import { FilterConfigType } from '../Sticker/Filter.type';
 import SelectedFilter from './SelectedFilter';
 
@@ -14,11 +13,10 @@ const Button = styled(AddCircleOutlineOutlinedIcon)`
 
 export interface SelectedLabelFilters extends FilterConfigType {
   label?: string;
-  latest?: boolean;
 }
 
 interface FiltersProps {
-  setLabelAndFilter: (label: string, filter: QueryFilterType) => void;
+  setLabelAndFilter: (label: string, filter: FilterConfigType) => void;
   selectedLabels: SelectedLabelFilters[];
   setSelectedLabels: React.Dispatch<
     React.SetStateAction<SelectedLabelFilters[]>

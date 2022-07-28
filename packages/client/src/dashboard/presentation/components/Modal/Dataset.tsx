@@ -3,14 +3,14 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { QueryFilterType } from '../../../application/services/useDataset';
 import QueryFilterAttribute from './QueryFilterAttribute';
 import SelectedFilter from './SelectedFilter';
+import { FilterConfigType } from '../Sticker/Filter.type';
 
 export interface DatasetProps {
   id: number;
-  dataSet: QueryFilterType[];
-  setDataSets: React.Dispatch<React.SetStateAction<QueryFilterType[][]>>;
+  dataSet: FilterConfigType[];
+  setDataSets: React.Dispatch<React.SetStateAction<FilterConfigType[][]>>;
   focus: number;
   onChange: () => void;
 }
@@ -28,7 +28,7 @@ export default function Dataset({
     });
   }
 
-  const saveSelectedFilter = (queryFilter: QueryFilterType) => {
+  const saveSelectedFilter = (queryFilter: FilterConfigType) => {
     setDataSets((prev) => {
       const newFilters = [...prev];
       newFilters[id].push(queryFilter);

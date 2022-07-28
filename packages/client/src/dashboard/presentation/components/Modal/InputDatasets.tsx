@@ -2,11 +2,11 @@ import React from 'react';
 import Dataset from './Dataset';
 import { Button } from '@mui/material';
 import styled from '@emotion/styled';
-import { QueryFilterType } from '../../../application/services/useDataset';
+import { FilterConfigType } from '../Sticker/Filter.type';
 
 interface InputDataSetType {
-  dataSets: QueryFilterType[][];
-  setDataSets: React.Dispatch<React.SetStateAction<QueryFilterType[][]>>;
+  dataSets: FilterConfigType[][];
+  setDataSets: React.Dispatch<React.SetStateAction<FilterConfigType[][]>>;
   focus: number;
   onChange: (i: number) => () => void;
 }

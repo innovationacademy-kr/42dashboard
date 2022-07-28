@@ -1,10 +1,10 @@
 import { Box, Modal } from '@mui/material';
 import { useState } from 'react';
-import { QueryFilterType } from '../../../application/services/useDataset';
 import { StickerContentType } from '../Sticker/StickerContent.type';
 import StickerDataType from '../../../domain/stickerDatas/stickerData.type';
 import makeStickerData from './makeStickerData';
 import StickerStepper from './StickerStepper';
+import { FilterConfigType } from '../Sticker/Filter.type';
 
 interface ModalProps {
   sectionId: string;
@@ -33,8 +33,8 @@ const ModalFrame = (props: ModalProps) => {
 
   const [type, setType] = useState<StickerContentType>('lineChart');
   const [labels, setLabels] = useState<string[]>([]);
-  const [filters, setFilters] = useState<QueryFilterType[]>([]);
-  const [dataSets, setDataSets] = useState<QueryFilterType[][]>([[]]);
+  const [filters, setFilters] = useState<FilterConfigType[]>([]);
+  const [dataSets, setDataSets] = useState<FilterConfigType[][]>([[]]);
 
   function AddStickerDataset() {
     const newStickerData = makeStickerData({

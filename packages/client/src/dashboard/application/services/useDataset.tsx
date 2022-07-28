@@ -1,21 +1,8 @@
 import { DocumentNode, useQuery } from '@apollo/client';
-import {
-  ColumnType,
-  EntityNameType,
-  GivenValueType,
-  OperatorType,
-} from '../../presentation/components/Sticker/Filter.type';
-
-export interface QueryFilterType {
-  entityName: EntityNameType | string;
-  column: ColumnType;
-  operator: OperatorType;
-  givenValue: GivenValueType;
-  latest: boolean;
-}
+import { FilterConfigType } from '../../presentation/components/Sticker/Filter.type';
 
 export interface QueryVariablesType {
-  [filterName: string]: QueryFilterType;
+  [filterName: string]: FilterConfigType;
 }
 
 export interface QueryDataType {
