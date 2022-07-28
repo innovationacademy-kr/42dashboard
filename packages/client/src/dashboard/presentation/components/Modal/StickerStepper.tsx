@@ -6,11 +6,12 @@ import StepLabel from '@mui/material/StepLabel';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import TypeBox from './TypeBox';
-import Filters, { SelectedLabelFilters } from './Filters';
+import { SelectedLabelFilters } from './InputLabels';
 import styled from '@emotion/styled';
-import InputDataset from './InputDataset';
 import { QueryFilterType } from '../../../application/services/useDataset';
 import { StickerContentType } from '../Sticker/StickerContent.type';
+import InputLabels from './InputLabels';
+import InputDatasets from './InputDatasets';
 
 const steps = ['Type 정하기!', 'label 정하기!', 'dataset 정하기!'];
 
@@ -28,7 +29,7 @@ interface ModalDatasType {
   applyFiltersModal: () => void;
 }
 
-export default function HorizontalLinearStepper(props: ModalDatasType) {
+export default function StickerStepper(props: ModalDatasType) {
   const {
     setType,
     setLabels,
@@ -58,34 +59,38 @@ export default function HorizontalLinearStepper(props: ModalDatasType) {
     setActiveStep(0);
   };
 
-  function focusing(i: number) {
+  const changeDatasetFocus = (i: number) => {
     return () => {
       setDatasetExpand((prev) => {
         if (prev === i) return -1;
         else return i;
       });
     };
-  }
+  };
+
+  const setLabelAndFilter = (label: string, filter: QueryFilterType) => {
+    setLabels((labels: string[]) => [...labels, label]);
+    setFilters((filters: QueryFilterType[]) => [...filters, filter]);
+  };
 
   function PageComponent() {
     if (activeStep === 0) {
       return <TypeBox handleType={setType} />;
     } else if (activeStep === 1) {
       return (
-        <Filters
-          setLabels={setLabels}
-          setFilters={setFilters}
+        <InputLabels
+          setLabelAndFilter={setLabelAndFilter}
           selectedLabels={selectedLabels}
           setSelectedLabels={setSelectedLabels}
         />
       );
     } else {
       return (
-        <InputDataset
+        <InputDatasets
           dataSets={dataSets}
           setDataSets={setDataSets}
           focus={datasetExpand}
-          onChange={focusing}
+          onChange={changeDatasetFocus}
         />
       );
     }

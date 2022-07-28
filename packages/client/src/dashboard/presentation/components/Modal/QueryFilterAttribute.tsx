@@ -4,18 +4,18 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { QueryFilterType } from '../../../application/services/useDataset';
 import { useLazyQuery } from '@apollo/client';
 import createValueQuery from '../../../infrastructure/http/graphql/createValueQuery';
-import returnColumns from './filterAttributes/menuItems/returnColumns';
-import returnEntities from './filterAttributes/menuItems/returnEntities';
-import returnValues from './filterAttributes/menuItems/returnValues';
-import returnOperators from './filterAttributes/menuItems/returnOperators';
-import FilterAttribute from './filterAttributes/FilterAttribute';
-import LatestAttribute from './filterAttributes/LatestAttribute';
 import {
   ColumnType,
   EntityNameType,
   GivenValueType,
   OperatorType,
 } from '../Sticker/Filter.type';
+import FilterAttribute from './filterAttributes/FilterAttribute';
+import returnColumns from './filterAttributes/menuItems/returnColumns';
+import returnOperators from './filterAttributes/menuItems/returnOperators';
+import returnValues from './filterAttributes/menuItems/returnValues';
+import LatestAttribute from './filterAttributes/LatestAttribute';
+import returnEntities from './filterAttributes/menuItems/returnEntities';
 
 const Section = styled.div`
   margin-top: 1rem;
@@ -25,12 +25,11 @@ const Section = styled.div`
 `;
 
 interface DatasetFilterProps {
-  id: number;
-  setDataSets: React.Dispatch<React.SetStateAction<QueryFilterType[][]>>;
+  saveSelectedFilter: (queryFilter: QueryFilterType) => void;
 }
 
-function DatasetFilter(props: DatasetFilterProps) {
-  const { id, setDataSets } = props;
+export default function QueryFilterAttribute(props: DatasetFilterProps) {
+  const { saveSelectedFilter } = props;
   const [entityName, setEntityName] = React.useState<EntityNameType>('User');
   const [column, setColumn] = React.useState<ColumnType>('coalition');
   const [operator, setOperator] = React.useState<OperatorType>('=');
@@ -42,20 +41,15 @@ function DatasetFilter(props: DatasetFilterProps) {
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error :</p>;
 
-  const addFilter = () => {
-    const filter = { entityName, column, operator, givenValue, latest };
+  const checkEmptyAttribute = () => {
     if (!entityName || !column || !operator || !givenValue || !latest) {
       alert('Please fill all the fields');
-      return;
+      return false;
     }
-    setDataSets((prev) => {
-      const newFilters = [...prev];
-      newFilters[id].push(filter);
-      return newFilters;
-    });
+    return true;
   };
 
-  const handleEntityChange = (event: any) => {
+  const handleEntityNameChange = (event: any) => {
     setEntityName(event.target.value);
   };
 
@@ -81,7 +75,7 @@ function DatasetFilter(props: DatasetFilterProps) {
       <FilterAttribute
         id={'EntityName'}
         value={entityName}
-        onChange={handleEntityChange}
+        onChange={handleEntityNameChange}
         menuItems={returnEntities()}
       />
       <FilterAttribute
@@ -108,12 +102,19 @@ function DatasetFilter(props: DatasetFilterProps) {
         onChange={handleLatestChange}
       />
       <CheckCircleOutlineIcon
-        onClick={addFilter}
+        onClick={() =>
+          checkEmptyAttribute() &&
+          saveSelectedFilter({
+            entityName,
+            column,
+            operator,
+            givenValue,
+            latest,
+          })
+        }
         color="primary"
         fontSize="large"
       />
     </Section>
   );
 }
-
-export default DatasetFilter;

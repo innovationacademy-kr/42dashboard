@@ -1,5 +1,5 @@
 import React from 'react';
-import DatasetAccordion from './DatasetAccordion';
+import Dataset from './Dataset';
 import { Button } from '@mui/material';
 import styled from '@emotion/styled';
 import { QueryFilterType } from '../../../application/services/useDataset';
@@ -15,7 +15,7 @@ const ScrollDiv = styled.div`
   overflow: scroll;
 `;
 
-export default function InputDataset(props: InputDataSetType) {
+export default function InputDatasets(props: InputDataSetType) {
   const { dataSets, setDataSets, onChange, focus } = props;
   const count = dataSets.length;
 
@@ -30,7 +30,7 @@ export default function InputDataset(props: InputDataSetType) {
       const ret = [...dataSets[i]];
 
       renderDatasets.push(
-        <DatasetAccordion
+        <Dataset
           key={i}
           id={i}
           dataSet={ret}

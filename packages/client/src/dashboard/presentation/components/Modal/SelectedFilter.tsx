@@ -1,4 +1,4 @@
-import { SelectedLabelFilters } from '../Filters';
+import { SelectedLabelFilters } from './InputLabels';
 
 interface PropType {
   idx: number;
