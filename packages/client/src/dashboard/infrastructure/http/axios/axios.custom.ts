@@ -6,10 +6,8 @@ const getUserInfoURL = '/auth/userInfo';
 export const axiosGetUserInfo = async () => {
   try {
     const response = await axios.instance.get(getUserInfoURL);
-    console.log(response);
     return response;
   } catch (error) {
-    console.log(error);
-    return error;
+    throw error;
   }
 };

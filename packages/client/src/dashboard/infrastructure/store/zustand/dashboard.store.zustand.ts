@@ -1,6 +1,6 @@
 import StickerDataType from '../../../domain/stickerDatas/stickerData.type';
 import create from 'zustand';
-import { devtools } from 'zustand/middleware';
+import { devtools, persist } from 'zustand/middleware';
 import ControlModeType from '../../../domain/controlMode/controlMode.type';
 import PresetType from '../../../domain/preset/preset.type';
 import UserType from '../../../domain/user/user.type';
@@ -19,17 +19,19 @@ export interface DashBoardState {
   stickerDatas: StickerDataType[];
 }
 
-const store = create<DashBoardState, [['zustand/devtools', DashBoardState]]>(
-  devtools((set) => ({
-    user: null,
-    preset: null,
-    presetList: { presetInfos: [] },
-    controlMode: 'view',
-    filtersModal: false,
-    boardData: { sectionIds: [], sectionLayouts: [] },
-    sectionDatas: [],
-    stickerDatas: [],
-  })),
+const store = create<DashBoardState>()(
+  devtools(
+    persist((set) => ({
+      user: null,
+      preset: null,
+      presetList: { presetInfos: [] },
+      controlMode: 'view',
+      filtersModal: false,
+      boardData: { sectionIds: [], sectionLayouts: [] },
+      sectionDatas: [],
+      stickerDatas: [],
+    })),
+  ),
 );
 
 export default store;

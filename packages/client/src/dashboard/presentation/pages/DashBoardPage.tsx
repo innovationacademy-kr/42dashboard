@@ -26,7 +26,6 @@ function DashBoardPage() {
       .then((response: any) => response.data)
       .then((data) => setUser(data))
       .catch((error) => {
-        console.log(`axios error : ${error}`);
         navigate(`/`);
       });
   }
