@@ -45,9 +45,10 @@ export type GivenValueType = any; // 이후 모든 필드의 데이터 타입이
 
 export interface FilterConfigType {
   entityName: EntityNameType | string;
-  column: ColumnType;
-  operator: OperatorType;
-  givenValue: GivenValueType;
+  column: ColumnType | null;
+  operator: OperatorType | null;
+  givenValue: GivenValueType | null;
+  latest: boolean;
 }
 
 export interface FilterType {

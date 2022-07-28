@@ -8,10 +8,10 @@ import Typography from '@mui/material/Typography';
 import TypeBox from './TypeBox';
 import { SelectedLabelFilters } from './InputLabels';
 import styled from '@emotion/styled';
-import { QueryFilterType } from '../../../application/services/useDataset';
 import { StickerContentType } from '../Sticker/StickerContent.type';
 import InputLabels from './InputLabels';
 import InputDatasets from './InputDatasets';
+import { FilterConfigType } from '../Sticker/Filter.type';
 
 const steps = ['Type 정하기!', 'label 정하기!', 'dataset 정하기!'];
 
@@ -21,11 +21,11 @@ const StyledDiv = styled.div`
 `;
 
 interface ModalDatasType {
-  dataSets: QueryFilterType[][];
+  dataSets: FilterConfigType[][];
   setType: React.Dispatch<React.SetStateAction<StickerContentType>>;
   setLabels: React.Dispatch<React.SetStateAction<string[]>>;
-  setFilters: React.Dispatch<React.SetStateAction<QueryFilterType[]>>;
-  setDataSets: React.Dispatch<React.SetStateAction<QueryFilterType[][]>>;
+  setFilters: React.Dispatch<React.SetStateAction<FilterConfigType[]>>;
+  setDataSets: React.Dispatch<React.SetStateAction<FilterConfigType[][]>>;
   applyFiltersModal: () => void;
 }
 
@@ -68,9 +68,9 @@ export default function StickerStepper(props: ModalDatasType) {
     };
   };
 
-  const setLabelAndFilter = (label: string, filter: QueryFilterType) => {
+  const setLabelAndFilter = (label: string, filter: FilterConfigType) => {
     setLabels((labels: string[]) => [...labels, label]);
-    setFilters((filters: QueryFilterType[]) => [...filters, filter]);
+    setFilters((filters: FilterConfigType[]) => [...filters, filter]);
   };
 
   function PageComponent() {

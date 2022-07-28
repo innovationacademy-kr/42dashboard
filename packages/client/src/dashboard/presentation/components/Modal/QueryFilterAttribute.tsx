@@ -1,12 +1,12 @@
 import * as React from 'react';
 import styled from '@emotion/styled';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import { QueryFilterType } from '../../../application/services/useDataset';
 import { useLazyQuery } from '@apollo/client';
 import createValueQuery from '../../../infrastructure/http/graphql/createValueQuery';
 import {
   ColumnType,
   EntityNameType,
+  FilterConfigType,
   GivenValueType,
   OperatorType,
 } from '../Sticker/Filter.type';
@@ -25,7 +25,7 @@ const Section = styled.div`
 `;
 
 interface DatasetFilterProps {
-  saveSelectedFilter: (queryFilter: QueryFilterType) => void;
+  saveSelectedFilter: (queryFilter: FilterConfigType) => void;
 }
 
 export default function QueryFilterAttribute(props: DatasetFilterProps) {
