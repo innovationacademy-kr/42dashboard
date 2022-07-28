@@ -1,5 +1,7 @@
 import { Box, CssBaseline, Typography } from '@mui/material';
-import createQuery from '../../infrastructure/http/graphql/createQuery';
+import createQuery, {
+  createQueryForTable,
+} from '../../infrastructure/http/graphql/createQuery';
 import AppBar from '../components/AppBar/AppBar';
 import ProfileMenu from '../components/AppBar/ProfileMenu/ProfileMenu';
 import Board from '../components/Board/Board';
@@ -11,6 +13,7 @@ import Logo from '../components/Logo/logo';
 import MainArea from '../components/MainArea/MainArea';
 import ModeDial from '../components/ModeDial/ModeDial';
 import SideBar from '../components/SideBar/SideBar';
+import { TableStickerContent } from '../components/Table/Table';
 
 // TODO: hybae
 // userData가 null일 때 처리 추가
@@ -57,6 +60,35 @@ function DashBoardPage() {
     <ProfileMenu menuItems={profileMenuItems} profile={profile} />
   );
 
+  const tableProps = {
+    columnGroups: [
+      { id: 'user', colSpan: 3, label: '기본 정보' },
+      { id: 'personal', colSpan: 2, label: '개인 정보' },
+    ],
+    columns: [
+      { id: 'intraNo', label: '인트라 No.' },
+      { id: 'name', label: '이름' },
+      { id: 'grade', label: '기수' },
+      { id: 'age', label: '나이' },
+      { id: 'gender', label: '성별' },
+    ],
+    queryData: {
+      query: createQueryForTable(
+        ['personalData'],
+        ['intra_no', 'name', 'grade', 'userPersonalInformation {age, gender}'],
+      ),
+      filters: {
+        personalData: {
+          entityName: 'userPersonalInformation',
+          column: null,
+          operator: null,
+          givenValue: null,
+          latest: true,
+        },
+      },
+    },
+  };
+
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
@@ -67,6 +99,7 @@ function DashBoardPage() {
       </AppBar>
       <SideBar />
       <MainArea>
+        <TableStickerContent {...tableProps} />
         <Board />
       </MainArea>
       <ModeDial />

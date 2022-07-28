@@ -12,7 +12,6 @@ function returnFilterVariables(filterNames: string[]): string[] {
   );
   return arrayOfFilterName;
 }
-
 /**
  * @param filterSet
  * @returns
@@ -46,6 +45,30 @@ function returnRequest(labels: string[]) {
   };
 }
 
+function returnVariables(
+  filterNames: string[],
+  startDate?: Date,
+  endDate?: Date,
+  skip?: number,
+  take?: number,
+) {
+  const filterNamesLiteral = `filters: [${returnFilters(filterNames)}]`;
+  const startDateLiteral = startDate ? `startDate: ${startDate}` : '';
+  const endDateLiteral = endDate ? `endDate: ${endDate}` : '';
+  const skipLiteral = skip ? `skip: ${skip}` : '';
+  const takeLiteral = take ? `take: ${take}` : '';
+
+  const Variables = [
+    filterNamesLiteral,
+    startDateLiteral,
+    endDateLiteral,
+    skipLiteral,
+    takeLiteral,
+  ].join('\n');
+
+  return Variables;
+}
+
 /**
  * @param filterNames
  * @param labels
@@ -69,5 +92,32 @@ export default function createQuery(
   ) {
     ${filterSetsPerData.map(returnRequest(labels)).join('\n')}
   }`;
+  return gql(query);
+}
+
+export function createQueryForTable(
+  filterNames: string[],
+  fields: (string | object)[],
+  startDate?: Date,
+  endDate?: Date,
+  skip?: number,
+  take?: number,
+) {
+  const variables = returnVariables(
+    filterNames,
+    startDate,
+    endDate,
+    skip,
+    take,
+  );
+  const query = `query GetTableDatas(
+    ${returnFilterVariables(filterNames).join('\n')}
+    ) {
+       getPeopleByFilter(${variables}
+       ) {
+        ${fields.join(',\n')}
+       }
+    }
+  `;
   return gql(query);
 }
