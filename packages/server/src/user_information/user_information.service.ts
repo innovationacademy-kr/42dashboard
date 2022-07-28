@@ -248,15 +248,18 @@ export class UserInformationService {
         const log = ret['where'][entityName];
         const latest = ret['where'][entityName];
         ret['where'][entityName] = [];
-        log['expired_date'] = MoreThan(endDate);
-        log['validate_date'] = LessThan(startDate);
+        log['expired_date'] = MoreThanOrEqual(endDate);
+        log['validate_date'] = LessThanOrEqual(startDate);
         ret['where'][entityName].push(log);
-        latest['expired_date'] = MoreThan(endDate);
+        latest['expired_date'] = MoreThanOrEqual(endDate);
         latest['validate_date'] = IsNull();
         ret['where'][entityName].push(latest);
+        if (entityName == 'userLeaveOfAbsence') {
+          console.log(ret['where'][entityName]);
+        }
       } else if (startDate && endDate) {
         // 이건 보류
-        // startDate == endDate 옵션도 줘야하나?
+        // (startDate && endDate && startDate == endDate) 로 해야하는거 아닌지..?
         ret['where'][entityName]['created_date'] = LessThan(endDate);
       }
     }
