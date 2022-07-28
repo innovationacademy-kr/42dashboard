@@ -31,12 +31,14 @@ const ModalFrame = (props: ModalProps) => {
   const { sectionId, renderAddedSticker, addStickerData, isOpen, setIsOpen } =
     props;
 
-  const [type, setType] = useState<StickerContentType>('lineChart');
+  const [type, setType] = useState<StickerContentType>('none');
   const [labels, setLabels] = useState<string[]>([]);
   const [filters, setFilters] = useState<FilterConfigType[]>([]);
   const [dataSets, setDataSets] = useState<FilterConfigType[][]>([[]]);
 
+  /** switch to type & handle properly */
   function AddStickerDataset() {
+    /** make sticker data */
     const newStickerData = makeStickerData({
       sectionId,
       type,
@@ -50,9 +52,10 @@ const ModalFrame = (props: ModalProps) => {
     addStickerData(newStickerData);
     /** render sticker */
     renderAddedSticker(sectionId, newStickerData.id);
+    /** init state */
     setLabels([]);
     setFilters([]);
-    setDataSets([[]]);
+    setDataSets([]);
   }
 
   return (
@@ -70,11 +73,12 @@ const ModalFrame = (props: ModalProps) => {
     >
       <Box sx={style}>
         <StickerStepper
-          dataSets={dataSets}
+          datasets={dataSets}
+          type={type}
           setType={setType}
           setLabels={setLabels}
           setFilters={setFilters}
-          setDataSets={setDataSets}
+          setDatasets={setDataSets}
           applyFiltersModal={AddStickerDataset}
         />
       </Box>

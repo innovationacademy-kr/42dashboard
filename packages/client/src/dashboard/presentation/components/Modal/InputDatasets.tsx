@@ -5,10 +5,10 @@ import styled from '@emotion/styled';
 import { FilterConfigType } from '../Sticker/Filter.type';
 
 interface InputDataSetType {
-  dataSets: FilterConfigType[][];
-  setDataSets: React.Dispatch<React.SetStateAction<FilterConfigType[][]>>;
+  datasets: FilterConfigType[][];
+  setDatasets: React.Dispatch<React.SetStateAction<FilterConfigType[][]>>;
   focus: number;
-  onChange: (i: number) => () => void;
+  changeFocusOn: (i: number) => () => void;
 }
 
 const ScrollDiv = styled.div`
@@ -16,27 +16,27 @@ const ScrollDiv = styled.div`
 `;
 
 export default function InputDatasets(props: InputDataSetType) {
-  const { dataSets, setDataSets, onChange, focus } = props;
-  const count = dataSets.length;
+  const { datasets, setDatasets, changeFocusOn, focus } = props;
+  const count = datasets.length;
 
   function addDataSet() {
-    setDataSets((prevDataSets) => [...prevDataSets, []]);
-    onChange(count)();
+    setDatasets((prevDatasets) => [...prevDatasets, []]);
+    changeFocusOn(count)();
   }
 
   function renderDatasets() {
     const renderDatasets = [];
     for (let i = 0; i < count; ++i) {
-      const ret = [...dataSets[i]];
+      const ret = [...datasets[i]];
 
       renderDatasets.push(
         <Dataset
           key={i}
           id={i}
           dataSet={ret}
-          setDataSets={setDataSets}
+          setDataSets={setDatasets}
           focus={focus}
-          onChange={onChange(i)}
+          changeFocusOn={changeFocusOn(i)}
         />,
       );
     }

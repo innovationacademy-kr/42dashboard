@@ -12,7 +12,7 @@ export interface DatasetProps {
   dataSet: FilterConfigType[];
   setDataSets: React.Dispatch<React.SetStateAction<FilterConfigType[][]>>;
   focus: number;
-  onChange: () => void;
+  changeFocusOn: () => void;
 }
 
 export default function Dataset({
@@ -20,7 +20,7 @@ export default function Dataset({
   dataSet,
   setDataSets,
   focus,
-  onChange,
+  changeFocusOn,
 }: DatasetProps) {
   function renderSelectedFilters() {
     return dataSet.map((filter, index) => {
@@ -38,7 +38,7 @@ export default function Dataset({
 
   return (
     <div>
-      <Accordion expanded={id === focus} onChange={onChange}>
+      <Accordion expanded={id === focus} onChange={changeFocusOn}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls={`${id}`}
