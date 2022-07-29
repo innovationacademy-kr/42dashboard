@@ -76,4 +76,12 @@ export class AuthService {
     };
     return await this.createJwt(payload);
   }
+
+  async logoutUser(user) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.startTransaction();
+    await this.dataSource.getRepository(Bocal).delete({ id: user.id });
+    await queryRunner.commitTransaction(); //rollback 해버리는 실수
+    await queryRunner.release();
+  }
 }
