@@ -59,6 +59,8 @@ export async function getDomain(
       .orderBy(`${repoName}.${checkDuplication.column}`)
       .getMany();
   } else {
-    return await dataSource.getRepository(entitys[repoName]).find({});
+    const res = await dataSource.getRepository(entitys[repoName]).find({});
+    console.log(res);
+    return res;
   }
 }

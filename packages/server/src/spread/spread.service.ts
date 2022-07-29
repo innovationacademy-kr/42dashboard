@@ -10,15 +10,27 @@ import { UserLearningDataAPI } from 'src/user_status/entity/user_status.entity';
 import { Column, DataSource } from 'typeorm';
 import { MAIN_SHEET, SPREAD_END_POINT } from 'src/config/key';
 import { TableSet } from 'src/updater/updater.service';
+import {
+  entityArray,
+  getDomain,
+} from 'src/user_information/utils/getDomain.utils';
 
 @Injectable()
 export class SpreadService {
+  private sheetId;
   constructor(
     private apiService: ApiService,
     @InjectDataSource()
     private dataSource: DataSource,
-  ) {}
+  ) {
+    this.sheetId = [];
+  }
 
+  /**************************/
+  /*        google API      */
+  /**************************/
+
+  /* google API로 spread sheet data읽어오기 */
   async sendRequestToSpreadWithGoogleAPI(endPoint: string, id: string) {
     const authorize = new google.auth.JWT(
       credentials['client_email'],
@@ -31,7 +43,6 @@ export class SpreadService {
       version: 'v4',
       auth: authorize,
     });
-
     // 실제 스프레드시트 내용 가져오기
     try {
       const context = await googleSheet.spreadsheets.values.get({
@@ -46,7 +57,9 @@ export class SpreadService {
     }
   }
 
-  async createSpreadsheet(endPoint: string, title) {
+  /* google spread sheet api 접근권한설정 */
+  async getGoogleSheetAPI() {
+    //프라이빗 키 값으로, 인증 토큰 발급
     const authorize = new google.auth.JWT(
       credentials['client_email'],
       null,
@@ -55,28 +68,115 @@ export class SpreadService {
     );
 
     // google spread sheet api 가져오기
-    const googleSheet = google.sheets({
+    return await google.sheets({
       version: 'v4',
       auth: authorize,
     });
+  }
+
+  /* order에 따라 시트 삭제 혹은 추가하는 함수 */
+  async controlSheet(endPoint: string, googleSheet, order) {
     try {
-      const sheetBody = {
-        auth: authorize,
-        requestBody: { properties: { title } },
+      const request = {
+        spreadsheetId: endPoint,
+        resource: {
+          requests: order,
+        },
       };
-      const spreadsheet = await googleSheet.spreadsheets.create(sheetBody);
-      if (spreadsheet.status === 200) {
-        const spreadsheetId = spreadsheet.data.spreadsheetId;
-        const spreadsheetUrl = spreadsheet.data.spreadsheetUrl;
-      } else {
-        throw new Error('Spreadsheet creation failed. Kindly try again!');
-      }
-      console.log(`Spreadsheet ID: ${spreadsheet.data.spreadsheetId}`);
-      return spreadsheet.data.spreadsheetId;
+      const response = (await googleSheet.spreadsheets.batchUpdate(request))
+        .data;
+      return response;
     } catch (err) {
       // TODO (developer) - Handle exception
       throw err;
     }
+  }
+
+  /*  DB에 있는 데이터를 수정하기 위해 스프레드 시트로 옮기는 함수  */
+  async getDataToModifyFromDB(endPoint, repoName) {
+    // google spread sheet api 가져오기
+    const googleSheet = await this.getGoogleSheetAPI();
+    const createPage = [
+      {
+        //시트를 추가하는 명령
+        addSheet: {
+          properties: {
+            title: repoName,
+          },
+        },
+      },
+    ];
+    const response = await this.controlSheet(endPoint, googleSheet, createPage);
+    this.sheetId[repoName] =
+      response['replies'][0]['addSheet']['properties']['sheetId'];
+    const values = [];
+    const datas = await this.dataSource
+      .getRepository(entityArray[repoName])
+      .find({});
+    values.push(Object.keys(datas[0]));
+    datas.forEach((data) => values.push(Object.values(data)));
+
+    const request = {
+      // 업데이트 하기위한 시트의 id값.
+      spreadsheetId: endPoint, // TODO: Update placeholder value.
+      // 값을 넣을 위치로 A1를 선정 .
+      range: `${repoName}!A1`, // TODO: Update placeholder value.
+      // 입력된 데이터를 어떻게 처리할 것인지
+      valueInputOption: 'USER_ENTERED', //입력은 마치 Google Sheets UI에 입력한 것처럼 정확하게 구문 분석됨
+      resource: {
+        values,
+      },
+    };
+    try {
+      const response = (await googleSheet.spreadsheets.values.update(request))
+        .data;
+      return console.log(JSON.stringify(response, null, 2));
+    } catch (err) {
+      // TODO (developer) - Handle exception
+      throw err;
+    }
+  }
+
+  /* 수정을 위해 생성했던 시트상에서 수정된 데이터를 DB테이블로 다시 업데이트하는 함수 */
+  async saveModifiedDataFromSheet(endPoint, repoName) {
+    const googleSheet = await this.getGoogleSheetAPI();
+    const deletePage = [
+      {
+        //시트를 삭제하는 명령
+        deleteSheet: {
+          sheetId: this.sheetId[repoName],
+        },
+      },
+    ];
+    const spreadData = await this.sendRequestToSpreadWithGoogleAPI(
+      endPoint,
+      repoName,
+    );
+    let key = 'fk_user_no';
+    const columns = spreadData[0];
+    const rows = (await spreadData).filter((value, index) => index > 0);
+
+    for (const row of rows) {
+      const tuple = {};
+      for (const col in columns) {
+        this.makeRowPerColumnToModify(row, columns, col, tuple);
+      }
+      if (repoName === 'user') {
+        key = 'intra_no';
+      } else {
+        key = 'pk';
+      }
+      await this.dataSource
+        .getRepository(entityArray[repoName])
+        .createQueryBuilder(repoName)
+        .update(entityArray[repoName])
+        .set(tuple)
+        .where(`${key} = :${key}`, {
+          [`${key}`]: tuple[key],
+        })
+        .execute();
+    }
+    await this.controlSheet(endPoint, googleSheet, deletePage);
   }
 
   onlyNumbers(str) {
@@ -148,7 +248,23 @@ export class SpreadService {
       } else if (row[rowIdx] !== '') {
         tuple[`${columnLabel.dbName}`] = row[rowIdx];
       }
-    } else if (row[rowIdx] === null) tuple[`${columnLabel.dbName}`] = null;
+    } else if (row[rowIdx] === null || row[rowIdx] === '') {
+      tuple[`${columnLabel.dbName}`] = null;
+    }
+  }
+
+  makeRowPerColumnToModify(row, columns, col, tuple) {
+    const datePattern =
+      /[0-9]{4}. (0?[1-9]|1[012]). (0?[1-9]|[12][0-9]|3[0-1])$/; // yyyy-mm-dd 형식인지 체크
+    if (row[col] !== '') {
+      if (datePattern.test(row[col])) {
+        tuple[columns[col]] = this.changeDate(row[col]);
+      } else if (row[col] !== '') {
+        tuple[columns[col]] = row[col];
+      }
+    } else {
+      tuple[columns[col]] = null;
+    }
   }
 
   async parseSpread(cols, rows, table, api42s?) {
