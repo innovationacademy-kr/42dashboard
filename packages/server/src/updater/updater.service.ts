@@ -37,6 +37,7 @@ import {
   UserEducationFundState,
 } from 'src/user_payment/entity/user_payment.entity';
 import { MAIN_SHEET, SPREAD_END_POINT } from 'src/config/key';
+import { UpdateDB } from 'src/user_information/argstype/updateSheet.argstype';
 
 interface RepoDict {
   [repositoryName: string]:
@@ -287,15 +288,42 @@ export class UpdaterService {
   }
 
   async extractDataIntoSpreadsheet() {
-    return await this.spreadService.createSpreadsheet(
+    //시트를 삭제하는 명령
+    const deletePage = [
+      {
+        deleteSheet: {
+          sheetId: 'user',
+        },
+      },
+    ];
+    const googleSheet = await this.spreadService.getGoogleSheetAPI();
+    await this.spreadService.controlSheet(
       SPREAD_END_POINT,
-      'googleapi/newpage',
+      googleSheet,
+      deletePage,
     );
+    return await '';
+  }
+
+  async getDataToModifyFromDB(updateDB: UpdateDB) {
+    await this.spreadService.getDataToModifyFromDB(
+      SPREAD_END_POINT,
+      updateDB.sheetName,
+    );
+    return 'done';
+  }
+
+  async saveModifiedDataFromSheet(updateDB: UpdateDB) {
+    await this.spreadService.saveModifiedDataFromSheet(
+      SPREAD_END_POINT,
+      updateDB.sheetName,
+    );
+    return 'done';
   }
 
   async findTargetByKey(repo, repoKey, newOneData, targetObj) {
     const emptyObj = {};
-    console.log(repoKey, '\n', 'new:', newOneData, '!!');
+    //console.log(repoKey, '\n', 'new:', newOneData, '!!');
     try {
       //스프레드 데이터가 db 데이터에 있는지 확인.
       for (const target of targetObj) {
