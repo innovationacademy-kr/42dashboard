@@ -212,7 +212,7 @@ describe('User Service', () => {
     expect(await userService.getNumOfPeopleByFilter(filterArgs)).not.toBeNull();
     expect(await userService.getNumOfPeopleByFilter(filterArgs)).toBe(2);
     await queryRunner.rollbackTransaction();
-    queryRunner.release();
+    await queryRunner.release();
   });
 
   it('필터 [gender= 남], [acdemic_state != 블랙홀]', async () => {
@@ -231,7 +231,7 @@ describe('User Service', () => {
     expect(await userService.getNumOfPeopleByFilter(filterArgs)).not.toBeNull();
     expect(await userService.getNumOfPeopleByFilter(filterArgs)).toBe(1);
     await queryRunner.rollbackTransaction();
-    queryRunner.release();
+    await queryRunner.release();
   });
 
   it('필터 [region = 부산], [acdemic_state != 블랙홀]', async () => {
@@ -250,7 +250,7 @@ describe('User Service', () => {
     expect(await userService.getNumOfPeopleByFilter(filterArgs)).not.toBeNull();
     expect(await userService.getNumOfPeopleByFilter(filterArgs)).toBe(2);
     await queryRunner.rollbackTransaction();
-    queryRunner.release();
+    await queryRunner.release();
   });
 
   it('where 쿼리문 적용시 OR 조건이 어떻게 적용되는지 테스트', async () => {
@@ -280,66 +280,9 @@ describe('User Service', () => {
     filters.push(
       makeFilter('userLeaveOfAbsence', 'absenced', '==', '휴학', false),
     );
+    filterArgs.filters = filters;
     filterArgs.startDate = '2021-03-01';
     filterArgs.endDate = '2021-05-01';
-    filterArgs.filters = filters;
-    //then
-    expect(await userService.getNumOfPeopleByFilter(filterArgs)).toBe(1);
-    await queryRunner.rollbackTransaction();
-    await queryRunner.release();
-  });
-
-  it('기간 필터링 적용', async () => {
-    //given
-    queryRunner = db.createQueryRunner();
-    await queryRunner.startTransaction();
-    const filters = [];
-    const filterArgs: FilterArgs = new FilterArgs();
-    //when
-    filters.push(
-      makeFilter('userLeaveOfAbsence', 'absenced', '==', '휴학', false),
-    );
-    filterArgs.startDate = '2021-03-01';
-    filterArgs.endDate = '2021-05-01';
-    filterArgs.filters = filters;
-    //then
-    expect(await userService.getNumOfPeopleByFilter(filterArgs)).toBe(1);
-    await queryRunner.rollbackTransaction();
-    await queryRunner.release();
-  });
-
-  it('기간 필터링 적용', async () => {
-    //given
-    queryRunner = db.createQueryRunner();
-    await queryRunner.startTransaction();
-    const filters = [];
-    const filterArgs: FilterArgs = new FilterArgs();
-    //when
-    filters.push(
-      makeFilter('userLeaveOfAbsence', 'absenced', '==', '휴학', false),
-    );
-    filterArgs.startDate = '2021-03-01';
-    filterArgs.endDate = '2021-05-01';
-    filterArgs.filters = filters;
-    //then
-    expect(await userService.getNumOfPeopleByFilter(filterArgs)).toBe(1);
-    await queryRunner.rollbackTransaction();
-    await queryRunner.release();
-  });
-
-  it('기간 필터링 적용', async () => {
-    //given
-    queryRunner = db.createQueryRunner();
-    await queryRunner.startTransaction();
-    const filters = [];
-    const filterArgs: FilterArgs = new FilterArgs();
-    //when
-    filters.push(
-      makeFilter('userLeaveOfAbsence', 'absenced', '==', '휴학', false),
-    );
-    filterArgs.startDate = '2021-03-01';
-    filterArgs.endDate = '2021-05-01';
-    filterArgs.filters = filters;
     //then
     expect(await userService.getNumOfPeopleByFilter(filterArgs)).toBe(1);
     await queryRunner.rollbackTransaction();

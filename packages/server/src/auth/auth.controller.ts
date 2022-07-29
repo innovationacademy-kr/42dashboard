@@ -54,4 +54,16 @@ export class AuthController {
     // console.log(req.user);
     return req.user;
   }
+
+  @Get('/logout')
+  @ApiCreatedResponse({
+    description: '로그아웃',
+    type: Bocal,
+  })
+  @UseGuards(AuthGuard('jwt'))
+  async logoutUser(@Req() req) {
+    // console.log(req.user);
+    await this.authService.logoutUser(req.user);
+    return req.user;
+  }
 }

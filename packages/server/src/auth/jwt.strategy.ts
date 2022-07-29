@@ -33,11 +33,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload) {
-    // const { email, login, first_name, last_name, usual_full_name } = payload;
     const { id, intraName, email, image_url, isStaff } = payload;
     console.log(`In authGuard: ${intraName} is login`);
-    return payload;
-    // return this.validateUser(payload);
+    return this.validateUser(payload); //<- 배포때는 이걸로 return 해줘야함
+    // return payload;
   }
 
   async validateUser(payload) {

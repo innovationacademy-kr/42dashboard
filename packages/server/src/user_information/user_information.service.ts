@@ -245,8 +245,8 @@ export class UserInformationService {
          * 결과가 0또는 1만 나와야함 이 부분 나중에 테스트 해볼것
          * 0 또는 1 이외의 결과가 나오면 DB가 잘못된거.
          */
-        const log = ret['where'][entityName];
-        const latest = ret['where'][entityName];
+        const log = { ...ret['where'][entityName] };
+        const latest = { ...ret['where'][entityName] };
         ret['where'][entityName] = [];
         log['expired_date'] = MoreThanOrEqual(endDate);
         log['validate_date'] = LessThanOrEqual(startDate);
@@ -254,12 +254,9 @@ export class UserInformationService {
         latest['expired_date'] = MoreThanOrEqual(endDate);
         latest['validate_date'] = IsNull();
         ret['where'][entityName].push(latest);
-        if (entityName == 'userLeaveOfAbsence') {
-          console.log(ret['where'][entityName]);
-        }
       } else if (startDate && endDate) {
+        // (startDate && endDate && startDate == endDate) 로 해야할수도? <- 이걸 프론트에서 할수가 없음
         // 이건 보류
-        // (startDate && endDate && startDate == endDate) 로 해야하는거 아닌지..?
         ret['where'][entityName]['created_date'] = LessThan(endDate);
       }
     }
@@ -348,8 +345,8 @@ export class UserInformationService {
   async getNumOfPeopleByFilter(filterArgs: FilterArgs): Promise<number> {
     const { findObj, filterObj } = this.filtersToObj(filterArgs);
     // findAndCount의 return 값 = 배열
-    // 첫번째 인덱스 = find의 결과
-    // 두번째 인덱스 = count의 결과
+    // 0번째 인덱스 = find의 결과
+    // 1번째 인덱스 = count의 결과
     const dataAndCount = await this.dataSource
       .getRepository(User)
       .findAndCount(findObj);
@@ -477,70 +474,6 @@ export class UserInformationService {
     const ret = await this.dataSource.getRepository(User).find(findObj);
     console.log(ret);
     return ret;
-  }
-
-  /**
-   * "현재 휴학인 카뎃들"이라는 필터조건이 들어올때
-   * 현재 재학중인데 이전에 휴학한 이력(log)가 있는 카뎃도 같이 딸려나오는 문제해결해야함
-   * column 추가는 확실히 해야함
-   *  1. column 하나만 쓰기
-   *    "updated_date" or "updated_date" or "deleted_date" or "expired_date"
-   *  2. column 두개 쓰기
-   *    "validated_date" and "expired_date"
-   */
-  private async joinTableByFiltersTemp(filterObj) {
-    // console.log(filterObj);
-    const obj = this.createFindObj(filterObj);
-    // await this.dataSource
-    //   .getRepository(UserProcessProgress)
-    //   .update({ request_extension: '세번째' }, { deleted_at: new Date() }); //컬럼명 멘토님께 추천받기
-    obj['cache'] = true; //typeORM에서 제공하는 cache 기능
-    obj['order'] = { created_date: 'DESC' };
-    //그냥 @DeleteDatecolumn 안쓰고 @Column 쓴 다음에 (null), (not null) 쓰면 될듯?
-    // obj['where']['userProcessProgress']['deleted_at'] = IsNull();
-    // obj['withDeleted'] = {}; //가능성 있음
-    // obj['withDeleted']['userProcessPregress'] = true; // 적용 안됨. 가능성 없음.
-    // console.log('OBJ is', obj);
-    const ret = await this.dataSource.getRepository(User).findAndCount(obj);
-    // ret = await this.dataSource.getRepository(User).findAndCount(obj);
-    // console.log('RET is', ret);
-    return ret;
-  }
-
-  async querySampel() {
-    let temp = await this.dataSource
-      .getRepository(User)
-      .query(`SELECT * FROM user NATURAL JOIN user_blackhole`);
-    // await this.dataSource.query(
-    //   'CREATE TABLE accounts (user_id serial PRIMARY KEY,username VARCHAR ( 50 ) UNIQUE NOT NULL,password VARCHAR ( 50 ) NOT NULL,email VARCHAR ( 255 ) UNIQUE NOT NULL,created_on TIMESTAMP NOT NULL,last_login TIMESTAMP );',
-    // );
-    let queryRunner = await this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-    // queryRunner.createTable({})
-    temp = await queryRunner.manager
-      .createQueryBuilder(User, 'user')
-      .leftJoinAndSelect(
-        //remaining_period column은 더이상 사용되지 않음
-        'user.userBlackhole',
-        'blackhole', //innerJoin == Join인듯?
-        'blackhole.remaining_period > :period AND blackhole.remaining_period > 0',
-        { period: 90 },
-      ) //오버로딩
-      .leftJoinAndSelect('user.userOtherInformation', 'user_other_information')
-      .getMany();
-    await queryRunner.release();
-
-    queryRunner = await this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-    temp = await queryRunner.manager.createQueryBuilder();
-    queryRunner.release();
-
-    temp = this.dataSource
-      .getRepository(User)
-      .find({ where: { intra_id: 'hanchoi' } });
-    return temp;
   }
 
   async towJoin(obj, tableCount) {
