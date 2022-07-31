@@ -1,39 +1,51 @@
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
-import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import QueryFilterAttribute from './QueryFilterAttribute';
 import SelectedFilter from './SelectedFilter';
 import { FilterConfigType } from '../Sticker/Filter.type';
+import TextField from '@mui/material/TextField';
 
 export interface DatasetProps {
   id: number;
-  dataSet: FilterConfigType[];
-  setDataSets: React.Dispatch<React.SetStateAction<FilterConfigType[][]>>;
+  dataset: FilterConfigType[];
+  setDatasets: React.Dispatch<React.SetStateAction<FilterConfigType[][]>>;
+  datasetNames: string[];
+  setDatasetNames: React.Dispatch<React.SetStateAction<string[]>>;
   focus: number;
   changeFocusOn: () => void;
 }
 
 export default function Dataset({
   id,
-  dataSet,
-  setDataSets,
+  dataset,
+  setDatasets,
+  datasetNames,
+  setDatasetNames,
   focus,
   changeFocusOn,
 }: DatasetProps) {
   function renderSelectedFilters() {
-    return dataSet.map((filter, index) => {
+    return dataset.map((filter, index) => {
       return SelectedFilter({ data: { ...filter }, idx: index });
     });
   }
 
   const saveSelectedFilter = (queryFilter: FilterConfigType) => {
-    setDataSets((prev) => {
+    setDatasets((prev) => {
       const newFilters = [...prev];
       newFilters[id].push(queryFilter);
       return newFilters;
     });
+  };
+  const onChangeDatasetName = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setDatasetNames((prev) =>
+      prev.map((name, index) => {
+        if (index === id) return event.target.value;
+        else return name;
+      }),
+    );
   };
 
   return (
@@ -44,7 +56,13 @@ export default function Dataset({
           aria-controls={`${id}`}
           id={`${id}`}
         >
-          <Typography>Dataset {id}</Typography>
+          <TextField
+            placeholder={`Dataset ${id}`}
+            defaultValue={`Dataset ${id}`}
+            variant="standard"
+            value={datasetNames[id]}
+            onChange={onChangeDatasetName}
+          />
         </AccordionSummary>
         <AccordionDetails>
           <QueryFilterAttribute saveSelectedFilter={saveSelectedFilter} />

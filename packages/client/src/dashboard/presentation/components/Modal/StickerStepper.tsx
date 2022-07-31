@@ -26,6 +26,8 @@ interface ModalDatasType {
   setType: React.Dispatch<React.SetStateAction<StickerContentType>>;
   setLabels: React.Dispatch<React.SetStateAction<string[]>>;
   setFilters: React.Dispatch<React.SetStateAction<FilterConfigType[]>>;
+  datasetNames: string[];
+  setDatasetNames: React.Dispatch<React.SetStateAction<string[]>>;
   setDatasets: React.Dispatch<React.SetStateAction<FilterConfigType[][]>>;
   applyFiltersModal: () => void;
 }
@@ -38,6 +40,8 @@ export default function StickerStepper(props: ModalDatasType) {
     setFilters,
     datasets,
     setDatasets,
+    datasetNames,
+    setDatasetNames,
     applyFiltersModal,
   } = props;
 
@@ -93,6 +97,8 @@ export default function StickerStepper(props: ModalDatasType) {
         <InputDatasets
           datasets={datasets}
           setDatasets={setDatasets}
+          datasetNames={datasetNames}
+          setDatasetNames={setDatasetNames}
           focus={datasetFocus}
           changeFocusOn={changeDatasetFocus}
         />
