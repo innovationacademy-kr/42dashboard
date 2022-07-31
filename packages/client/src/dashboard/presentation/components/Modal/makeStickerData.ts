@@ -73,6 +73,7 @@ export interface MakeStickerType {
   type: StickerContentType;
   labels: string[];
   labelFilter: FilterConfigType[];
+  datasetNames: string[];
   arrayOfDataSet: FilterConfigType[][];
 }
 
@@ -81,6 +82,7 @@ export default function makeStickerData({
   type,
   labels,
   labelFilter,
+  datasetNames,
   arrayOfDataSet,
 }: MakeStickerType): StickerDataType {
   const queryVariables: QueryVariablesType = {
@@ -104,7 +106,8 @@ export default function makeStickerData({
     data: {
       type: type,
       contentProps: {
-        labels: labels,
+        labels,
+        datasetNames,
         queryData,
         options: {},
       },

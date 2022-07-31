@@ -34,7 +34,8 @@ const ModalFrame = (props: ModalProps) => {
   const [type, setType] = useState<StickerContentType>('none');
   const [labels, setLabels] = useState<string[]>([]);
   const [filters, setFilters] = useState<FilterConfigType[]>([]);
-  const [dataSets, setDataSets] = useState<FilterConfigType[][]>([[]]);
+  const [datasets, setDatasets] = useState<FilterConfigType[][]>([[]]);
+  const [datasetNames, setDatasetNames] = useState<string[]>([]);
 
   /** switch to type & handle properly */
   function AddStickerDataset() {
@@ -44,7 +45,8 @@ const ModalFrame = (props: ModalProps) => {
       type,
       labels,
       labelFilter: filters,
-      arrayOfDataSet: dataSets,
+      datasetNames,
+      arrayOfDataSet: datasets,
     });
     /** turn off modal */
     setIsOpen(false);
@@ -55,7 +57,8 @@ const ModalFrame = (props: ModalProps) => {
     /** init state */
     setLabels([]);
     setFilters([]);
-    setDataSets([]);
+    setDatasets([]);
+    setDatasetNames([]);
   }
 
   return (
@@ -73,12 +76,14 @@ const ModalFrame = (props: ModalProps) => {
     >
       <Box sx={style}>
         <StickerStepper
-          datasets={dataSets}
+          datasets={datasets}
           type={type}
           setType={setType}
           setLabels={setLabels}
           setFilters={setFilters}
-          setDatasets={setDataSets}
+          setDatasets={setDatasets}
+          datasetNames={datasetNames}
+          setDatasetNames={setDatasetNames}
           applyFiltersModal={AddStickerDataset}
         />
       </Box>

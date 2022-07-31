@@ -7,6 +7,8 @@ import { FilterConfigType } from '../Sticker/Filter.type';
 interface InputDataSetType {
   datasets: FilterConfigType[][];
   setDatasets: React.Dispatch<React.SetStateAction<FilterConfigType[][]>>;
+  datasetNames: string[];
+  setDatasetNames: React.Dispatch<React.SetStateAction<string[]>>;
   focus: number;
   changeFocusOn: (i: number) => () => void;
 }
@@ -16,7 +18,14 @@ const ScrollDiv = styled.div`
 `;
 
 export default function InputDatasets(props: InputDataSetType) {
-  const { datasets, setDatasets, changeFocusOn, focus } = props;
+  const {
+    datasets,
+    setDatasets,
+    datasetNames,
+    setDatasetNames,
+    changeFocusOn,
+    focus,
+  } = props;
   const count = datasets.length;
 
   function addDataSet() {
@@ -26,17 +35,19 @@ export default function InputDatasets(props: InputDataSetType) {
 
   function renderDatasets() {
     const renderDatasets = [];
-    for (let i = 0; i < count; ++i) {
-      const ret = [...datasets[i]];
+    for (let idx = 0; idx < count; ++idx) {
+      const ret = [...datasets[idx]];
 
       renderDatasets.push(
         <Dataset
-          key={i}
-          id={i}
-          dataSet={ret}
-          setDataSets={setDatasets}
+          key={idx}
+          id={idx}
+          dataset={ret}
+          setDatasets={setDatasets}
+          datasetNames={datasetNames}
+          setDatasetNames={setDatasetNames}
           focus={focus}
-          changeFocusOn={changeFocusOn(i)}
+          changeFocusOn={changeFocusOn(idx)}
         />,
       );
     }
