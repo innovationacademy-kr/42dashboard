@@ -2,9 +2,10 @@ import * as React from 'react';
 import Radio from '@mui/joy/Radio';
 import RadioGroup from '@mui/joy/RadioGroup';
 import styled from '@emotion/styled';
+import { StickerContentType } from '../Sticker/StickerContent.type';
 
 interface typeProps {
-  handleType: any;
+  handleType: React.Dispatch<React.SetStateAction<StickerContentType>>;
 }
 
 const types = ['pieChart', 'lineChart', 'barChart', 'table', 'text'];
