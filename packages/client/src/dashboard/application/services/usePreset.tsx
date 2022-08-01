@@ -95,7 +95,28 @@ function usePreset() {
     });
   };
 
-  return { preset, presetList, createPreset, changePreset };
+  const changePresetLabel = async (id: string, label: string) => {
+    const presetData = await presetService.getPreset(id);
+    if (presetData && presetList) {
+      const newPresetInfoList = presetList.presetInfos.filter(
+        (presetInfo) => presetInfo.id !== id,
+      );
+      const newPresetInfo = {
+        id: id,
+        label: label,
+        description: '프리셋 설명',
+      };
+      presetStore.setPreset({
+        id: id,
+        data: presetData.data,
+        info: newPresetInfo,
+      });
+      presetListStore.setPresetList({
+        presetInfos: [newPresetInfo, ...newPresetInfoList],
+      });
+    }
+  };
+  return { preset, presetList, createPreset, changePreset, changePresetLabel };
 }
 
 export default usePreset;

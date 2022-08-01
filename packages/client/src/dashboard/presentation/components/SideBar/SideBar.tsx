@@ -10,7 +10,8 @@ import SideBarList from './SideBarList';
 import SideBarListItem from './SideBarListItem';
 
 function SideBar() {
-  const { presetList, preset, changePreset, createPreset } = usePreset();
+  const { presetList, preset, changePreset, createPreset, changePresetLabel } =
+    usePreset();
 
   const drawerWidth = 240;
   return (
@@ -28,16 +29,21 @@ function SideBar() {
           {presetList.presetInfos.map((presetInfo) => (
             <SideBarListItem
               key={presetInfo.id}
+              id={presetInfo.id}
               icon={ShowChart}
               label={presetInfo.label}
               description={presetInfo.description}
               onClick={() => changePreset(presetInfo.id)}
               selected={presetInfo.id === preset?.id}
+              changePresetLabel={changePresetLabel}
             />
           ))}
+          {/* TODO(sonkang): label 수정이 필요없는 컴포넌트는 적용이 안되게끔 수정 */}
           <SideBarListItem
             icon={Addchart}
+            id="hi"
             label="보드 추가"
+            changePresetLabel={changePresetLabel}
             onClick={() => {
               createPreset();
             }}
@@ -45,7 +51,12 @@ function SideBar() {
         </SideBarList>
         <Divider />
         <SideBarList label="Future" icon={ExtensionSharp}>
-          <SideBarListItem icon={ShowChart} label="미래기능" />
+          <SideBarListItem
+            icon={ShowChart}
+            changePresetLabel={changePresetLabel}
+            id="hi"
+            label="미래기능"
+          />
         </SideBarList>
       </Box>
     </Drawer>
