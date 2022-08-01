@@ -298,7 +298,7 @@ export class SpreadService {
           col,
           tuple,
           table['mapCol'],
-          undefined,
+          table['name'],
         );
       }
       if (api42s != undefined) {
