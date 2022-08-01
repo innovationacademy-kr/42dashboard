@@ -51,11 +51,11 @@ type Mutation {
 type Query {
   extractDataIntoSpreadsheet: String!
   getDataToModifyFromDB(sheetName: String!): String!
-  getDomainOfColumnFilter(filters: [Filter!]!, skip: Int, take: Int, timeReference: DateTime): [JoinedTable!]!
+  getDomainOfColumnFilter(endDate: DateTime, filters: [Filter!]!, skip: Int, startDate: DateTime, take: Int): [JoinedTable!]!
   getLatestData: String!
-  getNumOfPeopleByFilter(filters: [Filter!]!, skip: Int, take: Int, timeReference: DateTime): Int!
-  getPeopleByFilter(filters: [Filter!]!, skip: Int, take: Int, timeReference: DateTime): [JoinedTable!]!
-  getPeopleByFilterForAdmin(filters: [Filter!]!, skip: Int, take: Int, timeReference: DateTime): [JoinedTable!]!
+  getNumOfPeopleByFilter(endDate: DateTime, filters: [Filter!]!, skip: Int, startDate: DateTime, take: Int): Int!
+  getPeopleByFilter(endDate: DateTime, filters: [Filter!]!, skip: Int, startDate: DateTime, take: Int): [JoinedTable!]!
+  getPeopleByFilterForAdmin(endDate: DateTime, filters: [Filter!]!, skip: Int, startDate: DateTime, take: Int): [JoinedTable!]!
   getUser(column: String, duplicated: String!): [User!]!
   getUserAccessCardInformation(column: String, duplicated: String!): [UserAccessCardInformation!]!
   getUserBlackhole(column: String, duplicated: String!): [UserBlackhole!]!
