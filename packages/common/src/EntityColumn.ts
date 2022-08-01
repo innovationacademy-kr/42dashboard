@@ -98,7 +98,7 @@ export const EntityColumn = {
   ],
   UserOtherEmploymentStatus: [
     //userOtherEmploymentStatus
-    { spName: '취업_기타수집_data 취업일자', dbName: 'emplyment_date' },
+    { spName: '취업_기타수집_data 취업일자', dbName: 'employment_date' },
     { spName: '사업장명', dbName: 'enterprise' },
   ],
   UserEducationFundState: [

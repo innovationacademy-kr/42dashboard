@@ -92,11 +92,19 @@ export class User {
   @DeleteDateColumn()
   deleted_date: Date;
 
-  // @Field()
-  // vailidated_date;
+  @Field()
+  @Column({
+    name: 'validate_date',
+    nullable: false,
+  })
+  validate_date: Date;
 
-  // @Field()
-  // expired_date;
+  @Field()
+  @Column({
+    name: 'expired_date',
+    nullable: true,
+  })
+  expired_date: Date;
 
   /***********************************
    *               User               *

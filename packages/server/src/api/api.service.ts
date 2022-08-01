@@ -19,7 +19,7 @@ export class ApiService {
     try {
       token = await this.getToken();
       apiData = await this.requestApi(token);
-      parsedApi = await this.parsingJson(apiData);
+      parsedApi = this.parsingJson(apiData);
       return parsedApi;
     } catch {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
@@ -97,7 +97,7 @@ export class ApiService {
         "remaining_period": 74
     },
    */
-  async parsingJson(api42s) {
+  parsingJson(api42s) {
     const parsedData = [];
     let idx = 0;
 
@@ -116,7 +116,7 @@ export class ApiService {
           ['outcircle']: api42.grade,
           ['outcircled_date']: '9999-12-31',
           ['coalition_score']: 0,
-          ['blackhole_date']: await this.parsingDate(api42.blackholed_at),
+          ['blackhole_date']: this.parsingDate(api42.blackholed_at),
         };
         idx++;
       }

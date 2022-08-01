@@ -52,7 +52,7 @@ export class UserAccessCardInformation extends BaseEntity {
   deleted_date: Date;
 
   @Field()
-  @CreateDateColumn({
+  @Column({
     name: 'validate_date',
     nullable: false,
   })

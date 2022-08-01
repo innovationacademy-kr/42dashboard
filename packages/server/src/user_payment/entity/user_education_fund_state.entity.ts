@@ -75,7 +75,7 @@
 //   deleted_date: Date;
 
 //   @Field()
-//   @CreateDateColumn({
+//   @Column({
 //     name: 'validate_date',
 //     nullable: false,
 //   })

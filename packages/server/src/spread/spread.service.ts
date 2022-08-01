@@ -3,11 +3,18 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { ApiService } from 'src/api/api.service';
 import { google } from 'googleapis';
 import { credentials } from 'src/config/credentials';
-import { mapObj, TABLENUM } from 'src/updater/name_types/updater.name';
+import {
+  classType,
+  dateTable,
+  defaultVALUE,
+  DEFAULT_VALUE,
+  mapObj,
+  TABLENUM,
+} from 'src/updater/name_types/updater.name';
 import { UserHrdNetUtilizeConsent } from 'src/user_job/entity/user_job.entity';
 import { UserComputationFund } from 'src/user_payment/entity/user_payment.entity';
 import { UserLearningDataAPI } from 'src/user_status/entity/user_status.entity';
-import { Column, DataSource } from 'typeorm';
+import { Column, createQueryBuilder, DataSource } from 'typeorm';
 import { MAIN_SHEET, SPREAD_END_POINT } from 'src/config/key';
 import { TableSet } from 'src/updater/updater.service';
 import {
@@ -233,23 +240,34 @@ export class SpreadService {
   }
 
   //테이블 별 하나의 로우 완성하는 함수
-  makeRowPerColumn(row, cols, rowIdx, tuple, mapObjs) {
-    let columnLabel;
+  makeRowPerColumn(row, cols, rowIdx, tuple, mapObjs, repoKey) {
+    const columnLabel = mapObjs.find(this.compareSpname(cols[rowIdx]));
+    //  console.log(row[rowIdx], '  21 ');
+    //스프레드에 날짜 저장 패턴이 바뀌면 문제가 생길 수 있음
     const datePattern =
       /[0-9]{4}. (0?[1-9]|1[012]). (0?[1-9]|[12][0-9]|3[0-1])$/; // yyyy-mm-dd 형식인지 체크
-
     if (
       row[rowIdx] !== null &&
-      (columnLabel = mapObjs.find(this.compareSpname(cols[rowIdx]))) !==
-        undefined
+      row[rowIdx] !== undefined &&
+      columnLabel !== undefined
     ) {
       if (datePattern.test(row[rowIdx])) {
         tuple[`${columnLabel.dbName}`] = this.changeDate(row[rowIdx]);
       } else if (row[rowIdx] !== '') {
         tuple[`${columnLabel.dbName}`] = row[rowIdx];
       }
-    } else if (row[rowIdx] === null || row[rowIdx] === '') {
+    } else if (
+      row[rowIdx] === null ||
+      row[rowIdx] === '' ||
+      row[rowIdx] === undefined
+    ) {
       tuple[`${columnLabel.dbName}`] = null;
+      if (
+        this.isDefaultColumn(repoKey, columnLabel.dbName) ===
+        DEFAULT_VALUE.DEFAULT
+      ) {
+        this.initailizeSpreadNullValue(tuple, columnLabel.dbName, repoKey);
+      }
     }
   }
 
@@ -272,10 +290,19 @@ export class SpreadService {
 
     for (const row of rows) {
       const tuple = {};
+
       for (let col = table['start']; col < table['end']; col++) {
-        this.makeRowPerColumn(row, cols, col, tuple, table['mapCol']);
+        this.makeRowPerColumn(
+          row,
+          cols,
+          col,
+          tuple,
+          table['mapCol'],
+          undefined,
+        );
       }
       if (api42s != undefined) {
+        // 해당 intra_no인 사람의 api 데이터를 가져오가
         const api42 = await this.apiService.getTupleFromApi(row[1], api42s);
         if (table['name'] === 'user_personal_information') {
           tuple['email'] = api42.email;
@@ -283,10 +310,10 @@ export class SpreadService {
         }
         if (table['name'] === 'user_blackhole') {
           tuple['blackhole_date'] = api42.blackhole_date;
-        } //여기 학습데이터를 추가해야함.
+        }
         if (table['name'] === 'user_learning_data_api') {
           tuple['level'] = api42.level;
-          //tuple['leveled_date'] = ''; //동환님께 여쭤보자
+          //tuple['leveled_date'] = new Date(); //동환님께 여쭤보자
         } //여기 학습데이터를 추가해야함.
       }
       if (table['name'] != 'user') tuple['fk_user_no'] = row[1]; //usertable은 해당 컬럼이 필요가 없음
@@ -295,7 +322,7 @@ export class SpreadService {
     return tupleArray;
   }
 
-  async getOldSheetLogColumns(colObj) {
+  async getOldSheetLogColumns(colObj, repoKey) {
     const colDatas = [];
 
     let date;
@@ -315,7 +342,7 @@ export class SpreadService {
       for (const colData of colDatas) {
         const columns = colData[0];
         const rows = (await colData).filter((value, index) => index > 0);
-        this.makeAColumnInTable(columns, rows, datas, date);
+        this.makeAColumnInTable(columns, rows, datas, date, repoKey);
       }
       await this.insertArrayToDB(UserComputationFund, datas);
     } else if (
@@ -336,6 +363,7 @@ export class SpreadService {
           mapObj[colObj.table][Number(colData) * 2]['spName'], //데이터
           mapObj[colObj.table][Number(colData) * 2 + 1]['spName'], //데이터 일자
           mapObj[colObj.table],
+          repoKey,
         );
         for (const data of datas) {
           // 같은 일자에 저장된 시트들을 합쳐주는 작업
@@ -356,6 +384,7 @@ export class SpreadService {
             }
           }
           if (flag === false) {
+            await this.initValidateDate(repoKey, data);
             sheet.push(data);
           }
         }
@@ -364,33 +393,39 @@ export class SpreadService {
         await this.insertArrayToDB(UserLearningDataAPI, sheet);
       else if (colObj.table === TABLENUM.USERHRDNETUTILIZECONSENT)
         await this.insertArrayToDB(UserHrdNetUtilizeConsent, sheet);
+
+      // console.log(sheet, 'sasdad');
     }
+    //console.log(colDatas, 'qwe');
     return colDatas;
   }
 
-  makeAColumnInTable(cols, rows, datas, date) {
+  async makeAColumnInTable(cols, rows, datas, date, repoKey) {
     const pattern = /[0-9]{4}. (0?[1-9]|1[012]). (0?[1-9]|[12][0-9]|3[0-1])$/; // yyyy. mm. dd 형식인지 체크
     for (const col in cols) {
       date = cols[col];
       if (pattern.test(cols[col])) {
         for (const row in rows) {
           const payment_data = {};
-          if (rows[row][col] === undefined) continue;
           payment_data[mapObj[TABLENUM.USERCOMPUTATIONFUND][0].dbName] =
             this.changeDate(date); //yyyy. mm. dd -> yyyy-mm-dd
-          payment_data[mapObj[TABLENUM.USERCOMPUTATIONFUND][2].dbName] = Number(
-            rows[row][col].replace(/\,/g, ''),
-          ); //1,000,000 -> 1000000
-          if (rows[row][col] != '0')
+          if (rows[row][col] === '0' || rows[row][col] === undefined) {
+            payment_data[mapObj[TABLENUM.USERCOMPUTATIONFUND][1].dbName] = 'N';
+            payment_data[mapObj[TABLENUM.USERCOMPUTATIONFUND][2].dbName] = '0';
+          } else if (rows[row][col] != '0' && rows[row][col] !== undefined) {
             payment_data[mapObj[TABLENUM.USERCOMPUTATIONFUND][1].dbName] = 'Y';
+            payment_data[mapObj[TABLENUM.USERCOMPUTATIONFUND][2].dbName] =
+              Number(rows[row][col].replace(/\,/g, '')); //1,000,000 -> 1000000
+          }
           payment_data['fk_user_no'] = rows[row][1];
+          await this.initValidateDate(repoKey, payment_data);
           datas.push(payment_data);
         }
       }
     }
   }
 
-  makeColumnsInTable(cols, rows, datas, value, date, mapObj) {
+  async makeColumnsInTable(cols, rows, datas, value, date, mapObj, repoKey) {
     //한테이블에 두개이상 컬럼을 추가하는 경우
     //monthData
     let data;
@@ -404,7 +439,7 @@ export class SpreadService {
       for (const row of rows) {
         const prop = {};
         if (row[col] === undefined) continue;
-        this.makeRowPerColumn(row, cols, col, prop, mapObj);
+        this.makeRowPerColumn(row, cols, col, prop, mapObj, repoKey);
         prop['fk_user_no'] = row[1];
         if (cols[col] === date) {
           //이미 있는 유저의 경우 value와 date동일 라인에 저장
@@ -425,37 +460,47 @@ export class SpreadService {
       }
     }
   }
-
-  async parseOldSpread(cols, rows, pastSheetData) {
+  /**
+   *
+   * cols
+   * [ 'no.', 'Intra No.', '과정중단', '과정중단일자', '사유', 'HRD-Net 중도탈락 처리' ]
+   * [ 'no.', 'Intra No.', '대상기간', '대상유무', '서클(대상기간기준)' ]
+   * [ '8. 취업현황', 'Intra No.', '취업현황', '취업일자', '사업장명' ]
+   *
+   */
+  async parseOldSpread(cols, rows, pastSheetData, repoKey) {
     let tupleLine;
-
+    //console.log(pastSheetData, 'aaxa');
     for (const row of rows) {
       //학생의 수 만큼 반복
       const tuple = {};
       const mapCols = pastSheetData.columns; // 해당 시트 테이블의 컬럼들
       for (const col in cols) {
         //컬럼 수 만큼 반복
-        this.makeRowPerColumn(row, cols, col, tuple, mapCols);
+        this.makeRowPerColumn(row, cols, col, tuple, mapCols, repoKey);
       }
       tuple['fk_user_no'] = row[1]; //취업정보, 고용보험 시트의 경우 변경을 해줘야함.
+      await this.initValidateDate(repoKey, tuple);
       tupleLine = pastSheetData['repo'].create(tuple);
       await pastSheetData['repo'].save(tupleLine);
     }
     return tupleLine;
   }
 
-  async getOldSheetTable(pastSheetData) {
+  async getOldSheetTable(pastSheetData, repoKey) {
     // let colDatas;
     const spreadData = await this.sendRequestToSpreadWithGoogleAPI(
       pastSheetData.endPoint,
-      pastSheetData.Id[0],
+      pastSheetData.Id[0], //스프레드 하위시트 ID
     );
+    // if (repoKey == 'user_hrd_net_utilize')
+    //   console.log(spreadData);
     const columns = spreadData[0];
     const rows = (await spreadData).filter((value, index) => index > 0);
 
     //지급일 시트 정보 받아서 저장해두기 테이블 관계수정 //확장성을 고려하려 했으나, 지원금 시트(LogColumn)의 특징이 강력하여 함수를 하나 더 만들기로 결정
 
-    await this.parseOldSpread(columns, rows, pastSheetData);
+    return await this.parseOldSpread(columns, rows, pastSheetData, repoKey);
   }
 
   async composeTableData(spreadData, tableSet: TableSet[], old: boolean) {
@@ -480,7 +525,6 @@ export class SpreadService {
       endOfTables.push(Math.max.apply(null, lengthArray));
       tableNames = await table.filter((value) => value != '');
     }
-
     this.makeTableSet(tableSet, endOfTables, mapObj, tableNames);
   }
 
@@ -497,23 +541,107 @@ export class SpreadService {
   }
 
   getTableName(spreadTable: string) {
-    if (spreadTable == '학사정보') return 'user';
-    else if (spreadTable == '인적정보') return 'user_personal_information';
-    else if (spreadTable == '과정연장') return 'user_course_extension';
-    else if (spreadTable == '휴학') return 'user_leave_of_absence';
-    else if (spreadTable == 'BLACKHOLE') return 'user_blackhole';
-    else if (spreadTable == '과정중단') return 'user_interruption_of_course';
-    else if (spreadTable == '학습데이터(API)') return 'user_learning_data_api';
-    else if (spreadTable == '로열티 관리') return 'user_loyalty_management';
-    else if (spreadTable == '취업현황') return 'user_employment_status';
-    else if (spreadTable == 'HRD-Net 활용') return 'user_hrd_net_utilize';
-    else if (spreadTable == '취업_기타수집_data')
+    if (spreadTable === '학사정보' || spreadTable === '0') {
+      return 'user';
+    } else if (spreadTable === '인적정보' || spreadTable === '1')
+      return 'user_personal_information';
+    else if (spreadTable === '과정연장' || spreadTable === '2')
+      return 'user_course_extension';
+    else if (spreadTable === '휴학' || spreadTable === '3')
+      return 'user_leave_of_absence';
+    else if (spreadTable === 'BLACKHOLE' || spreadTable === '4')
+      return 'user_blackhole';
+    else if (spreadTable === '과정중단' || spreadTable === '5')
+      return 'user_interruption_of_course';
+    else if (spreadTable === '학습데이터(API)' || spreadTable === '6')
+      return 'user_learning_data_api';
+    else if (spreadTable === '로열티 관리' || spreadTable === '7')
+      return 'user_loyalty_management';
+    else if (spreadTable === '취업현황' || spreadTable === '8')
+      return 'user_employment_status';
+    else if (spreadTable === 'HRD-Net 동의' || spreadTable === '9')
+      return 'user_hrd_net_utilize_consent';
+    else if (spreadTable === 'HRD-Net_data' || spreadTable === '10')
+      return 'user_hrd_net_utilize';
+    else if (spreadTable === '취업_기타수집_data' || spreadTable === '11')
       return 'user_other_employment_status';
-    else if (spreadTable == '지원금 관리') return 'user_education_fund_state';
-    else if (spreadTable == '지원금 산정') return 'user_computation_fund';
-    else if (spreadTable == '출입카드_info')
+    else if (spreadTable === '지원금 관리' || spreadTable === '12')
+      return 'user_education_fund_state';
+    else if (spreadTable === '지원금 산정' || spreadTable === '13')
+      return 'user_computation_fund';
+    else if (spreadTable === '출입카드_info' || spreadTable === '14')
       return 'user_access_card_information';
-    else if (spreadTable == '기타정보') return 'user_other_information';
-    else if (spreadTable == 'La Piscine') return 'user_lapiscine_information';
+    else if (spreadTable === '기타정보' || spreadTable === '15')
+      return 'user_other_information';
+    else if (spreadTable === 'La Piscine' || spreadTable === '16')
+      return 'user_lapiscine_information';
+    return 'nothing table';
+  }
+
+  async updateExpiredDate(repoKey, saveDate, now) {
+    //console.log(saveDate);
+    let key;
+
+    if (repoKey == 'user') key = 'intra_no';
+    else key = 'fk_user_no';
+
+    const repo = this.dataSource.getRepository(classType[repoKey]);
+    const target = await repo
+      .createQueryBuilder(repoKey)
+      .distinctOn([`${repoKey}.${key}`])
+      .orderBy(`${repoKey}.${key}`, 'DESC') //sort by key
+      .addOrderBy(`${repoKey}.${dateTable[repoKey]}`, 'DESC') //sort by valid date column
+      .where(`${key} = :key`, { key: saveDate.fk_user_no })
+      .getOne();
+
+    if (target) {
+      // console.log(`table is ${repoKey}\n`, ` expired_date changed to `, now);
+      // console.log(JSON.stringify(target, null, 4));
+      target.expired_date = now;
+      await repo.save(target);
+    }
+
+    //console.log('21', target);
+  }
+
+  //default 값을 갖는 column이 spread에 null인지 확인 후 default값으로 spread data 변환
+  initailizeSpreadNullValue(newOneData, key: string, repoKey: string) {
+    //스프레드의 컬럼값이 null 인데,
+    if (newOneData[key] === null || newOneData[key] === undefined) {
+      //파라미어틔 key가 해당 table의 컬럼에 defualt 값을 갖는 컴럼이라면, default 값으로 초기화
+      console.log(
+        `${key} init`,
+        newOneData[key],
+        ' to ',
+        defaultVALUE[repoKey][key],
+      );
+      newOneData[key] = defaultVALUE[repoKey][key];
+    }
+  }
+
+  isDefaultColumn(repoKey, key) {
+    if (
+      //default 값을 갖는 테이블인가
+      Object.keys(defaultVALUE).find((table) => table === repoKey) === undefined
+    )
+      return DEFAULT_VALUE.NOT_DEFAULT;
+    if (
+      //테이블 중에서 default 값을 갖는 column 인가
+      Object.keys(defaultVALUE[repoKey]).find((col) => col === key) ===
+      undefined
+    )
+      return DEFAULT_VALUE.NOT_DEFAULT;
+    return DEFAULT_VALUE.DEFAULT;
+  }
+
+  async initValidateDate(repoKey, saveDate) {
+    const now = new Date();
+    const target = await this.updateExpiredDate(repoKey, saveDate, now); //await 지워도 될지도?
+    //데이터의 유효성을 확인하는 컬럼이 validate_date라면, 저장하는 데이터의 시간을 기점으로 저장
+    if (dateTable[repoKey] === 'validate_date') {
+      saveDate['validate_date'] = now;
+    } else {
+      saveDate['validate_date'] = saveDate[dateTable[repoKey]];
+    }
   }
 }
