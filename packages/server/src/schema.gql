@@ -86,11 +86,13 @@ type User {
   coalition: String!
   created_date: DateTime!
   deleted_date: DateTime!
+  expired_date: DateTime!
   grade: String!
   intra_id: String!
   intra_no: Int!
   name: String!
   uniqueness: String!
+  validate_date: DateTime!
 }
 
 type UserAccessCardInformation {
@@ -122,10 +124,12 @@ type UserBlackhole {
 type UserComputationFund {
   created_date: DateTime!
   deleted_date: DateTime!
+  expired_date: DateTime!
   payment_date: DateTime
   pk: Int!
   received: String!
   recevied_amount: String!
+  validate_date: DateTime!
 }
 
 type UserCourseExtension {
@@ -144,12 +148,14 @@ type UserCourseExtension {
 type UserEducationFundState {
   created_date: DateTime!
   deleted_date: DateTime!
+  expired_date: DateTime!
   payment_end_date: DateTime
   payment_ended: String
   pk: Float!
   total_payment_of_money: String
   total_payment_of_number: Float
   uniqueness: String
+  validate_date: DateTime!
 }
 
 type UserEmploymentStatus {
@@ -244,10 +250,12 @@ type UserLeaveOfAbsence {
 type UserLoyaltyManagement {
   created_date: DateTime!
   deleted_date: DateTime!
+  expired_date: DateTime!
   loyalty_circle: String
   loyalty_period: String
   loyalty_presence: String
   pk: Float!
+  validate_date: DateTime!
 }
 
 type UserOtherEmploymentStatus {

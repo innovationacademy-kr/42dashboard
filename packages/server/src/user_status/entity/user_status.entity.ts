@@ -88,7 +88,7 @@ export class UserLearningDataAPI extends BaseEntity {
   deleted_date: Date;
 
   @Field()
-  @CreateDateColumn({ name: 'validate_date', nullable: false }) //, default: '9999-12-31'
+  @Column({ name: 'validate_date', nullable: false }) //, default: '9999-12-31'
   validate_date: Date;
 
   @Field()
@@ -106,6 +106,7 @@ export class UserLearningDataAPI extends BaseEntity {
   user: User;
 }
 
+//로열티 관리
 @ObjectType()
 @Entity()
 export class UserLoyaltyManagement extends BaseEntity {
@@ -132,6 +133,20 @@ export class UserLoyaltyManagement extends BaseEntity {
   @Field()
   @DeleteDateColumn()
   deleted_date: Date;
+
+  @Field()
+  @Column({
+    name: 'validate_date',
+    nullable: false,
+  })
+  validate_date: Date;
+
+  @Field()
+  @Column({
+    name: 'expired_date',
+    nullable: true,
+  })
+  expired_date: Date;
 
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
@@ -188,7 +203,7 @@ export class UserCourseExtension extends BaseEntity {
   deleted_date: Date;
 
   @Field()
-  @CreateDateColumn({
+  @Column({
     name: 'validate_date',
     nullable: false,
   })
@@ -256,9 +271,10 @@ export class UserBlackhole extends BaseEntity {
   deleted_date: Date;
 
   @Field()
-  @CreateDateColumn({
+  @Column({
     name: 'validate_date',
     nullable: false,
+    default: '9999-12-31',
   })
   validate_date: Date;
 
@@ -337,9 +353,10 @@ export class UserLeaveOfAbsence extends BaseEntity {
   deleted_date: Date;
 
   @Field()
-  @CreateDateColumn({
+  @Column({
     name: 'validate_date',
     nullable: false,
+    default: '9999-12-31',
   })
   validate_date: Date;
 
@@ -396,7 +413,7 @@ export class UserInterruptionOfCourse extends BaseEntity {
   deleted_date: Date;
 
   @Field()
-  @CreateDateColumn({
+  @Column({
     name: 'validate_date',
     nullable: false,
   })
@@ -453,7 +470,7 @@ export class UserLapiscineInformation extends BaseEntity {
   deleted_date: Date;
 
   @Field()
-  @CreateDateColumn({
+  @Column({
     name: 'validate_date',
     nullable: false,
   })
