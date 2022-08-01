@@ -14,11 +14,14 @@ import SectionDataType from '../../domain/sectionDatas/sectionData.type';
 import StickerDataType from '../../domain/stickerDatas/stickerData.type';
 import presetListRepository from '../../infrastructure/presetList.repository';
 import PresetListService from '../../domain/presetList/presetList.service';
+import useMode from '../../application/services/useMode';
 
 const presetService = new PresetService(presetRepository);
 const presetListService = new PresetListService(presetListRepository);
 
 function usePreset() {
+  const { setControlMode } = useMode();
+
   const [preset, setPreset] = useState<PresetType | null>(
     presetStore.getPreset(),
   );
@@ -38,8 +41,12 @@ function usePreset() {
   useEffect(() => {
     const fetchPresetList = async () => {
       const presetList = await presetListService.getPresetList();
-      if (presetList) {
+      if (presetList.presetInfos.length !== 0) {
         presetListStore.setPresetList(presetList);
+        changePreset(presetList.presetInfos[0].id);
+      } else {
+        createPreset();
+        setControlMode('edit');
       }
     };
     fetchPresetList();
