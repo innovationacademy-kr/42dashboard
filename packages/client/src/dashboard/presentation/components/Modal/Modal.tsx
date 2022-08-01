@@ -39,22 +39,26 @@ const ModalFrame = (props: ModalProps) => {
 
   /** switch to type & handle properly */
   function AddStickerDataset() {
+    console.log('apply filters');
     /** make sticker data */
-    const newStickerData = makeStickerData({
-      sectionId,
-      type,
-      labels,
-      labelFilter: filters,
-      datasetNames,
-      arrayOfDataSet: datasets,
-    });
+    if (type === 'barChart' || type === 'lineChart' || type === 'pieChart') {
+      const newStickerData = makeStickerData({
+        sectionId,
+        type,
+        labels,
+        labelFilter: filters,
+        datasetNames,
+        arrayOfDataSet: datasets,
+      });
+      /** store sticker data to store */
+      addStickerData(newStickerData);
+      /** render sticker */
+      renderAddedSticker(sectionId, newStickerData.id);
+    }
     /** turn off modal */
     setIsOpen(false);
-    /** store sticker data to store */
-    addStickerData(newStickerData);
-    /** render sticker */
-    renderAddedSticker(sectionId, newStickerData.id);
     /** init state */
+    setType('none');
     setLabels([]);
     setFilters([]);
     setDatasets([]);
