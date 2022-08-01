@@ -50,6 +50,7 @@ export const options = {
 
 export interface ChartProps {
   labels: string[];
+  datasetNames: string[];
   queryData: QueryDataType;
   options?: ChartOptions;
 }

@@ -2,13 +2,15 @@ import React from 'react';
 import Dataset from './Dataset';
 import { Button } from '@mui/material';
 import styled from '@emotion/styled';
-import { QueryFilterType } from '../../../application/services/useDataset';
+import { FilterConfigType } from '../Sticker/Filter.type';
 
 interface InputDataSetType {
-  dataSets: QueryFilterType[][];
-  setDataSets: React.Dispatch<React.SetStateAction<QueryFilterType[][]>>;
+  datasets: FilterConfigType[][];
+  setDatasets: React.Dispatch<React.SetStateAction<FilterConfigType[][]>>;
+  datasetNames: string[];
+  setDatasetNames: React.Dispatch<React.SetStateAction<string[]>>;
   focus: number;
-  onChange: (i: number) => () => void;
+  changeFocusOn: (i: number) => () => void;
 }
 
 const ScrollDiv = styled.div`
@@ -16,27 +18,36 @@ const ScrollDiv = styled.div`
 `;
 
 export default function InputDatasets(props: InputDataSetType) {
-  const { dataSets, setDataSets, onChange, focus } = props;
-  const count = dataSets.length;
+  const {
+    datasets,
+    setDatasets,
+    datasetNames,
+    setDatasetNames,
+    changeFocusOn,
+    focus,
+  } = props;
+  const count = datasets.length;
 
   function addDataSet() {
-    setDataSets((prevDataSets) => [...prevDataSets, []]);
-    onChange(count)();
+    setDatasets((prevDatasets) => [...prevDatasets, []]);
+    changeFocusOn(count)();
   }
 
   function renderDatasets() {
     const renderDatasets = [];
-    for (let i = 0; i < count; ++i) {
-      const ret = [...dataSets[i]];
+    for (let idx = 0; idx < count; ++idx) {
+      const ret = [...datasets[idx]];
 
       renderDatasets.push(
         <Dataset
-          key={i}
-          id={i}
-          dataSet={ret}
-          setDataSets={setDataSets}
+          key={idx}
+          id={idx}
+          dataset={ret}
+          setDatasets={setDatasets}
+          datasetNames={datasetNames}
+          setDatasetNames={setDatasetNames}
           focus={focus}
-          onChange={onChange(i)}
+          changeFocusOn={changeFocusOn(idx)}
         />,
       );
     }

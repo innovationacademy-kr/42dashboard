@@ -2,12 +2,13 @@ import * as React from 'react';
 import Radio from '@mui/joy/Radio';
 import RadioGroup from '@mui/joy/RadioGroup';
 import styled from '@emotion/styled';
+import { StickerContentType } from '../Sticker/StickerContent.type';
 
 interface typeProps {
-  handleType: any;
+  handleType: React.Dispatch<React.SetStateAction<StickerContentType>>;
 }
 
-const types = ['pieChart', 'lineChart', 'barChart', 'table', 'title'];
+const types = ['pieChart', 'lineChart', 'barChart', 'table', 'text'];
 
 const StyledDiv = styled.div`
   margin-top: 5rem;
@@ -24,10 +25,7 @@ const TypeBox = (props: typeProps) => {
 
   return (
     <StyledDiv>
-      <RadioGroup
-        // defaultValue="PieChart"
-        onChange={(event: any) => handleType(event.target.value)}
-      >
+      <RadioGroup onChange={(event: any) => handleType(event.target.value)}>
         {types.map((type) => (
           <div key={type}>
             <StyledRadio value={type} label={type} />

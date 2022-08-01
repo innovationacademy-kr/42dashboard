@@ -1,10 +1,10 @@
 import { Box, Modal } from '@mui/material';
 import { useState } from 'react';
-import { QueryFilterType } from '../../../application/services/useDataset';
 import { StickerContentType } from '../Sticker/StickerContent.type';
 import StickerDataType from '../../../domain/stickerDatas/stickerData.type';
 import makeStickerData from './makeStickerData';
 import StickerStepper from './StickerStepper';
+import { FilterConfigType } from '../Sticker/Filter.type';
 
 interface ModalProps {
   sectionId: string;
@@ -31,28 +31,38 @@ const ModalFrame = (props: ModalProps) => {
   const { sectionId, renderAddedSticker, addStickerData, isOpen, setIsOpen } =
     props;
 
-  const [type, setType] = useState<StickerContentType>('lineChart');
+  const [type, setType] = useState<StickerContentType>('none');
   const [labels, setLabels] = useState<string[]>([]);
-  const [filters, setFilters] = useState<QueryFilterType[]>([]);
-  const [dataSets, setDataSets] = useState<QueryFilterType[][]>([[]]);
+  const [filters, setFilters] = useState<FilterConfigType[]>([]);
+  const [datasets, setDatasets] = useState<FilterConfigType[][]>([[]]);
+  const [datasetNames, setDatasetNames] = useState<string[]>([]);
 
+  /** switch to type & handle properly */
   function AddStickerDataset() {
-    const newStickerData = makeStickerData({
-      sectionId,
-      type,
-      labels,
-      labelFilter: filters,
-      arrayOfDataSet: dataSets,
-    });
+    console.log('apply filters');
+    /** make sticker data */
+    if (type === 'barChart' || type === 'lineChart' || type === 'pieChart') {
+      const newStickerData = makeStickerData({
+        sectionId,
+        type,
+        labels,
+        labelFilter: filters,
+        datasetNames,
+        arrayOfDataSet: datasets,
+      });
+      /** store sticker data to store */
+      addStickerData(newStickerData);
+      /** render sticker */
+      renderAddedSticker(sectionId, newStickerData.id);
+    }
     /** turn off modal */
     setIsOpen(false);
-    /** store sticker data to store */
-    addStickerData(newStickerData);
-    /** render sticker */
-    renderAddedSticker(sectionId, newStickerData.id);
+    /** init state */
+    setType('none');
     setLabels([]);
     setFilters([]);
-    setDataSets([[]]);
+    setDatasets([]);
+    setDatasetNames([]);
   }
 
   return (
@@ -70,11 +80,14 @@ const ModalFrame = (props: ModalProps) => {
     >
       <Box sx={style}>
         <StickerStepper
-          dataSets={dataSets}
+          datasets={datasets}
+          type={type}
           setType={setType}
           setLabels={setLabels}
           setFilters={setFilters}
-          setDataSets={setDataSets}
+          setDatasets={setDatasets}
+          datasetNames={datasetNames}
+          setDatasetNames={setDatasetNames}
           applyFiltersModal={AddStickerDataset}
         />
       </Box>

@@ -3,11 +3,11 @@ import createQuery from '../../../infrastructure/http/graphql/createQuery';
 import { v4 as uuid } from 'uuid';
 import {
   QueryDataType,
-  QueryFilterType,
   QueryVariablesType,
 } from '../../../application/services/useDataset';
 import { DocumentNode } from '@apollo/client';
 import { StickerContentType } from '../Sticker/StickerContent.type';
+import { FilterConfigType } from '../Sticker/Filter.type';
 
 function stringToUnicode(str: string): string {
   let ret = '';
@@ -17,10 +17,10 @@ function stringToUnicode(str: string): string {
   return ret;
 }
 
-function returnFilterName(filter: QueryFilterType): string {
-  return `${filter.entityName}${filter.column}${stringToUnicode(
-    filter.operator,
-  )}${stringToUnicode(filter.givenValue)}`;
+function returnFilterName(filter: FilterConfigType): string {
+  return `${filter.entityName}${filter.column}${
+    filter.operator && stringToUnicode(filter.operator)
+  }${stringToUnicode(filter.givenValue)}`;
 }
 
 function changeFirstCharOfEntity(entityName: string) {
@@ -30,11 +30,11 @@ function changeFirstCharOfEntity(entityName: string) {
 }
 
 function makeQueryFilterVariables(
-  filters: QueryFilterType[],
+  filters: FilterConfigType[],
 ): QueryVariablesType {
   const queryVariables: QueryVariablesType = {};
 
-  filters.forEach((filter: QueryFilterType) => {
+  filters.forEach((filter: FilterConfigType) => {
     const filterName = returnFilterName(filter);
     queryVariables[filterName] = {
       ...filter,
@@ -50,14 +50,14 @@ function returnFilterNames(queryVariables: QueryVariablesType): string[] {
 }
 
 function returnFilterSets(
-  arrayOfDataSet: QueryFilterType[][],
-  labelFilter: QueryFilterType[],
+  arrayOfDataSet: FilterConfigType[][],
+  labelFilter: FilterConfigType[],
 ): string[][] {
   const labelFilterNames = labelFilter.map((filter) =>
     returnFilterName(filter),
   );
   const filterSets: string[][] = [];
-  arrayOfDataSet.forEach((dataSet: QueryFilterType[]) => {
+  arrayOfDataSet.forEach((dataSet: FilterConfigType[]) => {
     const commonFilterNames = dataSet.map((filter) => returnFilterName(filter));
     labelFilterNames.forEach((labelName) => {
       const dataSet = [...commonFilterNames];
@@ -72,8 +72,9 @@ export interface MakeStickerType {
   sectionId: string;
   type: StickerContentType;
   labels: string[];
-  labelFilter: QueryFilterType[];
-  arrayOfDataSet: QueryFilterType[][];
+  labelFilter: FilterConfigType[];
+  datasetNames: string[];
+  arrayOfDataSet: FilterConfigType[][];
 }
 
 export default function makeStickerData({
@@ -81,6 +82,7 @@ export default function makeStickerData({
   type,
   labels,
   labelFilter,
+  datasetNames,
   arrayOfDataSet,
 }: MakeStickerType): StickerDataType {
   const queryVariables: QueryVariablesType = {
@@ -104,7 +106,8 @@ export default function makeStickerData({
     data: {
       type: type,
       contentProps: {
-        labels: labels,
+        labels,
+        datasetNames,
         queryData,
         options: {},
       },

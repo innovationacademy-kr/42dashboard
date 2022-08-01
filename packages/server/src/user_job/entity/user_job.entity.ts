@@ -42,7 +42,7 @@ export class UserOtherEmploymentStatus extends BaseEntity {
   deleted_date: Date;
 
   @Field()
-  @CreateDateColumn({
+  @Column({
     name: 'validate_date',
     nullable: false,
   })
@@ -158,7 +158,7 @@ export class UserHrdNetUtilizeConsent extends BaseEntity {
   deleted_date: Date;
 
   @Field()
-  @CreateDateColumn({
+  @Column({
     name: 'validate_date',
     nullable: false,
   })
@@ -230,7 +230,7 @@ export class UserHrdNetUtilize extends BaseEntity {
   deleted_date: Date;
 
   @Field()
-  @CreateDateColumn({
+  @Column({
     name: 'validate_date',
     nullable: false,
   })
@@ -285,7 +285,7 @@ export class UserEmploymentStatus extends BaseEntity {
   deleted_date: Date;
 
   @Field()
-  @CreateDateColumn({
+  @Column({
     name: 'validate_date',
     nullable: false,
   })

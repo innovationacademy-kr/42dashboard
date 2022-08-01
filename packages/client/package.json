@@ -12,6 +12,7 @@
     "@reduxjs/toolkit": "^1.8.3",
     "axios": "^0.27.2",
     "chart.js": "^3.8.0",
+    "common": "*",
     "react": "^18.2.0",
     "react-chartjs-2": "^4.2.0",
     "react-dom": "^18.2.0",
@@ -23,7 +24,7 @@
     "uuid": "^8.3.2",
     "web-vitals": "^2.1.4",
     "zustand": "^4.0.0-rc.1",
-    "common": "*"
+    "zustand-persist": "^0.4.0"
   },
   "scripts": {
     "start": "react-scripts start",

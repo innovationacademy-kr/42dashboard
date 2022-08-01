@@ -50,11 +50,12 @@ type Mutation {
 
 type Query {
   extractDataIntoSpreadsheet: String!
-  getDomainOfColumnFilter(filters: [Filter!]!, skip: Int, take: Int): [JoinedTable!]!
+  getDataToModifyFromDB(sheetName: String!): String!
+  getDomainOfColumnFilter(filters: [Filter!]!, skip: Int, take: Int, timeReference: DateTime): [JoinedTable!]!
   getLatestData: String!
-  getNumOfPeopleByFilter(filters: [Filter!]!, skip: Int, take: Int): Int!
-  getPeopleByFilter(filters: [Filter!]!, skip: Int, take: Int): [JoinedTable!]!
-  getPeopleByFilterForAdmin(filters: [Filter!]!, skip: Int, take: Int): [JoinedTable!]!
+  getNumOfPeopleByFilter(filters: [Filter!]!, skip: Int, take: Int, timeReference: DateTime): Int!
+  getPeopleByFilter(filters: [Filter!]!, skip: Int, take: Int, timeReference: DateTime): [JoinedTable!]!
+  getPeopleByFilterForAdmin(filters: [Filter!]!, skip: Int, take: Int, timeReference: DateTime): [JoinedTable!]!
   getUser(column: String, duplicated: String!): [User!]!
   getUserAccessCardInformation(column: String, duplicated: String!): [UserAccessCardInformation!]!
   getUserBlackhole(column: String, duplicated: String!): [UserBlackhole!]!
@@ -72,6 +73,7 @@ type Query {
   getUserOtherEmploymentStatus(column: String, duplicated: String!): [UserOtherEmploymentStatus!]!
   getUserOtherInformation(column: String, duplicated: String!): [UserOtherInformation!]!
   getUserPersonalInformation(column: String, duplicated: String!): [UserPersonalInformation!]!
+  saveModifiedDataFromSheet(sheetName: String!): String!
   sendRequestToSpreadWithGoogleAPI: String!
   tempFunction: [JoinedTable!]!
   updateData: String!
@@ -84,11 +86,13 @@ type User {
   coalition: String!
   created_date: DateTime!
   deleted_date: DateTime!
+  expired_date: DateTime!
   grade: String!
   intra_id: String!
   intra_no: Int!
   name: String!
   uniqueness: String!
+  validate_date: DateTime!
 }
 
 type UserAccessCardInformation {
@@ -120,10 +124,12 @@ type UserBlackhole {
 type UserComputationFund {
   created_date: DateTime!
   deleted_date: DateTime!
+  expired_date: DateTime!
   payment_date: DateTime
   pk: Int!
   received: String!
   recevied_amount: String!
+  validate_date: DateTime!
 }
 
 type UserCourseExtension {
@@ -142,12 +148,14 @@ type UserCourseExtension {
 type UserEducationFundState {
   created_date: DateTime!
   deleted_date: DateTime!
+  expired_date: DateTime!
   payment_end_date: DateTime
   payment_ended: String
   pk: Float!
   total_payment_of_money: String
   total_payment_of_number: Float
   uniqueness: String
+  validate_date: DateTime!
 }
 
 type UserEmploymentStatus {
@@ -242,10 +250,12 @@ type UserLeaveOfAbsence {
 type UserLoyaltyManagement {
   created_date: DateTime!
   deleted_date: DateTime!
+  expired_date: DateTime!
   loyalty_circle: String
   loyalty_period: String
   loyalty_presence: String
   pk: Float!
+  validate_date: DateTime!
 }
 
 type UserOtherEmploymentStatus {

@@ -2,8 +2,8 @@ import * as React from 'react';
 import styled from '@emotion/styled';
 import { SelectedLabelFilters } from './InputLabels';
 import LabelAttribute from './filterAttributes/LabelAttribute';
-import { QueryFilterType } from '../../../application/services/useDataset';
 import QueryFilterAttribute from './QueryFilterAttribute';
+import { FilterConfigType } from '../Sticker/Filter.type';
 
 const Section = styled.div`
   margin-top: 1rem;
@@ -13,7 +13,7 @@ const Section = styled.div`
 `;
 
 interface LabelFilterProps {
-  setLabelAndFilter: (label: string, filter: QueryFilterType) => void;
+  setLabelAndFilter: (label: string, filter: FilterConfigType) => void;
   addFilter: (newFilter: SelectedLabelFilters) => void;
 }
 
@@ -21,7 +21,7 @@ function LabelFilter(props: LabelFilterProps) {
   const { setLabelAndFilter, addFilter } = props;
   const [label, setLabel] = React.useState<string>('');
 
-  const saveSelectedFilter = (queryFilter: QueryFilterType) => {
+  const saveSelectedFilter = (queryFilter: FilterConfigType) => {
     setLabelAndFilter(label, queryFilter);
     addFilter({ label, ...queryFilter });
   };

@@ -48,7 +48,7 @@ const EditToolBar = (props: EditToolBarProps) => {
       )}
       {type === 'Section' && (
         <Button onClick={() => setIsOpen && setIsOpen(true)}>
-          Add Sticekr
+          Add Sticker
         </Button>
       )}
       {type === 'Sticker' && <Button>Apply Filter</Button>}

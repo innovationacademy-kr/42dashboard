@@ -1,4 +1,3 @@
-import * as React from 'react';
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -7,21 +6,52 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
-import { columns, rows } from './TableData';
+import useChartDataset, {
+  QueryDataType,
+} from '../../../application/services/useDataset';
+import { useEffect, useState } from 'react';
+import { getRowsFromGqlResponse } from '../../../application/utils/tableQueryParse';
 
-interface tableType {
-  height: number;
+type cellAlignType = 'inherit' | 'left' | 'center' | 'right' | 'justify';
+interface ColumnGroupType {
+  id: string; // === label
+  label: string; // Column Name Type
+  align?: cellAlignType; //  default : center,
+  colSpan: number;
 }
 
-export default function StickyTable(props: tableType) {
-  const { height } = props;
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+interface ColumnType {
+  id: string;
+  label: string;
+  minWidth?: number;
+  align?: cellAlignType;
+  format?: (value: number) => string;
+}
+interface TableProps {
+  columnGroups: ColumnGroupType[];
+  columns: ColumnType[];
+  queryData: QueryDataType;
+  // options?: TableOptions;
+}
+
+type TableCellType = string | number;
+
+export function TableStickerContent(props: TableProps) {
+  const { columnGroups, columns, queryData } = props;
+  const { data, loading, error } = useChartDataset(queryData); // data는 row 배열
+  const [rowsState, setRowsState] = useState<TableCellType[][]>([]);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [page, setPage] = useState(0);
+
+  useEffect(() => {
+    if (data) {
+      setRowsState(getRowsFromGqlResponse(data));
+    }
+  }, [data]);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
-
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
@@ -29,17 +59,35 @@ export default function StickyTable(props: tableType) {
     setPage(0);
   };
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+  if (error) {
+    return <div>Error!</div>;
+  }
+
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-      <TableContainer sx={{ maxHeight: height - 60 }}>
-        <Table stickyHeader aria-label="sticky table">
+      <TableContainer sx={{ maxHeight: '500px' }}>
+        <Table stickyHeader size="small" aria-label="sticky table">
           <TableHead>
+            <TableRow>
+              {columnGroups.map((columnGroup) => (
+                <TableCell
+                  key={columnGroup.id}
+                  colSpan={columnGroup.colSpan}
+                  align={columnGroup.align || 'center'}
+                >
+                  {columnGroup.label}
+                </TableCell>
+              ))}
+            </TableRow>
             <TableRow>
               {columns.map((column) => (
                 <TableCell
                   key={column.id}
-                  align={column.align}
-                  style={{ minWidth: column.minWidth }}
+                  align={column.align || 'right'}
+                  sx={{ minWidth: column.minWidth || 100 }}
                 >
                   {column.label}
                 </TableCell>
@@ -47,31 +95,24 @@ export default function StickyTable(props: tableType) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows
+            {rowsState
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row) => {
-                return (
-                  <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
-                    {columns.map((column) => {
-                      const value = row[column.id];
-                      return (
-                        <TableCell key={column.id} align={column.align}>
-                          {column.format && typeof value === 'number'
-                            ? column.format(value)
-                            : value}
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                );
-              })}
+              .map((row, index) => (
+                <TableRow key={`${row[0]}${index}`}>
+                  {row.map((cell, i) => (
+                    <TableCell key={`${cell}${i}`} align="right">
+                      {cell}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </TableContainer>
       <TablePagination
         rowsPerPageOptions={[10, 25, 100]}
         component="div"
-        count={rows.length}
+        count={rowsState.length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}

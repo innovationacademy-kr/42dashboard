@@ -8,15 +8,21 @@ import userStore from '../../infrastructure/store/user.store';
 const userService = new UserService(userRepository);
 
 function useUser() {
-  const [user, setUser] = useState(userStore.getUser());
+  const [userInfo, setUserInfo] = useState(userStore.getUser());
 
-  console.log('stateStickers', user);
+  userStore.subscribeToUser((newUserData: UserType | null) => {
+    setUserInfo(newUserData);
+  });
 
   const getUser = () => {
     return userService.getUser();
   };
 
-  return { user, getUser };
+  const setUser = (user: UserType) => {
+    return userService.setUser(user);
+  };
+
+  return { userInfo, getUser, setUser };
 }
 
 export default useUser;

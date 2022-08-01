@@ -41,7 +41,7 @@ export class UserOtherInformation extends BaseEntity {
   deleted_date: Date;
 
   @Field()
-  @CreateDateColumn({
+  @Column({
     name: 'validate_date',
     nullable: false,
   })

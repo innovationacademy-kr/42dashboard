@@ -19,6 +19,29 @@ import {
   SUB_LOYALTYMANAGEMENT_ID,
   SUB_OTHEREMPLOYMENTSTATUS_ID,
 } from 'src/config/key';
+import { UserAccessCardInformation } from 'src/user_information/entity/user_access_card_information.entity';
+import { User } from 'src/user_information/entity/user_information.entity';
+import { UserOtherInformation } from 'src/user_information/entity/user_other_information.entity';
+import { UserPersonalInformation } from 'src/user_information/entity/user_personal_information.entity';
+import {
+  UserEmploymentStatus,
+  UserHrdNetUtilize,
+  UserHrdNetUtilizeConsent,
+  UserOtherEmploymentStatus,
+} from 'src/user_job/entity/user_job.entity';
+import {
+  UserComputationFund,
+  UserEducationFundState,
+} from 'src/user_payment/entity/user_payment.entity';
+import {
+  UserBlackhole,
+  UserCourseExtension,
+  UserInterruptionOfCourse,
+  UserLapiscineInformation,
+  UserLearningDataAPI,
+  UserLeaveOfAbsence,
+  UserLoyaltyManagement,
+} from 'src/user_status/entity/user_status.entity';
 
 export const enum TABLENUM {
   USER = 0,
@@ -142,7 +165,7 @@ export const mapObj = [
   ],
   [
     //userOtherEmploymentStatus
-    { spName: '취업일자', dbName: 'emplyment_date' },
+    { spName: '취업일자', dbName: 'employment_date' },
     { spName: '사업장명', dbName: 'enterprise' },
   ],
   [
@@ -411,20 +434,20 @@ export const defaultVALUE = {
   },
 
   user_employment_status: {
-    //employment_date: '9999-12-31',
+    employment_date: '9999-12-31',
     employment: '미취업',
   },
 
-  // user_other_employment_status: {
-  //   employment_date: '9999-12-31',
-  // },
+  user_other_employment_status: {
+    employment_date: '9999-12-31',
+  },
 
   user_hrd_net_utilize_consent: {
     consent_to_provide_information: 'N',
     consented_date: '9999-12-31',
   },
 
-  user_hrd_net_utilze: {
+  user_hrd_net_utilize: {
     hrd_net_date: '9999-12-31',
     employmented: 'N',
     employment_insurance_date: '9999-12-31',
@@ -444,6 +467,7 @@ export const defaultVALUE = {
     // number_of_rapicin_participation: 9999,
   },
 
+  //하위시트에서 받아올 때는 makeAColumnInTable에서 초기화를 함
   user_computaion_fund: {
     payment_date: '9999-12-31',
     received: 'N',
@@ -457,13 +481,53 @@ export const defaultVALUE = {
     //uniqueness: '0',
   },
 
-  // user_leave_of_absence: {
-  //   begin_absence_date: '9999-12-31',
-  //   end_absence_date: '9999-12-31',
-  //   return_from_absence_date: '9999-12-31',
-  // },
+  user_leave_of_absence: {
+    begin_absence_date: '9999-12-31',
+    end_absence_date: '9999-12-31',
+    return_from_absence_date: '9999-12-31',
+  },
 
   user_interruption_of_course: {
     break_date: '9999-12-31', //이름 변경 요망
   },
+};
+
+export const dateTable = {
+  [repoKeys.user]: 'validate_date',
+  [repoKeys.userPersonal]: 'validate_date',
+  [repoKeys.userCourseExtension]: 'validate_date',
+  [repoKeys.userLeaveOfAbsence]: 'validate_date',
+  [repoKeys.userBlackhole]: 'validate_date',
+  [repoKeys.userInterruptionOfCourse]: 'validate_date',
+  [repoKeys.userLearningDataAPI]: 'validate_date',
+  [repoKeys.userLoyaltyManagement]: 'validate_date',
+  [repoKeys.userEmploymentStatus]: 'validate_date',
+  [repoKeys.userHrdNetUtilizeConsent]: 'validate_date',
+  [repoKeys.userHrdNetUtilize]: 'validate_date',
+  [repoKeys.userOtherEmploymentStatus]: 'validate_date',
+  [repoKeys.userEducationFundState]: 'validate_date',
+  [repoKeys.userComputationFund]: 'validate_date',
+  [repoKeys.userAccessCardInformation]: 'validate_date',
+  [repoKeys.userOtherInformation]: 'validate_date',
+  [repoKeys.userLapiscineInformation]: 'validate_date',
+};
+
+export const classType = {
+  [repoKeys.user]: User,
+  [repoKeys.userPersonal]: UserPersonalInformation,
+  [repoKeys.userCourseExtension]: UserCourseExtension,
+  [repoKeys.userLeaveOfAbsence]: UserLeaveOfAbsence,
+  [repoKeys.userBlackhole]: UserBlackhole,
+  [repoKeys.userInterruptionOfCourse]: UserInterruptionOfCourse,
+  [repoKeys.userLearningDataAPI]: UserLearningDataAPI,
+  [repoKeys.userLoyaltyManagement]: UserLoyaltyManagement,
+  [repoKeys.userEmploymentStatus]: UserEmploymentStatus,
+  [repoKeys.userHrdNetUtilizeConsent]: UserHrdNetUtilizeConsent,
+  [repoKeys.userHrdNetUtilize]: UserHrdNetUtilize,
+  [repoKeys.userOtherEmploymentStatus]: UserOtherEmploymentStatus,
+  [repoKeys.userEducationFundState]: UserEducationFundState,
+  [repoKeys.userComputationFund]: UserComputationFund,
+  [repoKeys.userAccessCardInformation]: UserAccessCardInformation,
+  [repoKeys.userOtherInformation]: UserOtherInformation,
+  [repoKeys.userLapiscineInformation]: UserLapiscineInformation,
 };
