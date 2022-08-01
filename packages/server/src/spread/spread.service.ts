@@ -30,7 +30,7 @@ export class SpreadService {
     @InjectDataSource()
     private dataSource: DataSource,
   ) {
-    this.sheetId = [];
+    this.sheetId = {};
   }
 
   /**************************/
@@ -100,7 +100,7 @@ export class SpreadService {
   }
 
   /*  DB에 있는 데이터를 수정하기 위해 스프레드 시트로 옮기는 함수  */
-  async getDataToModifyFromDB(endPoint, repoName) {
+  async getDataToModifyFromDB(endPoint: string, repoName) {
     // google spread sheet api 가져오기
     const googleSheet = await this.getGoogleSheetAPI();
     const createPage = [
@@ -116,13 +116,13 @@ export class SpreadService {
     const response = await this.controlSheet(endPoint, googleSheet, createPage);
     this.sheetId[repoName] =
       response['replies'][0]['addSheet']['properties']['sheetId'];
+    if (this.sheetId[repoName] == 0) return "Can't edit user page";
     const values = [];
     const datas = await this.dataSource
       .getRepository(entityArray[repoName])
       .find({});
     values.push(Object.keys(datas[0]));
     datas.forEach((data) => values.push(Object.values(data)));
-
     const request = {
       // 업데이트 하기위한 시트의 id값.
       spreadsheetId: endPoint, // TODO: Update placeholder value.
@@ -137,15 +137,104 @@ export class SpreadService {
     try {
       const response = (await googleSheet.spreadsheets.values.update(request))
         .data;
-      return console.log(JSON.stringify(response, null, 2));
+      await this.addColorForGuide(
+        endPoint,
+        googleSheet,
+        values,
+        this.sheetId[repoName],
+      );
+      return 'success to create';
     } catch (err) {
       // TODO (developer) - Handle exception
       throw err;
     }
   }
 
+  setColorRange(sheetId, rowNum, colStart, colEnd, color) {
+    const request = {
+      repeatCell: {
+        range: {
+          sheetId: sheetId,
+          startRowIndex: 0,
+          endRowIndex: rowNum,
+          startColumnIndex: colStart,
+          endColumnIndex: colEnd,
+        },
+        cell: {
+          userEnteredFormat: {
+            backgroundColor: color,
+          },
+        },
+        fields: 'userEnteredFormat(backgroundColor)',
+      },
+    };
+    return request;
+  }
+
+  addFilterView(
+    sheetId: number,
+    rowNum: number,
+    colStart: number,
+    colEnd: number,
+    pkCol: number,
+  ) {
+    const request = {
+      setBasicFilter: {
+        filter: {
+          range: {
+            sheetId: sheetId,
+            startRowIndex: 0,
+            endRowIndex: rowNum,
+            startColumnIndex: colStart,
+            endColumnIndex: colEnd,
+          },
+          sortSpecs: [
+            {
+              sortOrder: 'ASCENDING',
+            },
+          ],
+          filterSpecs: [
+            {
+              columnIndex: pkCol,
+            },
+          ],
+        },
+      },
+    };
+    return request;
+  }
+
+  setColor(red, green, blue) {
+    const color = {
+      red: red,
+      green: green,
+      blue: blue,
+    };
+    return color;
+  }
+
+  async addColorForGuide(endPoint, googleSheet, values, sheetId) {
+    const pkCol = values[0].findIndex((col) => col === 'pk');
+    const fkCol = values[0].findIndex((col) => col === 'fk_user_no');
+    const rowNum = values.length;
+    const colNum = values[0].length;
+    const red = this.setColor(1.0, 0.7, 0.7);
+    const green = this.setColor(0.0, 1.0, 0.8);
+    const requests = [
+      this.setColorRange(sheetId, 1, 0, colNum, green),
+      this.setColorRange(sheetId, rowNum, pkCol, pkCol + 1, red),
+      this.setColorRange(sheetId, rowNum, fkCol, fkCol + 1, red),
+      this.addFilterView(sheetId, rowNum, 0, colNum, pkCol),
+    ];
+    const response = await this.controlSheet(endPoint, googleSheet, requests);
+  }
+
   /* 수정을 위해 생성했던 시트상에서 수정된 데이터를 DB테이블로 다시 업데이트하는 함수 */
   async saveModifiedDataFromSheet(endPoint, repoName) {
+    if (this.sheetId[repoName] == 0) return 'no file to save'; //수정하던 시트에 문제가 생긴경우
+    if (this.sheetId[repoName] == -1)
+      //수정 도중 main이 업데이트된 경우, 해당 시트는 저장할 수 없음.
+      return 'main is updated \nAfter deleting the edit sheet, click edit again';
     const googleSheet = await this.getGoogleSheetAPI();
     const deletePage = [
       {
@@ -159,32 +248,85 @@ export class SpreadService {
       endPoint,
       repoName,
     );
-    let key = 'fk_user_no';
     const columns = spreadData[0];
     const rows = (await spreadData).filter((value, index) => index > 0);
-
+    const ret = await this.compareDataToCheckError(spreadData, repoName);
+    if (ret === 'column error') {
+      return 'column is not same with DB';
+    } else if (ret === 'interrupt error') {
+      return 'input data in middle of DB';
+    } else if (ret === 'delete error') {
+      return 'pk is deleted in sheet';
+    }
     for (const row of rows) {
       const tuple = {};
       for (const col in columns) {
         this.makeRowPerColumnToModify(row, columns, col, tuple);
       }
-      if (repoName === 'user') {
-        key = 'intra_no';
-      } else {
-        key = 'pk';
-      }
+      await this.updateDataToDB(repoName, tuple);
+    }
+    //insertDataToDB(); 동환님이 추가하는 update방식과 비슷 createdate를 기준으로하는 validate는 좀 힘들지도?
+    await this.controlSheet(endPoint, googleSheet, deletePage);
+  }
+
+  async compareDataToCheckError(sheet, repoName: string) {
+    const datas = await this.dataSource
+      .getRepository(entityArray[repoName])
+      .find({});
+    let values;
+    values.push(Object.keys(datas[0]));
+    datas.forEach((data) => values.push(Object.values(data)));
+
+    //column이 동일한지 체크
+    let sameArray =
+      values[0].length === sheet[0].length &&
+      values[0].every((value, idx) => value === sheet[0][idx]);
+    if (!sameArray) return 'column error';
+
+    //기존 db에 값이 하드하게 삭제되었는지 체크
+    const pkCol = values[0].findIndex((col) => col === 'pk');
+    const fkCol = values[0].findIndex((col) => col === 'fk_user_no');
+
+    sameArray = values.every((dbValue) =>
+      sheet.some((sheetValue) => sheetValue[pkCol] === dbValue[pkCol]),
+    );
+    if (!sameArray) return 'delete error';
+
+    //기존 pk의 사이값에 다른 값이 들어왔는지 pk-fk페어관계를 통해 체크
+    sameArray = values.every((dbValue) => {
+      const sheetValue = sheet.find(
+        (sheetValue) => sheetValue[pkCol] === dbValue[pkCol],
+      );
+      return sheetValue[fkCol] === dbValue[fkCol];
+    });
+    if (!sameArray) return 'interrupt error';
+
+    //
+  }
+
+  async updateDataToDB(repoName, tuple) {
+    try {
       await this.dataSource
         .getRepository(entityArray[repoName])
         .createQueryBuilder(repoName)
         .update(entityArray[repoName])
         .set(tuple)
-        .where(`${key} = :${key}`, {
-          [`${key}`]: tuple[key],
+        .where(`pk = :pk`, {
+          pk: tuple['pk'],
+        })
+        .andWhere(`fk_user_no = :fk_user_no`, {
+          fk_user_no: tuple['fk_user_no'],
         })
         .execute();
+    } catch (err) {
+      // TODO (developer) - Handle exception
+      throw err;
     }
-    await this.controlSheet(endPoint, googleSheet, deletePage);
   }
+
+  /**************************/
+  /*       Parse utils      */
+  /**************************/
 
   onlyNumbers(str) {
     return /^[0-9]+$/.test(str);
@@ -288,6 +430,10 @@ export class SpreadService {
   async parseSpread(cols, rows, table, api42s?) {
     const tupleArray = [];
 
+    for (const key of Object.keys(this.sheetId)) {
+      //수정 도중 main이 업데이트 되면 저장이 불가하므로 id를 전부 -1로 초기화
+      this.sheetId[key] = -1;
+    }
     for (const row of rows) {
       const tuple = {};
 

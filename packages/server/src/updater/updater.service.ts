@@ -310,19 +310,17 @@ export class UpdaterService {
   }
 
   async getDataToModifyFromDB(updateDB: UpdateDB) {
-    await this.spreadService.getDataToModifyFromDB(
+    return await this.spreadService.getDataToModifyFromDB(
       SPREAD_END_POINT,
       updateDB.sheetName,
     );
-    return 'done';
   }
 
   async saveModifiedDataFromSheet(updateDB: UpdateDB) {
-    await this.spreadService.saveModifiedDataFromSheet(
+    return await this.spreadService.saveModifiedDataFromSheet(
       SPREAD_END_POINT,
       updateDB.sheetName,
     );
-    return 'done';
   }
 
   async findTargetByKey(repo, repoKey, newOneData, targetObj) {
