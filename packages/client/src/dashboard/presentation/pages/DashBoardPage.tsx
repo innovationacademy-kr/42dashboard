@@ -26,7 +26,7 @@ function DashBoardPage() {
       .then((response: any) => response.data)
       .then((data) => setUser(data))
       .catch((error) => {
-        navigate(`/`);
+        // navigate(`/`);
       });
   }
 
@@ -109,7 +109,7 @@ function DashBoardPage() {
       </AppBar>
       <SideBar />
       <MainArea>
-        <TableStickerContent {...tableProps} />
+        {/* <TableStickerContent {...tableProps} /> */}
         <Board />
       </MainArea>
       <ModeDial />
