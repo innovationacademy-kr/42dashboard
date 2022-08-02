@@ -12,6 +12,10 @@ import { JoinedTable } from './argstype/joinedTable';
 import { Filter } from './filter';
 import { DataSource } from 'typeorm';
 import { AppModule } from 'src/app.module';
+import { PassportModule } from '@nestjs/passport';
+import { JwtModule } from '@nestjs/jwt';
+import { SECRETORKEY } from 'src/config/42oauth';
+import { JwtStrategy } from 'src/auth/jwt.strategy';
 
 @Module({
   imports: [

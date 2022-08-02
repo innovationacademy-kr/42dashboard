@@ -1,5 +1,15 @@
+import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 export enum BocalRole {
   MASTER = 'master',
@@ -12,7 +22,8 @@ export enum BocalRole {
 @Entity()
 export class Bocal {
   @ApiProperty()
-  @PrimaryColumn({ name: 'id' })
+  // @PrimaryColumn({ name: 'id' })
+  @PrimaryColumn()
   id: number;
 
   @ApiProperty()
@@ -34,7 +45,6 @@ export class Bocal {
   /**
    * api에서 오는 스태프 정보중에서 식별정보가 무엇무엇이 있는지 알아내서 column 추가하기
    */
-
   @ApiProperty()
   @Column({
     type: 'enum',
@@ -43,4 +53,22 @@ export class Bocal {
     nullable: false,
   }) //도메인 제한 확인(도메인 아닌거 넣으면 pg에서 에러발생하는거 확인)
   role: BocalRole;
+
+  @OneToMany(() => PreSet, (preSetArray) => preSetArray.bocal)
+  preSetArray: PreSet[];
+}
+
+@Entity()
+@ObjectType()
+export class PreSet extends BaseEntity {
+  @Field((type) => Int)
+  @PrimaryColumn({ name: 'id' }) // preSetdata의 uuid로 이 값을 채울예정
+  id: string;
+
+  @Field()
+  @Column({ name: 'preSetData', nullable: false })
+  preSetData: string;
+
+  @ManyToOne(() => Bocal, (bocal) => bocal.preSetArray, { cascade: true })
+  bocal: Bocal;
 }
