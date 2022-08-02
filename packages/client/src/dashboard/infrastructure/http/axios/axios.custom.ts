@@ -11,3 +11,14 @@ export const axiosGetUserInfo = async () => {
     throw error;
   }
 };
+
+const updateDataURL = '/updata/data';
+
+export const axiosUpdateData = async () => {
+  try {
+    const response = await axios.instance.get(updateDataURL);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
