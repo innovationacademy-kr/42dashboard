@@ -342,7 +342,7 @@ export class SpreadService {
       for (const colData of colDatas) {
         const columns = colData[0];
         const rows = (await colData).filter((value, index) => index > 0);
-        this.makeAColumnInTable(columns, rows, datas, date, repoKey);
+        await this.makeAColumnInTable(columns, rows, datas, date, repoKey);
       }
       await this.insertArrayToDB(UserComputationFund, datas);
     } else if (

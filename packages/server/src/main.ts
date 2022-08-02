@@ -8,7 +8,7 @@ async function bootstrap() {
   const whitelist = ['dashboard42.com', 'localhost'];
   app.enableCors({
     origin: function (origin, callback) {
-      //if (!origin || whitelist.indexOf(origin) !== -1) {
+      // if (!origin || whitelist.indexOf(origin) !== -1) {
       if (true) {
         callback(null, true);
       } else {

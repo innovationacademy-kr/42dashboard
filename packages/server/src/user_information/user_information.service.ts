@@ -41,14 +41,6 @@ import { opeatorDict } from './utils/operatorDict.utils';
 export class UserInformationService {
   private operatorToMethod;
   constructor(
-    // @InjectRepository(User)
-    // private userRepository: Repository<User>,
-    // @InjectRepository(UserPersonalInformation)
-    // private userPersonalRepository: Repository<UserPersonalInformation>,
-    // @InjectRepository(UserOtherInformation)
-    // private userOtherRepository: Repository<UserOtherInformation>,
-    // @InjectRepository(UserAccessCardInformation)
-    // private userAccessCardRepository: Repository<UserAccessCardInformation>,
     @InjectDataSource()
     private dataSource: DataSource,
   ) {
@@ -114,7 +106,6 @@ export class UserInformationService {
    *      엔터티:[filter객체, filter객체...]
    *    }
    * 예시
-   *
    *    {
    *      User:[{entityName:User, column:"intra_no", operaotr:"<=", givenValue:"10"}, {...}, {...}]
    *      UserPersonalInformation:[{entityName:UserPersonalInformation, column:"gender", operaotr:"=", givenValue:"남"}, {...}, {...}]
@@ -239,7 +230,21 @@ export class UserInformationService {
           ret['order'][entityName]['created_at'] = 'ASC';
         }
       }
-      if (valExColumnEntity.includes(entityName) && startDate && endDate) {
+      // 한 시점을 특정
+      if (
+        valExColumnEntity.includes(entityName) &&
+        startDate &&
+        endDate &&
+        startDate == endDate
+      ) {
+        const referenceDate = startDate;
+        ret['where'][entityName]['validate_date'] =
+          LessThanOrEqual(referenceDate);
+        ret['where'][entityName]['expired_date'] =
+          MoreThanOrEqual(referenceDate);
+      }
+      // 아래 부터는 시점 Range 조건
+      else if (valExColumnEntity.includes(entityName) && startDate && endDate) {
         /**
          * or 조건을 적용시키는게 맞나?
          * 결과가 0또는 1만 나와야함 이 부분 나중에 테스트 해볼것
@@ -248,16 +253,29 @@ export class UserInformationService {
         const log = { ...ret['where'][entityName] };
         const latest = { ...ret['where'][entityName] };
         ret['where'][entityName] = [];
-        log['expired_date'] = MoreThanOrEqual(endDate);
         log['validate_date'] = LessThanOrEqual(startDate);
+        log['expired_date'] = MoreThanOrEqual(endDate);
         ret['where'][entityName].push(log);
-        latest['expired_date'] = MoreThanOrEqual(endDate);
-        latest['validate_date'] = IsNull();
+        latest['validate_date'] = LessThanOrEqual(startDate);
+        // latest['expired_date'] = IsNull(); //디폴트값 달리지면 이 부분 수정 필요
+        latest['expired_date'] = Equal('9999-12-31'); //디폴트값 달리지면 이 부분 수정 필요
         ret['where'][entityName].push(latest);
       } else if (startDate && endDate) {
-        // (startDate && endDate && startDate == endDate) 로 해야할수도? <- 이걸 프론트에서 할수가 없음
         // 이건 보류
-        ret['where'][entityName]['created_date'] = LessThan(endDate);
+        // startDate와 endDate 의 값이 동일해야하나 다를수도 있는건가?
+        // 동일할때 ->
+        const referenceDate = startDate;
+        ret['where'][entityName]['validate_date'] =
+          LessThanOrEqual(referenceDate);
+        // 다를때 ->
+        ret['where'][entityName]['validate_date'] = LessThanOrEqual(startDate);
+        ret['where'][entityName]['expired_date'] = MoreThanOrEqual(endDate);
+      } else if (valExColumnEntity.includes(entityName) && startDate) {
+        ret['where'][entityName]['expired_date'] = MoreThanOrEqual(startDate);
+      } else if (valExColumnEntity.includes(entityName) && endDate) {
+        ret['where'][entityName]['validate_date'] = LessThanOrEqual(endDate);
+      } else {
+        // do nothing
       }
     }
     return ret;
