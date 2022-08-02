@@ -9,6 +9,7 @@ import {
   defaultVALUE,
   DEFAULT_VALUE,
   mapObj,
+  repoKeys,
   TABLENUM,
 } from 'src/updater/name_types/updater.name';
 import { UserHrdNetUtilizeConsent } from 'src/user_job/entity/user_job.entity';
@@ -113,9 +114,9 @@ export class SpreadService {
         },
       },
     ];
-    const response = await this.controlSheet(endPoint, googleSheet, createPage);
+    const pageRes = await this.controlSheet(endPoint, googleSheet, createPage);
     this.sheetId[repoName] =
-      response['replies'][0]['addSheet']['properties']['sheetId'];
+      pageRes['replies'][0]['addSheet']['properties']['sheetId'];
     if (this.sheetId[repoName] == 0) return "Can't edit user page";
     const values = [];
     const datas = await this.dataSource
@@ -137,26 +138,34 @@ export class SpreadService {
     try {
       const response = (await googleSheet.spreadsheets.values.update(request))
         .data;
+      const repo = await this.dataSource.getRepository(entityArray[repoName]);
+      const latestData = await repo
+        .createQueryBuilder(repoKeys[repoName])
+        .distinctOn([`${repoKeys[repoName]}.fk_user_no`])
+        .orderBy(`${repoKeys[repoName]}.fk_user_no`, 'DESC')
+        .addOrderBy(`${repoKeys[repoName]}.validate_date`, 'DESC')
+        .getMany();
       await this.addColorForGuide(
         endPoint,
         googleSheet,
         values,
+        latestData,
         this.sheetId[repoName],
       );
-      return 'success to create';
+      return `https://docs.google.com/spreadsheets/d/${SPREAD_END_POINT}/edit#gid=${this.sheetId[repoName]}`;
     } catch (err) {
       // TODO (developer) - Handle exception
       throw err;
     }
   }
 
-  setColorRange(sheetId, rowNum, colStart, colEnd, color) {
+  setColorRange(sheetId, rowStart, rowEnd, colStart, colEnd, color) {
     const request = {
       repeatCell: {
         range: {
           sheetId: sheetId,
-          startRowIndex: 0,
-          endRowIndex: rowNum,
+          startRowIndex: rowStart,
+          endRowIndex: rowEnd,
           startColumnIndex: colStart,
           endColumnIndex: colEnd,
         },
@@ -213,19 +222,36 @@ export class SpreadService {
     return color;
   }
 
-  async addColorForGuide(endPoint, googleSheet, values, sheetId) {
+  addColorLatestData(requests, latestData, sheetId, colNum, color) {
+    latestData.forEach((element) => {
+      requests.push(
+        this.setColorRange(
+          sheetId,
+          element['pk'],
+          element['pk'] + 1,
+          0,
+          colNum,
+          color,
+        ),
+      );
+    });
+  }
+
+  async addColorForGuide(endPoint, googleSheet, values, latestData, sheetId) {
     const pkCol = values[0].findIndex((col) => col === 'pk');
     const fkCol = values[0].findIndex((col) => col === 'fk_user_no');
     const rowNum = values.length;
     const colNum = values[0].length;
     const red = this.setColor(1.0, 0.7, 0.7);
     const green = this.setColor(0.0, 1.0, 0.8);
+    const blue = this.setColor(0.3, 0.3, 0.8);
     const requests = [
-      this.setColorRange(sheetId, 1, 0, colNum, green),
-      this.setColorRange(sheetId, rowNum, pkCol, pkCol + 1, red),
-      this.setColorRange(sheetId, rowNum, fkCol, fkCol + 1, red),
+      this.setColorRange(sheetId, 0, 1, 0, colNum, green),
+      this.setColorRange(sheetId, 0, rowNum, pkCol, pkCol + 1, red),
+      this.setColorRange(sheetId, 0, rowNum, fkCol, fkCol + 1, red),
       this.addFilterView(sheetId, rowNum, 0, colNum, pkCol),
     ];
+    this.addColorLatestData(requests, latestData, sheetId, colNum, blue);
     const response = await this.controlSheet(endPoint, googleSheet, requests);
   }
 
@@ -257,6 +283,8 @@ export class SpreadService {
       return 'input data in middle of DB';
     } else if (ret === 'delete error') {
       return 'pk is deleted in sheet';
+    } else if (ret === 'changed latest error') {
+      return 'latest data is changed on modify sheet';
     }
     for (const row of rows) {
       const tuple = {};
@@ -269,18 +297,34 @@ export class SpreadService {
     await this.controlSheet(endPoint, googleSheet, deletePage);
   }
 
+  compareArray(arrayOne, arrayTwo) {
+    return (
+      arrayOne[0].length === arrayTwo[0].length &&
+      arrayOne[0].every((oneValue, idx) => oneValue === arrayTwo[0][idx])
+    );
+  }
+
   async compareDataToCheckError(sheet, repoName: string) {
     const datas = await this.dataSource
       .getRepository(entityArray[repoName])
       .find({});
     let values;
     values.push(Object.keys(datas[0]));
-    datas.forEach((data) => values.push(Object.values(data)));
+    datas.forEach((data) => values.push(Object.values(data))); // DB데이터 뽑아오기
+
+    const repo = await this.dataSource.getRepository(entityArray[repoName]); // 최신데이터 뽑아오기
+    const latestData = await repo
+      .createQueryBuilder(repoKeys[repoName])
+      .distinctOn([`${repoKeys[repoName]}.fk_user_no`])
+      .orderBy(`${repoKeys[repoName]}.fk_user_no`, 'DESC')
+      .addOrderBy(`${repoKeys[repoName]}.validate_date`, 'DESC')
+      .getMany();
+    let latestValues;
+    latestValues.push(Object.keys(latestData[0]));
+    latestData.forEach((data) => latestValues.push(Object.values(data))); // DB데이터 뽑아오기
 
     //column이 동일한지 체크
-    let sameArray =
-      values[0].length === sheet[0].length &&
-      values[0].every((value, idx) => value === sheet[0][idx]);
+    let sameArray = this.compareArray(values, sheet);
     if (!sameArray) return 'column error';
 
     //기존 db에 값이 하드하게 삭제되었는지 체크
@@ -301,7 +345,14 @@ export class SpreadService {
     });
     if (!sameArray) return 'interrupt error';
 
-    //
+    //최신 데이터가 변경이 되었는지 체크
+    sameArray = latestValues.every((latestValue) => {
+      const sheetValue = sheet.find(
+        (sheetValue) => latestValue[pkCol] === sheetValue[pkCol],
+      );
+      return this.compareArray(latestValue, sheetValue);
+    });
+    if (!sameArray) return 'changed latest error';
   }
 
   async updateDataToDB(repoName, tuple) {
@@ -416,6 +467,7 @@ export class SpreadService {
   makeRowPerColumnToModify(row, columns, col, tuple) {
     const datePattern =
       /[0-9]{4}. (0?[1-9]|1[012]). (0?[1-9]|[12][0-9]|3[0-1])$/; // yyyy-mm-dd 형식인지 체크
+    console.log('zero :', row[col], '!');
     if (row[col] !== '') {
       if (datePattern.test(row[col])) {
         tuple[columns[col]] = this.changeDate(row[col]);
@@ -488,7 +540,7 @@ export class SpreadService {
       for (const colData of colDatas) {
         const columns = colData[0];
         const rows = (await colData).filter((value, index) => index > 0);
-        this.makeAColumnInTable(columns, rows, datas, date, repoKey);
+        await this.makeAColumnInTable(columns, rows, datas, date, repoKey);
       }
       await this.insertArrayToDB(UserComputationFund, datas);
     } else if (
