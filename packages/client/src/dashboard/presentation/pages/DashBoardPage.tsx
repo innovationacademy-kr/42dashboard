@@ -11,6 +11,9 @@ import * as axios from '../../infrastructure/http/axios/axios.custom';
 import useUser from '../../application/services/useUser';
 import { useNavigate } from 'react-router';
 import Footer from '../components/Footer/Footer';
+import ModificationDialog from '../components/Dialog/ModificationDialog';
+import { useState } from 'react';
+
 // TODO: hybae
 // userData가 null일 때 처리 추가
 // userInfo API를 통해 데이터 받아올 경우, userData set
@@ -18,6 +21,7 @@ import Footer from '../components/Footer/Footer';
 function DashBoardPage() {
   const { userInfo, setUser } = useUser();
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
 
   if (userInfo === null) {
     axios
@@ -32,6 +36,12 @@ function DashBoardPage() {
   const profile = { name: 'kilee', size: 48 };
 
   const profileMenuItems = [
+    {
+      label: '수정하기',
+      onClick: () => {
+        setOpen(true);
+      },
+    },
     {
       label: '마이페이지',
       onClick: () => {
@@ -63,6 +73,8 @@ function DashBoardPage() {
         <Board />
         <Footer />
       </MainArea>
+      <ModeDial />
+      <ModificationDialog open={open} setOpen={setOpen} />
     </Box>
   );
 }

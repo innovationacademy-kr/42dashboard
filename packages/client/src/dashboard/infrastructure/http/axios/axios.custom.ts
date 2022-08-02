@@ -12,7 +12,7 @@ export const axiosGetUserInfo = async () => {
   }
 };
 
-const updateDataURL = '/updata/data';
+const updateDataURL = '/update/data';
 
 export const axiosUpdateData = async () => {
   try {
