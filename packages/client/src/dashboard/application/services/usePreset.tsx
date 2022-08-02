@@ -46,7 +46,6 @@ function usePreset() {
         changePreset(presetList.presetInfos[0].id);
       } else {
         createPreset();
-        setControlMode('edit');
       }
     };
     fetchPresetList();
@@ -93,6 +92,7 @@ function usePreset() {
     presetListStore.setPresetList({
       presetInfos: [...presetList.presetInfos, newPresetInfo],
     });
+    setControlMode('edit');
   };
 
   const changePresetLabel = async (id: string, label: string) => {

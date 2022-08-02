@@ -8,6 +8,7 @@ import { Box, Divider, Drawer, Toolbar } from '@mui/material';
 import usePreset from '../../../application/services/usePreset';
 import SideBarList from './SideBarList';
 import SideBarListItem from './SideBarListItem';
+import PresetListItem from './PresetListItem';
 
 function SideBar() {
   const { presetList, preset, changePreset, createPreset, changePresetLabel } =
@@ -27,7 +28,7 @@ function SideBar() {
       <Box sx={{ overflow: 'auto' }}>
         <SideBarList label="DashBoard" icon={AssessmentSharp}>
           {presetList.presetInfos.map((presetInfo) => (
-            <SideBarListItem
+            <PresetListItem
               key={presetInfo.id}
               id={presetInfo.id}
               icon={ShowChart}
@@ -38,12 +39,9 @@ function SideBar() {
               changePresetLabel={changePresetLabel}
             />
           ))}
-          {/* TODO(sonkang): label 수정이 필요없는 컴포넌트는 적용이 안되게끔 수정 */}
           <SideBarListItem
             icon={Addchart}
-            id="hi"
             label="보드 추가"
-            changePresetLabel={changePresetLabel}
             onClick={() => {
               createPreset();
             }}
@@ -51,12 +49,7 @@ function SideBar() {
         </SideBarList>
         <Divider />
         <SideBarList label="Future" icon={ExtensionSharp}>
-          <SideBarListItem
-            icon={ShowChart}
-            changePresetLabel={changePresetLabel}
-            id="hi"
-            label="미래기능"
-          />
+          <SideBarListItem icon={ShowChart} label="미래기능" />
         </SideBarList>
       </Box>
     </Drawer>

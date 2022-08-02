@@ -15,7 +15,6 @@ class PresetListRepository implements PresetListRepositoryInterface {
         presetInfos.push(preset.info);
       }
     }
-
     return { presetInfos };
   }
 
