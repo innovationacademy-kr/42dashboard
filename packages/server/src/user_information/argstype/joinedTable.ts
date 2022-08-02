@@ -3,6 +3,7 @@ import {
   UserOtherEmploymentStatus,
   UserEmploymentStatus,
   UserHrdNetUtilize,
+  UserHrdNetUtilizeConsent,
   //UserInternStatus,
 } from 'src/user_job/entity/user_job.entity';
 import {
@@ -18,7 +19,6 @@ import {
   UserInterruptionOfCourse,
   UserLoyaltyManagement,
 } from 'src/user_status/entity/user_status.entity';
-import { Entity } from 'typeorm';
 import { UserAccessCardInformation } from '../entity/user_access_card_information.entity';
 import { UserOtherInformation } from '../entity/user_other_information.entity';
 import { UserPersonalInformation } from '../entity/user_personal_information.entity';
@@ -47,6 +47,12 @@ export class JoinedTable {
   coalition: string;
 
   @Field({ nullable: true })
+  uniqueness: string;
+
+  @Field({ nullable: true })
+  anonymization: Date;
+
+  @Field({ nullable: true })
   created_date: Date;
 
   @Field((type) => [UserOtherInformation], { nullable: true })
@@ -58,20 +64,23 @@ export class JoinedTable {
   @Field((type) => [UserAccessCardInformation], { nullable: true })
   userAccessCardInformation: UserAccessCardInformation[]; //일대일 이니까 -> DB에서는 그럴지몰라도 반환값에서는 배열로반환
 
-  @Field((type) => [UserEmploymentStatus], { nullable: true })
-  userEmploymentAndFound: UserEmploymentStatus[];
-
   // @Field((type) => [UserInternStatus], { nullable: true })
   // userInternStatus: UserInternStatus[];
 
   @Field((type) => [UserHrdNetUtilize], { nullable: true })
   userHrdNetUtilize: UserHrdNetUtilize[];
 
+  @Field((type) => [UserHrdNetUtilizeConsent], { nullable: true })
+  userHrdNetUtilizeConsent: UserHrdNetUtilizeConsent[];
+
   @Field((type) => [UserEmploymentStatus], { nullable: true })
   userEmploymentStatus: UserEmploymentStatus[];
 
   @Field((type) => [UserComputationFund], { nullable: true })
   userComputationFund: UserComputationFund[];
+
+  @Field((type) => [UserOtherEmploymentStatus], { nullable: true })
+  userOtherEmploymentStatus: UserOtherEmploymentStatus[];
 
   @Field((type) => [UserEducationFundState], { nullable: true })
   userEducationFundState: UserEducationFundState[];
