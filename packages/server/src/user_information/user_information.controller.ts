@@ -73,9 +73,11 @@ export class UserInformationController {
       where: { id: user.id },
     });
     const preSetData = body['data'];
+    const info = body['info'];
     const preSetEntity = await preSetRepository.create();
     preSetEntity.id = body['id'];
     preSetEntity.preSetData = JSON.stringify(preSetData);
+    preSetEntity.info = JSON.stringify(info);
     preSetEntity.bocal = bocalEntity;
     await preSetRepository.save(preSetEntity);
     return true;
@@ -123,9 +125,11 @@ export class UserInformationController {
     if (!bocal) return 'bocal not found!';
     const ret = [];
     for (const index in bocal['preSetArray']) {
+      ret[index] = {};
       const onePreSet = bocal['preSetArray'][index];
-      ret.push(JSON.parse(onePreSet['preSetData']));
       ret[index]['id'] = onePreSet['id'];
+      ret[index]['data'] = onePreSet['preSetData'];
+      ret[index]['info'] = onePreSet['info'];
     }
     return ret;
   }
@@ -146,9 +150,11 @@ export class UserInformationController {
     const ret = [];
     // 배열에 요소 하나만 담김
     for (const index in bocal['preSetArray']) {
+      ret[index] = {};
       const onePreSet = bocal['preSetArray'][index];
-      ret.push(JSON.parse(onePreSet['preSetData']));
       ret[index]['id'] = onePreSet['id'];
+      ret[index]['data'] = onePreSet['preSetData'];
+      ret[index]['info'] = onePreSet['info'];
     }
     return ret;
   }
@@ -182,7 +188,7 @@ export class UserInformationController {
       {
         id: Equal(uuid),
       },
-      { preSetData: body['data'] },
+      { preSetData: body['data'], info: body['info'] },
     );
     if (!preSet) return 'entity not found';
     return 'update success';
