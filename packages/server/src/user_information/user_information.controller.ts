@@ -11,6 +11,7 @@ import {
   Res,
   ConsoleLogger,
   Delete,
+  Put,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
@@ -176,7 +177,7 @@ export class UserInformationController {
     return 'delete success';
   }
 
-  @Get('/updateOnePreSet/:uuid')
+  @Put('/updateOnePreSet/:uuid')
   @ApiParam({
     required: true,
     name: 'uuid',
