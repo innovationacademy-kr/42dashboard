@@ -24,7 +24,7 @@ function returnFilterName(filter: FilterConfigType): string {
   }${stringToUnicode(filter.givenValue)}`;
 }
 
-function changeFirstCharOfEntity(entityName: string) {
+export function changeFirstCharToLowercase(entityName: string) {
   const changedName = Array.from(entityName);
   changedName[0] = entityName[0].toLowerCase();
   return changedName.join('');
@@ -39,7 +39,7 @@ function makeQueryFilterVariables(
     const filterName = returnFilterName(filter);
     queryVariables[filterName] = {
       ...filter,
-      entityName: changeFirstCharOfEntity(filter.entityName),
+      entityName: changeFirstCharToLowercase(filter.entityName),
     };
   });
 
