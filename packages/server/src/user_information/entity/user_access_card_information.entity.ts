@@ -1,4 +1,4 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, Float, Int, ObjectType } from '@nestjs/graphql';
 import {
   BaseEntity,
   Column,
@@ -24,15 +24,15 @@ export class UserAccessCardInformation extends BaseEntity {
   @Column({ name: 'profile_picture_path', nullable: true })
   profile_picture_path: string;
 
-  @Field((type) => Int)
+  @Field()
   @Column({ name: 'lapiscine_physical_number', nullable: true })
   lapiscine_physical_number: string;
 
-  @Field((type) => Int)
+  @Field()
   @Column({ name: 'lapiscine_logical_number', nullable: true })
   lapiscine_logical_number: string;
 
-  @Field((type) => Int)
+  @Field()
   @Column({
     name: 'logical_number_for_main_course',
     nullable: true,

@@ -32,7 +32,7 @@ import {
 import { UserPersonalInformation } from './user_personal_information.entity';
 import { UserAccessCardInformation } from './user_access_card_information.entity';
 import { UserOtherInformation } from './user_other_information.entity';
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, Float, Int, ObjectType } from '@nestjs/graphql';
 import {
   UserComputationFund,
   UserEducationFundState,
@@ -43,7 +43,7 @@ import {
 @ObjectType()
 @Entity()
 export class User {
-  @Field((type) => Int)
+  @Field((type) => Float)
   @PrimaryColumn({ name: 'intra_no' })
   intra_no: number;
 
