@@ -61,7 +61,7 @@ export class Bocal {
 @Entity()
 @ObjectType()
 export class PreSet extends BaseEntity {
-  @Field((type) => Int)
+  @Field()
   @PrimaryColumn({ name: 'id' }) // preSetdata의 uuid로 이 값을 채울예정
   id: string;
 

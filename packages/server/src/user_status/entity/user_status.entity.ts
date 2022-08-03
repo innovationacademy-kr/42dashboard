@@ -247,7 +247,7 @@ export class UserBlackhole extends BaseEntity {
   @Column({ name: 'reason_of_blackhole', nullable: true })
   reason_of_blackhole: string;
 
-  @Field({ nullable: true, defaultValue: 0 })
+  @Field((type) => Float, { nullable: true, defaultValue: 0 })
   @Column({
     type: 'float',
     name: 'blackholed_level',
@@ -451,7 +451,7 @@ export class UserLapiscineInformation extends BaseEntity {
   @Column({ name: 'record_participate_lapiscine', nullable: true })
   record_participate_lapiscine: string;
 
-  @Field({ nullable: true, defaultValue: 0 })
+  @Field((type) => Float, { nullable: true, defaultValue: 0 })
   @Column({
     type: 'float',
     name: 'lapiscine_final_score',
