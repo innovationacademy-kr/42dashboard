@@ -11,7 +11,7 @@ import { TableStickerContent } from '../components/Table/Table';
 import * as axios from '../../infrastructure/http/axios/axios.custom';
 import useUser from '../../application/services/useUser';
 import { useNavigate } from 'react-router';
-
+import Footer from '../components/Footer/Footer';
 // TODO: hybae
 // userData가 null일 때 처리 추가
 // userInfo API를 통해 데이터 받아올 경우, userData set
@@ -104,15 +104,15 @@ function DashBoardPage() {
       <CssBaseline />
       <AppBar>
         <Logo />
-        <div style={{ flexGrow: 1 }}></div>
+        <div style={{ flexGrow: 1 }} />
         {profileMenu}
       </AppBar>
       <SideBar />
       <MainArea>
         {/* <TableStickerContent {...tableProps} /> */}
         <Board />
+        <Footer />
       </MainArea>
-      <ModeDial />
     </Box>
   );
 }

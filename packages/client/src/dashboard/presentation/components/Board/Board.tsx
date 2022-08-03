@@ -65,7 +65,13 @@ export default function Board() {
   }
 
   return (
-    <>
+    <div
+      style={{
+        padding: '1rem',
+        overflowY: 'scroll',
+        maxHeight: '88vh',
+      }}
+    >
       {getControlMode() === 'edit' && (
         <EditToolBar
           type="Board"
@@ -84,6 +90,6 @@ export default function Board() {
       >
         {drawSections()}
       </ReactGridLayout>
-    </>
+    </div>
   );
 }
