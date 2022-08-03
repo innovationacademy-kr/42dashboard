@@ -8,19 +8,21 @@ export interface SaveButtonProps {
   disabled: boolean;
   setDisabled: React.Dispatch<React.SetStateAction<boolean>>;
 }
+
 export default function SaveButton(props: SaveButtonProps) {
   const { entityName, disabled, setDisabled } = props;
   const [saveModifiedData, { loading, error }] = useLazyQuery(
     createSaveModifiedDataQuery(entityName),
   );
-  if (error) return <Button disabled={true}>{error.message}</Button>;
+  if (error) return <Button disabled>{error.message}</Button>;
   if (loading) return <Button disabled={true}>데이터 저장중...</Button>;
 
   function saveModification(e: React.MouseEvent<HTMLButtonElement>) {
     e.stopPropagation();
-    setDisabled(true);
     saveModifiedData();
+    setDisabled(true);
   }
+
   return (
     <Button
       disabled={disabled}
