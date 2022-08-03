@@ -127,9 +127,9 @@ export class UserInformationController {
     for (const index in bocal['preSetArray']) {
       ret[index] = {};
       const onePreSet = bocal['preSetArray'][index];
-      ret[index]['id'] = onePreSet['id'];
-      ret[index]['data'] = onePreSet['preSetData'];
-      ret[index]['info'] = onePreSet['info'];
+      ret[index]['id'] = JSON.parse(onePreSet['id']);
+      ret[index]['data'] = JSON.parse(onePreSet['preSetData']);
+      ret[index]['info'] = JSON.parse(onePreSet['info']);
     }
     return ret;
   }
@@ -152,9 +152,9 @@ export class UserInformationController {
     for (const index in bocal['preSetArray']) {
       ret[index] = {};
       const onePreSet = bocal['preSetArray'][index];
-      ret[index]['id'] = onePreSet['id'];
-      ret[index]['data'] = onePreSet['preSetData'];
-      ret[index]['info'] = onePreSet['info'];
+      ret[index]['id'] = JSON.parse(onePreSet['id']);
+      ret[index]['data'] = JSON.parse(onePreSet['preSetData']);
+      ret[index]['info'] = JSON.parse(onePreSet['info']);
     }
     return ret;
   }
@@ -188,7 +188,10 @@ export class UserInformationController {
       {
         id: Equal(uuid),
       },
-      { preSetData: body['data'], info: body['info'] },
+      {
+        preSetData: JSON.stringify(body['data']),
+        info: JSON.stringify(body['info']),
+      },
     );
     if (!preSet) return 'entity not found';
     return 'update success';
