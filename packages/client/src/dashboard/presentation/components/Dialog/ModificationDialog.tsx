@@ -9,6 +9,7 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import { EntityColumn } from 'common/src';
 import EntityListItem from './EntityListItem';
+import { changeFirstCharToLowercase } from '../Modal/makeStickerData';
 
 export interface ModificationDialogProps {
   open: boolean;
@@ -20,7 +21,12 @@ export default function ModificationDialog(props: ModificationDialogProps) {
   function returnEntityColumnItems() {
     return Object.keys(EntityColumn).map((entityName: string) => {
       if (entityName === 'User') return null;
-      return <EntityListItem key={entityName} entityName={entityName} />;
+      return (
+        <EntityListItem
+          key={entityName}
+          entityName={changeFirstCharToLowercase(entityName)}
+        />
+      );
     });
   }
 
