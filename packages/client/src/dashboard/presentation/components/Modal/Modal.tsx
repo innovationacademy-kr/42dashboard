@@ -39,7 +39,6 @@ const ModalFrame = (props: ModalProps) => {
 
   /** switch to type & handle properly */
   function AddStickerDataset() {
-    console.log('apply filters');
     /** make sticker data */
     if (type === 'barChart' || type === 'lineChart' || type === 'pieChart') {
       const newStickerData = makeStickerData({

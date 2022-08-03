@@ -6,6 +6,7 @@ import QueryFilterAttribute from './QueryFilterAttribute';
 import SelectedFilter from './SelectedFilter';
 import { FilterConfigType } from '../Sticker/Filter.type';
 import TextField from '@mui/material/TextField';
+import { useState } from 'react';
 
 export interface DatasetProps {
   id: number;
@@ -26,6 +27,8 @@ export default function Dataset({
   focus,
   changeFocusOn,
 }: DatasetProps) {
+  const [message, setMessage] = useState('');
+
   function renderSelectedFilters() {
     return dataset.map((filter, index) => {
       return SelectedFilter({ data: { ...filter }, idx: index });
@@ -40,12 +43,12 @@ export default function Dataset({
     });
   };
   const onChangeDatasetName = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setDatasetNames((prev) =>
-      prev.map((name, index) => {
-        if (index === id) return event.target.value;
-        else return name;
-      }),
-    );
+    setMessage(event.target.value);
+    setDatasetNames((prev) => {
+      prev[id] = event.target.value;
+      return prev;
+    });
+    console.log(datasetNames);
   };
 
   return (
@@ -58,9 +61,8 @@ export default function Dataset({
         >
           <TextField
             placeholder={`Dataset ${id}`}
-            defaultValue={`Dataset ${id}`}
             variant="standard"
-            value={datasetNames[id]}
+            value={datasetNames[id] || message}
             onChange={onChangeDatasetName}
           />
         </AccordionSummary>
