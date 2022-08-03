@@ -1,12 +1,18 @@
 import PresetRepositoryInterface from '../domain/preset/preset.repository.interface';
 import PresetType from '../domain/preset/preset.type';
 import presetStore from './store/preset.store';
+import axios from 'axios';
 
 class PresetRepository implements PresetRepositoryInterface {
   public async getPreset(id: string): Promise<PresetType | null> {
-    //여기가 http로 Preset Type 받아오는거
-    const preset = localStorage.getItem(`preset-${id}`);
-    return preset ? (JSON.parse(preset) as PresetType) : null;
+    const preset = await axios
+      .get(`http://localhost:3000/user-information/getOnePreSet/${id}`, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        return res.data[0];
+      });
+    return preset;
   }
 
   public async setPreset(preset: PresetType): Promise<void> {
@@ -14,9 +20,34 @@ class PresetRepository implements PresetRepositoryInterface {
   }
 
   public async addPreset(preset: PresetType): Promise<void> {
-    //graphQl로 프리셋 데이터 저장
     const { id } = preset;
-    localStorage.setItem(`preset-${id}`, JSON.stringify(preset));
+    let isExist = false;
+    await axios
+      .get('http://localhost:3000/user-information/getAllPreSet', {
+        withCredentials: true,
+      })
+      .then((res) => {
+        for (let i = 0; i < res.data.length; i++) {
+          if (res.data[i].id === id) isExist = true;
+        }
+      });
+    if (isExist) {
+      await axios.put(
+        'http://localhost:3000/user-information/updateOnePreSet/${id}',
+        preset,
+        {
+          withCredentials: true,
+        },
+      );
+    } else {
+      await axios.post(
+        'http://localhost:3000/user-information/addPreSet',
+        preset,
+        {
+          withCredentials: true,
+        },
+      );
+    }
   }
 }
 

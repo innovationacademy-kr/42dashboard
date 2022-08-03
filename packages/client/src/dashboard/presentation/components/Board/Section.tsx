@@ -35,14 +35,17 @@ export default function Section(props: SectionProps) {
   function drawStickers() {
     return stickerLayouts.map((sticker: Layout, idx) => (
       <div key={sticker.i}>
-        <Sticker
-          id={sticker.i}
-          data={stickerDatas[idx].data}
-          handleStickerRemove={(stickerId) => {
-            removeSticker(stickerId);
-            handleStickerRemove(id, stickerId);
-          }}
-        />
+        {/* TODO(sonkang) : 나중에 더 좋은 방법을 찾아보기 */}
+        {stickerDatas[idx] && (
+          <Sticker
+            id={sticker.i}
+            data={stickerDatas[idx].data}
+            handleStickerRemove={(stickerId) => {
+              removeSticker(stickerId);
+              handleStickerRemove(id, stickerId);
+            }}
+          />
+        )}
       </div>
     ));
   }

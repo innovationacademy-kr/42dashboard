@@ -128,7 +128,7 @@ export class UserInformationController {
     for (const index in bocal['preSetArray']) {
       ret[index] = {};
       const onePreSet = bocal['preSetArray'][index];
-      ret[index]['id'] = JSON.parse(onePreSet['id']);
+      ret[index]['id'] = onePreSet['id'];
       ret[index]['data'] = JSON.parse(onePreSet['preSetData']);
       ret[index]['info'] = JSON.parse(onePreSet['info']);
     }
@@ -153,7 +153,7 @@ export class UserInformationController {
     for (const index in bocal['preSetArray']) {
       ret[index] = {};
       const onePreSet = bocal['preSetArray'][index];
-      ret[index]['id'] = JSON.parse(onePreSet['id']);
+      ret[index]['id'] = onePreSet['id'];
       ret[index]['data'] = JSON.parse(onePreSet['preSetData']);
       ret[index]['info'] = JSON.parse(onePreSet['info']);
     }
@@ -178,23 +178,30 @@ export class UserInformationController {
   }
 
   @Put('/updateOnePreSet/:uuid')
-  @ApiParam({
+  // @ApiParam({
+  //   required: true,
+  //   name: 'uuid',
+  // })
+  @ApiBody({
     required: true,
-    name: 'uuid',
   })
   @UseGuards(AuthGuard('jwt'))
-  async updateOnePreSet(@Param('uuid') uuid, @Body() body) {
+  async updateOnePreSet(@Body() body) {
+    const uuid = body['id'];
     const preSetRepository = await this.dataSource.getRepository(PreSet);
+    if (!(await preSetRepository.findOne({ where: { id: Equal(uuid) } }))) {
+      return 'entity not found';
+    }
     const preSet = await preSetRepository.update(
       {
-        id: Equal(uuid),
+        id: uuid,
       },
       {
         preSetData: JSON.stringify(body['data']),
         info: JSON.stringify(body['info']),
       },
     );
-    if (!preSet) return 'entity not found';
+    console.log(preSet);
     return 'update success';
   }
 }
