@@ -17,6 +17,7 @@ input Filter {
 
 type JoinedTable {
   academic_state: String
+  anonymization: DateTime
   coalition: String
   created_date: DateTime
   grade: String
@@ -24,19 +25,22 @@ type JoinedTable {
   intra_no: Int!
   name: String
   start_process_date: DateTime
+  start_process: DateTime
+  uniqueness: String
   userAccessCardInformation: [UserAccessCardInformation!]
   userBlackhole: [UserBlackhole!]
   userComputationFund: [UserComputationFund!]
   userCourseExtension: [UserCourseExtension!]
   userEducationFundState: [UserEducationFundState!]
-  userEmploymentAndFound: [UserEmploymentStatus!]
   userEmploymentStatus: [UserEmploymentStatus!]
   userHrdNetUtilize: [UserHrdNetUtilize!]
+  userHrdNetUtilizeConsent: [UserHrdNetUtilizeConsent!]
   userInterruptionOfCourse: [UserInterruptionOfCourse!]
   userLapiscineInformation: [UserLapiscineInformation!]
   userLearningDataAPI: [UserLearningDataAPI!]
   userLeaveOfAbsence: [UserLeaveOfAbsence!]
   userLoyaltyManagement: [UserLoyaltyManagement!]
+  userOtherEmploymentStatus: [UserOtherEmploymentStatus!]
   userOtherInformation: [UserOtherInformation!]
   userPersonalInformation: [UserPersonalInformation!]
 }

@@ -305,10 +305,14 @@ export class UpdaterService {
   }
 
   async getDataToModifyFromDB(updateDB: UpdateDB) {
-    return await this.spreadService.getDataToModifyFromDB(
-      SPREAD_END_POINT,
-      updateDB.sheetName,
-    );
+    if (updateDB.sheetName === 'user') {
+      return "can't edit user page";
+    } else {
+      return await this.spreadService.getDataToModifyFromDB(
+        SPREAD_END_POINT,
+        updateDB.sheetName,
+      );
+    }
   }
 
   async saveModifiedDataFromSheet(updateDB: UpdateDB) {
