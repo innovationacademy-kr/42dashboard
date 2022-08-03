@@ -4,7 +4,6 @@ const destructObjectToArray = (prev, element) => {
   const newarr = [];
   toArr.forEach((item) => {
     if (Array.isArray(item)) {
-      console.log('ArrayItem', item);
       const { __typename, ...cells } = item[0];
       newarr.push(...Object.values(cells));
     } else {

@@ -12,6 +12,7 @@ import {
 
 import { _DeepPartialObject } from 'chart.js/types/utils';
 import { ChartProps } from '../Charts/ChartData';
+import { TableProps } from '../Table/Table';
 
 export interface StickerContent {
   none: null;
@@ -74,7 +75,7 @@ interface TextStickerType {
   content: string;
 }
 
-export type StickerContentPropType = ChartProps;
+export type StickerContentPropType = ChartProps | TableProps;
 
 // [getNumOfPeopleByFilter(filters: [$filtersGrade, $filtersMan]), getNumOfPeopleByFilter(filters: [$filtersGrade, $filtersWoman]),  ]
 // labels : 데이터 세트의 각 데이터에 매치되는 라벨의 배열

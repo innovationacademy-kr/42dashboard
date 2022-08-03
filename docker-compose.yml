@@ -27,8 +27,8 @@ services:
         ports:
             - "5432:5432"
         environment:
-            POSTGRES_USER: "dashBoard"
-            POSTGRES_PASSWORD: "dashBoard"
+            POSTGRES_USER: "postgres"
+            POSTGRES_PASSWORD: "504201"
         stdin_open: true
         tty: true
         networks:

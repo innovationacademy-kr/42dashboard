@@ -8,6 +8,7 @@ import {
 import { DocumentNode } from '@apollo/client';
 import { StickerContentType } from '../Sticker/StickerContent.type';
 import { FilterConfigType } from '../Sticker/Filter.type';
+import DEFAULT_TABLE_PROPS from '../../../application/utils/DEFAULT_TABLE_PROPS';
 
 function stringToUnicode(str: string): string {
   let ret = '';
@@ -68,7 +69,7 @@ function returnFilterSets(
   return filterSets;
 }
 
-export interface MakeStickerType {
+export interface MakeChartStickerType {
   sectionId: string;
   type: StickerContentType;
   labels: string[];
@@ -77,14 +78,14 @@ export interface MakeStickerType {
   arrayOfDataSet: FilterConfigType[][];
 }
 
-export default function makeStickerData({
+export function makeChartStickerData({
   sectionId,
   type,
   labels,
   labelFilter,
   datasetNames,
   arrayOfDataSet,
-}: MakeStickerType): StickerDataType {
+}: MakeChartStickerType): StickerDataType {
   const queryVariables: QueryVariablesType = {
     ...makeQueryFilterVariables(labelFilter),
     ...makeQueryFilterVariables(arrayOfDataSet.flat()),
@@ -111,6 +112,24 @@ export default function makeStickerData({
         queryData,
         options: {},
       },
+    },
+  };
+}
+export interface MakeTableStickerType {
+  sectionId: string;
+  type: StickerContentType;
+}
+
+export function makeTableStickerData({
+  sectionId,
+  type,
+}: MakeTableStickerType): StickerDataType {
+  return {
+    id: uuid(),
+    sectionId: sectionId,
+    data: {
+      type: type,
+      contentProps: DEFAULT_TABLE_PROPS,
     },
   };
 }

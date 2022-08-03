@@ -7,6 +7,8 @@ import LineChart from '../Charts/LineChart';
 import BarChart from '../Charts/BarChart';
 import styled from '@emotion/styled';
 import useMode from '../../../application/services/useMode';
+import { ChartProps } from '../Charts/ChartData';
+import { TableProps, TableStickerContent } from '../Table/Table';
 export interface StickerContentFactoryProps {
   type: StickerContentType;
   contentProps: StickerContentPropType;
@@ -34,19 +36,19 @@ function StickerContentFactory(props: StickerContentFactoryProps) {
     case 'pieChart':
       return (
         <StickerContentWrapper className={mode}>
-          <PieChart {...contentProps} />
+          <PieChart {...(contentProps as ChartProps)} />
         </StickerContentWrapper>
       );
     case 'lineChart':
       return (
         <StickerContentWrapper className={mode}>
-          <LineChart {...contentProps} />
+          <LineChart {...(contentProps as ChartProps)} />
         </StickerContentWrapper>
       );
     case 'barChart':
       return (
         <StickerContentWrapper className={mode}>
-          <BarChart {...contentProps} />
+          <BarChart {...(contentProps as ChartProps)} />
         </StickerContentWrapper>
       );
     case 'text':
@@ -58,7 +60,7 @@ function StickerContentFactory(props: StickerContentFactoryProps) {
     case 'table':
       return (
         <StickerContentWrapper className={mode}>
-          <div>개발 중</div>
+          <TableStickerContent {...(contentProps as TableProps)} />
         </StickerContentWrapper>
       );
     default:

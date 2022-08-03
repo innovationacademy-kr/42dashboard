@@ -11,6 +11,8 @@ import useChartDataset, {
 } from '../../../application/services/useDataset';
 import { useEffect, useState } from 'react';
 import { getRowsFromGqlResponse } from '../../../application/utils/tableQueryParse';
+import useMode from '../../../application/services/useMode';
+import ColumnSelector from './ColumnSelector';
 
 type cellAlignType = 'inherit' | 'left' | 'center' | 'right' | 'justify';
 interface ColumnGroupType {
@@ -20,16 +22,16 @@ interface ColumnGroupType {
   colSpan: number;
 }
 
-interface ColumnType {
+export interface ColumnDataType {
   id: string;
   label: string;
   minWidth?: number;
   align?: cellAlignType;
   format?: (value: number) => string;
 }
-interface TableProps {
-  columnGroups: ColumnGroupType[];
-  columns: ColumnType[];
+export interface TableProps {
+  columnGroups?: ColumnGroupType[];
+  columns: ColumnDataType[];
   queryData: QueryDataType;
   // options?: TableOptions;
 }
@@ -42,6 +44,19 @@ export function TableStickerContent(props: TableProps) {
   const [rowsState, setRowsState] = useState<TableCellType[][]>([]);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);
+  const [visibleColumns, setVisibleColumns] = useState<boolean[]>([]);
+  const { getControlMode } = useMode();
+
+  const mode = getControlMode();
+
+  useEffect(() => {
+    console.log('Length', columns.length);
+    const initArray = new Array(columns.length).fill(false);
+    initArray[0] = true;
+    initArray[1] = true;
+    initArray[2] = true;
+    setVisibleColumns(initArray);
+  }, [columns]);
 
   useEffect(() => {
     if (data) {
@@ -59,6 +74,12 @@ export function TableStickerContent(props: TableProps) {
     setPage(0);
   };
 
+  const handleColumnVisibilityChange = (index: number) => {
+    const newVisibleColumns = [...visibleColumns];
+    newVisibleColumns[index] = !newVisibleColumns[index];
+    setVisibleColumns(newVisibleColumns);
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -68,30 +89,42 @@ export function TableStickerContent(props: TableProps) {
 
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+      {mode === 'edit' && (
+        <ColumnSelector
+          columns={columns}
+          columnsVisibility={visibleColumns}
+          handleColumnVisibilityChange={handleColumnVisibilityChange}
+        />
+      )}
       <TableContainer sx={{ maxHeight: '500px' }}>
         <Table stickyHeader size="small" aria-label="sticky table">
           <TableHead>
+            {columnGroups && (
+              <TableRow>
+                {columnGroups.map((columnGroup) => (
+                  <TableCell
+                    key={columnGroup.id}
+                    colSpan={columnGroup.colSpan}
+                    align={columnGroup.align || 'center'}
+                  >
+                    {columnGroup.label}
+                  </TableCell>
+                ))}
+              </TableRow>
+            )}
             <TableRow>
-              {columnGroups.map((columnGroup) => (
-                <TableCell
-                  key={columnGroup.id}
-                  colSpan={columnGroup.colSpan}
-                  align={columnGroup.align || 'center'}
-                >
-                  {columnGroup.label}
-                </TableCell>
-              ))}
-            </TableRow>
-            <TableRow>
-              {columns.map((column) => (
-                <TableCell
-                  key={column.id}
-                  align={column.align || 'right'}
-                  sx={{ minWidth: column.minWidth || 100 }}
-                >
-                  {column.label}
-                </TableCell>
-              ))}
+              {columns.map(
+                (column, index) =>
+                  visibleColumns[index] && (
+                    <TableCell
+                      key={column.id}
+                      align={column.align || 'right'}
+                      sx={{ minWidth: column.minWidth || 100 }}
+                    >
+                      {column.label}
+                    </TableCell>
+                  ),
+              )}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -99,11 +132,14 @@ export function TableStickerContent(props: TableProps) {
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row, index) => (
                 <TableRow key={`${row[0]}${index}`}>
-                  {row.map((cell, i) => (
-                    <TableCell key={`${cell}${i}`} align="right">
-                      {cell}
-                    </TableCell>
-                  ))}
+                  {row.map(
+                    (cell, i) =>
+                      visibleColumns[i] && (
+                        <TableCell key={`${cell}${i}`} align="right">
+                          {cell}
+                        </TableCell>
+                      ),
+                  )}
                 </TableRow>
               ))}
           </TableBody>
