@@ -15,7 +15,7 @@ export class GetUserArgs {
   grade: string;
 
   @Field({ nullable: true })
-  start_process: Date;
+  start_process_date: Date;
 
   @Field((type) => String, { nullable: true })
   academic_state: string;

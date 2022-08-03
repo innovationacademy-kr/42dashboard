@@ -72,7 +72,7 @@ export const mapObj = [
     { spName: 'Intra ID', dbName: 'intra_id' },
     { spName: '성명', dbName: 'name' },
     { spName: '기수', dbName: 'grade' },
-    { spName: '과정시작', dbName: 'start_process' },
+    { spName: '과정시작', dbName: 'start_process_date' },
     { spName: '코알리숑', dbName: 'coalition' },
     { spName: '학적(수동)', dbName: 'academic_state' }, //[api]
     { spName: '특이사항', dbName: 'uniqueness' },
@@ -391,7 +391,7 @@ export const repoKeys = {
 };
 
 export const enum DEFAULT_VALUE {
-  NOT_DEFAULT = 0, //조건절에 0이 아닌 값으로 넣기 위해 1부터 시작
+  NOT = 0, //조건절에 0이 아닌 값으로 넣기 위해 1부터 시작
   DEFAULT = 1,
   CHANGED = 2,
   DATE = 3,
@@ -404,7 +404,42 @@ export const defaultVALUE = {
     name: 'NO_NAME',
     grade: '0기',
     academic_state: 'BLACK_HOLE',
-    start_process: '9999-12-31',
+    start_process_date: '9999-12-31',
+    validate_date: '9999-12-31',
+    expired_date: '999-12-31',
+  },
+
+  user_personal_information: {
+    validate_date: '9999-12-31',
+    expired_date: '999-12-31',
+  },
+
+  user_course_extension: {
+    basic_expiration_date: '9999-12-31',
+    final_expiration_date: '9999-12-31',
+    validate_date: '9999-12-31',
+    expired_date: '999-12-31',
+  },
+
+  user_leave_of_absence: {
+    begin_absence_date: '9999-12-31',
+    end_absence_date: '9999-12-31',
+    return_from_absence_date: '9999-12-31',
+    validate_date: '9999-12-31',
+    expired_date: '999-12-31',
+  },
+
+  user_blackhole: {
+    //remaining_period: 0,
+    blackhost_date: '9999-12-31',
+    blackholed_level: 0,
+    validate_date: '9999-12-31',
+    expired_date: '999-12-31',
+  },
+
+  user_interruption_of_course: {
+    break_date: '9999-12-31', //이름 변경 요망validate_date: '9999-12-31',
+    expired_date: '999-12-31',
   },
 
   user_learnig_data_api: {
@@ -416,47 +451,70 @@ export const defaultVALUE = {
     leveled_date: '9999-12-31',
     outcircle: 'N',
     outcircled_date: '9999-12-31',
+    validate_date: '9999-12-31',
+    expired_date: '999-12-31',
   },
 
   user_loyalty_management: {
     royalty_period: '9999년 4분기',
     royalty_presence: 'N',
     royalty_circle: 0,
-  },
-
-  user_course_extension: {
-    basic_expiration_date: '9999-12-31',
-    final_expiration_date: '9999-12-31',
-  },
-
-  user_other_information: {
-    majored: '비전공',
+    validate_date: '9999-12-31',
+    expired_date: '999-12-31',
   },
 
   user_employment_status: {
     employment_date: '9999-12-31',
     employment: '미취업',
-  },
-
-  user_other_employment_status: {
-    employment_date: '9999-12-31',
+    validate_date: '9999-12-31',
+    expired_date: '999-12-31',
   },
 
   user_hrd_net_utilize_consent: {
     consent_to_provide_information: 'N',
     consented_date: '9999-12-31',
+    validate_date: '9999-12-31',
+    expired_date: '999-12-31',
   },
 
   user_hrd_net_utilize: {
     hrd_net_date: '9999-12-31',
     employmented: 'N',
     employment_insurance_date: '9999-12-31',
+    validate_date: '9999-12-31',
+    expired_date: '999-12-31',
   },
 
-  user_blackhole: {
-    //remaining_period: 0,
-    blackhost_date: '9999-12-31',
-    blackholed_level: 0,
+  user_other_employment_status: {
+    employment_date: '9999-12-31',
+    validate_date: '9999-12-31',
+    expired_date: '999-12-31',
+  },
+
+  user_education_fund_state: {
+    total_payment_of_number: 0,
+    total_payment_of_money: '0',
+    payment_end_date: '9999-12-31',
+    //uniqueness: '0',
+    validate_date: '9999-12-31',
+    expired_date: '999-12-31',
+  },
+
+  //하위시트에서 받아올 때는 makeAColumnInTable에서 초기화를 함
+  user_computaion_fund: {
+    payment_date: '9999-12-31',
+    received: 'N',
+    recevied_amount: 0,
+    validate_date: '9999-12-31',
+    expired_date: '999-12-31',
+  },
+
+  user_access_card_information: {},
+
+  user_other_information: {
+    majored: '비전공',
+    validate_date: '9999-12-31',
+    expired_date: '999-12-31',
   },
 
   user_lapiscine_information: {
@@ -465,30 +523,8 @@ export const defaultVALUE = {
     // lapiscine_degree: 9999,
     // participate_lapicin: 9999,
     // number_of_rapicin_participation: 9999,
-  },
-
-  //하위시트에서 받아올 때는 makeAColumnInTable에서 초기화를 함
-  user_computaion_fund: {
-    payment_date: '9999-12-31',
-    received: 'N',
-    recevied_amount: 0,
-  },
-
-  user_education_fund_state: {
-    total_payment_of_number: 0,
-    total_payment_of_money: '0',
-    payment_end_date: '9999-12-31',
-    //uniqueness: '0',
-  },
-
-  user_leave_of_absence: {
-    begin_absence_date: '9999-12-31',
-    end_absence_date: '9999-12-31',
-    return_from_absence_date: '9999-12-31',
-  },
-
-  user_interruption_of_course: {
-    break_date: '9999-12-31', //이름 변경 요망
+    validate_date: '9999-12-31',
+    expired_date: '999-12-31',
   },
 };
 

@@ -23,7 +23,7 @@ type JoinedTable {
   intra_id: String
   intra_no: Int!
   name: String
-  start_process: DateTime
+  start_process_date: DateTime
   userAccessCardInformation: [UserAccessCardInformation!]
   userBlackhole: [UserBlackhole!]
   userComputationFund: [UserComputationFund!]
@@ -91,6 +91,7 @@ type User {
   intra_id: String!
   intra_no: Int!
   name: String!
+  start_process_date: DateTime!
   uniqueness: String!
   validate_date: DateTime!
 }

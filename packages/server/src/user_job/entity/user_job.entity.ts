@@ -25,7 +25,6 @@ export class UserOtherEmploymentStatus extends BaseEntity {
     name: 'employment_date',
     nullable: false,
     default: '9999-12-31',
-    type: 'date',
   })
   employment_date: Date;
 
@@ -45,13 +44,15 @@ export class UserOtherEmploymentStatus extends BaseEntity {
   @Column({
     name: 'validate_date',
     nullable: false,
+    default: '9999-12-31',
   })
   validate_date: Date;
 
   @Field()
   @Column({
     name: 'expired_date',
-    nullable: true,
+    nullable: false,
+    default: '9999-12-31',
   })
   expired_date: Date;
 
@@ -84,7 +85,7 @@ export class UserOtherEmploymentStatus extends BaseEntity {
 //     name: 'enterprise',
 //     nullable: false,
 //     default: '9999-12-31',
-//     type: 'date',
+//
 //   })
 //   enterprise: Date;
 
@@ -145,7 +146,6 @@ export class UserHrdNetUtilizeConsent extends BaseEntity {
     name: 'consented_date',
     nullable: false,
     default: '9999-12-31',
-    type: 'date',
   })
   consented_date: Date;
 
@@ -161,13 +161,15 @@ export class UserHrdNetUtilizeConsent extends BaseEntity {
   @Column({
     name: 'validate_date',
     nullable: false,
+    default: '9999-12-31',
   })
   validate_date: Date;
 
   @Field()
   @Column({
     name: 'expired_date',
-    nullable: true,
+    nullable: false,
+    default: '9999-12-31',
   })
   expired_date: Date;
 
@@ -192,7 +194,6 @@ export class UserHrdNetUtilize extends BaseEntity {
     name: 'hrd_net_date',
     nullable: false,
     default: '9999-12-31',
-    type: 'date',
   })
   hrd_net_date: Date;
 
@@ -209,7 +210,6 @@ export class UserHrdNetUtilize extends BaseEntity {
     name: 'employment_insurance_date',
     nullable: false,
     default: '9999-12-31',
-    type: 'date',
   })
   employment_insurance_date: Date;
 
@@ -233,13 +233,15 @@ export class UserHrdNetUtilize extends BaseEntity {
   @Column({
     name: 'validate_date',
     nullable: false,
+    default: '9999-12-31',
   })
   validate_date: Date;
 
   @Field()
   @Column({
     name: 'expired_date',
-    nullable: true,
+    nullable: false,
+    default: '9999-12-31',
   })
   expired_date: Date;
 
@@ -268,7 +270,6 @@ export class UserEmploymentStatus extends BaseEntity {
     name: 'employment_date',
     nullable: false,
     default: '9999-12-31',
-    type: 'date',
   })
   employment_date: Date;
 
@@ -288,13 +289,15 @@ export class UserEmploymentStatus extends BaseEntity {
   @Column({
     name: 'validate_date',
     nullable: false,
+    default: '9999-12-31',
   })
   validate_date: Date;
 
   @Field()
   @Column({
     name: 'expired_date',
-    nullable: true,
+    nullable: false,
+    default: '9999-12-31',
   })
   expired_date: Date;
 

@@ -384,7 +384,6 @@ export class SpreadService {
   }
 
   changeDate(str: string): string {
-    //console.log(str);
     const convStr = str.replace(/. /g, '-');
     const tmp = new Date(convStr);
     const insertHyphen = (str, sub) =>
@@ -423,8 +422,8 @@ export class SpreadService {
     }
   }
 
-  insertArrayToDB(entity, array) {
-    this.dataSource
+  async insertArrayToDB(entity, array) {
+    await this.dataSource
       .createQueryBuilder()
       .insert()
       .into(entity)
@@ -435,7 +434,6 @@ export class SpreadService {
   //테이블 별 하나의 로우 완성하는 함수
   makeRowPerColumn(row, cols, rowIdx, tuple, mapObjs, repoKey) {
     const columnLabel = mapObjs.find(this.compareSpname(cols[rowIdx]));
-    //  console.log(row[rowIdx], '  21 ');
     //스프레드에 날짜 저장 패턴이 바뀌면 문제가 생길 수 있음
     const datePattern =
       /[0-9]{4}. (0?[1-9]|1[012]). (0?[1-9]|[12][0-9]|3[0-1])$/; // yyyy-mm-dd 형식인지 체크
@@ -577,25 +575,23 @@ export class SpreadService {
                 col.fk_user_no === data.fk_user_no &&
                 col[`${preDate}`] === data[`${newDate}`])
             ) {
+              await this.initValidateDate(repoKey, data);
               Object.assign(col, data);
               break;
             }
           }
           if (flag === false) {
             await this.initValidateDate(repoKey, data);
-            sheet.push(data);
+            if (colObj.table === TABLENUM.USERLEARNINGDATAAPI)
+              await this.insertArrayToDB(UserLearningDataAPI, data);
+            else if (colObj.table === TABLENUM.USERHRDNETUTILIZECONSENT)
+              await this.insertArrayToDB(UserHrdNetUtilizeConsent, data);
+            // sheet.push(data);
           }
         }
+        // if (repoKey == 'user_learning_data_api') console.log(sheet, '123213');
       }
-      if (colObj.table === TABLENUM.USERLEARNINGDATAAPI)
-        await this.insertArrayToDB(UserLearningDataAPI, sheet);
-      else if (colObj.table === TABLENUM.USERHRDNETUTILIZECONSENT)
-        await this.insertArrayToDB(UserHrdNetUtilizeConsent, sheet);
-
-      // console.log(sheet, 'sasdad');
     }
-    //console.log(colDatas, 'qwe');
-    return colDatas;
   }
 
   async makeAColumnInTable(cols, rows, datas, date, repoKey) {
@@ -668,7 +664,6 @@ export class SpreadService {
    */
   async parseOldSpread(cols, rows, pastSheetData, repoKey) {
     let tupleLine;
-    //console.log(pastSheetData, 'aaxa');
     for (const row of rows) {
       //학생의 수 만큼 반복
       const tuple = {};
@@ -682,7 +677,6 @@ export class SpreadService {
       tupleLine = pastSheetData['repo'].create(tuple);
       await pastSheetData['repo'].save(tupleLine);
     }
-    return tupleLine;
   }
 
   async getOldSheetTable(pastSheetData, repoKey) {
@@ -691,14 +685,13 @@ export class SpreadService {
       pastSheetData.endPoint,
       pastSheetData.Id[0], //스프레드 하위시트 ID
     );
-    // if (repoKey == 'user_hrd_net_utilize')
-    //   console.log(spreadData);
     const columns = spreadData[0];
     const rows = (await spreadData).filter((value, index) => index > 0);
 
     //지급일 시트 정보 받아서 저장해두기 테이블 관계수정 //확장성을 고려하려 했으나, 지원금 시트(LogColumn)의 특징이 강력하여 함수를 하나 더 만들기로 결정
 
-    return await this.parseOldSpread(columns, rows, pastSheetData, repoKey);
+    await this.parseOldSpread(columns, rows, pastSheetData, repoKey);
+    console.log('save', repoKey);
   }
 
   async composeTableData(spreadData, tableSet: TableSet[], old: boolean) {
@@ -776,30 +769,116 @@ export class SpreadService {
     return 'nothing table';
   }
 
-  async updateExpiredDate(repoKey, saveDate, now) {
-    //console.log(saveDate);
+  isDateType(tuple, column) {
+    const date = /[0-9]{4}-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[0-1])$/;
+    const tempDate = tuple[column];
+    const isValidDate = Date.parse(tempDate);
+
+    if (!isNaN(isValidDate) && date.test(tuple[column])) {
+      return DEFAULT_VALUE.DATE;
+    }
+    return DEFAULT_VALUE.NOT;
+  }
+
+  createDate(date) {
+    return new Date(date);
+  }
+
+  async checkDateValue(newOneData, targetObj, repoKey, key, repo) {
+    if (this.isDateType(newOneData, key) == DEFAULT_VALUE.DATE) {
+      newOneData[key] = this.createDate(newOneData[key]);
+      targetObj[key] = this.createDate(targetObj[key]);
+
+      if (newOneData[key].getTime() != targetObj[key].getTime()) {
+        await this.initValidateDate(repoKey, newOneData);
+        let changeData = newOneData;
+        if (repoKey !== 'user') {
+          changeData = repo.create(newOneData);
+          repo.save(changeData);
+        } else {
+          targetObj[key] = newOneData[key];
+          repo.save(targetObj);
+        }
+
+        console.log(
+          `table is ${repoKey}\n column name is ${key} \n`,
+          targetObj[key],
+          'is date changed to ',
+          newOneData[key],
+        );
+        return DEFAULT_VALUE.CHANGED;
+      } else {
+        //date 변환시켰는데 값이 같다면 다음 컬럼을 비교하기 위해 DATE 를 리턴해줌
+        return DEFAULT_VALUE.DATE;
+      }
+    }
+    return DEFAULT_VALUE.NOT;
+  }
+
+  async updateTuple(repoKey, tuple, column, value) {
     let key;
 
     if (repoKey == 'user') key = 'intra_no';
     else key = 'fk_user_no';
 
-    const repo = this.dataSource.getRepository(classType[repoKey]);
-    const target = await repo
-      .createQueryBuilder(repoKey)
-      .distinctOn([`${repoKey}.${key}`])
-      .orderBy(`${repoKey}.${key}`, 'DESC') //sort by key
-      .addOrderBy(`${repoKey}.${dateTable[repoKey]}`, 'DESC') //sort by valid date column
-      .where(`${key} = :key`, { key: saveDate.fk_user_no })
-      .getOne();
+    try {
+      const repo = this.dataSource.getRepository(classType[repoKey]);
+      const target = await repo
+        .createQueryBuilder(repoKey)
+        .distinctOn([`${repoKey}.${key}`])
+        .orderBy(`${repoKey}.${key}`, 'DESC') //sort by table's key
+        .addOrderBy(`${repoKey}.${dateTable[repoKey]}`, 'DESC') //sort by valid date column
+        .where(`${key} = :key`, { key: tuple[key] }) //저장하고자 하는 데이터와 키값이 같은 최신 데이터를 가져오기 위함
+        .getOne();
 
-    if (target) {
-      // console.log(`table is ${repoKey}\n`, ` expired_date changed to `, now);
-      // console.log(JSON.stringify(target, null, 4));
-      target.expired_date = now;
-      await repo.save(target);
+      const checkedDate = await this.checkDateValue(
+        tuple,
+        target,
+        repoKey,
+        column,
+        repo,
+      );
+
+      if (target && checkedDate === DEFAULT_VALUE.NOT) {
+        // console.log(`table is ${repoKey}\n`, ` expired_date changed to `, now);
+        // console.log(JSON.stringify(target, null, 4));
+        if (target[column] !== tuple[column]) {
+          console.log(
+            `change! ${repoKey}'s ${column} value ${target[column]} to ${value}`,
+          );
+          target[column] = value;
+          await repo.save(target);
+        }
+      }
+    } catch {
+      throw 'error in updateTuple';
     }
+  }
 
-    //console.log('21', target);
+  async updateExpiredDate(repoKey, saveDate, now) {
+    let key;
+
+    if (repoKey == 'user') key = 'intra_no';
+    else key = 'fk_user_no';
+
+    try {
+      const repo = this.dataSource.getRepository(classType[repoKey]);
+      const target = await repo
+        .createQueryBuilder(repoKey)
+        .distinctOn([`${repoKey}.${key}`])
+        .orderBy(`${repoKey}.${key}`, 'DESC') //sort by table's key
+        .addOrderBy(`${repoKey}.${dateTable[repoKey]}`, 'DESC') //sort by valid date column
+        .where(`${key} = :key`, { key: saveDate[key] }) //저장하고자 하는 데이터와 키값이 같은 최신 데이터를 가져오기 위함
+        .getOne();
+      if (target) {
+        // console.log(`table is ${repoKey}\n`, ` expired_date changed to `, now);
+        // console.log(JSON.stringify(target, null, 4));
+        target.expired_date = now;
+        await repo.save(target);
+      }
+    } catch {
+      throw 'error in updateTuple';
+    }
   }
 
   //default 값을 갖는 column이 spread에 null인지 확인 후 default값으로 spread data 변환
@@ -822,18 +901,19 @@ export class SpreadService {
       //default 값을 갖는 테이블인가
       Object.keys(defaultVALUE).find((table) => table === repoKey) === undefined
     )
-      return DEFAULT_VALUE.NOT_DEFAULT;
+      return DEFAULT_VALUE.NOT;
     if (
       //테이블 중에서 default 값을 갖는 column 인가
       Object.keys(defaultVALUE[repoKey]).find((col) => col === key) ===
       undefined
     )
-      return DEFAULT_VALUE.NOT_DEFAULT;
+      return DEFAULT_VALUE.NOT;
     return DEFAULT_VALUE.DEFAULT;
   }
 
   async initValidateDate(repoKey, saveDate) {
     const now = new Date();
+    const defaultDate = new Date('9999-12-31');
     const target = await this.updateExpiredDate(repoKey, saveDate, now); //await 지워도 될지도?
     //데이터의 유효성을 확인하는 컬럼이 validate_date라면, 저장하는 데이터의 시간을 기점으로 저장
     if (dateTable[repoKey] === 'validate_date') {
@@ -841,5 +921,6 @@ export class SpreadService {
     } else {
       saveDate['validate_date'] = saveDate[dateTable[repoKey]];
     }
+    saveDate['expired_date'] = defaultDate;
   }
 }

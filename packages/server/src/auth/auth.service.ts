@@ -29,6 +29,7 @@ export class AuthService {
     bocal.email = obj.email;
     bocal.role = BocalRole.ADMIN; //이 부분 나중에 분기문으로 처리
     bocal.isStaff = true;
+    console.log('save bocal ', bocal.intraName);
     await this.dataSource.getRepository(Bocal).save(bocal);
     const payload = obj;
     console.log(payload);
