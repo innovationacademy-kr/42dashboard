@@ -3,6 +3,7 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { ApiService } from 'src/api/api.service';
 import { google } from 'googleapis';
 import { credentials } from 'src/config/credentials';
+// import { tableName } from 'common/src';
 import {
   classType,
   dateTable,
@@ -243,7 +244,7 @@ export class SpreadService {
     const rowNum = values.length;
     const colNum = values[0].length;
     const red = this.setColor(1.0, 0.7, 0.7);
-    const green = this.setColor(0.0, 1.0, 0.8);
+    const green = this.setColor(0.2, 0.7, 0.8);
     const blue = this.setColor(0.3, 0.3, 0.8);
     const requests = [
       this.setColorRange(sheetId, 0, 1, 0, colNum, green),
@@ -276,41 +277,94 @@ export class SpreadService {
     );
     const columns = spreadData[0];
     const rows = (await spreadData).filter((value, index) => index > 0);
-    const ret = await this.compareDataToCheckError(spreadData, repoName);
-    if (ret === 'column error') {
-      return 'column is not same with DB';
-    } else if (ret === 'interrupt error') {
-      return 'input data in middle of DB';
-    } else if (ret === 'delete error') {
-      return 'pk is deleted in sheet';
-    } else if (ret === 'changed latest error') {
-      return 'latest data is changed on modify sheet';
-    }
-    for (const row of rows) {
-      const tuple = {};
-      for (const col in columns) {
-        this.makeRowPerColumnToModify(row, columns, col, tuple);
+    try {
+      const ret = await this.compareDataToCheckError(spreadData, repoName); //pk중복 체크도 해야함?
+      if (ret === 'column error') {
+        return 'column is not same with DB';
+      } else if (ret === 'interrupt error') {
+        return 'input data in middle of DB';
+      } else if (ret === 'delete error') {
+        return 'pk is deleted in sheet';
+      } else if (ret === 'changed latest error') {
+        return 'latest data is changed on modify sheet';
+      } else if (ret === 'The inserted data is wrong') {
+        return 'The inserted data is wrong on modify sheet';
       }
-      await this.updateDataToDB(repoName, tuple);
+      for (const row of rows) {
+        const tuple = {};
+        for (const col in columns) {
+          this.makeRowPerColumnToModify(row, columns, col, tuple);
+        }
+        await this.updateDataToDB(repoName, tuple);
+      }
+      //insertDataToDB(); 동환님이 추가하는 update방식과 비슷 createdate를 기준으로하는 validate는 좀 힘들지도?
+      await this.controlSheet(endPoint, googleSheet, deletePage);
+      return 'success to save!!';
+    } catch (err) {
+      throw err;
     }
-    //insertDataToDB(); 동환님이 추가하는 update방식과 비슷 createdate를 기준으로하는 validate는 좀 힘들지도?
-    await this.controlSheet(endPoint, googleSheet, deletePage);
   }
 
-  compareArray(arrayOne, arrayTwo) {
+  // 정확히 같은 배열인지 확인하는 함수
+  compareSameArray(arrayOne, arrayTwo) {
     return (
-      arrayOne[0].length === arrayTwo[0].length &&
-      arrayOne[0].every((oneValue, idx) => oneValue === arrayTwo[0][idx])
+      arrayOne.length === arrayTwo.length &&
+      arrayOne.every((oneValue, idx) => {
+        let oneValueToString;
+        if (oneValue instanceof Date) {
+          oneValueToString = oneValue.toISOString();
+        } else if (oneValue == null) {
+          oneValueToString = '';
+        } else {
+          oneValueToString = String(oneValue);
+        }
+        return oneValueToString == arrayTwo[idx];
+      })
     );
+  }
+
+  // 새로 삽입된 데이터가 db최신보다 빠른 날짜인지 확인하는 함수
+  compareDateIsNew(dbData, newData) {
+    const datePattern = /[0-9]{4}-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[0-1])$/;
+    return dbData.every((data, index) => {
+      let newDate;
+      let oldDate;
+      if (datePattern.test(data)) {
+        if (datePattern.test(newData[index])) {
+          oldDate = new Date(data);
+          newDate = new Date(newData[index]);
+          console.log(data, newData[index]);
+          if (oldDate <= newDate) {
+            console.log('1', oldDate, ':', newDate);
+            return false; //'The new data is more recent than the main data.'
+          }
+        } else {
+          console.log('2', data, ':', newData[index]);
+          return false; //'Date type is wrong'
+        }
+      }
+      if (data instanceof Date) {
+        if (newData[index] instanceof Date) {
+          if (data <= newData[index]) {
+            console.log('3', data, ':', newData[index]);
+            return false; //'The new data is more recent than the main data.'
+          }
+        } else {
+          console.log('4', data, ':', newData[index]);
+          return false; //'Date type is wrong'
+        }
+      }
+      return true;
+    });
   }
 
   async compareDataToCheckError(sheet, repoName: string) {
     const datas = await this.dataSource
       .getRepository(entityArray[repoName])
       .find({});
-    let values;
-    values.push(Object.keys(datas[0]));
-    datas.forEach((data) => values.push(Object.values(data))); // DB데이터 뽑아오기
+    const dbvalues = [];
+    dbvalues.push(Object.keys(datas[0]));
+    datas.forEach((data) => dbvalues.push(Object.values(data))); // DB데이터 뽑아오기
 
     const repo = await this.dataSource.getRepository(entityArray[repoName]); // 최신데이터 뽑아오기
     const latestData = await repo
@@ -319,40 +373,58 @@ export class SpreadService {
       .orderBy(`${repoKeys[repoName]}.fk_user_no`, 'DESC')
       .addOrderBy(`${repoKeys[repoName]}.validate_date`, 'DESC')
       .getMany();
-    let latestValues;
+    const latestValues = [];
     latestValues.push(Object.keys(latestData[0]));
     latestData.forEach((data) => latestValues.push(Object.values(data))); // DB데이터 뽑아오기
 
     //column이 동일한지 체크
-    let sameArray = this.compareArray(values, sheet);
-    if (!sameArray) return 'column error';
+    let resultOfCheck = this.compareSameArray(dbvalues[0], sheet[0]);
+    if (!resultOfCheck) return 'column error';
 
     //기존 db에 값이 하드하게 삭제되었는지 체크
-    const pkCol = values[0].findIndex((col) => col === 'pk');
-    const fkCol = values[0].findIndex((col) => col === 'fk_user_no');
+    const pkCol = dbvalues[0].findIndex((col) => col === 'pk');
+    const fkCol = dbvalues[0].findIndex((col) => col === 'fk_user_no');
 
-    sameArray = values.every((dbValue) =>
-      sheet.some((sheetValue) => sheetValue[pkCol] === dbValue[pkCol]),
+    resultOfCheck = dbvalues.every((dbValue) =>
+      sheet.some((sheetValue) => sheetValue[pkCol] == dbValue[pkCol]),
     );
-    if (!sameArray) return 'delete error';
+    if (!resultOfCheck) return 'delete error';
 
     //기존 pk의 사이값에 다른 값이 들어왔는지 pk-fk페어관계를 통해 체크
-    sameArray = values.every((dbValue) => {
+    resultOfCheck = dbvalues.every((dbValue) => {
       const sheetValue = sheet.find(
-        (sheetValue) => sheetValue[pkCol] === dbValue[pkCol],
+        (sheetValue) => sheetValue[pkCol] == dbValue[pkCol],
       );
-      return sheetValue[fkCol] === dbValue[fkCol];
+      if (sheetValue === undefined) return false;
+      return sheetValue[fkCol] == dbValue[fkCol];
     });
-    if (!sameArray) return 'interrupt error';
+    if (!resultOfCheck) return 'interrupt error';
 
     //최신 데이터가 변경이 되었는지 체크
-    sameArray = latestValues.every((latestValue) => {
+    resultOfCheck = latestValues.every((latestValue) => {
       const sheetValue = sheet.find(
-        (sheetValue) => latestValue[pkCol] === sheetValue[pkCol],
+        (sheetValue) => latestValue[pkCol] == sheetValue[pkCol],
       );
-      return this.compareArray(latestValue, sheetValue);
+      if (sheetValue === undefined) return false;
+      return this.compareSameArray(latestValue, sheetValue);
     });
-    if (!sameArray) return 'changed latest error';
+    if (!resultOfCheck) return 'changed latest error';
+
+    //새로 삽입된 데이터가 있는지 확인
+    const newDatas = sheet.filter(
+      (sheetValue) =>
+        !dbvalues.some((dbValue) => dbValue[pkCol] == sheetValue[pkCol]),
+    );
+    if (newDatas.length < 0) return;
+
+    //최신 데이터의 일자가 과거데이터인지 확인
+    resultOfCheck = newDatas.every((newData) => {
+      const checkNew = latestValues.find(
+        (latestValue) => latestValue[fkCol] == newData[fkCol],
+      );
+      return this.compareDateIsNew(checkNew, newData[fkCol]);
+    });
+    if (!resultOfCheck) return 'The inserted data is wrong';
   }
 
   async updateDataToDB(repoName, tuple) {
@@ -465,7 +537,6 @@ export class SpreadService {
   makeRowPerColumnToModify(row, columns, col, tuple) {
     const datePattern =
       /[0-9]{4}. (0?[1-9]|1[012]). (0?[1-9]|[12][0-9]|3[0-1])$/; // yyyy-mm-dd 형식인지 체크
-    console.log('zero :', row[col], '!');
     if (row[col] !== '') {
       if (datePattern.test(row[col])) {
         tuple[columns[col]] = this.changeDate(row[col]);
