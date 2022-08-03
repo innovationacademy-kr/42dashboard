@@ -5,7 +5,7 @@ export const EntityColumn = {
     { spName: 'Intra ID', dbName: 'intra_id' },
     { spName: '성명', dbName: 'name' },
     { spName: '기수', dbName: 'grade' },
-    { spName: '과정시작', dbName: 'start_process' },
+    { spName: '과정시작', dbName: 'start_process_date' },
     { spName: '코알리숑', dbName: 'coalition' },
     { spName: '학적(수동)', dbName: 'academic_state' }, //[api]
     { spName: '특이사항', dbName: 'uniqueness' },

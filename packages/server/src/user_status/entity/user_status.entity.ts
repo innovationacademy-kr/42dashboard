@@ -29,9 +29,8 @@ export class UserLearningDataAPI extends BaseEntity {
   @Field({ nullable: true })
   @Column({
     name: 'scored_date',
-    nullable: true,
+    nullable: false,
     default: '9999-12-31',
-    type: 'date',
   })
   scored_date: Date;
 
@@ -42,9 +41,8 @@ export class UserLearningDataAPI extends BaseEntity {
   @Field({ nullable: true })
   @Column({
     name: 'circle_date',
-    nullable: true,
+    nullable: false,
     default: '9999-12-31',
-    type: 'date',
   })
   circled_date: Date;
 
@@ -60,9 +58,8 @@ export class UserLearningDataAPI extends BaseEntity {
   @Field({ nullable: true })
   @Column({
     name: 'level_date',
-    nullable: true,
+    nullable: false,
     default: '9999-12-31',
-    type: 'date',
   })
   leveled_date: Date;
 
@@ -73,9 +70,8 @@ export class UserLearningDataAPI extends BaseEntity {
   @Field({ nullable: true })
   @Column({
     name: 'outcircled_date',
-    nullable: true,
+    nullable: false,
     default: '9999-12-31',
-    type: 'date',
   })
   outcircled_date: Date;
 
@@ -88,13 +84,14 @@ export class UserLearningDataAPI extends BaseEntity {
   deleted_date: Date;
 
   @Field()
-  @Column({ name: 'validate_date', nullable: false }) //, default: '9999-12-31'
+  @Column({ name: 'validate_date', nullable: false, default: '9999-12-31' }) //, default: '9999-12-31'
   validate_date: Date;
 
   @Field()
   @Column({
     name: 'expired_date',
-    nullable: true,
+    nullable: false,
+    default: '9999-12-31',
   })
   expired_date: Date;
 
@@ -138,13 +135,15 @@ export class UserLoyaltyManagement extends BaseEntity {
   @Column({
     name: 'validate_date',
     nullable: false,
+    default: '9999-12-31',
   })
   validate_date: Date;
 
   @Field()
   @Column({
     name: 'expired_date',
-    nullable: true,
+    nullable: false,
+    default: '9999-12-31',
   })
   expired_date: Date;
 
@@ -169,7 +168,6 @@ export class UserCourseExtension extends BaseEntity {
     name: 'basic_expiration_date',
     nullable: false,
     default: '9999-12-31',
-    type: 'date',
   })
   basic_expiration_date: Date;
 
@@ -182,7 +180,6 @@ export class UserCourseExtension extends BaseEntity {
     name: 'final_expiration_date',
     nullable: false,
     default: '9999-12-31',
-    type: 'date',
   })
   final_expiration_date: Date;
 
@@ -206,13 +203,15 @@ export class UserCourseExtension extends BaseEntity {
   @Column({
     name: 'validate_date',
     nullable: false,
+    default: '9999-12-31',
   })
   validate_date: Date;
 
   @Field()
   @Column({
     name: 'expired_date',
-    nullable: true,
+    nullable: false,
+    default: '9999-12-31',
   })
   expired_date: Date;
 
@@ -241,7 +240,6 @@ export class UserBlackhole extends BaseEntity {
     name: 'blackhole_date',
     nullable: false,
     default: '9999-12-31',
-    type: 'date',
   })
   blackhole_date: Date;
 
@@ -281,7 +279,8 @@ export class UserBlackhole extends BaseEntity {
   @Field()
   @Column({
     name: 'expired_date',
-    nullable: true,
+    nullable: false,
+    default: '9999-12-31',
   })
   expired_date: Date;
 
@@ -310,7 +309,6 @@ export class UserLeaveOfAbsence extends BaseEntity {
     name: 'begin_absence_date',
     nullable: false,
     default: '9999-12-31',
-    type: 'date',
   })
   begin_absence_date: Date;
 
@@ -319,7 +317,6 @@ export class UserLeaveOfAbsence extends BaseEntity {
     name: 'end_absence_date',
     nullable: false,
     default: '9999-12-31',
-    type: 'date',
   })
   end_absence_date: Date;
 
@@ -328,7 +325,6 @@ export class UserLeaveOfAbsence extends BaseEntity {
     name: 'return_from_absence_date',
     nullable: false,
     default: '9999-12-31',
-    type: 'date',
   })
   return_from_absence_date: Date;
 
@@ -363,7 +359,8 @@ export class UserLeaveOfAbsence extends BaseEntity {
   @Field()
   @Column({
     name: 'expired_date',
-    nullable: true,
+    nullable: false,
+    default: '9999-12-31',
   })
   expired_date: Date;
 
@@ -392,7 +389,6 @@ export class UserInterruptionOfCourse extends BaseEntity {
     name: 'break_date',
     nullable: false,
     default: '9999-12-31',
-    type: 'date',
   })
   break_date: Date;
 
@@ -416,13 +412,15 @@ export class UserInterruptionOfCourse extends BaseEntity {
   @Column({
     name: 'validate_date',
     nullable: false,
+    default: '9999-12-31',
   })
   validate_date: Date;
 
   @Field()
   @Column({
     name: 'expired_date',
-    nullable: true,
+    nullable: false,
+    default: '9999-12-31',
   })
   expired_date: Date;
 
@@ -473,13 +471,15 @@ export class UserLapiscineInformation extends BaseEntity {
   @Column({
     name: 'validate_date',
     nullable: false,
+    default: '9999-12-31',
   })
   validate_date: Date;
 
   @Field()
   @Column({
     name: 'expired_date',
-    nullable: true,
+    nullable: false,
+    default: '9999-12-31',
   })
   expired_date: Date;
 

@@ -26,7 +26,7 @@ const userList = [
     intra_id: 'huchoi',
     name: 'hunjin-choi',
     grade: '3기',
-    start_process: new Date('2020-12-31'),
+    start_process_date: new Date('2020-12-31'),
     academic_state: '재학',
   },
   {
@@ -34,7 +34,7 @@ const userList = [
     intra_id: 'IU',
     name: '아이유',
     grade: '2기',
-    start_process: new Date('2020-06-31'),
+    start_process_date: new Date('2020-06-31'),
     academic_state: '재학',
   },
   {

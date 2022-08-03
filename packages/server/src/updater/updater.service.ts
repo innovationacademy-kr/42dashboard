@@ -178,7 +178,6 @@ export class UpdaterService {
     const rows = (await spreadData).filter((value, index) => index > 1); //모든 테이블의 로우 [1,	68641,	kilee, ...]
     const api42s = await this.apiService.getApi();
     const tableArray = {};
-
     for (const table of tableSet) {
       tableArray[table['name']] = {};
       tableArray[table['name']] = await this.spreadService.parseSpread(
@@ -203,7 +202,7 @@ export class UpdaterService {
             "intra_id": "hybae",
             "name": "배현식",
             "grade": "2기",
-            "start_process": "2020-01-28",
+            "start_process_date": "2020-01-28",
             "academic_state": "휴학",
             "coalition": "리"
         },
@@ -246,7 +245,6 @@ export class UpdaterService {
     for (const user of userTable['user']) {
       await this.findTargetByKey(this.repoDict['user'], 'user', user, allUser);
     }
-    let tuple = {};
     for (const sheetIdx in pastDataOnSheet) {
       //위에 tableSet.[0].name 이런식으로 이름을 가져올 수 있지만 위에선 user table만 받아와서 다시 받음
       const repoKey = this.spreadService.getTableName(sheetIdx);
@@ -254,7 +252,7 @@ export class UpdaterService {
       //시트의 총 장수 만큼 반복
       if (pastDataOnSheet[sheetIdx].endPoint) {
         pastDataOnSheet[sheetIdx]['repo'] = this.repoDict[repoKey];
-        tuple = await this.spreadService.getOldSheetTable(
+        await this.spreadService.getOldSheetTable(
           pastDataOnSheet[sheetIdx], //end point
           repoKey,
         );
@@ -263,10 +261,7 @@ export class UpdaterService {
           (Column) => Column.table === pastDataOnSheet[sheetIdx].table,
         )) != undefined
       ) {
-        tuple = await this.spreadService.getOldSheetLogColumns(
-          pastColumn,
-          repoKey,
-        );
+        await this.spreadService.getOldSheetLogColumns(pastColumn, repoKey);
       }
     }
     //console.log(tuple, 'aa)=');
@@ -285,7 +280,7 @@ export class UpdaterService {
         .createQueryBuilder(repoKey)
         .distinctOn([`${repoKey}.${key}`])
         .orderBy(`${repoKey}.${key}`, 'DESC')
-        .addOrderBy(`${repoKey}.validate_date`, 'DESC')
+        .addOrderBy(`${repoKey}.${dateTable[repoKey]}`, 'DESC')
         .getMany();
     }
     return returnArray;
@@ -398,36 +393,6 @@ export class UpdaterService {
     //return 'done!!';
   }
 
-  createDate(date) {
-    return new Date(date);
-  }
-
-  async checkDateValue(newOneData, targetObj, repoKey, key, repo) {
-    const date = /[0-9]{4}-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[0-1])$/;
-
-    if (date.test(newOneData[key])) {
-      newOneData[key] = this.createDate(newOneData[key]);
-      targetObj[key] = this.createDate(targetObj[key]);
-
-      if (newOneData[key].getTime() != targetObj[key].getTime()) {
-        await this.spreadService.initValidateDate(repoKey, newOneData);
-        const changeData = repo.create(newOneData);
-        repo.save(changeData);
-        console.log(
-          `table is ${repoKey}\n column name is ${key} \n`,
-          targetObj[key],
-          'is date changed to ',
-          newOneData[key],
-        );
-        return DEFAULT_VALUE.CHANGED;
-      } else {
-        //date 변환시켰는데 값이 같다면 다음 컬럼을 비교하기 위해 DATE 를 리턴해줌
-        return DEFAULT_VALUE.DATE;
-      }
-    }
-    return DEFAULT_VALUE.NOT_DEFAULT;
-  }
-
   // initValidateDate(repoKey, saveDate) {
   //   //데이터의 유효성을 확인하는 컬럼이 validate_date라면, 저장하는 데이터의 시간을 기점으로 저장
   //   if (dateTable[repoKey] === 'validate_date') {
@@ -457,7 +422,7 @@ export class UpdaterService {
         //초기화 했는데 DB 와 값이 다르면 save후 넘어감 -> continue;
         //값이 같다면 default 값으로 초기화 후 비교한 값이변화가 없으므로 넘어가야함 -> continue;
         //date 값은 밑에 if 절로 구별이 안되어 같은 date type으로 바꾸어 비교해야됨
-        checkedDate = await this.checkDateValue(
+        checkedDate = await this.spreadService.checkDateValue(
           newOneData,
           targetObj,
           repoKey,
@@ -474,14 +439,24 @@ export class UpdaterService {
         //this.processChangeData(newOneData, targetObj, key, checkedDefaulte, repo);
         //스프레드에 널값이라면 default 값으로 바꾸고, default가 아님에도 불구하고 값이 다르다면 save
         if (newOneData[key] != targetObj[key]) {
-          // console.log(repoKey);
-          // console.log(newOneData);
-          // console.log(targetObj, '123');
+          let newTuple: any;
           await this.spreadService.initValidateDate(repoKey, newOneData);
-          // newTuple = await repo.create(newOneData); -> intra_no 가 이미 테이블에 있는 경우 삽입하지 않음 해서 create를 사용하지 않았음
-          await repo.save(newOneData); /*.catch(() => {
+          if (repoKey != 'user') {
+            newTuple = await repo.create(newOneData);
+            await repo.save(newTuple); /*.catch(() => {
             return 'error save';
           });*/
+          }
+          //intra_no 가 이미 테이블에 있는 경우 삽입하지 않음, 해서 create를 사용하지 않고 find로 tuple을 가져옴
+          else {
+            this.spreadService.updateTuple(
+              repoKey,
+              newOneData,
+              key,
+              newOneData[key],
+            );
+          }
+          //  console.log('\n\n\n', newTuple, repoKey, '\n\n\n');
         }
       }
     } catch {

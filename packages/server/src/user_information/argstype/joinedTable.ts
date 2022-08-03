@@ -38,7 +38,7 @@ export class JoinedTable {
   grade: string;
 
   @Field({ nullable: true })
-  start_process: Date;
+  start_process_date: Date;
 
   @Field({ nullable: true })
   academic_state: string;

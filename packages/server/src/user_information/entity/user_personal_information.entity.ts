@@ -61,13 +61,15 @@ export class UserPersonalInformation {
   @Column({
     name: 'validate_date',
     nullable: false,
+    default: '9999-12-31',
   })
   validate_date: Date;
 
   @Field()
   @Column({
     name: 'expired_date',
-    nullable: true,
+    nullable: false,
+    default: '9999-12-31',
   })
   expired_date: Date;
 

@@ -59,14 +59,13 @@ export class User {
   @Column({ name: 'grade', nullable: false, default: '0기' })
   grade: string;
 
-  // @Field()
+  @Field()
   @Column({
-    name: 'start_process',
+    name: 'start_process_date',
     nullable: false,
     default: '9999-12-31',
-    type: 'date',
   })
-  start_process: Date;
+  start_process_date: Date;
 
   @Field()
   @Column({ name: 'coalition', nullable: true })
@@ -96,13 +95,15 @@ export class User {
   @Column({
     name: 'validate_date',
     nullable: false,
+    default: '9999-12-31',
   })
   validate_date: Date;
 
   @Field()
   @Column({
     name: 'expired_date',
-    nullable: true,
+    nullable: false,
+    default: '9999-12-31',
   })
   expired_date: Date;
 
