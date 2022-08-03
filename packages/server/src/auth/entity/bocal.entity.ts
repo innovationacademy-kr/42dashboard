@@ -69,6 +69,10 @@ export class PreSet extends BaseEntity {
   @Column({ name: 'preSetData', nullable: false })
   preSetData: string;
 
+  @Field()
+  @Column({ name: 'info', nullable: false })
+  info: string;
+
   @ManyToOne(() => Bocal, (bocal) => bocal.preSetArray, { cascade: true })
   bocal: Bocal;
 }
