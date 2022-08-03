@@ -2,9 +2,9 @@ import { Box, Modal } from '@mui/material';
 import { useState } from 'react';
 import { StickerContentType } from '../Sticker/StickerContent.type';
 import StickerDataType from '../../../domain/stickerDatas/stickerData.type';
-import makeStickerData from './makeStickerData';
 import StickerStepper from './StickerStepper';
 import { FilterConfigType } from '../Sticker/Filter.type';
+import { makeTableStickerData, makeChartStickerData } from './makeStickerData';
 
 interface ModalProps {
   sectionId: string;
@@ -41,13 +41,23 @@ const ModalFrame = (props: ModalProps) => {
   function AddStickerDataset() {
     /** make sticker data */
     if (type === 'barChart' || type === 'lineChart' || type === 'pieChart') {
-      const newStickerData = makeStickerData({
+      const newStickerData = makeChartStickerData({
         sectionId,
         type,
         labels,
         labelFilter: filters,
         datasetNames,
         arrayOfDataSet: datasets,
+      });
+      /** store sticker data to store */
+      addStickerData(newStickerData);
+      /** render sticker */
+      renderAddedSticker(sectionId, newStickerData.id);
+    }
+    if (type === 'table') {
+      const newStickerData: StickerDataType = makeTableStickerData({
+        sectionId,
+        type,
       });
       /** store sticker data to store */
       addStickerData(newStickerData);

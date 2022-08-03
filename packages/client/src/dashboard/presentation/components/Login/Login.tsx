@@ -25,7 +25,7 @@ const Login = () => {
   const navigate = useNavigate();
 
   if (userInfo !== null) {
-    navigate(`/dashboard`);
+    // navigate(`/dashboard`);
   }
 
   function handleClick() {

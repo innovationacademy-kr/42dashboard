@@ -7,7 +7,6 @@ import Logo from '../components/Logo/logo';
 import MainArea from '../components/MainArea/MainArea';
 import ModeDial from '../components/ModeDial/ModeDial';
 import SideBar from '../components/SideBar/SideBar';
-import { TableStickerContent } from '../components/Table/Table';
 import * as axios from '../../infrastructure/http/axios/axios.custom';
 import useUser from '../../application/services/useUser';
 import { useNavigate } from 'react-router';
@@ -30,25 +29,6 @@ function DashBoardPage() {
       });
   }
 
-  const appBarTitle = (
-    <Typography
-      variant="h6"
-      component="a"
-      href="/"
-      sx={{
-        mr: 2,
-        fontFamily: 'monospace',
-        fontWeight: 700,
-        letterSpacing: '.3rem',
-        color: 'inherit',
-        textDecoration: 'none',
-      }}
-      noWrap
-    >
-      42Dash
-    </Typography>
-  );
-
   const profile = { name: 'kilee', size: 48 };
 
   const profileMenuItems = [
@@ -70,35 +50,6 @@ function DashBoardPage() {
     <ProfileMenu menuItems={profileMenuItems} profile={profile} />
   );
 
-  const tableProps = {
-    columnGroups: [
-      { id: 'user', colSpan: 3, label: '기본 정보' },
-      { id: 'personal', colSpan: 2, label: '개인 정보' },
-    ],
-    columns: [
-      { id: 'intraNo', label: '인트라 No.' },
-      { id: 'name', label: '이름' },
-      { id: 'grade', label: '기수' },
-      { id: 'age', label: '나이' },
-      { id: 'gender', label: '성별' },
-    ],
-    queryData: {
-      query: createQueryForTable(
-        ['personalData'],
-        ['intra_no', 'name', 'grade', 'userPersonalInformation {age, gender}'],
-      ),
-      filters: {
-        personalData: {
-          entityName: 'userPersonalInformation',
-          column: null,
-          operator: null,
-          givenValue: null,
-          latest: true,
-        },
-      },
-    },
-  };
-
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
@@ -109,7 +60,6 @@ function DashBoardPage() {
       </AppBar>
       <SideBar />
       <MainArea>
-        {/* <TableStickerContent {...tableProps} /> */}
         <Board />
         <Footer />
       </MainArea>
