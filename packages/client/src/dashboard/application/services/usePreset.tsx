@@ -15,6 +15,8 @@ import StickerDataType from '../../domain/stickerDatas/stickerData.type';
 import presetListRepository from '../../infrastructure/presetList.repository';
 import PresetListService from '../../domain/presetList/presetList.service';
 import useMode from '../../application/services/useMode';
+import { log } from 'console';
+import axios from 'axios';
 
 const presetService = new PresetService(presetRepository);
 const presetListService = new PresetListService(presetListRepository);
@@ -39,6 +41,25 @@ function usePreset() {
   });
 
   useEffect(() => {
+    // 나중에 지울 코드!
+    // await axios
+    //   .get('http://localhost:3000/user-information/getAllPreSet', {
+    //     withCredentials: true,
+    //   })
+    //   .then((res) => {
+    //     const deletePreset = async (id: string) => {
+    //       await axios.delete(
+    //         'http://localhost:3000/user-information/deleteOnePreSet/${id}',
+    //         {
+    //           withCredentials: true,
+    //         },
+    //       );
+    //     };
+    //     for (let i = 0; i < res.data.length; i++) {
+    //       deletePreset(res.data[i].id);
+    //       console.log('deletePreset : ', res.data[i].id);
+    //     }
+    //   });
     const fetchPresetList = async () => {
       const presetList = await presetListService.getPresetList();
       if (presetList.presetInfos.length !== 0) {
@@ -52,7 +73,7 @@ function usePreset() {
   }, []);
 
   useEffect(() => {
-    if (preset) {
+    if (preset && preset.data) {
       boardDataStore.setBoardData(preset.data.boardData);
       sectionDatasStore.setSectionDatas(preset.data.sectionDatas);
       stickerDatasStore.setStickerDatas(preset.data.stickerDatas);
