@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import useMode from '../../../application/services/useMode';
 
-interface TextProps {
+export interface TextProps {
   content?: string;
 }
 
@@ -19,7 +19,7 @@ const TextEdit = styled.input`
   height: 100%;
 `;
 
-const Text = (props: TextProps) => {
+const TextStickerContent = (props: TextProps) => {
   const { content } = props;
   const [text, setText] = useState(content);
   const { getControlMode } = useMode();
@@ -39,4 +39,4 @@ const Text = (props: TextProps) => {
   );
 };
 
-export default Text;
+export default TextStickerContent;

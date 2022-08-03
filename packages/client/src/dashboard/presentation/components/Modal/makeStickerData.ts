@@ -133,3 +133,24 @@ export function makeTableStickerData({
     },
   };
 }
+
+export interface MakeTextStickerType {
+  sectionId: string;
+  type: StickerContentType;
+}
+
+export function makeTextStickerData({
+  sectionId,
+  type,
+}: MakeTextStickerType): StickerDataType {
+  return {
+    id: uuid(),
+    sectionId: sectionId,
+    data: {
+      type: type,
+      contentProps: {
+        content: '',
+      },
+    },
+  };
+}
