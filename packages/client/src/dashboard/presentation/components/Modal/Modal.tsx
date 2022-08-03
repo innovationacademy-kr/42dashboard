@@ -4,7 +4,11 @@ import { StickerContentType } from '../Sticker/StickerContent.type';
 import StickerDataType from '../../../domain/stickerDatas/stickerData.type';
 import StickerStepper from './StickerStepper';
 import { FilterConfigType } from '../Sticker/Filter.type';
-import { makeTableStickerData, makeChartStickerData } from './makeStickerData';
+import {
+  makeTableStickerData,
+  makeChartStickerData,
+  makeTextStickerData,
+} from './makeStickerData';
 
 interface ModalProps {
   sectionId: string;
@@ -56,6 +60,16 @@ const ModalFrame = (props: ModalProps) => {
     }
     if (type === 'table') {
       const newStickerData: StickerDataType = makeTableStickerData({
+        sectionId,
+        type,
+      });
+      /** store sticker data to store */
+      addStickerData(newStickerData);
+      /** render sticker */
+      renderAddedSticker(sectionId, newStickerData.id);
+    }
+    if (type === 'text') {
+      const newStickerData: StickerDataType = makeTextStickerData({
         sectionId,
         type,
       });

@@ -9,6 +9,7 @@ import styled from '@emotion/styled';
 import useMode from '../../../application/services/useMode';
 import { ChartProps } from '../Charts/ChartData';
 import { TableProps, TableStickerContent } from '../Table/Table';
+import TextStickerContent, { TextProps } from '../Text/TextStickerContent';
 export interface StickerContentFactoryProps {
   type: StickerContentType;
   contentProps: StickerContentPropType;
@@ -54,7 +55,7 @@ function StickerContentFactory(props: StickerContentFactoryProps) {
     case 'text':
       return (
         <StickerContentWrapper className={mode}>
-          <div>개발 중</div>
+          <TextStickerContent {...(contentProps as TextProps)} />
         </StickerContentWrapper>
       );
     case 'table':
