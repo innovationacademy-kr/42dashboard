@@ -16,11 +16,11 @@ export default function SaveButton(props: SaveButtonProps) {
   if (error) return <Button disabled={true}>{error.message}</Button>;
   if (loading) return <Button disabled={true}>데이터 저장중...</Button>;
 
-  function saveModification() {
+  function saveModification(e: any) {
+    e.stopPropagation();
     setDisabled(true);
     saveModifiedData();
   }
-
   return (
     <Button
       disabled={disabled}
