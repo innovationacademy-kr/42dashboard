@@ -9,6 +9,8 @@ import PresetService from '../../domain/preset/preset.service';
 import sectionDatasStore from '../../infrastructure/store/sectionDatas.store';
 import stickerDatasStore from '../../infrastructure/store/stickerDatas.store';
 import presetStore from '../../infrastructure/store/preset.store';
+import PresetListService from '../../domain/presetList/presetList.service';
+import presetListRepository from '../../infrastructure/presetList.repository';
 
 const boardDataService = new BoardDataService(boardDataRepository);
 const presetService = new PresetService(presetRepository);
@@ -19,6 +21,7 @@ function useBoard() {
   boardDataStore.subscribeToBoardData((newBoardData: BoardDataType) => {
     setBoardData(newBoardData);
   });
+
   const handleSavePreset = () => {
     const preset = presetStore.getPreset();
     if (!preset) return;
@@ -36,6 +39,11 @@ function useBoard() {
       info: preset.info,
     });
   };
+
+  const handleDeletePreset = async (id: string) => {
+    await presetService.deletePreset(id);
+  };
+
   const handleSectionAdd = (sectionId: string | undefined) => {
     if (sectionId === undefined) return;
     const newLayout = [
@@ -74,6 +82,7 @@ function useBoard() {
     handleSectionLayoutChange,
     handleSectionRemove,
     handleSavePreset,
+    handleDeletePreset,
   };
 }
 

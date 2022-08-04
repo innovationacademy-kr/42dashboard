@@ -41,25 +41,6 @@ function usePreset() {
   });
 
   useEffect(() => {
-    // 나중에 지울 코드!
-    // await axios
-    //   .get('http://localhost:3000/user-information/getAllPreSet', {
-    //     withCredentials: true,
-    //   })
-    //   .then((res) => {
-    //     const deletePreset = async (id: string) => {
-    //       await axios.delete(
-    //         'http://localhost:3000/user-information/deleteOnePreSet/${id}',
-    //         {
-    //           withCredentials: true,
-    //         },
-    //       );
-    //     };
-    //     for (let i = 0; i < res.data.length; i++) {
-    //       deletePreset(res.data[i].id);
-    //       console.log('deletePreset : ', res.data[i].id);
-    //     }
-    //   });
     const fetchPresetList = async () => {
       const presetList = await presetListService.getPresetList();
       if (presetList.presetInfos.length !== 0) {
@@ -116,6 +97,10 @@ function usePreset() {
     setControlMode('edit');
   };
 
+  // const deletePreset = async (id: string) => {
+  //   await presetService.deletePreset(id);
+  // };
+
   const changePresetLabel = async (id: string, label: string) => {
     const presetData = await presetService.getPreset(id);
     if (presetData && presetList) {
@@ -137,7 +122,14 @@ function usePreset() {
       });
     }
   };
-  return { preset, presetList, createPreset, changePreset, changePresetLabel };
+  return {
+    preset,
+    presetList,
+    createPreset,
+    changePreset,
+    // deletePreset,
+    changePresetLabel,
+  };
 }
 
 export default usePreset;

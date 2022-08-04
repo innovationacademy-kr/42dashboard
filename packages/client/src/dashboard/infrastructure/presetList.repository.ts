@@ -17,6 +17,7 @@ class PresetListRepository implements PresetListRepositoryInterface {
           presetInfos.push(res.data[i].info);
         }
       });
+    console.log('presetList: ', presetInfos);
     return { presetInfos };
   }
 
