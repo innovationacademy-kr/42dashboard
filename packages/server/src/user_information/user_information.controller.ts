@@ -171,9 +171,9 @@ export class UserInformationController {
     // 당연히 bocal에서도 삭제될것. (실제 DB에서 fk를 가진 튜플을 삭제한거니까)
     // 이 경우는 onDelete 옵션 안써도 되는거
     const preSet = await preSetRepository.delete({
-      id: Equal(uuid),
+      id: uuid,
     });
-    if (preSet) return 'entity not found!';
+    if (!preSet) return 'entity not found!';
     return 'delete success';
   }
 

@@ -33,7 +33,7 @@ class PresetRepository implements PresetRepositoryInterface {
       });
     if (isExist) {
       await axios.put(
-        'http://localhost:3000/user-information/updateOnePreSet/${id}',
+        `http://localhost:3000/user-information/updateOnePreSet/${id}`,
         preset,
         {
           withCredentials: true,
@@ -48,6 +48,16 @@ class PresetRepository implements PresetRepositoryInterface {
         },
       );
     }
+  }
+
+  public async deletePreset(id: string): Promise<void> {
+    await axios
+      .delete(`http://localhost:3000/user-information/deleteOnePreset/${id}`, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        console.log('delete result: ', res);
+      });
   }
 }
 

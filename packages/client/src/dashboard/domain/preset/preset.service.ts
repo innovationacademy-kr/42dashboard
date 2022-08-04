@@ -16,9 +16,9 @@ class PresetService {
     return this.presetRepository.addPreset(preset);
   }
 
-  // deletePreset(id: string): Promise<void> {
-  //   return this.presetRepository.deletePreset(id);
-  // }
+  public async deletePreset(id: string): Promise<void> {
+    return this.presetRepository.deletePreset(id);
+  }
 }
 
 export default PresetService;

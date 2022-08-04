@@ -44,130 +44,37 @@ type JoinedTable {
 }
 
 type Mutation {
-  deleteUserInformation(
-    column: String!
-    entityName: String!
-    intra_no: Int!
-    pk: Int!
-    value: String!
-  ): Boolean!
-  recoverUserInformaiton(
-    column: String!
-    entityName: String!
-    intra_no: Int!
-    pk: Int!
-    value: String!
-  ): Boolean!
-  softDeleteRemoveWithdrawTest(
-    column: String!
-    entityName: String!
-    intra_no: Int!
-    pk: Int!
-    value: String!
-  ): [JoinedTable!]!
-  updateUserInformation(
-    column: String!
-    entityName: String!
-    intra_no: Int!
-    pk: Int!
-    value: String!
-  ): Boolean!
+  deleteUserInformation(column: String!, entityName: String!, intra_no: Int!, pk: Int!, value: String!): Boolean!
+  recoverUserInformaiton(column: String!, entityName: String!, intra_no: Int!, pk: Int!, value: String!): Boolean!
+  softDeleteRemoveWithdrawTest(column: String!, entityName: String!, intra_no: Int!, pk: Int!, value: String!): [JoinedTable!]!
+  updateUserInformation(column: String!, entityName: String!, intra_no: Int!, pk: Int!, value: String!): Boolean!
 }
 
 type Query {
   extractDataIntoSpreadsheet: String!
   getDataToModifyFromDB(sheetName: String!): String!
-  getDomainOfColumnFilter(
-    endDate: DateTime
-    filters: [Filter!]!
-    skip: Int
-    startDate: DateTime
-    take: Int
-  ): [JoinedTable!]!
+  getDomainOfColumnFilter(endDate: DateTime, filters: [Filter!]!, skip: Int, startDate: DateTime, take: Int): [JoinedTable!]!
   getLatestData: String!
-  getNumOfPeopleByFilter(
-    endDate: DateTime
-    filters: [Filter!]!
-    skip: Int
-    startDate: DateTime
-    take: Int
-  ): Int!
-  getPeopleByFilter(
-    endDate: DateTime
-    filters: [Filter!]!
-    skip: Int
-    startDate: DateTime
-    take: Int
-  ): [JoinedTable!]!
-  getPeopleByFilterForAdmin(
-    endDate: DateTime
-    filters: [Filter!]!
-    skip: Int
-    startDate: DateTime
-    take: Int
-  ): [JoinedTable!]!
+  getNumOfPeopleByFilter(endDate: DateTime, filters: [Filter!]!, skip: Int, startDate: DateTime, take: Int): Int!
+  getPeopleByFilter(endDate: DateTime, filters: [Filter!]!, skip: Int, startDate: DateTime, take: Int): [JoinedTable!]!
+  getPeopleByFilterForAdmin(endDate: DateTime, filters: [Filter!]!, skip: Int, startDate: DateTime, take: Int): [JoinedTable!]!
   getUser(column: String, duplicated: String!): [User!]!
-  getUserAccessCardInformation(
-    column: String
-    duplicated: String!
-  ): [UserAccessCardInformation!]!
+  getUserAccessCardInformation(column: String, duplicated: String!): [UserAccessCardInformation!]!
   getUserBlackhole(column: String, duplicated: String!): [UserBlackhole!]!
-  getUserComputationFund(
-    column: String
-    duplicated: String!
-  ): [UserComputationFund!]!
-  getUserCourseExtension(
-    column: String
-    duplicated: String!
-  ): [UserCourseExtension!]!
-  getUserEducationFundState(
-    column: String
-    duplicated: String!
-  ): [UserEducationFundState!]!
-  getUserEmploymentStatus(
-    column: String
-    duplicated: String!
-  ): [UserEmploymentStatus!]!
-  getUserHrdNetUtilize(
-    column: String
-    duplicated: String!
-  ): [UserHrdNetUtilize!]!
-  getUserHrdNetUtilizeConsent(
-    column: String
-    duplicated: String!
-  ): [UserHrdNetUtilizeConsent!]!
-  getUserInterruptionOfCourse(
-    column: String
-    duplicated: String!
-  ): [UserInterruptionOfCourse!]!
-  getUserLapiscineInformation(
-    column: String
-    duplicated: String!
-  ): [UserLapiscineInformation!]!
-  getUserLearningDataAPI(
-    column: String
-    duplicated: String!
-  ): [UserLearningDataAPI!]!
-  getUserLeaveOfAbsence(
-    column: String
-    duplicated: String!
-  ): [UserLeaveOfAbsence!]!
-  getUserLoyaltyManagement(
-    column: String
-    duplicated: String!
-  ): [UserLoyaltyManagement!]!
-  getUserOtherEmploymentStatus(
-    column: String
-    duplicated: String!
-  ): [UserOtherEmploymentStatus!]!
-  getUserOtherInformation(
-    column: String
-    duplicated: String!
-  ): [UserOtherInformation!]!
-  getUserPersonalInformation(
-    column: String
-    duplicated: String!
-  ): [UserPersonalInformation!]!
+  getUserComputationFund(column: String, duplicated: String!): [UserComputationFund!]!
+  getUserCourseExtension(column: String, duplicated: String!): [UserCourseExtension!]!
+  getUserEducationFundState(column: String, duplicated: String!): [UserEducationFundState!]!
+  getUserEmploymentStatus(column: String, duplicated: String!): [UserEmploymentStatus!]!
+  getUserHrdNetUtilize(column: String, duplicated: String!): [UserHrdNetUtilize!]!
+  getUserHrdNetUtilizeConsent(column: String, duplicated: String!): [UserHrdNetUtilizeConsent!]!
+  getUserInterruptionOfCourse(column: String, duplicated: String!): [UserInterruptionOfCourse!]!
+  getUserLapiscineInformation(column: String, duplicated: String!): [UserLapiscineInformation!]!
+  getUserLearningDataAPI(column: String, duplicated: String!): [UserLearningDataAPI!]!
+  getUserLeaveOfAbsence(column: String, duplicated: String!): [UserLeaveOfAbsence!]!
+  getUserLoyaltyManagement(column: String, duplicated: String!): [UserLoyaltyManagement!]!
+  getUserOtherEmploymentStatus(column: String, duplicated: String!): [UserOtherEmploymentStatus!]!
+  getUserOtherInformation(column: String, duplicated: String!): [UserOtherInformation!]!
+  getUserPersonalInformation(column: String, duplicated: String!): [UserPersonalInformation!]!
   saveModifiedDataFromSheet(sheetName: String!): String!
   sendRequestToSpreadWithGoogleAPI: String!
   tempFunction: [JoinedTable!]!
