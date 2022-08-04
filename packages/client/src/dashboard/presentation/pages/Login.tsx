@@ -2,6 +2,7 @@ import styled from '@emotion/styled';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useUser from '../../application/services/useUser';
+import UserType from '../../domain/user/user.type';
 
 const LoginPage = styled.div`
   display: flex;
@@ -26,10 +27,12 @@ function Login() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const userInfo = getUser();
-    if (userInfo !== null) {
-      navigate('/dashboard');
-    }
+    getUser().then((data: UserType | null) => {
+      console.log(data);
+      if (data !== null) {
+        navigate('/dashboard');
+      }
+    });
   }, []);
 
   function handleClick() {
