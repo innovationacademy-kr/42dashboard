@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiCookieAuth, ApiCreatedResponse } from '@nestjs/swagger';
@@ -62,7 +62,7 @@ export class AuthController {
     return req.user;
   }
 
-  @Get('/logout')
+  @Post('/logout')
   @ApiCreatedResponse({
     description: '로그아웃',
     type: Bocal,
