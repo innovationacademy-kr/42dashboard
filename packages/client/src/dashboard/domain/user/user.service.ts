@@ -4,11 +4,11 @@ import UserType from './user.type';
 class UserService {
   constructor(protected userRepository: UserRepositoryInterface) {}
 
-  public getUser(): UserType | null {
+  public async getUser(): Promise<UserType | null> {
     return this.userRepository.getUser();
   }
 
-  public setUser(user: UserType): Promise<void> {
+  public async setUser(user: UserType): Promise<void> {
     return this.userRepository.setUser(user);
   }
 }
