@@ -22,13 +22,12 @@ const LoginButton = styled.button`
 // TODO: hybae
 // 이미 로그인이 되어있는 경우, dashboard 페이지로 라우팅
 function Login() {
-  const { userInfo } = useUser();
+  const { getUser } = useUser();
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log('use effect!');
+    const userInfo = getUser();
     if (userInfo !== null) {
-      console.log('will navigate to /dashboard');
       navigate('/dashboard');
     }
   }, []);
