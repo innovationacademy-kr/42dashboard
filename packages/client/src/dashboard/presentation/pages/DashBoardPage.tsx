@@ -73,7 +73,6 @@ function DashBoardPage() {
         <Board />
         <Footer />
       </MainArea>
-      <ModeDial />
       <ModificationDialog open={open} setOpen={setOpen} />
     </Box>
   );
