@@ -28,7 +28,6 @@ function Login() {
 
   useEffect(() => {
     getUser().then((data: UserType | null) => {
-      console.log(data);
       if (data !== null) {
         navigate('/dashboard');
       }
