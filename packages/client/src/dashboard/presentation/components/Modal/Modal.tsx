@@ -9,6 +9,8 @@ import {
   makeChartStickerData,
   makeTextStickerData,
 } from './makeStickerData';
+import { resetApolloContext } from '@apollo/client';
+import { SettingsBackupRestoreTwoTone } from '@mui/icons-material';
 
 interface ModalProps {
   sectionId: string;
@@ -40,6 +42,7 @@ const ModalFrame = (props: ModalProps) => {
   const [filters, setFilters] = useState<FilterConfigType[]>([]);
   const [datasets, setDatasets] = useState<FilterConfigType[][]>([[]]);
   const [datasetNames, setDatasetNames] = useState<string[]>([]);
+  const [reset, setReset] = useState(false);
 
   /** switch to type & handle properly */
   function AddStickerDataset() {
@@ -91,7 +94,10 @@ const ModalFrame = (props: ModalProps) => {
   return (
     <Modal
       open={isOpen}
-      onClose={() => setIsOpen(false)}
+      onClose={() => {
+        setIsOpen(false);
+        setReset(true);
+      }}
       style={{
         position: 'relative',
         left: 'calc(50vw - 250px)',
@@ -112,6 +118,8 @@ const ModalFrame = (props: ModalProps) => {
           datasetNames={datasetNames}
           setDatasetNames={setDatasetNames}
           applyFiltersModal={AddStickerDataset}
+          reset={reset}
+          setReset={setReset}
         />
       </Box>
     </Modal>
