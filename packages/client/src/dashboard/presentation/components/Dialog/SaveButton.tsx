@@ -1,36 +1,33 @@
-import { Button } from '@mui/material';
+import { Alert, Button } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
-import createSaveModifiedDataQuery from '../../../infrastructure/http/graphql/createSaveModifiedDataQuery';
-import { useLazyQuery } from '@apollo/client';
+import createModificationDataQuery from '../../../infrastructure/http/graphql/createModificationDataQuery';
+import { useQuery } from '@apollo/client';
 
 export interface SaveButtonProps {
   entityName: string;
-  disabled: boolean;
-  setDisabled: React.Dispatch<React.SetStateAction<boolean>>;
+  saveModification: (e: any) => void;
 }
 
 export default function SaveButton(props: SaveButtonProps) {
-  const { entityName, disabled, setDisabled } = props;
-  const [saveModifiedData, { loading, error }] = useLazyQuery(
-    createSaveModifiedDataQuery(entityName),
-  );
-  if (error) return <Button disabled>{error.message}</Button>;
-  if (loading) return <Button disabled={true}>데이터 저장중...</Button>;
+  const { entityName, saveModification } = props;
 
-  function saveModification(e: React.MouseEvent<HTMLButtonElement>) {
-    e.stopPropagation();
-    saveModifiedData();
-    setDisabled(true);
+  const { data, loading, error } = useQuery(
+    createModificationDataQuery(entityName),
+  );
+
+  if (error) return <Alert severity="error">{error.message}</Alert>;
+  if (loading) return <Button disabled={true}>데이터 로딩중...</Button>;
+  if (data) {
+    window.open(data['getDataToModifyFromDB'], '_blank');
+    console.log(data);
+    return (
+      <Alert
+        onClick={saveModification}
+        icon={<SaveIcon fontSize="inherit" />}
+        severity="info"
+      ></Alert>
+    );
   }
 
-  return (
-    <Button
-      disabled={disabled}
-      autoFocus
-      color="inherit"
-      onClick={saveModification}
-    >
-      <SaveIcon />
-    </Button>
-  );
+  return null;
 }
