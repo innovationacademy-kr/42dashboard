@@ -3,15 +3,14 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { ApiService } from 'src/api/api.service';
 import { google } from 'googleapis';
 import { credentials } from 'src/config/credentials';
-// import { tableName } from 'common/src';
+import { tableName } from 'src/common/tableName';
+import { EntityColumn } from 'src/common/EntityColumn';
 import {
   classType,
   dateTable,
   defaultVALUE,
   DEFAULT_VALUE,
-  mapObj,
   repoKeys,
-  TABLENUM,
 } from 'src/updater/name_types/updater.name';
 import { UserHrdNetUtilizeConsent } from 'src/user_job/entity/user_job.entity';
 import { UserComputationFund } from 'src/user_payment/entity/user_payment.entity';
@@ -24,7 +23,7 @@ import {
   getDomain,
 } from 'src/user_information/utils/getDomain.utils';
 import { ideahub } from 'googleapis/build/src/apis/ideahub';
-import { ERRORMSG, ErrorMsg, formatError } from './msg/errormsg.msg';
+import { ERRORMSG, ErrorMsg, formatError } from './msg/errorMsg.msg';
 
 @Injectable()
 export class SpreadService {
@@ -106,13 +105,14 @@ export class SpreadService {
   /*  DB에 있는 데이터를 수정하기 위해 스프레드 시트로 옮기는 함수  */
   async getDataToModifyFromDB(endPoint: string, repoName) {
     // google spread sheet api 가져오기
+
     const googleSheet = await this.getGoogleSheetAPI();
     const createPage = [
       {
         //시트를 추가하는 명령
         addSheet: {
           properties: {
-            title: repoName,
+            title: tableName[repoName],
           },
         },
       },
@@ -135,7 +135,7 @@ export class SpreadService {
       // 업데이트 하기위한 시트의 id값.
       spreadsheetId: endPoint, // TODO: Update placeholder value.
       // 값을 넣을 위치로 A1를 선정 .
-      range: `${repoName}!A1`, // TODO: Update placeholder value.
+      range: `${tableName[repoName]}!A1`, // TODO: Update placeholder value.
       // 입력된 데이터를 어떻게 처리할 것인지
       valueInputOption: 'USER_ENTERED', //입력은 마치 Google Sheets UI에 입력한 것처럼 정확하게 구문 분석됨
       resource: {
@@ -661,8 +661,8 @@ export class SpreadService {
   }
 
   //테이블 별 하나의 로우 완성하는 함수
-  makeRowPerColumn(row, cols, rowIdx, tuple, mapObjs, repoKey) {
-    const columnLabel = mapObjs.find(this.compareSpname(cols[rowIdx]));
+  makeRowPerColumn(row, cols, rowIdx, tuple, entityColumn, repoKey) {
+    const columnLabel = entityColumn.find(this.compareSpname(cols[rowIdx]));
     //스프레드에 날짜 저장 패턴이 바뀌면 문제가 생길 수 있음
     const datePattern =
       /[0-9]{4}. (0?[1-9]|1[012]). (0?[1-9]|[12][0-9]|3[0-1])$/; // yyyy-mm-dd 형식인지 체크
@@ -780,7 +780,7 @@ export class SpreadService {
       const obj = spreadData;
       colDatas.push(obj);
     }
-    if (colObj.table === TABLENUM.USERCOMPUTATIONFUND) {
+    if (colObj.table === 'UserComputationFund') {
       // 메인시트와 동일한 형태로 저장된 경우
       for (const colData of colDatas) {
         const columns = colData[0];
@@ -788,8 +788,8 @@ export class SpreadService {
         await this.makeAColumnInTable(columns, rows, date, repoKey);
       }
     } else if (
-      colObj.table === TABLENUM.USERLEARNINGDATAAPI ||
-      colObj.table === TABLENUM.USERHRDNETUTILIZECONSENT
+      colObj.table === 'UserLearningDataAPI' ||
+      colObj.table === 'UserHrdNetUtilizeConsent'
     ) {
       // 구글스프레드시트에 컬럼이 페어(값, 날짜)형태로 저장된 경우
       const sheet = [];
@@ -802,9 +802,9 @@ export class SpreadService {
           columns,
           rows,
           datas,
-          mapObj[colObj.table][Number(colData) * 2]['spName'], //데이터
-          mapObj[colObj.table][Number(colData) * 2 + 1]['spName'], //데이터 일자
-          mapObj[colObj.table],
+          EntityColumn[colObj.table][Number(colData) * 2]['spName'], //데이터
+          EntityColumn[colObj.table][Number(colData) * 2 + 1]['spName'], //데이터 일자
+          EntityColumn[colObj.table],
           repoKey,
         );
         for (const data of datas) {
@@ -813,9 +813,11 @@ export class SpreadService {
           for (const col of sheet) {
             if (colData === '0') break;
             const newDate =
-              mapObj[colObj.table][Number(colData) * 2 + 1]['dbName'];
+              EntityColumn[colObj.table][Number(colData) * 2 + 1]['dbName'];
             const preDate =
-              mapObj[colObj.table][(Number(colData) - 1) * 2 + 1]['dbName'];
+              EntityColumn[colObj.table][(Number(colData) - 1) * 2 + 1][
+                'dbName'
+              ];
             if (
               (flag =
                 col.fk_user_no === data.fk_user_no &&
@@ -828,9 +830,9 @@ export class SpreadService {
           }
           if (flag === false) {
             await this.initValidateDate(repoKey, data);
-            if (colObj.table === TABLENUM.USERLEARNINGDATAAPI)
+            if (colObj.table === 'UserLearningDataAPI')
               await this.insertArrayToDB(UserLearningDataAPI, data);
-            else if (colObj.table === TABLENUM.USERHRDNETUTILIZECONSENT)
+            else if (colObj.table === 'UserHrdNetUtilizeConsent')
               await this.insertArrayToDB(UserHrdNetUtilizeConsent, data);
             // sheet.push(data);
           }
@@ -847,14 +849,14 @@ export class SpreadService {
       if (pattern.test(cols[col])) {
         for (const row in rows) {
           const payment_data = {};
-          payment_data[mapObj[TABLENUM.USERCOMPUTATIONFUND][0].dbName] =
+          payment_data[EntityColumn['UserComputationFund'][0].dbName] =
             this.changeDate(date); //yyyy. mm. dd -> yyyy-mm-dd
           if (rows[row][col] === '0' || rows[row][col] === undefined) {
-            payment_data[mapObj[TABLENUM.USERCOMPUTATIONFUND][1].dbName] = 'N';
-            payment_data[mapObj[TABLENUM.USERCOMPUTATIONFUND][2].dbName] = '0';
+            payment_data[EntityColumn['UserComputationFund'][1].dbName] = 'N';
+            payment_data[EntityColumn['UserComputationFund'][2].dbName] = '0';
           } else if (rows[row][col] != '0' && rows[row][col] !== undefined) {
-            payment_data[mapObj[TABLENUM.USERCOMPUTATIONFUND][1].dbName] = 'Y';
-            payment_data[mapObj[TABLENUM.USERCOMPUTATIONFUND][2].dbName] =
+            payment_data[EntityColumn['UserComputationFund'][1].dbName] = 'Y';
+            payment_data[EntityColumn['UserComputationFund'][2].dbName] =
               Number(rows[row][col].replace(/\,/g, '')); //1,000,000 -> 1000000
           }
           payment_data['fk_user_no'] = rows[row][1];
@@ -865,7 +867,15 @@ export class SpreadService {
     }
   }
 
-  async makeColumnsInTable(cols, rows, datas, value, date, mapObj, repoKey) {
+  async makeColumnsInTable(
+    cols,
+    rows,
+    datas,
+    value,
+    date,
+    entityColumn,
+    repoKey,
+  ) {
     //한테이블에 두개이상 컬럼을 추가하는 경우
     //monthData
     let data;
@@ -879,7 +889,7 @@ export class SpreadService {
       for (const row of rows) {
         const prop = {};
         if (row[col] === undefined) continue;
-        this.makeRowPerColumn(row, cols, col, prop, mapObj, repoKey);
+        this.makeRowPerColumn(row, cols, col, prop, entityColumn, repoKey);
         prop['fk_user_no'] = row[1];
         if (cols[col] === date) {
           //이미 있는 유저의 경우 value와 date동일 라인에 저장
@@ -942,8 +952,12 @@ export class SpreadService {
     }
   }
 
+  getKeyByValue(object, value) {
+    return Object.keys(object).find((key) => object[key] === value);
+  }
+
   async composeTableData(spreadData, tableSet: TableSet[], old: boolean) {
-    let tableNames;
+    let tables;
     const table = spreadData[0]; //맨 윗 줄 테이블이름
     const endOfTables = await table // 테이블이름(공백포함) -> 테이블의 인덱스(공백포함) -> 공백제거된 테이블의 인덱스 [0, 10, ...]
       .map((value, index) => {
@@ -956,25 +970,32 @@ export class SpreadService {
     endOfTables.unshift(0); //생략된 첫번째 인덱스 0추가
     if (old) {
       //old데이터를 가져올 시에는 user테이블만 필요함
-      tableNames = await table.filter(
-        (value, index) => index < 1 && value != '',
-      );
+      tables = await table.filter((value, index) => index < 1 && value != '');
     } else {
       const lengthArray = await spreadData.map((value) => value.length); //모든 로우 중 가장 긴 로우기준
       endOfTables.push(Math.max.apply(null, lengthArray));
-      tableNames = await table.filter((value) => value != '');
+      tables = await table.filter((value) => value != '');
     }
-    this.makeTableSet(tableSet, endOfTables, mapObj, tableNames);
+    this.makeTableSet(tableSet, endOfTables, tables);
   }
 
-  makeTableSet(tableSet: TableSet[], endOfTables, mapObjs, tableNames) {
+  // 변수의 앞글자만 대문자로 변환
+  capitalize(str: string) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  makeTableSet(tableSet: TableSet[], endOfTables, tableIdxs) {
     //table의 모든 정보를 TableSet인스턴스에 담는 작업을 하는 함수입니다.
-    for (const tableName in tableNames) {
+    for (const tableIdx in tableIdxs) {
       const table = {} as TableSet;
-      table.name = this.getTableName(tableNames[tableName]);
-      table['start'] = endOfTables[tableName];
-      table['end'] = endOfTables[+tableName + 1];
-      table['mapCol'] = mapObjs[tableName];
+      const mapCol =
+        EntityColumn[
+          this.capitalize(this.getKeyByValue(tableName, tableIdxs[tableIdx]))
+        ];
+      table.name = this.getTableName(tableIdxs[tableIdx]);
+      table['start'] = endOfTables[tableIdx];
+      table['end'] = endOfTables[+tableIdx + 1];
+      table['mapCol'] = mapCol;
       tableSet.push(table);
     }
   }
