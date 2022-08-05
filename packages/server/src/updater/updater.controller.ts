@@ -17,6 +17,6 @@ export class UpdaterController {
 
   @Get('/latest')
   getLatestData() {
-    return this.updaterService.getLatestData();
+    return this.updaterService.getLatestAllOneData();
   }
 }

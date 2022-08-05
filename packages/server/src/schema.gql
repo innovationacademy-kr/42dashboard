@@ -128,9 +128,14 @@ type UserComputationFund {
   deleted_date: DateTime!
   expired_date: DateTime!
   payment_date: DateTime
+  payment_end_date: DateTime
+  payment_ended: String!
   pk: Int!
   received: String!
-  recevied_amount: String!
+  recevied_amount: Float!
+  total_payment_of_money: Float!
+  total_payment_of_number: Float!
+  total_payment_period_number: Float!
   validate_date: DateTime!
 }
 

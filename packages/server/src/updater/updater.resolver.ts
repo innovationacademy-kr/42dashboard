@@ -36,6 +36,6 @@ export class UpdaterResolver {
 
   @Query(() => String)
   getLatestData() {
-    return this.updaterService.getLatestData();
+    return this.updaterService.getLatestAllOneData();
   }
 }

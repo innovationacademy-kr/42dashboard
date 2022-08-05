@@ -50,6 +50,8 @@ import {
 } from 'src/user_status/entity/user_status.entity';
 import { EntityColumn } from 'src/common/EntityColumn';
 
+export const LOCALTIME = 32400000;
+
 // export const enum TABLENUM {
 //   USER = 0,
 //   USERPERSONAL = 1,
@@ -358,15 +360,24 @@ export const defaultVALUE = {
   // },
 
   //하위시트에서 받아올 때는 makeAColumnInTable에서 초기화를 함
-  user_computaion_fund: {
+  user_computation_fund: {
     payment_date: '9999-12-31',
     received: 'N',
     recevied_amount: 0,
     validate_date: '9999-12-31',
     expired_date: '9999-12-31',
+    //아래 컬럼들은 spread에 없어 서버에서 처리하여 저장하는 데이터
+    total_payment_of_number: 0,
+    total_payment_of_money: 0,
+    total_payment_period_number: 0,
+    payment_end_date: '9999-12-31',
+    payment_ended: '지원',
   },
 
-  user_access_card_information: {},
+  user_access_card_information: {
+    validate_date: '9999-12-31',
+    expired_date: '9999-12-31',
+  },
 
   user_other_information: {
     majored: '비전공',
@@ -383,6 +394,26 @@ export const defaultVALUE = {
     validate_date: '9999-12-31',
     expired_date: '9999-12-31',
   },
+};
+
+export const oldDateTable = {
+  [repoKeys.user]: 'validate_date',
+  [repoKeys.userPersonal]: 'validate_date',
+  [repoKeys.userCourseExtension]: 'validate_date',
+  [repoKeys.userLeaveOfAbsence]: 'validate_date',
+  [repoKeys.userBlackhole]: 'validate_date',
+  [repoKeys.userInterruptionOfCourse]: 'validate_date',
+  [repoKeys.userLearningDataAPI]: 'validate_date',
+  [repoKeys.userLoyaltyManagement]: 'validate_date',
+  [repoKeys.userEmploymentStatus]: 'validate_date',
+  [repoKeys.userHrdNetUtilizeConsent]: 'validate_date',
+  [repoKeys.userHrdNetUtilize]: 'validate_date',
+  [repoKeys.userOtherEmploymentStatus]: 'validate_date',
+  [repoKeys.userEducationFundState]: 'validate_date',
+  [repoKeys.userComputationFund]: 'payment_date',
+  [repoKeys.userAccessCardInformation]: 'validate_date',
+  [repoKeys.userOtherInformation]: 'validate_date',
+  [repoKeys.userLapiscineInformation]: 'validate_date',
 };
 
 export const dateTable = {
@@ -423,4 +454,37 @@ export const classType = {
   [repoKeys.userAccessCardInformation]: UserAccessCardInformation,
   [repoKeys.userOtherInformation]: UserOtherInformation,
   [repoKeys.userLapiscineInformation]: UserLapiscineInformation,
+};
+
+//db에서 직접 처리해야 하는 데이터가 많아질 경우 관리하기 위한 obj
+export const autoProcessingDataObj = {
+  [repoKeys.userComputationFund]: {
+    totalPaymentOfNumber: 'total_payment_of_number',
+    totalPaymentOfMoney: 'total_payment_of_money',
+    totalPaymentPeriod: 'total_payment_period_number',
+    paymentEndDate: 'payment_end_date',
+    paymentEnded: 'payment_ended',
+  },
+};
+
+//집계되는 컬럼을 식별하기 위한 객체
+export const aggregateDataObj = {
+  [repoKeys.userComputationFund]: {
+    //컬럼 이름으로 조회하므로 스네이크 표기법
+    total_payment_of_number: {
+      aggregateColumn: 'received',
+      operator: 'COUNT',
+      value: 'Y',
+    },
+    total_payment_of_money: {
+      aggregateColumn: 'recevied_amount',
+      operator: 'SUM',
+      value: 0,
+    },
+    total_payment_period_number: {
+      aggregateColumn: 'received',
+      operator: 'COUNT',
+      value: undefined,
+    },
+  },
 };
