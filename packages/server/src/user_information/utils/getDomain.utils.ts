@@ -7,7 +7,7 @@ import {
 } from 'src/user_job/entity/user_job.entity';
 import {
   UserComputationFund,
-  UserEducationFundState,
+  // UserEducationFundState,
 } from 'src/user_payment/entity/user_payment.entity';
 import {
   UserBlackhole,
@@ -38,7 +38,7 @@ export const entityArray = {
   userHrdNetUtilizeConsent: UserHrdNetUtilizeConsent,
   userHrdNetUtilize: UserHrdNetUtilize,
   userOtherEmploymentStatus: UserOtherEmploymentStatus,
-  userEducationFundState: UserEducationFundState,
+  // userEducationFundState: UserEducationFundState,
   userComputationFund: UserComputationFund,
   userAccessCardInformation: UserAccessCardInformation,
   userOtherInformation: UserOtherInformation,

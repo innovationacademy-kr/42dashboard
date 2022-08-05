@@ -35,7 +35,7 @@ import {
 } from './name_types/updater.name';
 import {
   UserComputationFund,
-  UserEducationFundState,
+  // UserEducationFundState,
 } from 'src/user_payment/entity/user_payment.entity';
 import { MAIN_SHEET, SPREAD_END_POINT } from 'src/config/key';
 import { UpdateDB } from 'src/user_information/argstype/updateSheet.argstype';
@@ -54,7 +54,7 @@ interface RepoDict {
     | Repository<UserHrdNetUtilizeConsent>
     | Repository<UserHrdNetUtilize>
     | Repository<UserOtherEmploymentStatus>
-    | Repository<UserEducationFundState>
+    // | Repository<UserEducationFundState>
     | Repository<UserComputationFund>
     | Repository<UserAccessCardInformation>
     | Repository<UserOtherInformation>
@@ -96,8 +96,8 @@ export class UpdaterService {
     private userHrdNetUtilizeRepository: Repository<UserHrdNetUtilize>,
     @InjectRepository(UserOtherEmploymentStatus)
     private userOtherEmploymentStatusRepository: Repository<UserOtherEmploymentStatus>,
-    @InjectRepository(UserEducationFundState)
-    private userEducationFundStateRepository: Repository<UserEducationFundState>,
+    // @InjectRepository(UserEducationFundState)
+    // private userEducationFundStateRepository: Repository<UserEducationFundState>,
     @InjectRepository(UserComputationFund)
     private userComputationFundRepository: Repository<UserComputationFund>,
     @InjectRepository(UserAccessCardInformation)
@@ -130,7 +130,7 @@ export class UpdaterService {
     [repoKeys.userHrdNetUtilize]: this.userHrdNetUtilizeRepository,
     [repoKeys.userOtherEmploymentStatus]:
       this.userOtherEmploymentStatusRepository,
-    [repoKeys.userEducationFundState]: this.userEducationFundStateRepository,
+    // [repoKeys.userEducationFundState]: this.userEducationFundStateRepository,
     [repoKeys.userComputationFund]: this.userComputationFundRepository,
     [repoKeys.userAccessCardInformation]:
       this.userAccessCardInformationRepository,
@@ -139,25 +139,25 @@ export class UpdaterService {
       this.userLapiscineInformationRepository,
   };
 
-  repoArray = [
-    this.userRepository,
-    this.userPersonalInformationRepository,
-    this.userCourseExtensionRepository,
-    this.userLeaveOfAbsenceRepository,
-    this.userBlackholeRepository,
-    this.userInterruptionOfCourseRepository,
-    this.userLearningDataAPIRepository,
-    this.userLoyaltyManagementRepository,
-    this.userEmploymentStatusRepository,
-    this.userHrdNetUtilizeConsentRepository,
-    this.userHrdNetUtilizeRepository,
-    this.userOtherEmploymentStatusRepository,
-    this.userEducationFundStateRepository,
-    this.userComputationFundRepository,
-    this.userAccessCardInformationRepository,
-    this.userOtherInformationRepository,
-    this.userLapiscineInformationRepository,
-  ];
+  // repoArray = [
+  //   this.userRepository,
+  //   this.userPersonalInformationRepository,
+  //   this.userCourseExtensionRepository,
+  //   this.userLeaveOfAbsenceRepository,
+  //   this.userBlackholeRepository,
+  //   this.userInterruptionOfCourseRepository,
+  //   this.userLearningDataAPIRepository,
+  //   this.userLoyaltyManagementRepository,
+  //   this.userEmploymentStatusRepository,
+  //   this.userHrdNetUtilizeConsentRepository,
+  //   this.userHrdNetUtilizeRepository,
+  //   this.userOtherEmploymentStatusRepository,
+  //   // this.userEducationFundStateRepository,
+  //   this.userComputationFundRepository,
+  //   this.userAccessCardInformationRepository,
+  //   this.userOtherInformationRepository,
+  //   this.userLapiscineInformationRepository,
+  // ];
 
   // apiOfRepo = [this.userLearningDataAPIRepository];
 
@@ -180,6 +180,7 @@ export class UpdaterService {
     const tableArray = {};
     for (const table of tableSet) {
       tableArray[table['name']] = {};
+      console.log(table['name']);
       tableArray[table['name']] = await this.spreadService.parseSpread(
         columns,
         rows,

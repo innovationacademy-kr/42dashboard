@@ -35,7 +35,7 @@ import { UserOtherInformation } from './user_other_information.entity';
 import { Field, Float, Int, ObjectType } from '@nestjs/graphql';
 import {
   UserComputationFund,
-  UserEducationFundState,
+  // UserEducationFundState,
 } from 'src/user_payment/entity/user_payment.entity';
 
 //인덱스
@@ -168,12 +168,12 @@ export class User {
    *               Payment           *
    ***********************************/
 
-  @OneToMany(
-    () => UserEducationFundState,
-    (userEducationFundState) => userEducationFundState.user,
-    { cascade: true },
-  )
-  userEducationFundState: UserEducationFundState[];
+  // @OneToMany(
+  //   () => UserEducationFundState,
+  //   (userEducationFundState) => userEducationFundState.user,
+  //   { cascade: true },
+  // )
+  // userEducationFundState: UserEducationFundState[];
 
   @OneToMany(
     () => UserComputationFund,

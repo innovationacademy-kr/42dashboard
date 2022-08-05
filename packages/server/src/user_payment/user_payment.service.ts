@@ -9,7 +9,7 @@ import {
 import { DataSource, Repository } from 'typeorm';
 import {
   UserComputationFund,
-  UserEducationFundState,
+  // UserEducationFundState,
 } from './entity/user_payment.entity';
 
 @Injectable()
@@ -18,9 +18,7 @@ export class UserPaymentService {
     @InjectDataSource()
     private dataSource: DataSource,
     @InjectRepository(UserComputationFund)
-    private readonly userComputationFund: Repository<UserComputationFund>,
-    @InjectRepository(UserEducationFundState)
-    private readonly userEducationFundState: Repository<UserEducationFundState>,
+    private readonly userComputationFund: Repository<UserComputationFund>, // @InjectRepository(UserEducationFundState) // private readonly userEducationFundState: Repository<UserEducationFundState>,
   ) {}
 
   async getUserComputationFund(checkDuplication: CheckDuplication) {
@@ -32,14 +30,14 @@ export class UserPaymentService {
     );
   }
 
-  async getUserEducationFundState(checkDuplication: CheckDuplication) {
-    return getDomain(
-      this.dataSource,
-      checkDuplication,
-      entityArray,
-      'userEducationFundState',
-    );
-  }
+  // async getUserEducationFundState(checkDuplication: CheckDuplication) {
+  //   return getDomain(
+  //     this.dataSource,
+  //     checkDuplication,
+  //     entityArray,
+  //     'userEducationFundState',
+  //   );
+  // }
 
   async getUserCompotationFundById(): Promise<UserComputationFund> {
     return await this.getUserCompotationFundById();

@@ -69,65 +69,65 @@ export class UserComputationFund extends BaseEntity {
 }
 
 //지원금지급현황
-@ObjectType()
-@Entity()
-export class UserEducationFundState extends BaseEntity {
-  @Field({ nullable: false })
-  @PrimaryGeneratedColumn({ name: 'pk' })
-  pk: number;
+// @ObjectType()
+// @Entity()
+// export class UserEducationFundState extends BaseEntity {
+//   @Field({ nullable: false })
+//   @PrimaryGeneratedColumn({ name: 'pk' })
+//   pk: number;
 
-  @Field({ nullable: true })
-  @Column({ name: 'total_payment_of_number', nullable: true, default: 0 })
-  total_payment_of_number: number;
+//   @Field({ nullable: true })
+//   @Column({ name: 'total_payment_of_number', nullable: true, default: 0 })
+//   total_payment_of_number: number;
 
-  @Field({ nullable: true })
-  @Column({ name: 'total_payment_of_money', nullable: true, default: 0 })
-  total_payment_of_money: string;
+//   @Field({ nullable: true })
+//   @Column({ name: 'total_payment_of_money', nullable: true, default: 0 })
+//   total_payment_of_money: string;
 
-  @Field({ nullable: true })
-  @Column({
-    name: 'payment_end_date',
-    nullable: false,
-    default: '9999-12-31',
-  })
-  payment_end_date: Date;
+//   @Field({ nullable: true })
+//   @Column({
+//     name: 'payment_end_date',
+//     nullable: false,
+//     default: '9999-12-31',
+//   })
+//   payment_end_date: Date;
 
-  @Field({ nullable: true })
-  @Column({ name: 'payment_ended', nullable: true })
-  payment_ended: string;
+//   @Field({ nullable: true })
+//   @Column({ name: 'payment_ended', nullable: true })
+//   payment_ended: string;
 
-  @Field({ nullable: true })
-  @Column({ name: 'uniqueness', nullable: true, default: 0 })
-  uniqueness: string;
+//   @Field({ nullable: true })
+//   @Column({ name: 'uniqueness', nullable: true, default: 0 })
+//   uniqueness: string;
 
-  @Field({ nullable: false })
-  @CreateDateColumn({ name: 'created_date' })
-  created_date: Date;
+//   @Field({ nullable: false })
+//   @CreateDateColumn({ name: 'created_date' })
+//   created_date: Date;
 
-  @Field()
-  @DeleteDateColumn()
-  deleted_date: Date;
+//   @Field()
+//   @DeleteDateColumn()
+//   deleted_date: Date;
 
-  @Field()
-  @Column({
-    name: 'validate_date',
-    nullable: false,
-    default: '9999-12-31',
-  })
-  validate_date: Date;
+//   @Field()
+//   @Column({
+//     name: 'validate_date',
+//     nullable: false,
+//     default: '9999-12-31',
+//   })
+//   validate_date: Date;
 
-  @Field()
-  @Column({
-    name: 'expired_date',
-    nullable: false,
-    default: '9999-12-31',
-  })
-  expired_date: Date;
+//   @Field()
+//   @Column({
+//     name: 'expired_date',
+//     nullable: false,
+//     default: '9999-12-31',
+//   })
+//   expired_date: Date;
 
-  @Column({ name: 'fk_user_no', nullable: false })
-  fk_user_no: string;
+//   @Column({ name: 'fk_user_no', nullable: false })
+//   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userEducationFundState)
-  @JoinColumn({ name: 'fk_user_no' })
-  user: User;
-}
+//   @ManyToOne(() => User, (user) => user.userEducationFundState)
+//   @JoinColumn({ name: 'fk_user_no' })
+//   user: User;
+// }

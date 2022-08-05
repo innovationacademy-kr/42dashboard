@@ -30,7 +30,6 @@ type JoinedTable {
   userBlackhole: [UserBlackhole!]
   userComputationFund: [UserComputationFund!]
   userCourseExtension: [UserCourseExtension!]
-  userEducationFundState: [UserEducationFundState!]
   userEmploymentStatus: [UserEmploymentStatus!]
   userHrdNetUtilize: [UserHrdNetUtilize!]
   userHrdNetUtilizeConsent: [UserHrdNetUtilizeConsent!]
@@ -64,7 +63,6 @@ type Query {
   getUserBlackhole(column: String, duplicated: String!): [UserBlackhole!]!
   getUserComputationFund(column: String, duplicated: String!): [UserComputationFund!]!
   getUserCourseExtension(column: String, duplicated: String!): [UserCourseExtension!]!
-  getUserEducationFundState(column: String, duplicated: String!): [UserEducationFundState!]!
   getUserEmploymentStatus(column: String, duplicated: String!): [UserEmploymentStatus!]!
   getUserHrdNetUtilize(column: String, duplicated: String!): [UserHrdNetUtilize!]!
   getUserHrdNetUtilizeConsent(column: String, duplicated: String!): [UserHrdNetUtilizeConsent!]!
@@ -146,19 +144,6 @@ type UserCourseExtension {
   final_expiration_date: DateTime!
   pk: Float!
   request_extension: String
-  validate_date: DateTime!
-}
-
-type UserEducationFundState {
-  created_date: DateTime!
-  deleted_date: DateTime!
-  expired_date: DateTime!
-  payment_end_date: DateTime
-  payment_ended: String
-  pk: Float!
-  total_payment_of_money: String
-  total_payment_of_number: Float
-  uniqueness: String
   validate_date: DateTime!
 }
 
