@@ -12,6 +12,8 @@ import { FilterConfigType } from '../Sticker/Filter.type';
 import { useMemo } from 'react';
 import StepButtons from './stepper/StepButtons';
 import StepHeader from './stepper/StepHeader';
+import Step from '@mui/material/Step';
+import StepLabel from '@mui/material/StepLabel';
 
 const StyledDiv = styled.div`
   height: 550px;
@@ -28,6 +30,8 @@ interface ModalDatasType {
   setDatasetNames: React.Dispatch<React.SetStateAction<string[]>>;
   setDatasets: React.Dispatch<React.SetStateAction<FilterConfigType[][]>>;
   applyFiltersModal: () => void;
+  reset: boolean;
+  setReset: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function StickerStepper(props: ModalDatasType) {
@@ -41,6 +45,8 @@ export default function StickerStepper(props: ModalDatasType) {
     datasetNames,
     setDatasetNames,
     applyFiltersModal,
+    reset,
+    setReset,
   } = props;
 
   const [steps, setSteps] = React.useState<string[]>(['Type 정하기!']);
@@ -103,7 +109,8 @@ export default function StickerStepper(props: ModalDatasType) {
   }, [type]);
 
   function returnStep() {
-    if (activeStep === 0) {
+    if (activeStep === 0 || reset === true) {
+      setReset(false);
       return <TypeBox handleType={setType} />;
     } else if (activeStep === 1) {
       return (
@@ -133,7 +140,17 @@ export default function StickerStepper(props: ModalDatasType) {
   return (
     <Box sx={{ width: '100%' }}>
       <Stepper activeStep={activeStep}>
-        <StepHeader activeStep={activeStep} steps={steps} />
+        {steps.map((label, index) => {
+          const stepProps: { completed?: boolean } = {};
+          const labelProps: {
+            optional?: React.ReactNode;
+          } = {};
+          return (
+            <Step key={label} {...stepProps}>
+              <StepLabel {...labelProps}>{label}</StepLabel>
+            </Step>
+          );
+        })}
       </Stepper>
       {activeStep === steps.length ? <LastStepPage /> : returnStep()}
       <StepButtons
