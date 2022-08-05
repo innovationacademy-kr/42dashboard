@@ -8,7 +8,14 @@ interface typeProps {
   handleType: React.Dispatch<React.SetStateAction<StickerContentType>>;
 }
 
-const types = ['pieChart', 'lineChart', 'barChart', 'table', 'text'];
+const types = [
+  'pieChart',
+  'lineChart',
+  'barChart',
+  'table',
+  'text',
+  'bachelor',
+];
 
 const StyledDiv = styled.div`
   margin-top: 5rem;

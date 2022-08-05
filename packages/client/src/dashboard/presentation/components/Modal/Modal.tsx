@@ -8,6 +8,7 @@ import {
   makeTableStickerData,
   makeChartStickerData,
   makeTextStickerData,
+  makeBachelorStickerData,
 } from './makeStickerData';
 import { resetApolloContext } from '@apollo/client';
 import { SettingsBackupRestoreTwoTone } from '@mui/icons-material';
@@ -46,6 +47,18 @@ const ModalFrame = (props: ModalProps) => {
 
   /** switch to type & handle properly */
   function AddStickerDataset() {
+    if (type === 'bachelor') {
+      const newStickerData = makeBachelorStickerData({
+        sectionId,
+        type,
+      });
+
+      /** store sticker data to store */
+      addStickerData(newStickerData);
+      /** render sticker */
+      renderAddedSticker(sectionId, newStickerData.id);
+    }
+
     /** make sticker data */
     if (type === 'barChart' || type === 'lineChart' || type === 'pieChart') {
       const newStickerData = makeChartStickerData({
