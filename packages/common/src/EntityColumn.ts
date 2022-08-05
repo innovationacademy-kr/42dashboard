@@ -101,17 +101,17 @@ export const EntityColumn = {
     { spName: '취업일자', dbName: 'employment_date' },
     { spName: '사업장명', dbName: 'enterprise' },
   ],
-  UserEducationFundState: [
-    //userEducationFundState
-    {
-      spName: '총 지급 개월',
-      dbName: 'total_payment_of_number',
-    },
-    { spName: '총 지급액', dbName: 'total_payment_of_money' },
-    { spName: '지원만료일', dbName: 'payment_end_date' },
-    { spName: '지원만료', dbName: 'payment_ended' },
-    { spName: '특이사항', dbName: 'uniqueness' },
-  ],
+  // UserEducationFundState: [
+  //   //userEducationFundState
+  //   {
+  //     spName: '총 지급 개월',
+  //     dbName: 'total_payment_of_number',
+  //   },
+  //   { spName: '총 지급액', dbName: 'total_payment_of_money' },
+  //   { spName: '지원만료일', dbName: 'payment_end_date' },
+  //   { spName: '지원만료', dbName: 'payment_ended' },
+  //   { spName: '특이사항', dbName: 'uniqueness' },
+  // ],
   UserComputationFund: [
     //userComputationFund
     { spName: '지급일', dbName: 'payment_date' },
