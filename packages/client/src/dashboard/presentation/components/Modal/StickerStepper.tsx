@@ -142,12 +142,9 @@ export default function StickerStepper(props: ModalDatasType) {
       <Stepper activeStep={activeStep}>
         {steps.map((label, index) => {
           const stepProps: { completed?: boolean } = {};
-          const labelProps: {
-            optional?: React.ReactNode;
-          } = {};
           return (
             <Step key={label} {...stepProps}>
-              <StepLabel {...labelProps}>{label}</StepLabel>
+              <StepLabel>{label}</StepLabel>
             </Step>
           );
         })}
