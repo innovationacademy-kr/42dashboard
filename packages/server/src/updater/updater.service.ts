@@ -176,7 +176,7 @@ export class UpdaterService {
     await this.spreadService.composeTableData(spreadData, tableSet, false); //시트를 테이블 별로 나눠 정보를 저장 TableSet 배열 구성
     const columns = spreadData[1]; //모든 테이블의 컬럼 ex) [Intra No., Intra ID, 성명 ...]
     const rows = (await spreadData).filter((value, index) => index > 1); //모든 테이블의 로우 [1,	68641,	kilee, ...]
-    const api42s = await this.apiService.getApi();
+    //const api42s = await this.apiService.getApi();
     const tableArray = {};
     for (const table of tableSet) {
       tableArray[table['name']] = {};
@@ -184,7 +184,7 @@ export class UpdaterService {
         columns,
         rows,
         table,
-        api42s,
+        //api42s,
       );
     }
     const latestData = await this.getLatestData();
