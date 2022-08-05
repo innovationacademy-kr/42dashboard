@@ -281,7 +281,7 @@ export class SpreadService {
     ];
     const spreadData = await this.sendRequestToSpreadWithGoogleAPI(
       endPoint,
-      repoName,
+      tableName[repoName],
     );
     const columns = spreadData[0];
     const rows = (await spreadData).filter((value, index) => index > 0);
