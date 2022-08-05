@@ -1,7 +1,6 @@
-import { useLazyQuery } from '@apollo/client';
 import { ListItem, ListItemText } from '@mui/material';
 import { useState } from 'react';
-import createModificationDataQuery from '../../../infrastructure/http/graphql/createModificationDataQuery';
+import RequestButton from './RequestButton';
 import SaveButton from './SaveButton';
 
 export interface EntityListItemProps {
@@ -9,32 +8,47 @@ export interface EntityListItemProps {
 }
 export default function EntityListItem(props: EntityListItemProps) {
   const { entityName } = props;
-  const [disabled, setDisabled] = useState<boolean>(true);
+  const [request, setRequest] = useState<boolean>(false);
+  const [save, setSave] = useState<boolean>(false);
+  const [retry, setRetry] = useState<boolean>(false);
 
-  const [loadDataSheet, { data, loading, error }] = useLazyQuery(
-    createModificationDataQuery(entityName),
-  );
+  function saveModification(e: any) {
+    e.stopPropagation();
+    setRequest(false);
+    setSave(true);
+  }
 
-  if (error) return <ListItem>{error.message}</ListItem>;
-  if (loading) return <ListItem>데이터 생성중...</ListItem>;
-  if (data && !disabled) {
-    window.open(data['getDataToModifyFromDB'], '_blank');
+  function checkSucessSave(e: any) {
+    e.stopPropagation();
+    setSave(false);
+  }
+
+  function retrySave(e: any) {
+    e.stopPropagation();
+    setRetry((prev) => !prev);
   }
 
   return (
     <ListItem
       button
-      onClick={async () => {
-        setDisabled(false);
-        await loadDataSheet();
+      onClick={() => {
+        setRequest(true);
       }}
     >
       <ListItemText primary={entityName} />
-      <SaveButton
-        entityName={entityName}
-        disabled={disabled}
-        setDisabled={setDisabled}
-      />
+      {request && (
+        <SaveButton
+          entityName={entityName}
+          saveModification={saveModification}
+        />
+      )}
+      {save && (
+        <RequestButton
+          retrySave={retrySave}
+          entityName={entityName}
+          checkSucessSave={checkSucessSave}
+        />
+      )}
     </ListItem>
   );
 }
