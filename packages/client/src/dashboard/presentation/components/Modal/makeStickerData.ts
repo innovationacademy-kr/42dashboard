@@ -9,25 +9,14 @@ import { DocumentNode } from '@apollo/client';
 import { StickerContentType } from '../Sticker/StickerContent.type';
 import { FilterConfigType } from '../Sticker/Filter.type';
 import DEFAULT_TABLE_PROPS from '../../../application/utils/DEFAULT_TABLE_PROPS';
-
-function stringToUnicode(str: string): string {
-  let ret = '';
-  for (let i = 0; i < str.length; i++) {
-    ret += str.charCodeAt(i);
-  }
-  return ret;
-}
+import camelize from '../../../application/utils/camelize';
+import stringToUnicode from '../../../application/utils/stringToNum';
+import DEFAULT_BACHELOR_PROPS from '../../../application/utils/DEFAULT_BACHELOR_PROPS';
 
 function returnFilterName(filter: FilterConfigType): string {
   return `${filter.entityName}${filter.column}${
     filter.operator && stringToUnicode(filter.operator)
   }${stringToUnicode(filter.givenValue)}`;
-}
-
-export function changeFirstCharToLowercase(entityName: string) {
-  const changedName = Array.from(entityName);
-  changedName[0] = entityName[0].toLowerCase();
-  return changedName.join('');
 }
 
 function makeQueryFilterVariables(
@@ -39,7 +28,7 @@ function makeQueryFilterVariables(
     const filterName = returnFilterName(filter);
     queryVariables[filterName] = {
       ...filter,
-      entityName: changeFirstCharToLowercase(filter.entityName),
+      entityName: camelize(filter.entityName),
     };
   });
 
@@ -92,9 +81,6 @@ export function makeChartStickerData({
   };
   const filterNames: string[] = returnFilterNames(queryVariables);
   const filterSets: string[][] = returnFilterSets(arrayOfDataSet, labelFilter);
-  console.log('label', labels);
-  console.log('labelFilter', labelFilter);
-  console.log('filtersets', filterSets);
   const query: DocumentNode = createQuery(filterNames, labels, filterSets);
 
   const queryData: QueryDataType = {
@@ -130,6 +116,20 @@ export function makeTableStickerData({
     data: {
       type: type,
       contentProps: DEFAULT_TABLE_PROPS,
+    },
+  };
+}
+
+export function makeBachelorStickerData({
+  sectionId,
+  type,
+}: MakeTableStickerType) {
+  return {
+    id: uuid(),
+    sectionId,
+    data: {
+      type,
+      contentProps: DEFAULT_BACHELOR_PROPS,
     },
   };
 }

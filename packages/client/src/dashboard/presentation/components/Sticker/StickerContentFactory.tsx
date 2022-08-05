@@ -10,6 +10,7 @@ import useMode from '../../../application/services/useMode';
 import { ChartProps } from '../Charts/ChartData';
 import { TableProps, TableStickerContent } from '../Table/Table';
 import TextStickerContent, { TextProps } from '../Text/TextStickerContent';
+import BachelorStickerContent, { BachelorProps } from '../Bachelor/Bachelor';
 export interface StickerContentFactoryProps {
   type: StickerContentType;
   contentProps: StickerContentPropType;
@@ -62,6 +63,12 @@ function StickerContentFactory(props: StickerContentFactoryProps) {
       return (
         <StickerContentWrapper className={mode}>
           <TableStickerContent {...(contentProps as TableProps)} />
+        </StickerContentWrapper>
+      );
+    case 'bachelor':
+      return (
+        <StickerContentWrapper className={mode}>
+          <BachelorStickerContent {...(contentProps as BachelorProps)} />
         </StickerContentWrapper>
       );
     default:

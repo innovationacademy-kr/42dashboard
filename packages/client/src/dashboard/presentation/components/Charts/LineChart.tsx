@@ -6,7 +6,7 @@ import useChartDataset from '../../../application/services/useDataset';
 Chart.register(...registerables);
 
 export default function LineChart(props: ChartProps) {
-  const { labels, queryData, options } = props;
+  const { labels, queryData, datasetNames, options } = props;
   const { data, loading, error } = useChartDataset(queryData);
   const datasets = [];
   const defaultOptions = {
@@ -25,7 +25,7 @@ export default function LineChart(props: ChartProps) {
   const lineData = {
     labels,
     datasets: datasets.map((dataset, index) => ({
-      label: `line ${index}`, //TODO(jinbekim): dataset 이름 받기
+      label: datasetNames[index],
       data: dataset,
       backgroundColor: ['#36A2EB', '#FF6384'],
     })),

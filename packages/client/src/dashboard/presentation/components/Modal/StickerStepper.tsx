@@ -96,6 +96,7 @@ export default function StickerStepper(props: ModalDatasType) {
         case 'none':
         case 'text':
         case 'table':
+        case 'bachelor':
         default:
           return ['Type 정하기!'];
       }

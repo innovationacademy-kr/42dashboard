@@ -121,3 +121,20 @@ export function createQueryForTable(
   `;
   return gql(query);
 }
+
+function returnQuerys(filterNames: string[]) {
+  return filterNames.map((val) => {
+    return `${val}: getNumOfPeopleByFilter(filters: [$${val}])`;
+  });
+}
+
+export function createBachelorQuery(filterNames: string[], labels: string[]) {
+  const query = gql` query getData(
+    ${returnFilterVariables(filterNames).join('\n')}
+  ) {
+    ${returnQuerys(filterNames).join('\n')}
+  }
+  `;
+  console.log(query);
+  return query;
+}

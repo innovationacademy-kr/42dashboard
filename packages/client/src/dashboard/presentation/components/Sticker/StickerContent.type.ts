@@ -22,6 +22,7 @@ export interface StickerContent {
   barChart: BarChartStickerType;
   text: TextStickerType;
   table: TableStickerType;
+  bachelor: TableStickerType;
 }
 
 export type StickerContentType = Extract<keyof StickerContent, string>;
