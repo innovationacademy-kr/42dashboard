@@ -6,16 +6,20 @@ import { credentials } from 'src/config/credentials';
 import { tableName } from 'src/common/tableName';
 import { EntityColumn } from 'src/common/EntityColumn';
 import {
+  aggregateDataObj,
+  autoProcessingDataObj,
   classType,
   dateTable,
   defaultVALUE,
   DEFAULT_VALUE,
+  LOCALTIME,
+  oldDateTable,
   repoKeys,
 } from 'src/updater/name_types/updater.name';
 import { UserHrdNetUtilizeConsent } from 'src/user_job/entity/user_job.entity';
 import { UserComputationFund } from 'src/user_payment/entity/user_payment.entity';
 import { UserLearningDataAPI } from 'src/user_status/entity/user_status.entity';
-import { Column, createQueryBuilder, DataSource } from 'typeorm';
+import { Brackets, Column, createQueryBuilder, DataSource } from 'typeorm';
 import { MAIN_SHEET, SPREAD_END_POINT } from 'src/config/key';
 import { TableSet } from 'src/updater/updater.service';
 import {
@@ -174,7 +178,7 @@ export class SpreadService {
     try {
       const response = (await googleSheet.spreadsheets.values.update(request))
         .data;
-      const repo = await this.dataSource.getRepository(entityArray[repoName]);
+      const repo = this.dataSource.getRepository(entityArray[repoName]);
       const latestData = await repo
         .createQueryBuilder(repoKeys[repoName])
         .distinctOn([`${repoKeys[repoName]}.fk_user_no`])
@@ -715,7 +719,7 @@ export class SpreadService {
   }
 
   //테이블 별 하나의 로우 완성하는 함수
-  makeRowPerColumn(row, cols, rowIdx, tuple, entityColumn, repoKey) {
+  makeRowPerColumn(row, cols, rowIdx, tuple, entityColumn, tableName) {
     const columnLabel = entityColumn.find(this.compareSpname(cols[rowIdx]));
     //스프레드에 날짜 저장 패턴이 바뀌면 문제가 생길 수 있음
     const datePattern =
@@ -747,10 +751,10 @@ export class SpreadService {
     ) {
       tuple[`${columnLabel.dbName}`] = null;
       if (
-        this.isDefaultColumn(repoKey, columnLabel.dbName) ===
+        this.isDefaultColumn(tableName, columnLabel.dbName) ===
         DEFAULT_VALUE.DEFAULT
       ) {
-        this.initailizeSpreadNullValue(tuple, columnLabel.dbName, repoKey);
+        this.initailizeSpreadNullValue(tuple, columnLabel.dbName, tableName);
       }
     }
   }
@@ -797,6 +801,11 @@ export class SpreadService {
           tuple,
           table['mapCol'],
           table['name'],
+        );
+      }
+      if (table['name'] == 'user_computation_fund') {
+        tuple['recevied_amount'] = Number(
+          tuple['recevied_amount'].replace(/\,/g, ''),
         );
       }
       if (api42s != undefined) {
@@ -877,13 +886,13 @@ export class SpreadService {
                 col.fk_user_no === data.fk_user_no &&
                 col[`${preDate}`] === data[`${newDate}`])
             ) {
-              await this.initValidateDate(repoKey, data);
+              await this.initValidateDate(repoKey, data, oldDateTable);
               Object.assign(col, data);
               break;
             }
           }
           if (flag === false) {
-            await this.initValidateDate(repoKey, data);
+            await this.initValidateDate(repoKey, data, oldDateTable);
             if (colObj.table === 'UserLearningDataAPI')
               await this.insertArrayToDB(UserLearningDataAPI, data);
             else if (colObj.table === 'UserHrdNetUtilizeConsent')
@@ -891,7 +900,6 @@ export class SpreadService {
             // sheet.push(data);
           }
         }
-        // if (repoKey == 'user_learning_data_api') console.log(sheet, '123213');
       }
     }
   }
@@ -902,7 +910,7 @@ export class SpreadService {
       date = cols[col];
       if (pattern.test(cols[col])) {
         for (const row in rows) {
-          const payment_data = {};
+          let payment_data = {};
           payment_data[EntityColumn['UserComputationFund'][0].dbName] =
             this.changeDate(date); //yyyy. mm. dd -> yyyy-mm-dd
           if (rows[row][col] === '0' || rows[row][col] === undefined) {
@@ -914,7 +922,17 @@ export class SpreadService {
               Number(rows[row][col].replace(/\,/g, '')); //1,000,000 -> 1000000
           }
           payment_data['fk_user_no'] = rows[row][1];
-          await this.initValidateDate(repoKey, payment_data);
+          await this.initValidateDate(repoKey, payment_data, oldDateTable);
+
+          const processData = Object.values(autoProcessingDataObj[repoKey]);
+          const processedDataObj = await this.autoProcessingData(
+            repoKey,
+            payment_data,
+            processData,
+            oldDateTable,
+          );
+          //processData에 처리된 값이 있다면 payment_data에 처리된 객체로 재 할당
+          if (processData !== undefined) payment_data = processedDataObj;
           await this.insertArrayToDB(UserComputationFund, payment_data);
         }
       }
@@ -983,10 +1001,11 @@ export class SpreadService {
         this.makeRowPerColumn(row, cols, col, tuple, mapCols, repoKey);
       }
       tuple['fk_user_no'] = row[1]; //취업정보, 고용보험 시트의 경우 변경을 해줘야함.
-      await this.initValidateDate(repoKey, tuple);
+      await this.initValidateDate(repoKey, tuple, oldDateTable);
       tupleLine = pastSheetData['repo'].create(tuple);
       await pastSheetData['repo'].save(tupleLine);
     }
+    console.log('save', repoKey);
   }
 
   async getOldSheetTable(pastSheetData, repoKey) {
@@ -1095,8 +1114,12 @@ export class SpreadService {
     const date = /[0-9]{4}-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[0-1])$/;
     const tempDate = tuple[column];
     const isValidDate = Date.parse(tempDate);
+    const columnName = /date$/;
 
-    if (!isNaN(isValidDate) && date.test(tuple[column])) {
+    if (
+      (!isNaN(isValidDate) && date.test(tuple[column])) ||
+      columnName.test(column)
+    ) {
       return DEFAULT_VALUE.DATE;
     }
     return DEFAULT_VALUE.NOT;
@@ -1106,28 +1129,40 @@ export class SpreadService {
     return new Date(date);
   }
 
-  async checkDateValue(newOneData, targetObj, repoKey, key, repo) {
+  async checkDateValue(newOneData, targetObj, tableName, key, repo) {
     if (this.isDateType(newOneData, key) == DEFAULT_VALUE.DATE) {
-      newOneData[key] = this.createDate(newOneData[key]);
       targetObj[key] = this.createDate(targetObj[key]);
+      newOneData[key] = this.createDate(newOneData[key]);
 
-      if (newOneData[key].getTime() != targetObj[key].getTime()) {
-        await this.initValidateDate(repoKey, newOneData);
-        let changeData = newOneData;
-        if (repoKey !== 'user') {
-          changeData = repo.create(newOneData);
-          repo.save(changeData);
-        } else {
-          targetObj[key] = newOneData[key];
-          repo.save(targetObj);
-        }
-
+      //console.log(targetObj[key], 'before');
+      if (newOneData[key].getTime() != targetObj[key].getTime() + LOCALTIME) {
+        //console.log(newOneData[key], 'after');
+        //newOneData[key].setTime(newOneData[key].getTime() + 32400000);
+        await this.initValidateDate(tableName, newOneData, dateTable);
         console.log(
-          `table is ${repoKey}\n column name is ${key} \n`,
+          `table is ${tableName}\n
+          column name is ${key} \n`,
           targetObj[key],
           'is date changed to ',
           newOneData[key],
         );
+        // if (autoProcessingDataObj[tableName] !== undefined) {
+        //   const processData = Object.values(autoProcessingDataObj[tableName]);
+        //   await this.autoProcessingData(
+        //     tableName,
+        //     newOneData,
+        //     processData,
+        //     dateTable,
+        //   );
+        // }
+        if (tableName !== 'user') {
+          const changeData = repo.create(newOneData);
+          repo.save(changeData);
+        } else {
+          //user는 update 해줘야됨
+          targetObj[key] = newOneData[key];
+          repo.save(targetObj);
+        }
         return DEFAULT_VALUE.CHANGED;
       } else {
         //date 변환시켰는데 값이 같다면 다음 컬럼을 비교하기 위해 DATE 를 리턴해줌
@@ -1137,21 +1172,37 @@ export class SpreadService {
     return DEFAULT_VALUE.NOT;
   }
 
+  async getLatestOneData(tableName, tuple, dateTable) {
+    try {
+      const repo = this.dataSource.getRepository(classType[tableName]);
+      let key;
+      let tupleKey;
+
+      if (tableName === 'user') key = 'intra_no';
+      else key = 'fk_user_no';
+      if (Object.keys(tuple).find((key) => key == 'intra_no')) {
+        tupleKey = 'intra_no';
+      } else {
+        tupleKey = 'fk_user_no';
+      }
+
+      const target = await repo
+        .createQueryBuilder(tableName)
+        .distinctOn([`${tableName}.${key}`])
+        .orderBy(`${tableName}.${key}`, 'DESC') //sort by table's key
+        .addOrderBy(`${tableName}.${dateTable[tableName]}`, 'DESC') //sort by valid date column
+        .where(`${key} = :key`, { key: tuple[tupleKey] }) //저장하고자 하는 데이터와 키값이 같은 최신 데이터를 가져오기 위함
+        .getOne();
+      return target;
+    } catch {
+      throw 'error : getLatestOneData';
+    }
+  }
+
   async updateTuple(repoKey, tuple, column, value) {
-    let key;
-
-    if (repoKey == 'user') key = 'intra_no';
-    else key = 'fk_user_no';
-
     try {
       const repo = this.dataSource.getRepository(classType[repoKey]);
-      const target = await repo
-        .createQueryBuilder(repoKey)
-        .distinctOn([`${repoKey}.${key}`])
-        .orderBy(`${repoKey}.${key}`, 'DESC') //sort by table's key
-        .addOrderBy(`${repoKey}.${dateTable[repoKey]}`, 'DESC') //sort by valid date column
-        .where(`${key} = :key`, { key: tuple[key] }) //저장하고자 하는 데이터와 키값이 같은 최신 데이터를 가져오기 위함
-        .getOne();
+      const target = await this.getLatestOneData(repoKey, tuple, dateTable);
 
       const checkedDate = await this.checkDateValue(
         tuple,
@@ -1175,7 +1226,7 @@ export class SpreadService {
     }
   }
 
-  async updateExpiredDate(repoKey, saveDate, now) {
+  async updateExpiredDate(repoKey, saveDate, expiredDate) {
     let key;
 
     if (repoKey == 'user') key = 'intra_no';
@@ -1188,12 +1239,13 @@ export class SpreadService {
         .distinctOn([`${repoKey}.${key}`])
         .orderBy(`${repoKey}.${key}`, 'DESC') //sort by table's key
         .addOrderBy(`${repoKey}.${dateTable[repoKey]}`, 'DESC') //sort by valid date column
-        .where(`${key} = :key`, { key: saveDate[key] }) //저장하고자 하는 데이터와 키값이 같은 최신 데이터를 가져오기 위함
+        .where(`${key} = :key`, { key: saveDate[key] }) //저장하고자 하는 데이터와 키값이 같고,
+        .andWhere(`validate_date <= :expiredDate`, { expiredDate }) //validate_date가 만료될 날짜보다 앞선 시간대에서 최신 데이터를 가져오기 위함
         .getOne();
       if (target) {
         // console.log(`table is ${repoKey}\n`, ` expired_date changed to `, now);
         // console.log(JSON.stringify(target, null, 4));
-        target.expired_date = now;
+        target.expired_date = expiredDate;
         await repo.save(target);
       }
     } catch {
@@ -1231,16 +1283,286 @@ export class SpreadService {
     return DEFAULT_VALUE.DEFAULT;
   }
 
-  async initValidateDate(repoKey, saveDate) {
+  async initValidateDate(repoKey, saveDate, dateTable) {
     const now = new Date();
     const defaultDate = new Date('9999-12-31');
-    const target = await this.updateExpiredDate(repoKey, saveDate, now); //await 지워도 될지도?
     //데이터의 유효성을 확인하는 컬럼이 validate_date라면, 저장하는 데이터의 시간을 기점으로 저장
     if (dateTable[repoKey] === 'validate_date') {
       saveDate['validate_date'] = now;
     } else {
-      saveDate['validate_date'] = saveDate[dateTable[repoKey]];
+      saveDate['validate_date'] = saveDate[dateTable[repoKey]]; //기준 data가 validate_date가 아니면 기준이 되는 column의 값을 validate_date에 넣어줌
     }
+    //데이터의 기준날짜가 있는 table이면, 과거 데이터의 만료일자는 현재 저장하고자하는 데이터의 기준 date 값을 넣어야됨
+    const expiredDate = saveDate['validate_date'];
+    await this.updateExpiredDate(repoKey, saveDate, expiredDate); //await 지워도 될지도?
     saveDate['expired_date'] = defaultDate;
+  }
+
+  /************************************/
+  /*        auto processing data      */
+  /************************************/
+
+  getDateDiff(startDate: Date, endDate: Date) {
+    const start = startDate.getTime();
+    const end = endDate.getTime();
+    const diff = end - start;
+    return diff;
+  }
+
+  //date에다가 dateObj에 있는 데이터객체 내에서 기간의 범위를 받아 저장해줌
+  getDateAdd(date: Date, dateObj, startDate, endDate) {
+    let sumDate = 0;
+    //try {
+    for (const obj of dateObj) {
+      const absenceDate = this.getDateDiff(obj[startDate], obj[endDate]);
+      // console.log(typeof absenceDate, 'agsdgs');
+      sumDate += absenceDate;
+    }
+    sumDate += date.getTime();
+    return new Date(sumDate);
+    // } catch {
+    //   throw 'error : getDateAdd';
+    // }
+  }
+
+  //talbleName에서 tuple.pk를 갖는 컬럼 조회
+  async getAbsenceDates(tableName, tuple, startDate: Date, endDate: Date) {
+    try {
+      const repo = this.dataSource.getRepository(classType[tableName]);
+      let key;
+
+      if (tableName == 'user') key = 'intra_no';
+      else key = 'fk_user_no';
+      // console.log(startDate, '  ', endDate);
+      const target = await repo
+        .createQueryBuilder(tableName)
+        .select(`${tableName}.begin_absence_date`)
+        .addSelect(`${tableName}.return_from_absence_date`)
+        .where(`${key} = :key`, { key: tuple[key] }) //저장하고자 하는 데이터와 키값이 같은 최신 데이터를 가져오기 위함
+        .andWhere(`begin_absence_date >= :startDate`, {
+          startDate,
+        })
+        .andWhere(`begin_absence_date <= :payment_date`, {
+          payment_date: endDate,
+        })
+        .getMany();
+      console.log(target, 'getAbsenceDates');
+      return target;
+    } catch {
+      throw 'error : in getAbsenceDates';
+    }
+  }
+
+  async getAggregateValue(
+    tableName,
+    tuple,
+    column,
+    valueColumn,
+    operator,
+    value,
+    date,
+  ) {
+    const repo = this.dataSource.getRepository(classType[tableName]);
+    let key;
+    // console.log(
+    //   `tableName: ${tableName}, \n`,
+    //   `column: ${column}, \n`,
+    //   `valuecolumn: ${valueColumn}, \n`,
+    //   //`value: ${value}, \n`,
+    //   `date: ${date}, - ${tuple[date]} \n`,
+    //   'in sususus',
+    // );
+
+    if (tableName == 'user') key = 'intra_no';
+    else key = 'fk_user_no';
+    if (value !== undefined) {
+      const sumValue = await repo
+        .createQueryBuilder(tableName)
+        .select(`${operator}(${tableName}.${valueColumn})`, `${column}`)
+        .where(`${key} = :key`, { key: tuple[key] }) //저장하고자 하는 데이터와 키값이 같은 최신 데이터를 가져오기 위함
+        .andWhere(`${date} <= :date`, {
+          date: tuple[date],
+        })
+        .andWhere(
+          new Brackets((qb) => {
+            qb.where(`${valueColumn} = :value`, {
+              value,
+            }).orWhere(`${valueColumn} > :value`, {
+              value,
+            });
+          }),
+        )
+        .getRawOne(); //sum같은 집게된 값을 얻으려면 getMany같은 entity값을 받은 것이 아닌 원시값을 받는 raw를 써야함
+      console.log(sumValue, 'sumValue');
+      return sumValue;
+    } else {
+      const sumValue = await repo
+        .createQueryBuilder(tableName)
+        .select(`${operator}(${tableName}.${valueColumn})`, `${column}`)
+        .where(`${key} = :key`, { key: tuple[key] }) //저장하고자 하는 데이터와 키값이 같은 최신 데이터를 가져오기 위함
+        .andWhere(`${date} <= :date`, {
+          date: tuple[date],
+        })
+        .getRawOne(); //sum같은 집게된 값을 얻으려면 getMany같은 entity값을 받은 것이 아닌 원시값을 받는 raw를 써야함
+      console.log(sumValue, 'undefined sumValue');
+      return sumValue;
+    }
+  }
+
+  //value는 저장하고자 하는 튜플에 적용시킬 값입니다.
+  async autoProcessingData(tableName, data, processData, dateTable) {
+    // try {
+    //processData가 없는 테이블인 경우 동작하지 않음
+    if (processData === undefined || processData === null) return;
+    const target = await this.getLatestOneData(tableName, data, dateTable);
+    //autoProcessingDataObj처리되는 테이블이라면 해당 객체의 value를 받아오기
+
+    if (target) {
+      if (tableName === 'user_computation_fund') {
+        console.log('if');
+        for (const column of processData) {
+          let totalValue;
+
+          if (
+            //집계되는 컬럼이라면 집계하여 total 값을 가져옴
+            Object.keys(aggregateDataObj[tableName]).some(
+              (value) => value === column,
+            )
+          ) {
+            totalValue = await this.getAggregateValue(
+              tableName,
+              data,
+              column,
+              aggregateDataObj[tableName][column]['aggregateColumn'],
+              aggregateDataObj[tableName][column]['operator'],
+              aggregateDataObj[tableName][column]['value'],
+              dateTable[tableName],
+            );
+          }
+          if (column === 'total_payment_of_number') {
+            if (Number(data['recevied_amount']) > 0)
+              data[column] = Number(totalValue[column]) + 1;
+            else data[column] = totalValue[column];
+          } else if (column === 'total_payment_of_money') {
+            data[column] =
+              Number(totalValue[column]) + Number(data['recevied_amount']);
+          } else if (column === 'total_payment_period_number') {
+            data[column] = Number(totalValue[column]) + 1;
+          } else if (column === 'payment_end_date') {
+            //기존 데이터의 지원만료일자부터 최근 지급일까지사이에 휴학일 구해서 초기화
+            const absenceDates = await this.getAbsenceDates(
+              'user_leave_of_absence',
+              data,
+              target['payment_date'], //startDate
+              new Date(data.payment_date), //endDate
+            );
+            //기간 내에 휴학한 이력이 없으면 기존 paymeny_end_date
+            if (absenceDates.length == 0) data[column] = target[column];
+            else {
+              //최근 저장된 data의 만료일자에 휴학한 일자를 합하여 저장.
+              data[column] = this.getDateAdd(
+                target[column],
+                absenceDates,
+                'begin_absence_date',
+                'return_from_absence_date',
+              );
+              console.log(
+                `${column} value ${target[column]} processing to ${data[column]}`,
+              );
+            }
+          } else if (column === 'payment_ended') {
+            if (data['total_payment_period_number'] >= 24) {
+              data[column] = '만료';
+            }
+          }
+        }
+        //console.log(data, '------');
+      }
+    } else {
+      //시간 기준점을 적용하여 sql을 처리하는 방법을 적용하지 못해서 일단 if else 로 처리함
+      if (tableName === 'user_computation_fund') {
+        console.log('else');
+        //processData에 있는 컬럼들만 default값 갖는 객체에서 불러와 넣어주기
+        for (const column of processData) {
+          let totalValue;
+
+          if (
+            //집계되는 컬럼이라면 집계하여 total 값을 가져옴
+            Object.keys(aggregateDataObj[tableName]).some(
+              (value) => value === column,
+            )
+          ) {
+            totalValue = await this.getAggregateValue(
+              tableName,
+              data,
+              column,
+              aggregateDataObj[tableName][column]['aggregateColumn'],
+              aggregateDataObj[tableName][column]['operator'],
+              aggregateDataObj[tableName][column]['value'],
+              dateTable[tableName],
+            );
+          }
+          if (column === 'total_payment_of_number') {
+            if (Number(data['recevied_amount']) > 0)
+              data[column] = Number(totalValue[column]) + 1;
+            else data[column] = totalValue[column];
+          } else if (column === 'total_payment_of_money') {
+            data[column] =
+              Number(totalValue[column]) + Number(data['recevied_amount']);
+          } else if (column === 'total_payment_period_number') {
+            data[column] = Number(totalValue[column]) + 1;
+          } else if (column === 'payment_end_date') {
+            const startDateObj = await this.getLatestOneData(
+              'user',
+              data,
+              dateTable,
+            );
+            if (startDateObj == undefined) {
+              console.log(data, 'why');
+            }
+            // console.log(startDateObj, '123');
+            //과정 시작일부터 금액 지급받은날 사이에 휴학일자 구해오기
+            const absenceDates = await this.getAbsenceDates(
+              'user_leave_of_absence',
+              data,
+              startDateObj['start_process_date'],
+              new Date(data.payment_date),
+            );
+            //휴학을 한적이 없다면, 기본 종요일자가 마지막 지원금 받는 날짜.
+            //기본 종료일자를 받기위해 과정 연장 테이블을 가져와야 하는데, 과정이 2년뒤 종료이므로 계산하여 처리함.
+            if (absenceDates.length == 0) {
+              data[column] = startDateObj['start_process_date'];
+              data[column].setFullYear(data[column].getFullYear() + 2);
+            } else {
+              const startDateObj = await this.getLatestOneData(
+                'user_course_extension',
+                data,
+                dateTable,
+              );
+              //최근 저장된 data의 만료일자에 휴학한 일자를 합하여 저장.
+              data[column] = this.getDateAdd(
+                startDateObj['basic_expiration_date'],
+                absenceDates,
+                'begin_absence_date',
+                'return_from_absence_date',
+              );
+              console.log(
+                `${column} value ${startDateObj['basic_expiration_date']} processing to ${data[column]}`,
+              );
+            }
+          } else if (column === 'payment_ended') {
+            //target이 없다면 defualt값인 지원일 테니 없어도 되는 로직입니다.
+            if (data['total_payment_period_number'] >= 24) {
+              data[column] = '만료';
+            } else data[column] = '지원';
+          }
+        }
+        //console.log(data, '~~~~');
+      }
+    }
+    return data;
+    // } catch {
+    //   throw 'error : processing data';
+    // }
   }
 }

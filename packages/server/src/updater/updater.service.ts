@@ -32,6 +32,7 @@ import {
   DEFAULT_VALUE,
   defaultVALUE,
   dateTable,
+  autoProcessingDataObj,
 } from './name_types/updater.name';
 import {
   UserComputationFund,
@@ -39,6 +40,7 @@ import {
 } from 'src/user_payment/entity/user_payment.entity';
 import { MAIN_SHEET, SPREAD_END_POINT } from 'src/config/key';
 import { UpdateDB } from 'src/user_information/argstype/updateSheet.argstype';
+import { table } from 'console';
 
 interface RepoDict {
   [repositoryName: string]:
@@ -188,7 +190,7 @@ export class UpdaterService {
         //api42s,
       );
     }
-    const latestData = await this.getLatestData();
+    const latestData = await this.getLatestAllOneData();
     await this.compareNewDataWithLatestData(tableArray, latestData);
     return await 'All data has been updated';
   }
@@ -262,13 +264,14 @@ export class UpdaterService {
         )) != undefined
       ) {
         await this.spreadService.getOldSheetLogColumns(pastColumn, repoKey);
+        console.log('save', repoKey);
       }
     }
     //console.log(tuple, 'aa)=');
     return await 'All old data has been updated';
   }
 
-  async getLatestData() {
+  async getLatestAllOneData() {
     const returnArray = {};
     const valueArray = Object.values(repoKeys);
     let key;
@@ -322,33 +325,42 @@ export class UpdaterService {
     );
   }
 
-  async findTargetByKey(repo, repoKey, newOneData, targetObj) {
+  async findTargetByKey(repo, tableName, newOneData, targetObj) {
     const emptyObj = {};
-    try {
-      //스프레드 데이터가 db 데이터에 있는지 확인.
-      for (const target of targetObj) {
-        if (repoKey == 'user') {
-          if (newOneData.intra_no == target.intra_no) {
-            return await target;
-          }
-        } else {
-          if (newOneData.fk_user_no == target.fk_user_no) {
-            return await target;
-          }
+    //try {
+    //스프레드 데이터가 db 데이터에 있는지 확인.
+    for (const target of targetObj) {
+      if (tableName == 'user') {
+        if (newOneData.intra_no == target.intra_no) {
+          return await target;
+        }
+      } else {
+        if (newOneData.fk_user_no == target.fk_user_no) {
+          return await target;
         }
       }
+    }
+    if (autoProcessingDataObj[tableName] != undefined) {
+      const processData = Object.values(autoProcessingDataObj[tableName]);
+      await this.spreadService.autoProcessingData(
+        tableName,
+        newOneData,
+        processData,
+        dateTable,
+      );
+    }
 
-      console.log(`insert ${repoKey} due to dosend't exist spread data in db`);
-      await this.spreadService.initValidateDate(repoKey, newOneData);
-      const newTuple = await repo.create(newOneData);
-      await repo.save(newTuple); /*.catch(() => {
+    console.log(`insert ${tableName} due to dosend't exist spread data in db`);
+    await this.spreadService.initValidateDate(tableName, newOneData, dateTable);
+    const newTuple = await repo.create(newOneData);
+    await repo.save(newTuple); /*.catch(() => {
         return 'error save';
       });*/
-      //빈 객체를 리턴해줌으로써 호출한 곳에서 target을 못찾았고 새로운 값을 저장했다는 것을 알려줌
-      return await emptyObj;
-    } catch {
-      throw 'error at finding target by key';
-    }
+    //빈 객체를 리턴해줌으로써 호출한 곳에서 target을 못찾았고 새로운 값을 저장했다는 것을 알려줌
+    return await emptyObj;
+    // } catch {
+    //   throw 'error at finding target by key';
+    // }
   }
 
   isEmptyObj(obj): boolean {
@@ -406,65 +418,82 @@ export class UpdaterService {
   //   }
   // }
 
-  async saveChangedData(repo, repoKey, newOneData, targetObj) {
-    let checkedDate;
-    try {
-      const keys: string[] = Object.keys(newOneData);
+  async saveTuple(repo, Tuple) {
+    const newTuple = await repo.create(Tuple);
+    await repo.save(newTuple); /*.catch(() => {
+    return 'error save';
+  });*/
+  }
 
-      for (const key of keys) {
-        //new data(spread)의 key 값이 default 값을 갖는 column 일때, null 값 파악 후 초기화
-        if (
-          this.spreadService.isDefaultColumn(repoKey, key) ===
-          DEFAULT_VALUE.DEFAULT
-        ) {
-          this.spreadService.initailizeSpreadNullValue(
+  async saveChangedData(repo, tableName, newOneData, targetObj) {
+    let checkedDate;
+    // try {
+    const keys: string[] = Object.keys(newOneData);
+
+    for (const key of keys) {
+      //new data(spread)의 key 값이 default 값을 갖는 column 일때, null 값 파악 후 초기화
+      if (
+        this.spreadService.isDefaultColumn(tableName, key) ===
+        DEFAULT_VALUE.DEFAULT
+      ) {
+        this.spreadService.initailizeSpreadNullValue(
+          newOneData,
+          key,
+          tableName,
+        );
+      }
+      //초기화 했는데 DB 와 값이 다르면 save후 넘어감 -> continue;
+      //값이 같다면 default 값으로 초기화 후 비교한 값이변화가 없으므로 넘어가야함 -> continue;
+      //date 값은 밑에 if 절로 구별이 안되어 같은 date type으로 바꾸어 비교해야됨
+      checkedDate = await this.spreadService.checkDateValue(
+        newOneData,
+        targetObj,
+        tableName,
+        key,
+        repo,
+      );
+      if (
+        //날짜의 변경을 확인하고 바꾸었던가, 날짜인 데이터지만 바뀌지 않았을 때 다음 column 조회
+        checkedDate === DEFAULT_VALUE.CHANGED ||
+        checkedDate === DEFAULT_VALUE.DATE
+      ) {
+        continue;
+      }
+      //this.processChangeData(newOneData, targetObj, key, checkedDefaulte, repo);
+      //스프레드에 널값이라면 default 값으로 바꾸고, default가 아님에도 불구하고 값이 다르다면 save
+      if (newOneData[key] != targetObj[key]) {
+        await this.spreadService.initValidateDate(
+          tableName,
+          newOneData,
+          dateTable,
+        );
+
+        if (autoProcessingDataObj[tableName] != undefined) {
+          const processData = Object.values(autoProcessingDataObj[tableName]);
+          await this.spreadService.autoProcessingData(
+            tableName,
             newOneData,
-            key,
-            repoKey,
+            processData,
+            dateTable,
           );
         }
-        //초기화 했는데 DB 와 값이 다르면 save후 넘어감 -> continue;
-        //값이 같다면 default 값으로 초기화 후 비교한 값이변화가 없으므로 넘어가야함 -> continue;
-        //date 값은 밑에 if 절로 구별이 안되어 같은 date type으로 바꾸어 비교해야됨
-        checkedDate = await this.spreadService.checkDateValue(
-          newOneData,
-          targetObj,
-          repoKey,
-          key,
-          repo,
-        );
-        if (
-          //날짜의 변경을 확인하고 바꾸었던가, 날짜인 데이터지만 바뀌지 않았을 때 다음 column 조회
-          checkedDate === DEFAULT_VALUE.CHANGED ||
-          checkedDate === DEFAULT_VALUE.DATE
-        ) {
-          continue;
+        if (tableName != 'user') {
+          await this.saveTuple(repo, newOneData);
         }
-        //this.processChangeData(newOneData, targetObj, key, checkedDefaulte, repo);
-        //스프레드에 널값이라면 default 값으로 바꾸고, default가 아님에도 불구하고 값이 다르다면 save
-        if (newOneData[key] != targetObj[key]) {
-          let newTuple: any;
-          await this.spreadService.initValidateDate(repoKey, newOneData);
-          if (repoKey != 'user') {
-            newTuple = await repo.create(newOneData);
-            await repo.save(newTuple); /*.catch(() => {
-            return 'error save';
-          });*/
-          }
-          //intra_no 가 이미 테이블에 있는 경우 삽입하지 않음, 해서 create를 사용하지 않고 find로 tuple을 가져옴
-          else {
-            this.spreadService.updateTuple(
-              repoKey,
-              newOneData,
-              key,
-              newOneData[key],
-            );
-          }
-          //  console.log('\n\n\n', newTuple, repoKey, '\n\n\n');
+        //intra_no 가 이미 테이블에 있는 경우 삽입하지 않음, 해서 create를 사용하지 않고 find로 tuple을 가져옴
+        else {
+          this.spreadService.updateTuple(
+            tableName,
+            newOneData,
+            key,
+            newOneData[key],
+          );
         }
+        //  console.log('\n\n\n', newTuple, repoKey, '\n\n\n');
       }
-    } catch {
-      throw 'error during save';
     }
+    // } catch {
+    //   throw 'error during save';
+    // }
   }
 }

@@ -25,6 +25,7 @@ export class UserComputationFund extends BaseEntity {
     name: 'payment_date',
     nullable: false,
     default: '9999-12-31',
+    type: 'timestamp with time zone',
   })
   payment_date: Date;
 
@@ -34,7 +35,36 @@ export class UserComputationFund extends BaseEntity {
 
   @Field({ nullable: false })
   @Column({ name: 'recevied_amount', nullable: false, default: 0 })
-  recevied_amount: string;
+  recevied_amount: number;
+
+  //스프레드에서 받아온 데이터 기반으로 계산해서 기록하는 컬럼
+  @Field({ nullable: false })
+  @Column({ name: 'total_payment_of_number', nullable: false, default: 0 })
+  total_payment_of_number: number;
+
+  //스프레드에서 받아온 데이터 기반으로 계산해서 기록하는 컬럼
+  @Field({ nullable: false })
+  @Column({ name: 'total_payment_of_money', nullable: false, default: 0 })
+  total_payment_of_money: number;
+
+  //스프레드에서 받아온 데이터 기반으로 계산해서 기록하는 컬럼
+  @Field({ nullable: true })
+  @Column({
+    name: 'payment_end_date',
+    nullable: false,
+    default: '9999-12-31',
+  })
+  payment_end_date: Date;
+
+  //스프레드에서 받아온 데이터 기반으로 계산해서 기록하는 컬럼
+  @Field({ nullable: false })
+  @Column({ name: 'total_payment_period_number', nullable: false, default: 0 })
+  total_payment_period_number: number;
+
+  //스프레드에서 받아온 데이터 기반으로 계산해서 기록하는 컬럼
+  @Field({ nullable: false })
+  @Column({ name: 'payment_ended', nullable: false, default: '지원' })
+  payment_ended: string;
 
   @Field({ nullable: false })
   @CreateDateColumn({ name: 'created_date' })
