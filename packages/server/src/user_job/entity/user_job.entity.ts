@@ -25,6 +25,7 @@ export class UserOtherEmploymentStatus extends BaseEntity {
     name: 'employment_date',
     nullable: false,
     default: '9999-12-31',
+    type: 'timestamptz',
   })
   employment_date: Date;
 

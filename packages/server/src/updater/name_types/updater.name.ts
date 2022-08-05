@@ -11,12 +11,18 @@ import {
   SUB_COMPUTATIONFUND2022_ID,
   SUB_EDUCATIONFUNDSTATE_ID,
   SUB_EMPLOYMENTSTATUS_ID,
+  SUB_HRDNETUTILIZE_22_1_ID,
+  SUB_HRDNETUTILIZE_22_2_ID,
+  SUB_HRDNETUTILIZE_22_3_ID,
+  SUB_HRDNETUTILIZE_22_4_ID,
+  SUB_HRDNETUTILIZE_22_5_ID,
+  SUB_HRDNETUTILIZE_22_6_ID,
   SUB_HRDNETUTILIZE_CONSENT_ID,
-  SUB_HRDNETUTILIZE_ID,
   SUB_INTERRUPTIONOFCOURSE_ID,
   SUB_LEAVEOFABSENCE_ID,
   SUB_LEVEL_API_ID,
-  SUB_LOYALTYMANAGEMENT_ID,
+  SUB_LOYALTYMANAGEMENT_22_1_ID,
+  SUB_LOYALTYMANAGEMENT_22_2_ID,
   SUB_OTHEREMPLOYMENTSTATUS_ID,
 } from 'src/config/key';
 import { UserAccessCardInformation } from 'src/user_information/entity/user_access_card_information.entity';
@@ -275,7 +281,7 @@ export const pastDataOnSheet = [
   {
     // 로열티 관리
     endPoint: SPREAD_END_POINT,
-    Id: [SUB_LOYALTYMANAGEMENT_ID],
+    Id: [SUB_LOYALTYMANAGEMENT_22_1_ID, SUB_LOYALTYMANAGEMENT_22_2_ID],
     columns: mapObj[TABLENUM.USERLOYALTYMANAGEMENT],
     table: TABLENUM.USERLOYALTYMANAGEMENT,
   },
@@ -296,7 +302,14 @@ export const pastDataOnSheet = [
   {
     // HRD-Net_data
     endPoint: SPREAD_END_POINT,
-    Id: [SUB_HRDNETUTILIZE_ID],
+    Id: [
+      SUB_HRDNETUTILIZE_22_1_ID,
+      SUB_HRDNETUTILIZE_22_2_ID,
+      SUB_HRDNETUTILIZE_22_3_ID,
+      SUB_HRDNETUTILIZE_22_4_ID,
+      SUB_HRDNETUTILIZE_22_5_ID,
+      SUB_HRDNETUTILIZE_22_6_ID,
+    ],
     columns: mapObj[TABLENUM.USERHRDNETUTILIZE],
     table: TABLENUM.USERHRDNETUTILIZE,
   },
@@ -406,19 +419,19 @@ export const defaultVALUE = {
     academic_state: 'BLACK_HOLE',
     start_process_date: '9999-12-31',
     validate_date: '9999-12-31',
-    expired_date: '999-12-31',
+    expired_date: '9999-12-31',
   },
 
   user_personal_information: {
     validate_date: '9999-12-31',
-    expired_date: '999-12-31',
+    expired_date: '9999-12-31',
   },
 
   user_course_extension: {
     basic_expiration_date: '9999-12-31',
     final_expiration_date: '9999-12-31',
     validate_date: '9999-12-31',
-    expired_date: '999-12-31',
+    expired_date: '9999-12-31',
   },
 
   user_leave_of_absence: {
@@ -426,7 +439,7 @@ export const defaultVALUE = {
     end_absence_date: '9999-12-31',
     return_from_absence_date: '9999-12-31',
     validate_date: '9999-12-31',
-    expired_date: '999-12-31',
+    expired_date: '9999-12-31',
   },
 
   user_blackhole: {
@@ -434,12 +447,12 @@ export const defaultVALUE = {
     blackhost_date: '9999-12-31',
     blackholed_level: 0,
     validate_date: '9999-12-31',
-    expired_date: '999-12-31',
+    expired_date: '9999-12-31',
   },
 
   user_interruption_of_course: {
     break_date: '9999-12-31', //이름 변경 요망validate_date: '9999-12-31',
-    expired_date: '999-12-31',
+    expired_date: '9999-12-31',
   },
 
   user_learnig_data_api: {
@@ -452,7 +465,7 @@ export const defaultVALUE = {
     outcircle: 'N',
     outcircled_date: '9999-12-31',
     validate_date: '9999-12-31',
-    expired_date: '999-12-31',
+    expired_date: '9999-12-31',
   },
 
   user_loyalty_management: {
@@ -460,21 +473,21 @@ export const defaultVALUE = {
     royalty_presence: 'N',
     royalty_circle: 0,
     validate_date: '9999-12-31',
-    expired_date: '999-12-31',
+    expired_date: '9999-12-31',
   },
 
   user_employment_status: {
     employment_date: '9999-12-31',
-    employment: '미취업',
+    employmented: '미취업',
     validate_date: '9999-12-31',
-    expired_date: '999-12-31',
+    expired_date: '9999-12-31',
   },
 
   user_hrd_net_utilize_consent: {
     consent_to_provide_information: 'N',
     consented_date: '9999-12-31',
     validate_date: '9999-12-31',
-    expired_date: '999-12-31',
+    expired_date: '9999-12-31',
   },
 
   user_hrd_net_utilize: {
@@ -482,13 +495,13 @@ export const defaultVALUE = {
     employmented: 'N',
     employment_insurance_date: '9999-12-31',
     validate_date: '9999-12-31',
-    expired_date: '999-12-31',
+    expired_date: '9999-12-31',
   },
 
   user_other_employment_status: {
     employment_date: '9999-12-31',
     validate_date: '9999-12-31',
-    expired_date: '999-12-31',
+    expired_date: '9999-12-31',
   },
 
   user_education_fund_state: {
@@ -497,7 +510,7 @@ export const defaultVALUE = {
     payment_end_date: '9999-12-31',
     //uniqueness: '0',
     validate_date: '9999-12-31',
-    expired_date: '999-12-31',
+    expired_date: '9999-12-31',
   },
 
   //하위시트에서 받아올 때는 makeAColumnInTable에서 초기화를 함
@@ -506,7 +519,7 @@ export const defaultVALUE = {
     received: 'N',
     recevied_amount: 0,
     validate_date: '9999-12-31',
-    expired_date: '999-12-31',
+    expired_date: '9999-12-31',
   },
 
   user_access_card_information: {},
@@ -514,7 +527,7 @@ export const defaultVALUE = {
   user_other_information: {
     majored: '비전공',
     validate_date: '9999-12-31',
-    expired_date: '999-12-31',
+    expired_date: '9999-12-31',
   },
 
   user_lapiscine_information: {
@@ -524,7 +537,7 @@ export const defaultVALUE = {
     // participate_lapicin: 9999,
     // number_of_rapicin_participation: 9999,
     validate_date: '9999-12-31',
-    expired_date: '999-12-31',
+    expired_date: '9999-12-31',
   },
 };
 

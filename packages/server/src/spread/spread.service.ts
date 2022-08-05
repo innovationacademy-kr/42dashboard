@@ -23,6 +23,8 @@ import {
   entityArray,
   getDomain,
 } from 'src/user_information/utils/getDomain.utils';
+import { ideahub } from 'googleapis/build/src/apis/ideahub';
+import { ERRORMSG, ErrorMsg, formatError } from './msg/errormsg.msg';
 
 @Injectable()
 export class SpreadService {
@@ -122,7 +124,11 @@ export class SpreadService {
     const values = [];
     const datas = await this.dataSource
       .getRepository(entityArray[repoName])
-      .find({});
+      .find({
+        order: {
+          pk: 'ASC',
+        },
+      });
     values.push(Object.keys(datas[0]));
     datas.forEach((data) => values.push(Object.values(data)));
     const request = {
@@ -262,6 +268,8 @@ export class SpreadService {
     if (this.sheetId[repoName] == -1)
       //수정 도중 main이 업데이트된 경우, 해당 시트는 저장할 수 없음.
       return 'main is updated \nAfter deleting the edit sheet, click edit again';
+    const newDatas = [];
+    const errorMsg = {} as ErrorMsg;
     const googleSheet = await this.getGoogleSheetAPI();
     const deletePage = [
       {
@@ -278,36 +286,80 @@ export class SpreadService {
     const columns = spreadData[0];
     const rows = (await spreadData).filter((value, index) => index > 0);
     try {
-      const ret = await this.compareDataToCheckError(spreadData, repoName); //pk중복 체크도 해야함?
+      const ret = await this.compareDataToCheckError(
+        spreadData,
+        repoName,
+        newDatas,
+        errorMsg,
+      ); //pk중복 체크도 해야함?
       if (ret === 'column error') {
-        return 'column is not same with DB';
+        return formatError(repoName, ERRORMSG.COLUMNS, errorMsg);
+      } else if (ret === 'check to duplicate') {
+        return formatError(repoName, ERRORMSG.DUPLICATE, errorMsg);
       } else if (ret === 'interrupt error') {
-        return 'input data in middle of DB';
-      } else if (ret === 'delete error') {
-        return 'pk is deleted in sheet';
+        return formatError(repoName, ERRORMSG.INTERRUPT, errorMsg);
       } else if (ret === 'changed latest error') {
-        return 'latest data is changed on modify sheet';
+        return formatError(repoName, ERRORMSG.CHANGED, errorMsg);
+      } else if (ret === 'The updated data is wrong') {
+        return formatError(repoName, ERRORMSG.UPDATE, errorMsg);
       } else if (ret === 'The inserted data is wrong') {
-        return 'The inserted data is wrong on modify sheet';
+        return formatError(repoName, ERRORMSG.INSERT, errorMsg);
       }
       for (const row of rows) {
         const tuple = {};
         for (const col in columns) {
-          this.makeRowPerColumnToModify(row, columns, col, tuple);
+          this.makeRowPerColumnToModify(row, columns, col, tuple, repoName);
         }
         await this.updateDataToDB(repoName, tuple);
       }
-      //insertDataToDB(); 동환님이 추가하는 update방식과 비슷 createdate를 기준으로하는 validate는 좀 힘들지도?
+      if (newDatas.length > 0) {
+        for (const newData of newDatas) {
+          const tuple = {};
+          for (const col in columns) {
+            this.makeRowPerColumnToModify(
+              newData,
+              columns,
+              col,
+              tuple,
+              repoName,
+            );
+          }
+          await this.insertDataToDB(entityArray[repoName], tuple); //동환님이 추가하는 update방식과 비슷 createdate를 기준으로하는 validate는 좀 힘들지도?
+        }
+      }
       await this.controlSheet(endPoint, googleSheet, deletePage);
-      return 'success to save!!';
+      return ERRORMSG.SUCCESS;
     } catch (err) {
       throw err;
     }
   }
 
+  numToAlpha(num: number) {
+    let columnLetter = '';
+    let alphaNum;
+
+    while (num > 0) {
+      alphaNum = (num - 1) % 26;
+      columnLetter = String.fromCharCode(65 + alphaNum) + columnLetter;
+      num = ((num - alphaNum) / 26) | 0;
+    }
+    return columnLetter || undefined;
+  }
+
+  makeErrorMsg(
+    errorMsg: ErrorMsg,
+    colIdx: string,
+    value: string,
+    rowIdx?: number,
+  ) {
+    errorMsg['colIdx'] = colIdx;
+    errorMsg['value'] = value;
+    if (rowIdx != undefined) errorMsg['rowIdx'] = rowIdx;
+  }
+
   // 정확히 같은 배열인지 확인하는 함수
-  compareSameArray(arrayOne, arrayTwo) {
-    return (
+  compareSameArray(arrayOne, arrayTwo, errorMsg, index) {
+    const ret =
       arrayOne.length === arrayTwo.length &&
       arrayOne.every((oneValue, idx) => {
         let oneValueToString;
@@ -318,51 +370,71 @@ export class SpreadService {
         } else {
           oneValueToString = String(oneValue);
         }
+        if (!(oneValueToString == arrayTwo[idx])) {
+          this.makeErrorMsg(
+            errorMsg,
+            this.numToAlpha(idx + 1),
+            arrayTwo[idx],
+            index,
+          );
+        }
         return oneValueToString == arrayTwo[idx];
-      })
-    );
+      });
+    if (arrayOne.length !== arrayTwo.length)
+      this.makeErrorMsg(errorMsg, 'columns', 'columns', 1);
+    return ret;
   }
 
-  // 새로 삽입된 데이터가 db최신보다 빠른 날짜인지 확인하는 함수
-  compareDateIsNew(dbData, newData) {
-    const datePattern = /[0-9]{4}-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[0-1])$/;
-    return dbData.every((data, index) => {
-      let newDate;
-      let oldDate;
-      if (datePattern.test(data)) {
-        if (datePattern.test(newData[index])) {
-          oldDate = new Date(data);
-          newDate = new Date(newData[index]);
-          console.log(data, newData[index]);
-          if (oldDate <= newDate) {
-            console.log('1', oldDate, ':', newDate);
-            return false; //'The new data is more recent than the main data.'
-          }
-        } else {
-          console.log('2', data, ':', newData[index]);
-          return false; //'Date type is wrong'
-        }
+  convSheetDataToDate(newData, oldDate, errorMsg, idx) {
+    const newDate = new Date(newData[idx]);
+    if (newDate instanceof Date && !isNaN(newDate.getTime())) {
+      if (oldDate <= newDate) {
+        this.makeErrorMsg(
+          errorMsg,
+          this.numToAlpha(idx + 1),
+          newDate.toISOString(),
+        );
+        return false; //'The new data is more recent than the main data.'
       }
-      if (data instanceof Date) {
-        if (newData[index] instanceof Date) {
-          if (data <= newData[index]) {
-            console.log('3', data, ':', newData[index]);
-            return false; //'The new data is more recent than the main data.'
-          }
-        } else {
-          console.log('4', data, ':', newData[index]);
-          return false; //'Date type is wrong'
-        }
+      return true;
+    } else {
+      this.makeErrorMsg(
+        errorMsg,
+        this.numToAlpha(idx + 1),
+        newDate.toISOString(),
+      );
+      return false; //'Date type is wrong'
+    }
+  }
+
+  // 새로 갱신된 데이터가 db최신보다 빠른 날짜인지 확인하는 함수
+  //dbData = DB에 있던 latest 데이터, newData = 갱신된 데이터
+  compareDateIsNew(dbData, newData, errorMsg) {
+    const datePattern = /[0-9]{4}-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[0-1])$/;
+
+    return dbData.every((data, idx) => {
+      let oldDate;
+
+      if (datePattern.test(data)) {
+        oldDate = new Date(data);
+        return this.convSheetDataToDate(newData, oldDate, errorMsg, idx);
+      } else if (data instanceof Date) {
+        return this.convSheetDataToDate(newData, data, errorMsg, idx);
       }
       return true;
     });
   }
 
-  async compareDataToCheckError(sheet, repoName: string) {
+  async compareDataToCheckError(sheet, repoName: string, newDatas, errorMsg) {
     const datas = await this.dataSource
       .getRepository(entityArray[repoName])
-      .find({});
+      .find({
+        order: {
+          pk: 'ASC',
+        },
+      });
     const dbvalues = [];
+    let sheetIdx;
     dbvalues.push(Object.keys(datas[0]));
     datas.forEach((data) => dbvalues.push(Object.values(data))); // DB데이터 뽑아오기
 
@@ -377,58 +449,128 @@ export class SpreadService {
     latestValues.push(Object.keys(latestData[0]));
     latestData.forEach((data) => latestValues.push(Object.values(data))); // DB데이터 뽑아오기
 
-    //column이 동일한지 체크
-    let resultOfCheck = this.compareSameArray(dbvalues[0], sheet[0]);
-    if (!resultOfCheck) return 'column error';
-
-    //기존 db에 값이 하드하게 삭제되었는지 체크
     const pkCol = dbvalues[0].findIndex((col) => col === 'pk');
     const fkCol = dbvalues[0].findIndex((col) => col === 'fk_user_no');
+    const validDate = dbvalues[0].findIndex((col) => col === 'validate_date');
 
-    resultOfCheck = dbvalues.every((dbValue) =>
-      sheet.some((sheetValue) => sheetValue[pkCol] == dbValue[pkCol]),
-    );
-    if (!resultOfCheck) return 'delete error';
+    //column이 동일한지 체크
+    let resultOfCheck;
+    resultOfCheck = this.compareSameArray(dbvalues[0], sheet[0], errorMsg, 1);
+    if (!resultOfCheck) return 'column error';
+
+    //기본키가 중복인지 찾기
+    const pkArray = sheet.map((sheetValue) => sheetValue[pkCol]);
+    resultOfCheck = pkArray.some((x) => {
+      if (pkArray.indexOf(x) !== pkArray.lastIndexOf(x)) {
+        sheetIdx = pkArray.lastIndexOf(x);
+        this.makeErrorMsg(
+          errorMsg,
+          this.numToAlpha(pkCol + 1),
+          sheet[sheetIdx][pkCol],
+          sheetIdx + 1,
+        );
+      }
+      return pkArray.indexOf(x) !== pkArray.lastIndexOf(x);
+    });
+
+    if (resultOfCheck) return 'check to duplicate';
 
     //기존 pk의 사이값에 다른 값이 들어왔는지 pk-fk페어관계를 통해 체크
-    resultOfCheck = dbvalues.every((dbValue) => {
+    resultOfCheck = dbvalues.every((dbValue, idx) => {
       const sheetValue = sheet.find(
         (sheetValue) => sheetValue[pkCol] == dbValue[pkCol],
       );
-      if (sheetValue === undefined) return false;
+      if (sheetValue === undefined) {
+        this.makeErrorMsg(
+          errorMsg,
+          this.numToAlpha(pkCol + 1),
+          sheet[idx][pkCol],
+          idx + 1,
+        );
+        return false;
+      }
+      if (!(sheetValue[fkCol] == dbValue[fkCol])) {
+        this.makeErrorMsg(
+          errorMsg,
+          this.numToAlpha(fkCol + 1),
+          sheetValue[fkCol],
+          idx + 1,
+        );
+      }
       return sheetValue[fkCol] == dbValue[fkCol];
     });
     if (!resultOfCheck) return 'interrupt error';
 
     //최신 데이터가 변경이 되었는지 체크
     resultOfCheck = latestValues.every((latestValue) => {
-      const sheetValue = sheet.find(
-        (sheetValue) => latestValue[pkCol] == sheetValue[pkCol],
-      );
-      if (sheetValue === undefined) return false;
-      return this.compareSameArray(latestValue, sheetValue);
+      const sheetValue = sheet.find((sheetValue, index) => {
+        if (latestValue[pkCol] == sheetValue[pkCol]) sheetIdx = index;
+        return latestValue[pkCol] == sheetValue[pkCol];
+      });
+      return this.compareSameArray(latestValue, sheetValue, errorMsg, sheetIdx);
     });
     if (!resultOfCheck) return 'changed latest error';
 
     //새로 삽입된 데이터가 있는지 확인
-    const newDatas = sheet.filter(
+    const newSheetData = sheet.filter(
       (sheetValue) =>
         !dbvalues.some((dbValue) => dbValue[pkCol] == sheetValue[pkCol]),
     );
-    if (newDatas.length < 0) return;
+    newDatas.push(...newSheetData);
+
+    //기존 데이터의 수정이 최신데이터의 일자보다 우선되어있는지 확인
+    const noLatestDatas = sheet.filter((sheetValue) => {
+      if (newDatas.length <= 0) {
+        return latestValues.every(
+          (latestValue) => latestValue[pkCol] != sheetValue[pkCol],
+        );
+      } else {
+        return (
+          latestValues.every(
+            (latestValue) => latestValue[pkCol] != sheetValue[pkCol],
+          ) && newDatas.every((newData) => newData[pkCol] != sheetValue[pkCol])
+        );
+      }
+    });
+    resultOfCheck = noLatestDatas.every((noLatestData, index) => {
+      const checkLatest = latestValues.find(
+        (latestValue) => latestValue[fkCol] == noLatestData[fkCol],
+      );
+      if (!this.compareDateIsNew(checkLatest, noLatestData, errorMsg)) {
+        let rowIdx;
+        sheet.find((sheetValue, idx) => {
+          if (sheetValue[pkCol] == noLatestData[pkCol]) rowIdx = idx;
+          return sheetValue[pkCol] == noLatestData[pkCol];
+        });
+        console.log(rowIdx);
+        errorMsg['rowIdx'] = rowIdx + 1;
+        return false;
+      } else {
+        return true;
+      }
+    });
+    if (!resultOfCheck) return 'The updated data is wrong';
+
+    if (newDatas.length <= 0) return;
 
     //최신 데이터의 일자가 과거데이터인지 확인
-    resultOfCheck = newDatas.every((newData) => {
+    resultOfCheck = newDatas.every((newData, index) => {
       const checkNew = latestValues.find(
         (latestValue) => latestValue[fkCol] == newData[fkCol],
       );
-      return this.compareDateIsNew(checkNew, newData[fkCol]);
+      if (!this.compareDateIsNew(checkNew, newData, errorMsg)) {
+        errorMsg['rowIdx'] = sheet.length + index;
+        return false;
+      } else {
+        return true;
+      }
     });
     if (!resultOfCheck) return 'The inserted data is wrong';
   }
 
   async updateDataToDB(repoName, tuple) {
     try {
+      // await this.initValidateDate(repoKeys[repoName], tuple);
       await this.dataSource
         .getRepository(entityArray[repoName])
         .createQueryBuilder(repoName)
@@ -440,6 +582,21 @@ export class SpreadService {
         .andWhere(`fk_user_no = :fk_user_no`, {
           fk_user_no: tuple['fk_user_no'],
         })
+        .execute();
+    } catch (err) {
+      // TODO (developer) - Handle exception
+      throw err;
+    }
+  }
+
+  async insertDataToDB(entity, tuple) {
+    try {
+      // await this.initValidateDate(repoKeys[repoName], tuple);
+      await this.dataSource
+        .createQueryBuilder()
+        .insert()
+        .into(entity)
+        .values(tuple)
         .execute();
     } catch (err) {
       // TODO (developer) - Handle exception
@@ -509,6 +666,7 @@ export class SpreadService {
     //스프레드에 날짜 저장 패턴이 바뀌면 문제가 생길 수 있음
     const datePattern =
       /[0-9]{4}. (0?[1-9]|1[012]). (0?[1-9]|[12][0-9]|3[0-1])$/; // yyyy-mm-dd 형식인지 체크
+    const numberPattern = /[^-\,0-9]/g;
     if (
       row[rowIdx] !== null &&
       row[rowIdx] !== undefined &&
@@ -517,7 +675,16 @@ export class SpreadService {
       if (datePattern.test(row[rowIdx])) {
         tuple[`${columnLabel.dbName}`] = this.changeDate(row[rowIdx]);
       } else if (row[rowIdx] !== '') {
-        tuple[`${columnLabel.dbName}`] = row[rowIdx];
+        if (
+          !numberPattern.test(row[rowIdx]) &&
+          row[rowIdx].indexOf(',') != -1
+        ) {
+          tuple[`${columnLabel.dbName}`] = Number(
+            row[rowIdx].replace(/\,/g, ''),
+          );
+        } else {
+          tuple[`${columnLabel.dbName}`] = row[rowIdx];
+        }
       }
     } else if (
       row[rowIdx] === null ||
@@ -534,17 +701,27 @@ export class SpreadService {
     }
   }
 
-  makeRowPerColumnToModify(row, columns, col, tuple) {
+  makeRowPerColumnToModify(row, columns, col, tuple, repoName) {
     const datePattern =
-      /[0-9]{4}. (0?[1-9]|1[012]). (0?[1-9]|[12][0-9]|3[0-1])$/; // yyyy-mm-dd 형식인지 체크
+      /[0-9]{4}. (0?[1-9]|1[012]). (0?[1-9]|[12][0-9]|3[0-1])$/;
     if (row[col] !== '') {
       if (datePattern.test(row[col])) {
         tuple[columns[col]] = this.changeDate(row[col]);
-      } else if (row[col] !== '') {
+      } else if (
+        row[col] !== null ||
+        row[col] !== '' ||
+        row[col] !== undefined
+      ) {
         tuple[columns[col]] = row[col];
       }
     } else {
-      tuple[columns[col]] = null;
+      tuple[`${columns[col]}`] = null;
+      if (
+        this.isDefaultColumn(repoKeys[repoName], columns[col]) ===
+        DEFAULT_VALUE.DEFAULT
+      ) {
+        this.initailizeSpreadNullValue(tuple, columns[col], repoKeys[repoName]);
+      }
     }
   }
 
@@ -605,13 +782,11 @@ export class SpreadService {
     }
     if (colObj.table === TABLENUM.USERCOMPUTATIONFUND) {
       // 메인시트와 동일한 형태로 저장된 경우
-      const datas = [];
       for (const colData of colDatas) {
         const columns = colData[0];
         const rows = (await colData).filter((value, index) => index > 0);
-        await this.makeAColumnInTable(columns, rows, datas, date, repoKey);
+        await this.makeAColumnInTable(columns, rows, date, repoKey);
       }
-      await this.insertArrayToDB(UserComputationFund, datas);
     } else if (
       colObj.table === TABLENUM.USERLEARNINGDATAAPI ||
       colObj.table === TABLENUM.USERHRDNETUTILIZECONSENT
@@ -665,7 +840,7 @@ export class SpreadService {
     }
   }
 
-  async makeAColumnInTable(cols, rows, datas, date, repoKey) {
+  async makeAColumnInTable(cols, rows, date, repoKey) {
     const pattern = /[0-9]{4}. (0?[1-9]|1[012]). (0?[1-9]|[12][0-9]|3[0-1])$/; // yyyy. mm. dd 형식인지 체크
     for (const col in cols) {
       date = cols[col];
@@ -684,7 +859,7 @@ export class SpreadService {
           }
           payment_data['fk_user_no'] = rows[row][1];
           await this.initValidateDate(repoKey, payment_data);
-          datas.push(payment_data);
+          await this.insertArrayToDB(UserComputationFund, payment_data);
         }
       }
     }
@@ -752,17 +927,19 @@ export class SpreadService {
 
   async getOldSheetTable(pastSheetData, repoKey) {
     // let colDatas;
-    const spreadData = await this.sendRequestToSpreadWithGoogleAPI(
-      pastSheetData.endPoint,
-      pastSheetData.Id[0], //스프레드 하위시트 ID
-    );
-    const columns = spreadData[0];
-    const rows = (await spreadData).filter((value, index) => index > 0);
+    for (const id of pastSheetData.Id) {
+      const spreadData = await this.sendRequestToSpreadWithGoogleAPI(
+        pastSheetData.endPoint,
+        id, //스프레드 하위시트 ID
+      );
+      const columns = spreadData[0];
+      const rows = (await spreadData).filter((value, index) => index > 0);
 
-    //지급일 시트 정보 받아서 저장해두기 테이블 관계수정 //확장성을 고려하려 했으나, 지원금 시트(LogColumn)의 특징이 강력하여 함수를 하나 더 만들기로 결정
+      //지급일 시트 정보 받아서 저장해두기 테이블 관계수정 //확장성을 고려하려 했으나, 지원금 시트(LogColumn)의 특징이 강력하여 함수를 하나 더 만들기로 결정
 
-    await this.parseOldSpread(columns, rows, pastSheetData, repoKey);
-    console.log('save', repoKey);
+      await this.parseOldSpread(columns, rows, pastSheetData, repoKey);
+      console.log('save', repoKey);
+    }
   }
 
   async composeTableData(spreadData, tableSet: TableSet[], old: boolean) {
@@ -911,8 +1088,6 @@ export class SpreadService {
       );
 
       if (target && checkedDate === DEFAULT_VALUE.NOT) {
-        // console.log(`table is ${repoKey}\n`, ` expired_date changed to `, now);
-        // console.log(JSON.stringify(target, null, 4));
         if (target[column] !== tuple[column]) {
           console.log(
             `change! ${repoKey}'s ${column} value ${target[column]} to ${value}`,

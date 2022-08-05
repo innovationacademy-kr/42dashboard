@@ -189,7 +189,6 @@ export class UpdaterService {
     }
     const latestData = await this.getLatestData();
     await this.compareNewDataWithLatestData(tableArray, latestData);
-
     return await 'All data has been updated';
   }
 
