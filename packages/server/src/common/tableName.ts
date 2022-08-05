@@ -11,7 +11,7 @@ export const tableName = {
   userHrdNetUtilizeConsent: 'HRD-Net 동의',
   userHrdNetUtilize: 'HRD-Net_data',
   userOtherEmploymentStatus: '취업_기타수집_data',
-  userEducationFundState: '지원금 관리',
+  // userEducationFundState: '지원금 관리',
   userComputationFund: '지원금 산정',
   userAccessCardInformation: '출입카드_info',
   userOtherInformation: '기타정보',

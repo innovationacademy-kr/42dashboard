@@ -6,7 +6,7 @@ import {
 } from 'src/user_job/entity/user_job.entity';
 import {
   UserComputationFund,
-  UserEducationFundState,
+  // UserEducationFundState,
 } from 'src/user_payment/entity/user_payment.entity';
 import {
   UserBlackhole,
@@ -34,7 +34,7 @@ const NonValExColumnEntity = [
   UserHrdNetUtilize,
   UserHrdNetUtilizeConsent,
   UserOtherEmploymentStatus,
-  UserEducationFundState,
+  // UserEducationFundState,
   UserComputationFund,
   UserAccessCardInformation,
   UserOtherEmploymentStatus,
@@ -74,7 +74,7 @@ const valExColumnEntity = [
   'userHrdNetUtilize',
   'userHrdNetUtilizeConsent',
   'userOtherEmploymentStatus',
-  'userEducationFundState',
+  // 'userEducationFundState',
   'userComputationFund',
   'userAccessCardInformation',
   'userOtherEmploymentStatus',

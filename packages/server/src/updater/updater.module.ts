@@ -26,7 +26,7 @@ import { UpdaterController } from './updater.controller';
 import { ApiService } from 'src/api/api.service';
 import {
   UserComputationFund,
-  UserEducationFundState,
+  // UserEducationFundState,
 } from 'src/user_payment/entity/user_payment.entity';
 import { SpreadService } from 'src/spread/spread.service';
 
@@ -45,7 +45,7 @@ import { SpreadService } from 'src/spread/spread.service';
       UserHrdNetUtilizeConsent,
       UserHrdNetUtilize,
       UserOtherEmploymentStatus,
-      UserEducationFundState,
+      // UserEducationFundState,
       UserComputationFund,
       UserAccessCardInformation,
       UserOtherInformation,

@@ -102,10 +102,35 @@ export class SpreadService {
     }
   }
 
+  //DB컬럼(영어) -> 스프레드컬럼(한글)
+  convDBColumnToSpreadColumn(DBCol, entityColumns) {
+    return DBCol.map((col) => {
+      const spreadCol = entityColumns.find(
+        (entitycol) => entitycol.dbName === col,
+      );
+      if (spreadCol === undefined) {
+        return col;
+      } else {
+        return spreadCol.spName;
+      }
+    });
+  }
+
+  //스프레드컬럼(한글) -> DB컬럼(영어)
+  convSpreadColumnToDBColumn(spreadCol, entityColumns) {
+    return spreadCol.map((col) => {
+      const DBCol = entityColumns.find((entitycol) => entitycol.spName === col);
+      if (DBCol === undefined) {
+        return col;
+      } else {
+        return DBCol.dbName;
+      }
+    });
+  }
+
   /*  DB에 있는 데이터를 수정하기 위해 스프레드 시트로 옮기는 함수  */
   async getDataToModifyFromDB(endPoint: string, repoName) {
     // google spread sheet api 가져오기
-
     const googleSheet = await this.getGoogleSheetAPI();
     const createPage = [
       {
@@ -129,7 +154,11 @@ export class SpreadService {
           pk: 'ASC',
         },
       });
-    values.push(Object.keys(datas[0]));
+    const spreadCol = this.convDBColumnToSpreadColumn(
+      Object.keys(datas[0]),
+      EntityColumn[this.capitalize(repoName)],
+    );
+    values.push(spreadCol);
     datas.forEach((data) => values.push(Object.values(data)));
     const request = {
       // 업데이트 하기위한 시트의 id값.
@@ -283,7 +312,12 @@ export class SpreadService {
       endPoint,
       tableName[repoName],
     );
-    const columns = spreadData[0];
+    const columns = this.convSpreadColumnToDBColumn(
+      spreadData[0],
+      EntityColumn[this.capitalize(repoName)],
+    );
+    spreadData.shift();
+    spreadData.unshift(columns);
     const rows = (await spreadData).filter((value, index) => index > 0);
     try {
       const ret = await this.compareDataToCheckError(
@@ -385,10 +419,18 @@ export class SpreadService {
     return ret;
   }
 
-  convSheetDataToDate(newData, oldDate, errorMsg, idx) {
+  convSheetDataToDate(newData, oldDate, validCol, errorMsg, idx) {
+    let validateCheck;
     const newDate = new Date(newData[idx]);
     if (newDate instanceof Date && !isNaN(newDate.getTime())) {
-      if (oldDate <= newDate) {
+      if (validCol == idx) {
+        validateCheck = oldDate <= newDate;
+      } else {
+        validateCheck = oldDate < newDate;
+        if (newDate.toISOString() === '9999-12-30T15:00:00.000Z')
+          validateCheck = false;
+      }
+      if (validateCheck) {
         this.makeErrorMsg(
           errorMsg,
           this.numToAlpha(idx + 1),
@@ -409,7 +451,7 @@ export class SpreadService {
 
   // 새로 갱신된 데이터가 db최신보다 빠른 날짜인지 확인하는 함수
   //dbData = DB에 있던 latest 데이터, newData = 갱신된 데이터
-  compareDateIsNew(dbData, newData, errorMsg) {
+  compareDateIsNew(dbData, newData, validCol, errorMsg) {
     const datePattern = /[0-9]{4}-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[0-1])$/;
 
     return dbData.every((data, idx) => {
@@ -417,9 +459,15 @@ export class SpreadService {
 
       if (datePattern.test(data)) {
         oldDate = new Date(data);
-        return this.convSheetDataToDate(newData, oldDate, errorMsg, idx);
+        return this.convSheetDataToDate(
+          newData,
+          oldDate,
+          validCol,
+          errorMsg,
+          idx,
+        );
       } else if (data instanceof Date) {
-        return this.convSheetDataToDate(newData, data, errorMsg, idx);
+        return this.convSheetDataToDate(newData, data, validCol, errorMsg, idx);
       }
       return true;
     });
@@ -447,11 +495,11 @@ export class SpreadService {
       .getMany();
     const latestValues = [];
     latestValues.push(Object.keys(latestData[0]));
-    latestData.forEach((data) => latestValues.push(Object.values(data))); // DB데이터 뽑아오기
+    latestData.forEach((data) => latestValues.push(Object.values(data)));
 
-    const pkCol = dbvalues[0].findIndex((col) => col === 'pk');
+    const pkCol = dbvalues[0].findIndex((col) => col === 'pk'); //pk, fk위치 파악
     const fkCol = dbvalues[0].findIndex((col) => col === 'fk_user_no');
-    const validDate = dbvalues[0].findIndex((col) => col === 'validate_date');
+    const validCol = dbvalues[0].findIndex((col) => col === 'validate_date');
 
     //column이 동일한지 체크
     let resultOfCheck;
@@ -532,17 +580,19 @@ export class SpreadService {
         );
       }
     });
+
     resultOfCheck = noLatestDatas.every((noLatestData, index) => {
       const checkLatest = latestValues.find(
         (latestValue) => latestValue[fkCol] == noLatestData[fkCol],
       );
-      if (!this.compareDateIsNew(checkLatest, noLatestData, errorMsg)) {
+      if (
+        !this.compareDateIsNew(checkLatest, noLatestData, validCol, errorMsg)
+      ) {
         let rowIdx;
         sheet.find((sheetValue, idx) => {
           if (sheetValue[pkCol] == noLatestData[pkCol]) rowIdx = idx;
           return sheetValue[pkCol] == noLatestData[pkCol];
         });
-        console.log(rowIdx);
         errorMsg['rowIdx'] = rowIdx + 1;
         return false;
       } else {
@@ -553,12 +603,12 @@ export class SpreadService {
 
     if (newDatas.length <= 0) return;
 
-    //최신 데이터의 일자가 과거데이터인지 확인
+    //삽입된 데이터의 수정이 최신데이터의 일자보다 우선되어있는지 확인
     resultOfCheck = newDatas.every((newData, index) => {
       const checkNew = latestValues.find(
         (latestValue) => latestValue[fkCol] == newData[fkCol],
       );
-      if (!this.compareDateIsNew(checkNew, newData, errorMsg)) {
+      if (!this.compareDateIsNew(checkNew, newData, validCol, errorMsg)) {
         errorMsg['rowIdx'] = sheet.length + index;
         return false;
       } else {
@@ -641,6 +691,10 @@ export class SpreadService {
 
   compareFk(fk) {
     return (data) => data.fk_user_no === fk;
+  }
+
+  getKeyByValue(object, value) {
+    return Object.keys(object).find((key) => object[key] === value);
   }
 
   isKeyExists(obj, key) {
@@ -952,10 +1006,6 @@ export class SpreadService {
     }
   }
 
-  getKeyByValue(object, value) {
-    return Object.keys(object).find((key) => object[key] === value);
-  }
-
   async composeTableData(spreadData, tableSet: TableSet[], old: boolean) {
     let tables;
     const table = spreadData[0]; //맨 윗 줄 테이블이름
@@ -986,6 +1036,7 @@ export class SpreadService {
 
   makeTableSet(tableSet: TableSet[], endOfTables, tableIdxs) {
     //table의 모든 정보를 TableSet인스턴스에 담는 작업을 하는 함수입니다.
+    console.log(tableIdxs);
     for (const tableIdx in tableIdxs) {
       const table = {} as TableSet;
       const mapCol =
@@ -996,6 +1047,8 @@ export class SpreadService {
       table['start'] = endOfTables[tableIdx];
       table['end'] = endOfTables[+tableIdx + 1];
       table['mapCol'] = mapCol;
+      console.log(table.name);
+      console.log(table['mapCol']);
       tableSet.push(table);
     }
   }
@@ -1025,8 +1078,8 @@ export class SpreadService {
       return 'user_hrd_net_utilize';
     else if (spreadTable === '취업_기타수집_data' || spreadTable === '11')
       return 'user_other_employment_status';
-    else if (spreadTable === '지원금 관리' || spreadTable === '12')
-      return 'user_education_fund_state';
+    // else if (spreadTable === '지원금 관리' || spreadTable === '12')
+    //   return 'user_education_fund_state';
     else if (spreadTable === '지원금 산정' || spreadTable === '13')
       return 'user_computation_fund';
     else if (spreadTable === '출입카드_info' || spreadTable === '14')

@@ -5,12 +5,12 @@ import { UserPaymentService } from './user_payment.service';
 import { UserPaymentResolver } from './user_payment.resolver';
 import {
   UserComputationFund,
-  UserEducationFundState,
+  // UserEducationFundState,
 } from './entity/user_payment.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserComputationFund, UserEducationFundState]),
+    TypeOrmModule.forFeature([UserComputationFund]), //, UserEducationFundState]),
   ],
   controllers: [UserPaymentController],
   providers: [UserPaymentService, UserPaymentResolver],

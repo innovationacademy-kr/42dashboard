@@ -2,7 +2,7 @@ import { Args, Query, Resolver } from '@nestjs/graphql';
 import { CheckDuplication } from 'src/user_information/argstype/checkDuplication.argstype';
 import {
   UserComputationFund,
-  UserEducationFundState,
+  //  UserEducationFundState,
 } from './entity/user_payment.entity';
 import { UserPaymentService } from './user_payment.service';
 
@@ -15,8 +15,8 @@ export class UserPaymentResolver {
     return this.userPaymentService.getUserComputationFund(checkDuplication);
   }
 
-  @Query(() => [UserEducationFundState])
-  async getUserEducationFundState(@Args() checkDuplication: CheckDuplication) {
-    return this.userPaymentService.getUserEducationFundState(checkDuplication);
-  }
+  // @Query(() => [UserEducationFundState])
+  // async getUserEducationFundState(@Args() checkDuplication: CheckDuplication) {
+  //   return this.userPaymentService.getUserEducationFundState(checkDuplication);
+  // }
 }

@@ -8,7 +8,7 @@ import {
 } from 'src/user_job/entity/user_job.entity';
 import {
   UserComputationFund,
-  UserEducationFundState,
+  // UserEducationFundState,
 } from 'src/user_payment/entity/user_payment.entity';
 import {
   UserLearningDataAPI,
@@ -82,8 +82,8 @@ export class JoinedTable {
   @Field((type) => [UserOtherEmploymentStatus], { nullable: true })
   userOtherEmploymentStatus: UserOtherEmploymentStatus[];
 
-  @Field((type) => [UserEducationFundState], { nullable: true })
-  userEducationFundState: UserEducationFundState[];
+  // @Field((type) => [UserEducationFundState], { nullable: true })
+  // userEducationFundState: UserEducationFundState[];
 
   @Field((type) => [UserLearningDataAPI], { nullable: true })
   userLearningDataAPI: UserLearningDataAPI[];

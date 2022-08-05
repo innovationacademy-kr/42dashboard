@@ -37,7 +37,7 @@ import {
 } from 'src/user_job/entity/user_job.entity';
 import {
   UserComputationFund,
-  UserEducationFundState,
+  // UserEducationFundState,
 } from 'src/user_payment/entity/user_payment.entity';
 import {
   UserBlackhole,
@@ -50,25 +50,25 @@ import {
 } from 'src/user_status/entity/user_status.entity';
 import { EntityColumn } from 'src/common/EntityColumn';
 
-export const enum TABLENUM {
-  USER = 0,
-  USERPERSONAL = 1,
-  USERCOURSEEXTENSION = 2,
-  USERLEAVEOFABSENCE = 3,
-  USERBLACKHOLE = 4,
-  USERINTERRUPTIONOFCOURSE = 5,
-  USERLEARNINGDATAAPI = 6,
-  USERLOYALTYMANAGEMENT = 7,
-  USEREMPLOYMENTSTATUS = 8,
-  USERHRDNETUTILIZECONSENT = 9,
-  USERHRDNETUTILIZE = 10,
-  USEROTHEREMPLOYMENTSTATUS = 11,
-  USEREDUCATIONFUNDSTATE = 12,
-  USERCOMPUTATIONFUND = 13,
-  USERACCESSCARDINFORMATION = 14,
-  USEROTHERINFORMATION = 15,
-  USERLAPISCINEINFORMATION = 16,
-}
+// export const enum TABLENUM {
+//   USER = 0,
+//   USERPERSONAL = 1,
+//   USERCOURSEEXTENSION = 2,
+//   USERLEAVEOFABSENCE = 3,
+//   USERBLACKHOLE = 4,
+//   USERINTERRUPTIONOFCOURSE = 5,
+//   USERLEARNINGDATAAPI = 6,
+//   USERLOYALTYMANAGEMENT = 7,
+//   USEREMPLOYMENTSTATUS = 8,
+//   USERHRDNETUTILIZECONSENT = 9,
+//   USERHRDNETUTILIZE = 10,
+//   USEROTHEREMPLOYMENTSTATUS = 11,
+//   USEREDUCATIONFUNDSTATE = 12,
+//   USERCOMPUTATIONFUND = 13,
+//   USERACCESSCARDINFORMATION = 14,
+//   USEROTHERINFORMATION = 15,
+//   USERLAPISCINEINFORMATION = 16,
+// }
 
 export const pastDataOnSheet = [
   //spread수정해야함!
@@ -78,70 +78,70 @@ export const pastDataOnSheet = [
     endPoint: null,
     Id: null,
     columns: EntityColumn['User'],
-    table: TABLENUM.USER,
+    table: 'User',
   },
   {
     //인적정보
     endPoint: null,
     Id: null,
     columns: EntityColumn['UserPersonalInformation'],
-    table: TABLENUM.USERPERSONAL,
+    table: 'UserPersonalInformation',
   },
   {
     //과정연장
     endPoint: null,
     Id: null,
     columns: EntityColumn['UserCourseExtension'],
-    table: TABLENUM.USERCOURSEEXTENSION,
+    table: 'UserCourseExtension',
   },
   {
     // 휴학
     endPoint: SPREAD_END_POINT,
     Id: [SUB_LEAVEOFABSENCE_ID],
     columns: EntityColumn['UserLeaveOfAbsence'],
-    table: TABLENUM.USERLEAVEOFABSENCE,
+    table: 'UserLeaveOfAbsence',
   },
   {
     // 블랙홀
     endPoint: SPREAD_END_POINT,
     Id: [SUB_BLACKHOLE_ID],
     columns: EntityColumn['UserBlackhole'],
-    table: TABLENUM.USERBLACKHOLE,
+    table: 'UserBlackhole',
   },
   {
     // 과정중단
     endPoint: SPREAD_END_POINT,
     Id: [SUB_INTERRUPTIONOFCOURSE_ID],
     columns: EntityColumn['UserInterruptionOfCourse'],
-    table: TABLENUM.USERINTERRUPTIONOFCOURSE,
+    table: 'UserInterruptionOfCourse',
   },
   {
     // 학습데이터 API
     endPoint: null,
     Id: null,
     columns: EntityColumn['UserLearningDataAPI'],
-    table: TABLENUM.USERLEARNINGDATAAPI,
+    table: 'UserLearningDataAPI',
   },
   {
     // 로열티 관리
     endPoint: SPREAD_END_POINT,
     Id: [SUB_LOYALTYMANAGEMENT_22_1_ID, SUB_LOYALTYMANAGEMENT_22_2_ID],
     columns: EntityColumn['UserLoyaltyManagement'],
-    table: TABLENUM.USERLOYALTYMANAGEMENT,
+    table: 'UserLoyaltyManagement',
   },
   {
     // 취업현황
     endPoint: SPREAD_END_POINT,
     Id: [SUB_EMPLOYMENTSTATUS_ID],
     columns: EntityColumn['UserEmploymentStatus'],
-    table: TABLENUM.USEREMPLOYMENTSTATUS,
+    table: 'UserEmploymentStatus',
   },
   {
     // HRD-Net_consent
     endPoint: null,
     Id: null,
     columns: EntityColumn['UserHrdNetUtilizeConsent'],
-    table: TABLENUM.USERHRDNETUTILIZECONSENT,
+    table: 'UserHrdNetUtilizeConsent',
   },
   {
     // HRD-Net_data
@@ -155,49 +155,49 @@ export const pastDataOnSheet = [
       SUB_HRDNETUTILIZE_22_6_ID,
     ],
     columns: EntityColumn['UserHrdNetUtilize'],
-    table: TABLENUM.USERHRDNETUTILIZE,
+    table: 'UserHrdNetUtilize',
   },
   {
     // 취업_기타수집_data
     endPoint: SPREAD_END_POINT,
     Id: [SUB_OTHEREMPLOYMENTSTATUS_ID],
     columns: EntityColumn['UserOtherEmploymentStatus'],
-    table: TABLENUM.USEROTHEREMPLOYMENTSTATUS,
+    table: 'UserOtherEmploymentStatus',
   },
-  {
-    // 지원금관리
-    endPoint: SPREAD_END_POINT,
-    Id: [SUB_EDUCATIONFUNDSTATE_ID],
-    columns: EntityColumn['UserEducationFundState'],
-    table: TABLENUM.USEREDUCATIONFUNDSTATE,
-  },
+  // {
+  //   // 지원금관리
+  //   endPoint: SPREAD_END_POINT,
+  //   Id: [SUB_EDUCATIONFUNDSTATE_ID],
+  //   columns: EntityColumn['UserEducationFundState'],
+  //   table: 'UserEducationFundState',
+  // },
   {
     // 지원금 산정
     endPoint: null,
     Id: null,
     columns: EntityColumn['UserComputationFund'],
-    table: TABLENUM.USERCOMPUTATIONFUND,
+    table: 'UserComputationFund',
   },
   {
     // 출입카드_info
     endPoint: null,
     Id: null,
     columns: EntityColumn['UserAccessCardInformation'],
-    table: TABLENUM.USERACCESSCARDINFORMATION,
+    table: 'UserAccessCardInformation',
   },
   {
     // 기타정보
     endPoint: null,
     Id: null,
     columns: EntityColumn['UserOtherInformation'],
-    table: TABLENUM.USEROTHERINFORMATION,
+    table: 'UserOtherInformation',
   },
   {
     // La piscine
     endPoint: null,
     Id: null,
     columns: EntityColumn['UserLapiscineInformation'],
-    table: TABLENUM.USERLAPISCINEINFORMATION,
+    table: 'UserLapiscineInformation',
   },
 ];
 
@@ -210,17 +210,17 @@ export const pastDataOnColumn = [
       SUB_COMPUTATIONFUND2021_ID,
       SUB_COMPUTATIONFUND2022_ID,
     ],
-    table: TABLENUM.USERCOMPUTATIONFUND,
+    table: 'UserComputationFund',
   },
   {
     endPoint: SPREAD_END_POINT,
     Id: [SUB_COALITION_API_ID, SUB_CIRCLE_API_ID, SUB_LEVEL_API_ID],
-    table: TABLENUM.USERLEARNINGDATAAPI,
+    table: 'UserLearningDataAPI',
   },
   {
     endPoint: SPREAD_END_POINT,
     Id: [SUB_HRDNETUTILIZE_CONSENT_ID],
-    table: TABLENUM.USERHRDNETUTILIZECONSENT,
+    table: 'UserHrdNetUtilizeConsent',
   },
 ];
 
@@ -240,7 +240,7 @@ export const repoKeys = {
   userHrdNetUtilizeConsent: 'user_hrd_net_utilize_consent',
   userHrdNetUtilize: 'user_hrd_net_utilize',
   userOtherEmploymentStatus: 'user_other_employment_status',
-  userEducationFundState: 'user_education_fund_state',
+  // userEducationFundState: 'user_education_fund_state',
   userComputationFund: 'user_computation_fund',
   userAccessCardInformation: 'user_access_card_information',
   userOtherInformation: 'user_other_information',
@@ -348,14 +348,14 @@ export const defaultVALUE = {
     expired_date: '9999-12-31',
   },
 
-  user_education_fund_state: {
-    total_payment_of_number: 0,
-    total_payment_of_money: '0',
-    payment_end_date: '9999-12-31',
-    //uniqueness: '0',
-    validate_date: '9999-12-31',
-    expired_date: '9999-12-31',
-  },
+  // user_education_fund_state: {
+  //   total_payment_of_number: 0,
+  //   total_payment_of_money: '0',
+  //   payment_end_date: '9999-12-31',
+  //   //uniqueness: '0',
+  //   validate_date: '9999-12-31',
+  //   expired_date: '9999-12-31',
+  // },
 
   //하위시트에서 받아올 때는 makeAColumnInTable에서 초기화를 함
   user_computaion_fund: {
@@ -398,7 +398,7 @@ export const dateTable = {
   [repoKeys.userHrdNetUtilizeConsent]: 'validate_date',
   [repoKeys.userHrdNetUtilize]: 'validate_date',
   [repoKeys.userOtherEmploymentStatus]: 'validate_date',
-  [repoKeys.userEducationFundState]: 'validate_date',
+  // [repoKeys.userEducationFundState]: 'validate_date',
   [repoKeys.userComputationFund]: 'validate_date',
   [repoKeys.userAccessCardInformation]: 'validate_date',
   [repoKeys.userOtherInformation]: 'validate_date',
@@ -418,7 +418,7 @@ export const classType = {
   [repoKeys.userHrdNetUtilizeConsent]: UserHrdNetUtilizeConsent,
   [repoKeys.userHrdNetUtilize]: UserHrdNetUtilize,
   [repoKeys.userOtherEmploymentStatus]: UserOtherEmploymentStatus,
-  [repoKeys.userEducationFundState]: UserEducationFundState,
+  // [repoKeys.userEducationFundState]: UserEducationFundState,
   [repoKeys.userComputationFund]: UserComputationFund,
   [repoKeys.userAccessCardInformation]: UserAccessCardInformation,
   [repoKeys.userOtherInformation]: UserOtherInformation,
