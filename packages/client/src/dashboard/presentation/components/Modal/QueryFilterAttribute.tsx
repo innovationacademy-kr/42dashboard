@@ -1,6 +1,6 @@
 import * as React from 'react';
 import styled from '@emotion/styled';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import { Button } from '@mui/material';
 import { useLazyQuery } from '@apollo/client';
 import createValueQuery from '../../../infrastructure/http/graphql/createValueQuery';
 import {
@@ -101,7 +101,8 @@ export default function QueryFilterAttribute(props: DatasetFilterProps) {
         value={latest}
         onChange={handleLatestChange}
       />
-      <CheckCircleOutlineIcon
+      <Button
+        variant="contained"
         onClick={() =>
           checkEmptyAttribute() &&
           saveSelectedFilter({
@@ -112,9 +113,9 @@ export default function QueryFilterAttribute(props: DatasetFilterProps) {
             latest,
           })
         }
-        color="primary"
-        fontSize="large"
-      />
+      >
+        Save
+      </Button>
     </Section>
   );
 }
