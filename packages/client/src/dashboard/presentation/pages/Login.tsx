@@ -3,9 +3,11 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useUser from '../../application/services/useUser';
 import UserType from '../../domain/user/user.type';
+import { ReactComponent as DashLogo } from '../../../assets/images/logo.svg';
 
 const LoginPage = styled.div`
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   background-color: black;
@@ -13,11 +15,19 @@ const LoginPage = styled.div`
 `;
 
 const LoginButton = styled.button`
-  width: 400px;
+  width: 500px;
   height: 100px;
-  border: 1px solid blue;
-  background-color: grey;
+  border-radius: 1rem;
+  background-color: darkgrey;
   cursor: pointer;
+  font-size: 3rem;
+  transition: all 0.7s;
+  color: black;
+  &:hover {
+    background-color: grey;
+    color: white;
+    font-size: 4rem;
+  }
 `;
 
 // TODO: hybae
@@ -40,6 +50,7 @@ function Login() {
 
   return (
     <LoginPage>
+      <DashLogo width="550px"></DashLogo>
       <LoginButton onClick={() => handleClick()}>LOGIN</LoginButton>
     </LoginPage>
   );
