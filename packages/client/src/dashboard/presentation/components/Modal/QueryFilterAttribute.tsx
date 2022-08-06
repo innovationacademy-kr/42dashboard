@@ -43,7 +43,7 @@ export default function QueryFilterAttribute(props: DatasetFilterProps) {
 
   const checkEmptyAttribute = () => {
     if (!entityName || !column || !operator || !givenValue || !latest) {
-      alert('Please fill all the fields');
+      alert('빈칸을 채워 주세요');
       return false;
     }
     return true;
