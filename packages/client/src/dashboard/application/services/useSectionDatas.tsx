@@ -46,10 +46,10 @@ function useSections() {
       ...currentSection.stickerLayouts,
       {
         i: stickerId,
-        x: (currentSection.stickerLayouts.length * 2) % 12,
+        x: (currentSection.stickerLayouts.length % 2) * 4,
         y: Infinity,
-        w: 5,
-        h: 5,
+        w: 4,
+        h: 4,
       },
     ];
     currentSection.stickerIds.push(stickerId);

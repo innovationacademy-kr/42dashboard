@@ -42,10 +42,10 @@ function useBoard() {
       ...boardData.sectionLayouts,
       {
         i: sectionId,
-        x: (boardData.sectionLayouts.length * 2) % 12,
+        x: (boardData.sectionLayouts.length % 2) * 4,
         y: Infinity,
-        w: 5,
-        h: 5,
+        w: 4,
+        h: 4,
       },
     ];
     boardData.sectionIds.push(sectionId);
