@@ -18,7 +18,7 @@ function useUser() {
     return userService.getUser();
   };
 
-  const setUser = (user: UserType) => {
+  const setUser = (user: UserType | null) => {
     return userService.setUser(user);
   };
 
