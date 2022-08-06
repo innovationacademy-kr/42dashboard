@@ -1,10 +1,11 @@
 import { ListItem, ListItemText } from '@mui/material';
+import { tableName } from 'common/src';
 import { useState } from 'react';
 import RequestButton from './RequestButton';
 import SaveButton from './SaveButton';
 
 export interface EntityListItemProps {
-  entityName: string;
+  entityName: keyof typeof tableName;
 }
 export default function EntityListItem(props: EntityListItemProps) {
   const { entityName } = props;
@@ -35,7 +36,7 @@ export default function EntityListItem(props: EntityListItemProps) {
         setRequest(true);
       }}
     >
-      <ListItemText primary={entityName} />
+      <ListItemText primary={tableName[entityName]} />
       {request && (
         <SaveButton
           entityName={entityName}
