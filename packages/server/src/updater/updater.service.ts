@@ -179,7 +179,7 @@ export class UpdaterService {
     const tableArray = {};
     for (const table of tableSet) {
       tableArray[table['name']] = {};
-      console.log(table['name']);
+      console.log(table['name'], 'in for');
       tableArray[table['name']] = await this.spreadService.parseSpread(
         columns,
         rows,

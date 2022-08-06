@@ -136,6 +136,7 @@ type UserComputationFund {
   total_payment_of_money: Float!
   total_payment_of_number: Float!
   total_payment_period_number: Float!
+  uniqueness: String
   validate_date: DateTime!
 }
 

@@ -372,6 +372,7 @@ export const defaultVALUE = {
     total_payment_period_number: 0,
     payment_end_date: '9999-12-31',
     payment_ended: '지원',
+    uniqueness: '0',
   },
 
   user_access_card_information: {
@@ -409,7 +410,7 @@ export const oldDateTable = {
   [repoKeys.userHrdNetUtilizeConsent]: 'validate_date',
   [repoKeys.userHrdNetUtilize]: 'validate_date',
   [repoKeys.userOtherEmploymentStatus]: 'validate_date',
-  [repoKeys.userEducationFundState]: 'validate_date',
+  // [repoKeys.userEducationFundState]: 'validate_date',
   [repoKeys.userComputationFund]: 'payment_date',
   [repoKeys.userAccessCardInformation]: 'validate_date',
   [repoKeys.userOtherInformation]: 'validate_date',
