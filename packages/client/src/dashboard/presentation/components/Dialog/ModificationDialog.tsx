@@ -7,7 +7,7 @@ import {
   Typography,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { EntityColumn } from 'common/src';
+import { EntityColumn, tableName } from 'common/src';
 import EntityListItem from './EntityListItem';
 import camelize from '../../../application/utils/camelize';
 
@@ -22,7 +22,10 @@ export default function ModificationDialog(props: ModificationDialogProps) {
     return Object.keys(EntityColumn).map((entityName: string) => {
       if (entityName === 'User') return null;
       return (
-        <EntityListItem key={entityName} entityName={camelize(entityName)} />
+        <EntityListItem
+          key={entityName}
+          entityName={camelize(entityName) as keyof typeof tableName}
+        />
       );
     });
   }

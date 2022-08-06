@@ -52,7 +52,7 @@ const createAllEntityFilters = () => {
       latest: true,
     };
   }
-  console.log(allEntityFilters);
+
   return allEntityFilters;
 };
 const DEFAULT_TABLE_PROPS = {
