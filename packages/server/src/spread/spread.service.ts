@@ -803,11 +803,6 @@ export class SpreadService {
           table['name'],
         );
       }
-      if (table['name'] == 'user_computation_fund') {
-        tuple['recevied_amount'] = Number(
-          tuple['recevied_amount'].replace(/\,/g, ''),
-        );
-      }
       if (api42s != undefined) {
         // 해당 intra_no인 사람의 api 데이터를 가져오가
         const api42 = await this.apiService.getTupleFromApi(row[1], api42s);
@@ -1050,12 +1045,16 @@ export class SpreadService {
 
   // 변수의 앞글자만 대문자로 변환
   capitalize(str: string) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
+    try {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    } catch {
+      throw 'error : to capitalize';
+    }
   }
 
   makeTableSet(tableSet: TableSet[], endOfTables, tableIdxs) {
     //table의 모든 정보를 TableSet인스턴스에 담는 작업을 하는 함수입니다.
-    console.log(tableIdxs);
+    console.log(`makeTableSet\n tableIdx : `, tableIdxs);
     for (const tableIdx in tableIdxs) {
       const table = {} as TableSet;
       const mapCol =
@@ -1067,7 +1066,7 @@ export class SpreadService {
       table['end'] = endOfTables[+tableIdx + 1];
       table['mapCol'] = mapCol;
       console.log(table.name);
-      console.log(table['mapCol']);
+      console.log(table['mapCol'], 'end makeTablest');
       tableSet.push(table);
     }
   }

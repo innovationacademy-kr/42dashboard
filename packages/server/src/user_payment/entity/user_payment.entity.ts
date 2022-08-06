@@ -66,13 +66,13 @@ export class UserComputationFund extends BaseEntity {
   @Column({ name: 'payment_ended', nullable: false, default: '지원' })
   payment_ended: string;
 
+  @Field({ nullable: true })
+  @Column({ name: 'uniqueness', nullable: true, default: 0 })
+  uniqueness: string;
+
   @Field({ nullable: false })
   @CreateDateColumn({ name: 'created_date' })
   created_date: Date;
-
-  @Field()
-  @DeleteDateColumn()
-  deleted_date: Date;
 
   @Field()
   @Column({
@@ -89,6 +89,10 @@ export class UserComputationFund extends BaseEntity {
     default: '9999-12-31',
   })
   expired_date: Date;
+
+  @Field()
+  @DeleteDateColumn()
+  deleted_date: Date;
 
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;

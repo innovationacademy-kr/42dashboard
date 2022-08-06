@@ -117,6 +117,7 @@ export const EntityColumn = {
     { spName: '지급일', dbName: 'payment_date' },
     { spName: '수령여부', dbName: 'received' },
     { spName: '수령금액', dbName: 'recevied_amount' },
+    { spName: '특이사항', dbName: 'uniqueness' },
   ],
   UserAccessCardInformation: [
     //userAccessCardInformation
