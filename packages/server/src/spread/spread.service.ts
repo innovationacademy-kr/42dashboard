@@ -19,7 +19,7 @@ import {
 import { UserHrdNetUtilizeConsent } from 'src/user_job/entity/user_job.entity';
 import { UserComputationFund } from 'src/user_payment/entity/user_payment.entity';
 import { UserLearningDataAPI } from 'src/user_status/entity/user_status.entity';
-import { Brackets, Column, createQueryBuilder, DataSource } from 'typeorm';
+import { Brackets, DataSource } from 'typeorm';
 import { MAIN_SHEET, SPREAD_END_POINT } from 'src/config/key';
 import { TableSet } from 'src/updater/updater.service';
 import {
@@ -1134,10 +1134,7 @@ export class SpreadService {
       targetObj[key] = this.createDate(targetObj[key]);
       newOneData[key] = this.createDate(newOneData[key]);
 
-      //console.log(targetObj[key], 'before');
       if (newOneData[key].getTime() != targetObj[key].getTime() + LOCALTIME) {
-        //console.log(newOneData[key], 'after');
-        //newOneData[key].setTime(newOneData[key].getTime() + 32400000);
         await this.initValidateDate(tableName, newOneData, dateTable);
         console.log(
           `table is ${tableName}\n
@@ -1146,15 +1143,16 @@ export class SpreadService {
           'is date changed to ',
           newOneData[key],
         );
-        // if (autoProcessingDataObj[tableName] !== undefined) {
-        //   const processData = Object.values(autoProcessingDataObj[tableName]);
-        //   await this.autoProcessingData(
-        //     tableName,
-        //     newOneData,
-        //     processData,
-        //     dateTable,
-        //   );
-        // }
+        if (autoProcessingDataObj[tableName] !== undefined) {
+          const processData = Object.values(autoProcessingDataObj[tableName]);
+          const processedDataObj = await this.autoProcessingData(
+            tableName,
+            newOneData,
+            processData,
+            dateTable,
+          );
+          if (processData !== undefined) newOneData = processedDataObj;
+        }
         if (tableName !== 'user') {
           const changeData = repo.create(newOneData);
           repo.save(changeData);
@@ -1243,7 +1241,6 @@ export class SpreadService {
         .andWhere(`validate_date <= :expiredDate`, { expiredDate }) //validate_date가 만료될 날짜보다 앞선 시간대에서 최신 데이터를 가져오기 위함
         .getOne();
       if (target) {
-        // console.log(`table is ${repoKey}\n`, ` expired_date changed to `, now);
         // console.log(JSON.stringify(target, null, 4));
         target.expired_date = expiredDate;
         await repo.save(target);
@@ -1315,7 +1312,6 @@ export class SpreadService {
     //try {
     for (const obj of dateObj) {
       const absenceDate = this.getDateDiff(obj[startDate], obj[endDate]);
-      // console.log(typeof absenceDate, 'agsdgs');
       sumDate += absenceDate;
     }
     sumDate += date.getTime();
@@ -1333,7 +1329,6 @@ export class SpreadService {
 
       if (tableName == 'user') key = 'intra_no';
       else key = 'fk_user_no';
-      // console.log(startDate, '  ', endDate);
       const target = await repo
         .createQueryBuilder(tableName)
         .select(`${tableName}.begin_absence_date`)
@@ -1346,7 +1341,7 @@ export class SpreadService {
           payment_date: endDate,
         })
         .getMany();
-      console.log(target, 'getAbsenceDates');
+      console.log(target, '기간 내 휴학 date');
       return target;
     } catch {
       throw 'error : in getAbsenceDates';
@@ -1364,14 +1359,6 @@ export class SpreadService {
   ) {
     const repo = this.dataSource.getRepository(classType[tableName]);
     let key;
-    // console.log(
-    //   `tableName: ${tableName}, \n`,
-    //   `column: ${column}, \n`,
-    //   `valuecolumn: ${valueColumn}, \n`,
-    //   //`value: ${value}, \n`,
-    //   `date: ${date}, - ${tuple[date]} \n`,
-    //   'in sususus',
-    // );
 
     if (tableName == 'user') key = 'intra_no';
     else key = 'fk_user_no';
@@ -1393,7 +1380,6 @@ export class SpreadService {
           }),
         )
         .getRawOne(); //sum같은 집게된 값을 얻으려면 getMany같은 entity값을 받은 것이 아닌 원시값을 받는 raw를 써야함
-      console.log(sumValue, 'sumValue');
       return sumValue;
     } else {
       const sumValue = await repo
@@ -1404,7 +1390,6 @@ export class SpreadService {
           date: tuple[date],
         })
         .getRawOne(); //sum같은 집게된 값을 얻으려면 getMany같은 entity값을 받은 것이 아닌 원시값을 받는 raw를 써야함
-      console.log(sumValue, 'undefined sumValue');
       return sumValue;
     }
   }
@@ -1419,7 +1404,6 @@ export class SpreadService {
 
     if (target) {
       if (tableName === 'user_computation_fund') {
-        console.log('if');
         for (const column of processData) {
           let totalValue;
 
@@ -1476,12 +1460,10 @@ export class SpreadService {
             }
           }
         }
-        //console.log(data, '------');
       }
     } else {
       //시간 기준점을 적용하여 sql을 처리하는 방법을 적용하지 못해서 일단 if else 로 처리함
       if (tableName === 'user_computation_fund') {
-        console.log('else');
         //processData에 있는 컬럼들만 default값 갖는 객체에서 불러와 넣어주기
         for (const column of processData) {
           let totalValue;
@@ -1517,35 +1499,33 @@ export class SpreadService {
               data,
               dateTable,
             );
-            if (startDateObj == undefined) {
-              console.log(data, 'why');
-            }
-            // console.log(startDateObj, '123');
             //과정 시작일부터 금액 지급받은날 사이에 휴학일자 구해오기
-            const absenceDates = await this.getAbsenceDates(
-              'user_leave_of_absence',
-              data,
-              startDateObj['start_process_date'],
-              new Date(data.payment_date),
-            );
-            //휴학을 한적이 없다면, 기본 종요일자가 마지막 지원금 받는 날짜.
-            //기본 종료일자를 받기위해 과정 연장 테이블을 가져와야 하는데, 과정이 2년뒤 종료이므로 계산하여 처리함.
-            if (absenceDates.length == 0) {
-              data[column] = startDateObj['start_process_date'];
-              data[column].setFullYear(data[column].getFullYear() + 2);
-            } else {
-              const startDateObj = await this.getLatestOneData(
-                'user_course_extension',
+            if (startDateObj !== undefined) {
+              const absenceDates = await this.getAbsenceDates(
+                'user_leave_of_absence',
                 data,
-                dateTable,
+                startDateObj['start_process_date'],
+                new Date(data.payment_date),
               );
-              //최근 저장된 data의 만료일자에 휴학한 일자를 합하여 저장.
-              data[column] = this.getDateAdd(
-                startDateObj['basic_expiration_date'],
-                absenceDates,
-                'begin_absence_date',
-                'return_from_absence_date',
-              );
+              //휴학을 한적이 없다면, 기본 종요일자가 마지막 지원금 받는 날짜.
+              //기본 종료일자를 받기위해 과정 연장 테이블을 가져와야 하는데, 과정이 2년뒤 종료이므로 계산하여 처리함.
+              if (absenceDates.length == 0) {
+                data[column] = startDateObj['start_process_date'];
+                data[column].setFullYear(data[column].getFullYear() + 2);
+              } else {
+                const startDateObj = await this.getLatestOneData(
+                  'user_course_extension',
+                  data,
+                  dateTable,
+                );
+                //최근 저장된 data의 만료일자에 휴학한 일자를 합하여 저장.
+                data[column] = this.getDateAdd(
+                  startDateObj['basic_expiration_date'],
+                  absenceDates,
+                  'begin_absence_date',
+                  'return_from_absence_date',
+                );
+              }
               console.log(
                 `${column} value ${startDateObj['basic_expiration_date']} processing to ${data[column]}`,
               );
@@ -1557,7 +1537,6 @@ export class SpreadService {
             } else data[column] = '지원';
           }
         }
-        //console.log(data, '~~~~');
       }
     }
     return data;
