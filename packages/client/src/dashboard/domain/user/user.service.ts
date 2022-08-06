@@ -8,7 +8,7 @@ class UserService {
     return this.userRepository.getUser();
   }
 
-  public async setUser(user: UserType): Promise<void> {
+  public async setUser(user: UserType | null): Promise<void> {
     return this.userRepository.setUser(user);
   }
 }

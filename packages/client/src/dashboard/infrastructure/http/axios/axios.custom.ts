@@ -22,3 +22,14 @@ export const axiosUpdateData = async () => {
     throw error;
   }
 };
+
+const logoutURL = '/auth/logout';
+
+export const axiosLogout = async () => {
+  try {
+    const response = await axios.instance.post(logoutURL);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};

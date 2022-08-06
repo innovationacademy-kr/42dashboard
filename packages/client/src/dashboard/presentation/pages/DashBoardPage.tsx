@@ -1,36 +1,44 @@
-import { Box, CssBaseline, Typography } from '@mui/material';
-import { createQueryForTable } from '../../infrastructure/http/graphql/createQuery';
+import { Box, CssBaseline } from '@mui/material';
 import AppBar from '../components/AppBar/AppBar';
 import ProfileMenu from '../components/AppBar/ProfileMenu/ProfileMenu';
 import Board from '../components/Board/Board';
 import Logo from '../components/Logo/logo';
 import MainArea from '../components/MainArea/MainArea';
-import ModeDial from '../components/ModeDial/ModeDial';
 import SideBar from '../components/SideBar/SideBar';
 import * as axios from '../../infrastructure/http/axios/axios.custom';
 import useUser from '../../application/services/useUser';
 import { useNavigate } from 'react-router';
 import Footer from '../components/Footer/Footer';
 import ModificationDialog from '../components/Dialog/ModificationDialog';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import UserType from '../../domain/user/user.type';
 
 // TODO: hybae
 // userData가 null일 때 처리 추가
 // userInfo API를 통해 데이터 받아올 경우, userData set
 // 그 외의 경우, 로그인 페이지로 라우팅
 function DashBoardPage() {
-  const { userInfo, setUser } = useUser();
+  const { setUser, getUser } = useUser();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
-  if (userInfo === null) {
-    axios
-      .axiosGetUserInfo()
-      .then((response: any) => response.data)
-      .then((data) => setUser(data))
-      .catch((error) => {
-        // navigate(`/`);
-      });
+  useEffect(() => {
+    getUser().then((data: UserType | null) => {
+      if (data === null) {
+        axios
+          .axiosGetUserInfo()
+          .then((response: any) => response.data)
+          .then((data) => setUser(data))
+          .catch((error) => {
+            navigate(`/`);
+          });
+      }
+    });
+  }, []);
+
+  function delCookie(key: string) {
+    const now = new Date();
+    document.cookie = key + '=; path=/; expires=' + now.toUTCString() + ';';
   }
 
   const profile = { name: 'kilee', size: 48 };
@@ -51,7 +59,14 @@ function DashBoardPage() {
     {
       label: '로그아웃',
       onClick: () => {
-        console.log('로그아웃');
+        axios
+          .axiosLogout()
+          .then((response: any) => {
+            setUser(null);
+            delCookie('access_token');
+            navigate('/');
+          })
+          .catch((error) => console.log(error));
       },
     },
   ];
