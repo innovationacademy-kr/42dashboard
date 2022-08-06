@@ -10,8 +10,6 @@ import {
   makeTextStickerData,
   makeBachelorStickerData,
 } from './makeStickerData';
-import { resetApolloContext } from '@apollo/client';
-import { SettingsBackupRestoreTwoTone } from '@mui/icons-material';
 
 interface ModalProps {
   sectionId: string;

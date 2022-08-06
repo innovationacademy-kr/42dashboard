@@ -136,8 +136,6 @@ export default function StickerStepper(props: ModalDatasType) {
       return null;
     }
   }
-  console.log('steps: ', steps);
-  console.log('activeStep: ', activeStep);
   return (
     <Box sx={{ width: '100%' }}>
       <Stepper activeStep={activeStep}>
