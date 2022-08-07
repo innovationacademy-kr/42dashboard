@@ -25,7 +25,7 @@ export default function ValueAttribute(props: ValueAttributeProps) {
       <Select labelId={id} id={id} value={value} onChange={onChange} label={id}>
         {returnValues({ column, entityName, data }) ?? (
           <MenuItem value="None">
-            {error && !column ? <em>error :( </em> : <em>None</em>}
+            {error && column !== 'None' ? <em>error :( </em> : <em>None</em>}
           </MenuItem>
         )}
       </Select>
