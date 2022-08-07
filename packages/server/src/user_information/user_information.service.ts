@@ -142,7 +142,7 @@ export class UserInformationService {
       }
     }
     // console.log(filterObj);
-    const {findObj, flag} = this.createFindObj(
+    const { findObj, flag } = this.createFindObj(
       filterObj,
       filterArgs.startDate,
       filterArgs.endDate,
@@ -341,7 +341,11 @@ export class UserInformationService {
       ) {
         findObj['where'][entityName][getValidateColumn(entityName, column)] =
           Between(startDateString, endDateString);
-      } else if ('latest' in filter && filter['latest'] == true && (entityName in halfAndHalf || entityName in entityColumnMapping)) {
+      } else if (
+        'latest' in filter &&
+        filter['latest'] == true &&
+        (entityName in halfAndHalf || entityName in entityColumnMapping)
+      ) {
         // ***********************************************************************************************
         // 애시당초 filter조건에 validate column, expired column을 줄 필요가 없는거 -> entity 수정, common에 수정 필요
         // 프론트에 date 관련된 컬럼 사용자에게 보여주지 말아 달라고 요청하기 -> 도메인 보내주는건 백엔드니까 중한님께 요청드리는게 맞을듯?
@@ -353,7 +357,7 @@ export class UserInformationService {
         // do nothing
       }
     }
-    return {findObj, flag};
+    return { findObj, flag };
   }
 
   private makeLimit(data, filterObj, numOfPeople = 0, flag = 0) {
@@ -376,9 +380,9 @@ export class UserInformationService {
           ) {
             row[joinedTable] = row[joinedTable].slice(0, 1);
           }
-          if ( //최후의 보루
-            (('latest' in filter &&
-            filter['latest'] == true) || flag == 1)&&
+          if (
+            //최후의 보루
+            (('latest' in filter && filter['latest'] == true) || flag == 1) &&
             (row[joinedTable].length == 0 || //에러가 터졌으면 안됐는데...?
               (row[joinedTable].length > 0 &&
                 !operatorDict[filter['operator']](
@@ -459,7 +463,7 @@ export class UserInformationService {
   }
 
   async updateUserInformation(cudDto: CudDto): Promise<boolean> {
-    const {findObj} = this.createFindObj(cudDto);
+    const { findObj } = this.createFindObj(cudDto);
     const user = await this.dataSource.getRepository(User).findOne(findObj);
     if (user == null) return false;
     const entityName = cudDto.entityName;
@@ -477,7 +481,7 @@ export class UserInformationService {
 
   async deleteUserInformation(cudDto: CudDto) {
     const queryRunner = this.dataSource.createQueryRunner();
-    const {findObj} = this.createFindObj(cudDto);
+    const { findObj } = this.createFindObj(cudDto);
     const user = await this.dataSource.getRepository(User).findOne(findObj);
     if (user == null) return false;
     const entityName = cudDto.entityName;
@@ -491,7 +495,7 @@ export class UserInformationService {
 
   async recoverUserInformaiton(cudDto: CudDto) {
     const queryRunner = this.dataSource.createQueryRunner();
-    const {findObj} = this.createFindObj(cudDto);
+    const { findObj } = this.createFindObj(cudDto);
     findObj['withDeleted'] = true; //상단에 위치해야함
     const user = await this.dataSource.getRepository(User).findOne(findObj);
     if (user == null) return false;
