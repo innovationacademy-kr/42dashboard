@@ -2,3 +2,5 @@ node_modules
 .eslintcache
 src/config/
 .DS_Store
+.env.development
+.env.production

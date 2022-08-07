@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const instance = axios.create({
-  baseURL: 'http://dashboard42.com:3000',
+  baseURL: `${process.env.REACT_APP_API_URI}`,
   withCredentials: true,
   timeout: 5000,
   validateStatus: function (status) {

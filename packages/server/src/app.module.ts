@@ -12,13 +12,19 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeORMConfig } from './config/typeorm.config';
 import { ApiModule } from './api/api.module';
 import { UpdaterModule } from './updater/updater.module';
-import { DataSource } from 'typeorm';
 import { AuthModule } from './auth/auth.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SpreadModule } from './spread/spread.module';
-
+import { ConfigModule } from '@nestjs/config';
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      envFilePath:
+        process.env.NODE_ENV === 'production'
+          ? '.env.production'
+          : '.env.development',
+      isGlobal: true,
+    }),
     TypeOrmModule.forRoot(typeORMConfig),
     UserInformationModule,
     UserJobModule,
