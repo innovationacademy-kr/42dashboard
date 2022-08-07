@@ -33,7 +33,10 @@ function LabelFilter(props: LabelFilterProps) {
   return (
     <Section>
       <LabelAttribute value={label} onChange={handleLabelChange} />
-      <QueryFilterAttribute saveSelectedFilter={saveSelectedFilter} />
+      <QueryFilterAttribute
+        saveSelectedFilter={saveSelectedFilter}
+        setLabel={setLabel}
+      />
     </Section>
   );
 }
