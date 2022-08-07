@@ -19,7 +19,7 @@ interface ModalProps {
   setIsOpen: (isOpen: boolean) => void;
 }
 
-const style = {
+const stepperStyle = {
   position: 'fixed',
   top: '50%',
   left: '50%',
@@ -118,7 +118,7 @@ const ModalFrame = (props: ModalProps) => {
         padding: '20px',
       }}
     >
-      <Box sx={style}>
+      <Box sx={stepperStyle}>
         <StickerStepper
           datasets={datasets}
           type={type}

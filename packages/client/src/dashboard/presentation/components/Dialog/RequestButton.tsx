@@ -3,9 +3,11 @@ import { Alert, Button } from '@mui/material';
 import createSaveModifiedDataQuery from '../../../infrastructure/http/graphql/createSaveModifiedDataQuery';
 import DoneIcon from '@mui/icons-material/Done';
 import SaveIcon from '@mui/icons-material/Save';
+import { tableName } from 'common/src';
 
 export interface RequestButtonProps {
-  entityName: string;
+  entityName: keyof typeof tableName;
+  withDeleted: boolean;
   checkSucessSave: (e: any) => void;
   retrySave: (e: any) => void;
 }
@@ -13,9 +15,9 @@ export interface RequestButtonProps {
 const SUCCESS = '수정된 데이터가 성공적으로 저장되었습니다.';
 
 export default function RequestButton(props: RequestButtonProps) {
-  const { entityName, checkSucessSave, retrySave } = props;
+  const { entityName, withDeleted, checkSucessSave, retrySave } = props;
   const { data, loading, error } = useQuery(
-    createSaveModifiedDataQuery(entityName),
+    createSaveModifiedDataQuery(entityName, withDeleted ? 'Y' : 'N'),
   );
 
   if (error) return <Button disabled={true}>{error.message}.</Button>;

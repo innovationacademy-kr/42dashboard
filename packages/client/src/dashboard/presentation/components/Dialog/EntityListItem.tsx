@@ -3,6 +3,7 @@ import { tableName } from 'common/src';
 import { useState } from 'react';
 import RequestButton from './RequestButton';
 import SaveButton from './SaveButton';
+import WithButton from './WithButton';
 
 export interface EntityListItemProps {
   entityName: keyof typeof tableName;
@@ -12,6 +13,7 @@ export default function EntityListItem(props: EntityListItemProps) {
   const [request, setRequest] = useState<boolean>(false);
   const [save, setSave] = useState<boolean>(false);
   const [retry, setRetry] = useState<boolean>(false);
+  const [withDeleted, setWithDeleted] = useState<boolean>(false);
 
   function saveModification(e: any) {
     e.stopPropagation();
@@ -40,15 +42,20 @@ export default function EntityListItem(props: EntityListItemProps) {
       {request && (
         <SaveButton
           entityName={entityName}
+          withDeleted={withDeleted}
           saveModification={saveModification}
         />
       )}
       {save && (
         <RequestButton
           retrySave={retrySave}
+          withDeleted={withDeleted}
           entityName={entityName}
           checkSucessSave={checkSucessSave}
         />
+      )}
+      {!request && !save && (
+        <WithButton checked={withDeleted} onChange={setWithDeleted} />
       )}
     </ListItem>
   );

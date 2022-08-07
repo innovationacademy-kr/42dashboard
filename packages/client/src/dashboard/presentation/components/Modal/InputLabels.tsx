@@ -25,6 +25,9 @@ export default function InputLabels(props: FiltersProps) {
     setSelectedLabels((prevLabels) => [...prevLabels, newFilter]);
   }
 
+  /** TODO: scroll
+   * TODO:한글로 출력
+   */
   function renderSelectedFilters() {
     return selectedLabels.map((label, idx) => (
       <SelectedFilter key={idx} idx={idx} data={label} />
