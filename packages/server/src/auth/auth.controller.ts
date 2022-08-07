@@ -81,4 +81,14 @@ export class AuthController {
     await this.authService.logoutUser(req.user);
     return req.user;
   }
+
+  @Get('/getError')
+  @ApiCreatedResponse({
+    description: '에러점검',
+    type: Bocal,
+  })
+  @UseGuards(AuthGuard('jwt'))
+  async getError(@Req() req) {
+    return await this.authService.getError(req.user);
+  }
 }

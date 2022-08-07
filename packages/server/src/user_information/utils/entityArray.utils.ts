@@ -218,15 +218,22 @@ const entityColumnMapping = {
 };
 
 function getValidateColumn(entityName, column) {
-  if (entityName == 'userLearningDataAPI')
+  const columns = ['coalition_score', 'circle', 'level', 'outcircle'];
+  if (entityName == 'userLearningDataAPI' && column in columns) {
+    const index = columns.indexOf(column);
+    return entityColumnNotMapping[entityName]['validate_date'][index];
+  } else if (entityName == 'userLearningDataAPI')
     return entityColumnMapping[entityName]['validate_date'][column];
-  else {
+  else if (entityName == 'user' || entityName == 'userOtherEmploymentStatus') {
+    return halfAndHalf[entityName]['validate_date'];
+  } else {
     return entityColumnMapping[entityName]['validate_date'];
   }
 }
 
-// 아래 함수는 굳이 필요없음
-//function getExpireColumn(entityName, column) {}
+function getExpireColumn(entityName, column = null) {
+  return entityColumnMapping[entityName]['validate_date'];
+}
 
 function getRawQuery(refDate) {
   // if (entityName in entityColumnNotMapping) return Not(IsNull()); <- 필요없는 조건문
@@ -236,6 +243,13 @@ function getRawQuery(refDate) {
   });
 }
 
+function exceptCase(entityName, column) {
+  const columns = ['coalition_score', 'circle', 'level', 'outcircle'];
+  if (entityName == 'userLearningDataAPI' && column in columns) {
+    return true;
+  } else return false;
+}
+
 export {
   NonValExColumnEntity,
   valExColumnEntity,
@@ -243,4 +257,6 @@ export {
   halfAndHalf,
   getValidateColumn,
   getRawQuery,
+  getExpireColumn,
+  exceptCase,
 };
