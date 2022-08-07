@@ -209,11 +209,14 @@ const entityColumnMapping = {
   },
   // 얘랑 userOtherEmploymentStatus 테이블이랑 연관관계 있음
   userEmploymentStatus: {
+    // ************************************************
+    // <- 이 엔터티에서 문제가 발생 <- 어디가 문제인지를 모르겠음
+    // ************************************************
     // 기간 필터링 적용 O
     // 사용 불가능. 대신 컬럼이름을 공개.
     // 얘는 expired_date 없으면 안되는데...? -> 근거가 명확해야함
     validate_date: 'employment_date',
-    expired_date: 'expired_date',
+    expired_date: 'expired_date', // <- 얘 값이 문제일듯?
   },
 };
 
