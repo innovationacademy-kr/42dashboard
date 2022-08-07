@@ -1,70 +1,70 @@
-const opeatorDict = {};
-opeatorDict['>'] = (lhs, rhs) => {
+const operatorDict = {};
+operatorDict['>'] = (lhs, rhs) => {
   return lhs > rhs;
 };
-opeatorDict['>='] = (lhs, rhs) => {
+operatorDict['>='] = (lhs, rhs) => {
   return lhs >= rhs;
 };
-opeatorDict['<'] = (lhs, rhs) => {
+operatorDict['<'] = (lhs, rhs) => {
   return lhs < rhs;
 };
-opeatorDict['<='] = (lhs, rhs) => {
+operatorDict['<='] = (lhs, rhs) => {
   return lhs <= rhs;
 };
-opeatorDict['='] = (lhs, rhs) => {
+operatorDict['='] = (lhs, rhs) => {
   return lhs == rhs;
 };
-opeatorDict['=='] = (lhs, rhs) => {
+operatorDict['=='] = (lhs, rhs) => {
   return lhs == rhs;
 };
-opeatorDict['!='] = (lhs, rhs) => {
+operatorDict['!='] = (lhs, rhs) => {
   return lhs != rhs;
 };
-opeatorDict['In'] = (lhs, rhs) => {
+operatorDict['In'] = (lhs, rhs) => {
   const arr = lhs.split(';');
   return arr.includes(rhs);
 };
-opeatorDict['in'] = (lhs, rhs) => {
+operatorDict['in'] = (lhs, rhs) => {
   const arr = lhs.split(';');
   return arr.includes(rhs);
 };
-opeatorDict['Between'] = (lhs, rhs) => {
+operatorDict['Between'] = (lhs, rhs) => {
   const arr = lhs.split(';');
   return arr[0] <= rhs && rhs <= arr[1];
 };
-opeatorDict['between'] = (lhs, rhs) => {
+operatorDict['between'] = (lhs, rhs) => {
   const arr = lhs.split(';');
   return arr[0] <= rhs && rhs <= arr[1];
 };
-opeatorDict['null'] = (lhs, rhs) => {
+operatorDict['null'] = (lhs, rhs) => {
   return rhs == null;
 };
 
-// opeatorDict['Like'] = (lhs, rhs) => {
+// operatorDict['Like'] = (lhs, rhs) => {
 //   return rhs.contain(lhs);
 // };
-// opeatorDict['like'] = (lhs, rhs) => {
+// operatorDict['like'] = (lhs, rhs) => {
 //   return rhs.contain(lhs);
 // };
-// opeatorDict['ILike'] = (lhs, rhs) => {
+// operatorDict['ILike'] = (lhs, rhs) => {
 //   lhs = lhs.toLowerCase();
 //   rhs = rhs.toLowerCase();
 //   return rhs.contain(lhs);
 // };
-// opeatorDict['iLike'] = (lhs, rhs) => {
+// operatorDict['iLike'] = (lhs, rhs) => {
 //   lhs = lhs.toLowerCase();
 //   rhs = rhs.toLowerCase();
 //   return rhs.contain(lhs);
 // };
-// opeatorDict['Ilike'] = (lhs, rhs) => {
+// operatorDict['Ilike'] = (lhs, rhs) => {
 //   lhs = lhs.toLowerCase();
 //   rhs = rhs.toLowerCase();
 //   return rhs.contain(lhs);
 // };
-// opeatorDict['ilike'] = (lhs, rhs) => {
+// operatorDict['ilike'] = (lhs, rhs) => {
 //   lhs = lhs.toLowerCase();
 //   rhs = rhs.toLowerCase();
 //   return rhs.contain(lhs);
 // };
 
-export { opeatorDict };
+export { operatorDict };
