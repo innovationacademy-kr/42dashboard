@@ -98,7 +98,7 @@ const ModalFrame = (props: ModalProps) => {
     setType('none');
     setLabels([]);
     setFilters([]);
-    setDatasets([]);
+    setDatasets([[]]);
     setDatasetNames([]);
   }
 
