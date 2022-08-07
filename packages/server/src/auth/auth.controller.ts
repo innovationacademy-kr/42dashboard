@@ -47,8 +47,8 @@ export class AuthController {
       domain: 'localhost',
     }); //res.cookie()는 하나만 적용됨. 여러개 호출하면 제일 마지막에 호출된것만 적용됨(??)
     // res.setHeader('WWW-authenticate', `Bearer: realm="DashBoard"`);
-    res.redirect('http://localhost:3000/auth/test'); //redirection해도 됨. 나중에 front Home으로 redirection되게 할 예정.
-    // res.redirect('http://www.dashboard42.com:3000/dashboard'); //for hybae
+    // res.redirect('http://localhost:3000/auth/test'); //redirection해도 됨. 나중에 front Home으로 redirection되게 할 예정.
+    res.redirect('http://www.dashboard42.com:3000/dashboard'); //for hybae
     // res.send('login success!!');
   }
 

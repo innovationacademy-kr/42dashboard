@@ -6,7 +6,7 @@ import axios from 'axios';
 class PresetRepository implements PresetRepositoryInterface {
   public async getPreset(id: string): Promise<PresetType | null> {
     const preset = await axios
-      .get(`http://localhost:3000/user-information/getOnePreSet/${id}`, {
+      .get(`http://dashboard42.com:3000/user-information/getOnePreSet/${id}`, {
         withCredentials: true,
       })
       .then((res) => {
@@ -23,7 +23,7 @@ class PresetRepository implements PresetRepositoryInterface {
     const { id } = preset;
     let isExist = false;
     await axios
-      .get('http://localhost:3000/user-information/getAllPreSet', {
+      .get('http://dashboard42.com:3000/user-information/getAllPreSet', {
         withCredentials: true,
       })
       .then((res) => {
@@ -33,7 +33,7 @@ class PresetRepository implements PresetRepositoryInterface {
       });
     if (isExist) {
       await axios.put(
-        `http://localhost:3000/user-information/updateOnePreSet/${id}`,
+        `http://dashboard42.com:3000/user-information/updateOnePreSet/${id}`,
         preset,
         {
           withCredentials: true,
@@ -41,7 +41,7 @@ class PresetRepository implements PresetRepositoryInterface {
       );
     } else {
       await axios.post(
-        'http://localhost:3000/user-information/addPreSet',
+        'http://dashboard42.com:3000/user-information/addPreSet',
         preset,
         {
           withCredentials: true,
@@ -52,9 +52,12 @@ class PresetRepository implements PresetRepositoryInterface {
 
   public async deletePreset(id: string): Promise<void> {
     await axios
-      .delete(`http://localhost:3000/user-information/deleteOnePreset/${id}`, {
-        withCredentials: true,
-      })
+      .delete(
+        `http://dashboard42.com:3000/user-information/deleteOnePreset/${id}`,
+        {
+          withCredentials: true,
+        },
+      )
       .then((res) => {
         console.log('delete result: ', res);
       });
