@@ -17,7 +17,7 @@ export default function returnValues(dependencies: {
 
   if (data && column && entityName)
     return findValue(data, entityName, column).map((value: string) => (
-      <MenuItem key={value} value={value}>
+      <MenuItem key={value} value={value.toString()}>
         {value}
       </MenuItem>
     ));
