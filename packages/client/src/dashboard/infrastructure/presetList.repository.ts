@@ -9,7 +9,7 @@ class PresetListRepository implements PresetListRepositoryInterface {
     const presetInfos = Array<PresetInfoType>();
 
     await axios
-      .get('http://localhost:3000/user-information/getAllPreSet', {
+      .get('http://dashboard42.com:3000/user-information/getAllPreSet', {
         withCredentials: true,
       })
       .then((res) => {
