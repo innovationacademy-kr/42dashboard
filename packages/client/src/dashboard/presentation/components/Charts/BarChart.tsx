@@ -6,7 +6,7 @@ import useChartDataset from '../../../application/services/useDataset';
 Chart.register(...registerables);
 
 export default function BarChart(props: ChartProps) {
-  const { labels, queryData, options } = props;
+  const { labels, queryData, datasetNames, options } = props;
   const { data, loading, error } = useChartDataset(queryData);
   const datasets = [];
   const defaultOptions = {
@@ -23,7 +23,8 @@ export default function BarChart(props: ChartProps) {
   }
   const barData = {
     labels,
-    datasets: datasets.map((dataset) => ({
+    datasets: datasets.map((dataset, idx) => ({
+      label: datasetNames[idx],
       data: dataset,
       backgroundColor: ['#36A2EB', '#FF6384'],
     })),

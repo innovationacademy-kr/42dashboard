@@ -6,7 +6,7 @@ import { ChartProps } from './ChartData';
 Chart.register(...registerables);
 
 export default function PieChart(props: ChartProps) {
-  const { labels, queryData, options } = props;
+  const { labels, queryData, datasetNames, options } = props;
   const { data, loading, error } = useChartDataset(queryData);
   const datasets = [];
   const defaultOptions = {
@@ -23,8 +23,8 @@ export default function PieChart(props: ChartProps) {
   }
   const pieData = {
     labels,
-    datasets: datasets.map((dataset) => ({
-      label: 'Test',
+    datasets: datasets.map((dataset, idx) => ({
+      label: datasetNames[idx],
       data: dataset,
       backgroundColor: ['#36A2EB', '#FF6384'],
     })),

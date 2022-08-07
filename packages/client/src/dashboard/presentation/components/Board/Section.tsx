@@ -70,7 +70,7 @@ export default function Section(props: SectionProps) {
       <ReactGridLayout
         onDragStart={(a, b, c, d, e) => e.stopPropagation()}
         layouts={{ lg: stickerLayouts }}
-        breakpoints={{ lg: 600, md: 498, sm: 384, xs: 240, xxs: 0 }}
+        breakpoints={{ lg: 600 }}
         cols={{ lg: 8, md: 5, sm: 4, xs: 2, xxs: 1 }}
         onLayoutChange={(newLayout) => {
           handleStickerLayoutChange(id, newLayout);
