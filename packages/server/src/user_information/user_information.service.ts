@@ -331,7 +331,7 @@ export class UserInformationService {
         const endDate = new Date(endDateString);
         findObj['where'][entityName][getValidateColumn(entityName, column)] =
           getRawQuery(endDate); //ok
-        // 한번 더 걸러야하는데 그건 make_limit에서 처리함 -> 처리 못해줌
+        // 한번 더 걸러야하는데 그건 make_limit에서 처리함 -> 처리 못해줌 -> flag 설정
         flag = 1;
       } else if (
         startDateString &&
@@ -342,9 +342,12 @@ export class UserInformationService {
         findObj['where'][entityName][getValidateColumn(entityName, column)] =
           Between(startDateString, endDateString);
       } else if (
+        // 날짜 컬럼이 없는 엔터티에 대해선 아래 로직을 할 필요가 없음
         'latest' in filter &&
         filter['latest'] == true &&
-        (entityName in halfAndHalf || entityName in entityColumnMapping)
+        (entityName in halfAndHalf ||
+          entityName in entityColumnMapping ||
+          exceptCase(entityName, column))
       ) {
         // ***********************************************************************************************
         // 애시당초 filter조건에 validate column, expired column을 줄 필요가 없는거 -> entity 수정, common에 수정 필요
@@ -369,6 +372,7 @@ export class UserInformationService {
       if (joinedTable == 'user') continue;
       for (const idx in filterObj[joinedTable]) {
         filter = filterObj[joinedTable][idx];
+        if (filter.column == 'null' || filter.column == null) continue; //이거 없는게 문제였음(사용상황을 너무 이상적인걸로 한정해버려서 이 케이스 생각을못함)
         for (const idx in data) {
           row = data[idx];
           if (
@@ -383,13 +387,13 @@ export class UserInformationService {
           if (
             //최후의 보루
             (('latest' in filter && filter['latest'] == true) || flag == 1) &&
-            (row[joinedTable].length == 0 || //에러가 터졌으면 안됐는데...?
-              (row[joinedTable].length > 0 &&
-                !operatorDict[filter['operator']](
-                  filter['givenValue'],
-                  row[joinedTable][0][filter['column']],
-                )))
+            row[joinedTable].length > 0 &&
+            !operatorDict[filter['operator']](
+              filter['givenValue'],
+              row[joinedTable][0][filter['column']],
+            )
           ) {
+            console.log('조건에 맞지 않는 결과를 제거합니다');
             numOfPeople--;
             row[joinedTable] = [];
           }

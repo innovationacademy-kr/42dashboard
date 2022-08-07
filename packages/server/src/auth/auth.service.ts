@@ -22,13 +22,14 @@ export class AuthService {
   async createJwt(obj) {
     // 아래 if문은 주석문은 배포할때 주석풀어주기
     // if (obj['staff'] == false) throw new BadRequestException();
+    if (obj.isStaff != true) throw new BadRequestException();
+    console.log(obj.isStaff, '<- false인데, 여기에 도달하면 절대 안됨');
     const bocal = this.dataSource.getRepository(Bocal).create();
     bocal.id = obj.id;
     bocal.intraName = obj.intraName;
     bocal.image_url = obj.image_url;
     bocal.email = obj.email;
     bocal.role = BocalRole.ADMIN; //이 부분 나중에 분기문으로 처리
-    if (obj.isStaff != true) throw new BadRequestException();
     bocal.isStaff = true;
     console.log('save bocal ', bocal.intraName);
     await this.dataSource.getRepository(Bocal).save(bocal);
