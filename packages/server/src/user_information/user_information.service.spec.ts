@@ -3,7 +3,7 @@ import {
   UserBlackhole,
   UserLeaveOfAbsence,
 } from 'src/user_status/entity/user_status.entity';
-import { QueryRunner, Repository } from 'typeorm';
+import { Equal, Not, QueryRunner, Raw, Repository } from 'typeorm';
 import { createMemDB } from '../utils/testing-helpers/createMemDB';
 import { Test, TestingModule } from '@nestjs/testing';
 
@@ -289,7 +289,31 @@ describe('User Service', () => {
     await queryRunner.release();
   });
 
-  it('[기간 Range Double] 기간 필터링 적용', async () => {
+  it('하나의 컬럼에 중복 조건 적용 테스트', async () => {
+    //given
+    queryRunner = db.createQueryRunner();
+    await queryRunner.startTransaction();
+    const userRepo = await db.getRepository(User);
+    const filters = [];
+    const filterArgs: FilterArgs = new FilterArgs();
+    //when
+    const findObj = {};
+    findObj['relations'] = { userPersonalInformation: true };
+    findObj['where'] = {
+      userPersonalInformation: {
+        gender: Raw((alias) => `${alias} = :man OR ${alias} LIKE :woman`, {
+          man: '남',
+          woman: '%여',
+        }),
+      }, // OR로 작용할듯?
+    };
+    expect(await userRepo.count(findObj)).toBe(2); //결과를 보면 AND로 작용하는거 같음
+    //then
+    await queryRunner.rollbackTransaction();
+    await queryRunner.release();
+  });
+
+  it('[기간 Range Double] 기간 필터링 적용 - 1', async () => {
     //given
     queryRunner = db.createQueryRunner();
     await queryRunner.startTransaction();
@@ -300,15 +324,15 @@ describe('User Service', () => {
       makeFilter('userLeaveOfAbsence', 'absenced', '==', '휴학', false),
     );
     filterArgs.filters = filters;
-    filterArgs.startDate = '2021-03-01';
+    filterArgs.startDate = '2021-05-01';
     //then
-    filterArgs.endDate = '2021-05-01';
-    expect(await userService.getNumOfPeopleByFilter(filterArgs)).toBe(1);
+    filterArgs.endDate = '2022-05-01';
+    expect(await userService.getNumOfPeopleByFilter(filterArgs)).toBe(2);
     await queryRunner.rollbackTransaction();
     await queryRunner.release();
   });
 
-  it('[기간 Range Single] 한번이라도 휴학을 한 사람이 몇명?', async () => {
+  it('[기간 Range Double] 기간 필터링 적용 - 2', async () => {
     //given
     queryRunner = db.createQueryRunner();
     await queryRunner.startTransaction();
@@ -318,7 +342,104 @@ describe('User Service', () => {
     filters.push(
       makeFilter('userLeaveOfAbsence', 'absenced', '==', '휴학', false),
     );
-    filterArgs.startDate = '1111-01-01'; //1기 시작날짜를 디폴트로 주는게 나을듯
+    filterArgs.filters = filters;
+    filterArgs.startDate = '2022-05-01';
+    //then
+    filterArgs.endDate = '2022-06-01';
+    expect(await userService.getNumOfPeopleByFilter(filterArgs)).toBe(1);
+    await queryRunner.rollbackTransaction();
+    await queryRunner.release();
+  });
+
+  it('[기간 Range Double] 기간 필터링 적용 - 3', async () => {
+    //given
+    queryRunner = db.createQueryRunner();
+    await queryRunner.startTransaction();
+    const filters = [];
+    const filterArgs: FilterArgs = new FilterArgs();
+    //when
+    filters.push(
+      makeFilter('userLeaveOfAbsence', 'absenced', '==', '휴학', false),
+    );
+    filterArgs.filters = filters;
+    filterArgs.startDate = '2020-01-01';
+    //then
+    filterArgs.endDate = '2020-12-31';
+    expect(await userService.getNumOfPeopleByFilter(filterArgs)).toBe(0);
+    await queryRunner.rollbackTransaction();
+    await queryRunner.release();
+  });
+
+  it('[기간 Range Double] 기간 필터링 적용 - 3', async () => {
+    //given
+    queryRunner = db.createQueryRunner();
+    await queryRunner.startTransaction();
+    const filters = [];
+    const filterArgs: FilterArgs = new FilterArgs();
+    //when
+    filters.push(
+      makeFilter('userLeaveOfAbsence', 'absenced', '==', '휴학', false),
+    );
+    filterArgs.filters = filters;
+    filterArgs.startDate = '2022-06-01';
+    //then
+    filterArgs.endDate = '2023-01-31';
+    expect(await userService.getNumOfPeopleByFilter(filterArgs)).toBe(1);
+    await queryRunner.rollbackTransaction();
+    await queryRunner.release();
+  });
+
+  it('[기간 Range Double] 기간 필터링 적용 - 4', async () => {
+    //given
+    queryRunner = db.createQueryRunner();
+    await queryRunner.startTransaction();
+    const filters = [];
+    const filterArgs: FilterArgs = new FilterArgs();
+    //when
+    filters.push(
+      makeFilter('userLeaveOfAbsence', 'absenced', '==', '휴학', false),
+    );
+    filterArgs.filters = filters;
+    filterArgs.startDate = '2023-01-01';
+    //then
+    filterArgs.endDate = '2023-12-31';
+    expect(await userService.getNumOfPeopleByFilter(filterArgs)).toBe(0);
+    await queryRunner.rollbackTransaction();
+    await queryRunner.release();
+  });
+
+  // 아래 케이스는 [기간 Range Single]이 아니라 [기간 Range Double]이 맞음
+  // 이유:
+  it('[기간 Range Double] 한번이라도 휴학을 한 사람이 몇명? - 1', async () => {
+    //given
+    queryRunner = db.createQueryRunner();
+    await queryRunner.startTransaction();
+    const filters = [];
+    const filterArgs: FilterArgs = new FilterArgs();
+    //when
+    filters.push(
+      makeFilter('userLeaveOfAbsence', 'absenced', '==', '휴학', false),
+    );
+    filterArgs.startDate = '2021-01-01'; //startDate는 최소 1기 라피신 시작 날짜임. 사용자가 '1111-11-11'같은거 못쓰게 조치해야함
+    filterArgs.filters = filters;
+    //then
+    expect(await userService.getNumOfPeopleByFilter(filterArgs)).toBe(2);
+    await queryRunner.rollbackTransaction();
+    await queryRunner.release();
+  });
+
+  // 아래 케이스는 [기간 Range Single]이 아니라 [기간 Range Double]이 맞음
+  it('[기간 Range Double] 한번이라도 휴학을 한 사람이 몇명? - 2', async () => {
+    //given
+    queryRunner = db.createQueryRunner();
+    await queryRunner.startTransaction();
+    const filters = [];
+    const filterArgs: FilterArgs = new FilterArgs();
+    //when
+    filters.push(
+      makeFilter('userLeaveOfAbsence', 'absenced', '==', '휴학', false),
+    );
+    filterArgs.endDate = new Date(); // endDate는 최대 Now()임. 사용자가 '9999-12-31'같은거 못쓰게 조치해야함
     filterArgs.filters = filters;
     //then
     expect(await userService.getNumOfPeopleByFilter(filterArgs)).toBe(2);
@@ -344,24 +465,6 @@ describe('User Service', () => {
     await queryRunner.release();
   });
 
-  it('[기간 Range Single] 한번이라도 휴학을 한 사람이 몇명? - 2', async () => {
-    //given
-    queryRunner = db.createQueryRunner();
-    await queryRunner.startTransaction();
-    const filters = [];
-    const filterArgs: FilterArgs = new FilterArgs();
-    //when
-    filters.push(
-      makeFilter('userLeaveOfAbsence', 'absenced', '==', '휴학', false),
-    );
-    filterArgs.endDate = new Date();
-    filterArgs.filters = filters;
-    //then
-    expect(await userService.getNumOfPeopleByFilter(filterArgs)).toBe(2);
-    await queryRunner.rollbackTransaction();
-    await queryRunner.release();
-  });
-
   it('[기간 Range Single] endDate만 주고, validate_date 와 expired_date에 걸치는 상황', async () => {
     //given
     queryRunner = db.createQueryRunner();
@@ -380,7 +483,7 @@ describe('User Service', () => {
     await queryRunner.release();
   });
 
-  it('[시점 특정] startDate=endDate이고 해당 시점에 휴학인 사람', async () => {
+  it('[기간 Refer Specify] startDate=endDate이고 해당 시점에 휴학인 사람 - 1', async () => {
     //given
     queryRunner = db.createQueryRunner();
     await queryRunner.startTransaction();
@@ -395,6 +498,44 @@ describe('User Service', () => {
     filterArgs.filters = filters;
     //then
     expect(await userService.getNumOfPeopleByFilter(filterArgs)).toBe(1);
+    await queryRunner.rollbackTransaction();
+    await queryRunner.release();
+  });
+
+  it('[기간 Refer Specify] startDate=endDate이고 해당 시점에 휴학인 사람 - 2', async () => {
+    //given
+    queryRunner = db.createQueryRunner();
+    await queryRunner.startTransaction();
+    const filters = [];
+    const filterArgs: FilterArgs = new FilterArgs();
+    //when
+    filters.push(
+      makeFilter('userLeaveOfAbsence', 'absenced', '==', '휴학', false),
+    );
+    filterArgs.startDate = '2020-01-01';
+    filterArgs.endDate = '2020-01-01';
+    filterArgs.filters = filters;
+    //then
+    expect(await userService.getNumOfPeopleByFilter(filterArgs)).toBe(0);
+    await queryRunner.rollbackTransaction();
+    await queryRunner.release();
+  });
+
+  it('[기간 Refer Specify] startDate=endDate이고 해당 시점에 휴학인 사람 - 3', async () => {
+    //given
+    queryRunner = db.createQueryRunner();
+    await queryRunner.startTransaction();
+    const filters = [];
+    const filterArgs: FilterArgs = new FilterArgs();
+    //when
+    filters.push(
+      makeFilter('userLeaveOfAbsence', 'absenced', '==', '휴학', false),
+    );
+    filterArgs.startDate = '2023-12-31';
+    filterArgs.endDate = '2023-12-31';
+    filterArgs.filters = filters;
+    //then
+    expect(await userService.getNumOfPeopleByFilter(filterArgs)).toBe(0);
     await queryRunner.rollbackTransaction();
     await queryRunner.release();
   });

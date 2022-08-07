@@ -27,15 +27,23 @@ import {
   ArrayOverlap,
   JoinTable,
   DeepPartial,
+  Raw,
+  Timestamp,
 } from 'typeorm';
 import { CheckDuplication } from './argstype/checkDuplication.argstype';
 import { CudDto } from './argstype/cudDto.argstype';
 import { FilterArgs } from './argstype/filter.argstype';
 import { JoinedTable } from './argstype/joinedTable';
 import { Filter } from './filter';
-import { valExColumnEntity } from './utils/entityArray.utils';
+import {
+  entityColumnMapping,
+  getRawQuery,
+  getValidateColumn,
+  halfAndHalf,
+  valExColumnEntity,
+} from './utils/entityArray.utils';
 import { entityArray, getDomain } from './utils/getDomain.utils';
-import { opeatorDict } from './utils/operatorDict.utils';
+import { operatorDict } from './utils/operatorDict.utils';
 
 @Injectable()
 export class UserInformationService {
@@ -102,8 +110,8 @@ export class UserInformationService {
   /**
    * 아래 filtersToObj(filters)함수에서 만드는 filterObj의 구조
    *    {
-   *      엔터티:[filter객체, filter객체...],
-   *      엔터티:[filter객체, filter객체...]
+   *      엔터티이름:[filter객체, filter객체...],
+   *      엔터티이름:[filter객체, filter객체...]
    *    }
    * 예시
    *    {
@@ -136,6 +144,7 @@ export class UserInformationService {
       filterArgs.startDate,
       filterArgs.endDate,
       withDeleted,
+      filterArgs.accumulate,
     );
     // console.log(findObj);
     findObj['cache'] = true; //typeORM에서 제공하는 cache 기능
@@ -172,9 +181,10 @@ export class UserInformationService {
 
   private createFindObj(
     filterObj,
-    startDate = null,
-    endDate = null,
+    startDateString = null,
+    endDateString = null,
     withDeleted = false,
+    accumulate = false,
   ) {
     let filter;
     let column;
@@ -223,7 +233,7 @@ export class UserInformationService {
           filter['givenValue'] = filter['givenValue'].split(';');
         ret['where'][entityName][column] = this.operatorToORMMethod(
           filter['operator'],
-        )(filter['givenValue']); //overwrite issue 발생가능(명세서에 적어줘야함)
+        )(filter['givenValue']); // overwrite issue 발생가능(명세서에 적어줘야함)
         if ('latest' in filter && filter['latest'] == true) {
           ret['order'][entityName]['created_at'] = 'DESC';
         } else {
@@ -232,48 +242,122 @@ export class UserInformationService {
       }
       // 한 시점을 특정
       if (
-        valExColumnEntity.includes(entityName) &&
-        startDate &&
-        endDate &&
-        startDate == endDate
+        startDateString &&
+        endDateString &&
+        startDateString == endDateString &&
+        entityName in entityColumnMapping &&
+        accumulate
       ) {
-        const referenceDate = startDate;
-        ret['where'][entityName]['validate_date'] =
-          LessThanOrEqual(referenceDate);
-        ret['where'][entityName]['expired_date'] =
-          MoreThanOrEqual(referenceDate);
+        const referenceDate = new Date(startDateString); // Date 타입으로 변환해줘야함
+        ret['where'][entityName][getValidateColumn(entityName, column)] =
+          getRawQuery(referenceDate);
+        ret['where'][entityName][
+          entityColumnMapping[entityName]['expired_date']
+        ] = MoreThanOrEqual(referenceDate);
+      } else if (
+        startDateString &&
+        endDateString &&
+        startDateString == endDateString &&
+        entityName in entityColumnMapping &&
+        !accumulate
+      ) {
+        const referenceDate = new Date(startDateString); // Date 타입으로 변환해줘야함
+        ret['where'][entityName][getValidateColumn(entityName, column)] =
+          Equal(referenceDate);
+        // ret['where'][entityName][getValidateColumn(entityName, column)] =
+        //   getRawQuery(referenceDate);
+        // ret['where'][entityName][
+        //   entityColumnMapping[entityName]['expired_date']
+        // ] = MoreThanOrEqual(referenceDate);
+      } else if (
+        startDateString &&
+        endDateString &&
+        startDateString == endDateString &&
+        entityName in halfAndHalf &&
+        accumulate
+      ) {
+        const referenceDate = new Date(startDateString); // Date 타입으로 변환해줘야함
+        ret['where'][entityName][getValidateColumn(entityName, column)] =
+          getRawQuery(referenceDate);
+      } else if (
+        startDateString &&
+        endDateString &&
+        startDateString == endDateString &&
+        entityName in halfAndHalf &&
+        !accumulate
+      ) {
+        const referenceDate = new Date(startDateString); // Date 타입으로 변환해줘야함
+        ret['where'][entityName][getValidateColumn(entityName, column)] =
+          Equal(referenceDate);
+        // ret['where'][entityName][getValidateColumn(entityName, column)] =
+        //   getRawQuery(referenceDate);
+        // ret['where'][entityName][
+        //   entityColumnMapping[entityName]['expired_date']
+        // ] = MoreThanOrEqual(referenceDate);
       }
       // 아래 부터는 시점 Range 조건
-      else if (valExColumnEntity.includes(entityName) && startDate && endDate) {
-        /**
-         * or 조건을 적용시키는게 맞나?
-         * 결과가 0또는 1만 나와야함 이 부분 나중에 테스트 해볼것
-         * 0 또는 1 이외의 결과가 나오면 DB가 잘못된거.
-         */
-        const log = { ...ret['where'][entityName] };
-        const latest = { ...ret['where'][entityName] };
-        ret['where'][entityName] = [];
-        log['validate_date'] = LessThanOrEqual(startDate);
-        log['expired_date'] = MoreThanOrEqual(endDate);
-        ret['where'][entityName].push(log);
-        latest['validate_date'] = LessThanOrEqual(startDate);
-        // latest['expired_date'] = IsNull(); //디폴트값 달리지면 이 부분 수정 필요
-        latest['expired_date'] = Equal('9999-12-31'); //디폴트값 달리지면 이 부분 수정 필요
-        ret['where'][entityName].push(latest);
-      } else if (startDate && endDate) {
-        // 이건 보류
-        // startDate와 endDate 의 값이 동일해야하나 다를수도 있는건가?
-        // 동일할때 ->
-        const referenceDate = startDate;
-        ret['where'][entityName]['validate_date'] =
-          LessThanOrEqual(referenceDate);
-        // 다를때 ->
-        ret['where'][entityName]['validate_date'] = LessThanOrEqual(startDate);
-        ret['where'][entityName]['expired_date'] = MoreThanOrEqual(endDate);
-      } else if (valExColumnEntity.includes(entityName) && startDate) {
-        ret['where'][entityName]['expired_date'] = MoreThanOrEqual(startDate);
-      } else if (valExColumnEntity.includes(entityName) && endDate) {
-        ret['where'][entityName]['validate_date'] = LessThanOrEqual(endDate);
+      else if (
+        startDateString &&
+        endDateString &&
+        entityName in entityColumnMapping &&
+        accumulate
+      ) {
+        const startDate = new Date(startDateString);
+        const endDate = new Date(endDateString);
+        ret['where'][entityName][getValidateColumn(entityName, column)] =
+          getRawQuery(endDate); //ok
+        ret['where'][entityName][
+          entityColumnMapping[entityName]['expired_date']
+        ] = MoreThanOrEqual(startDate); //ok
+      } else if (
+        startDateString &&
+        endDateString &&
+        entityName in entityColumnMapping &&
+        !accumulate
+      ) {
+        ret['where'][entityName][getValidateColumn(entityName, column)] =
+          Between(startDateString, endDateString);
+      } else if (
+        startDateString &&
+        endDateString &&
+        entityName in halfAndHalf &&
+        accumulate
+      ) {
+        const startDate = new Date(startDateString);
+        const endDate = new Date(endDateString);
+        ret['where'][entityName][getValidateColumn(entityName, column)] =
+          getRawQuery(endDate); //ok
+      } else if (
+        startDateString &&
+        endDateString &&
+        entityName in halfAndHalf &&
+        !accumulate
+      ) {
+        ret['where'][entityName][getValidateColumn(entityName, column)] =
+          Between(startDateString, endDateString);
+      }
+      // startDate는 주어지고, endDate는 주어지지 않는 경우
+      // else if (startDateString && entityName in entityColumnMapping) {
+      //   ret['where'][entityName][
+      //     entityColumnMapping[entityName]['expired_date']
+      //   ] = MoreThanOrEqual(startDateString); //ok
+      //   ret['where'][entityName][getValidateColumn(entityName, column)] =
+      //     LessThan('9999-12-31'); //ok
+      // }
+      // endDate는 주어지고, startDate는 주어지지 않는 경우
+      // else if (endDateString && entityName in entityColumnMapping) {
+      //   const endDate = new Date(endDateString);
+      //   ret['where'][entityName][getValidateColumn(entityName, column)] =
+      //     getRawQuery(endDate); //ok
+      // }
+      else if ('latest' in filter && filter['latest'] == true) {
+        // ***********************************************************************************************
+        // 애시당초 filter조건에 validate column, expired column을 줄 필요가 없는거 -> entity 수정, common에 수정 필요
+        // 프론트에 date 관련된 컬럼 사용자에게 보여주지 말아 달라고 요청하기 -> 도메인 보내주는건 백엔드니까 중한님께 요청드리는게 맞을듯?
+        // ***********************************************************************************************
+        // 아래 주석 풀면 테스트 코드 페일나옴 (validate_date = '9999-12-31'의 의미는???)
+        ret['where'][entityName][getValidateColumn(entityName, column)] =
+          LessThan('9999-12-31'); // 디폴트값이 달라지면 이 부분 수정 필요 //덮어쓰는 이슈가 있는지 확인
       } else {
         // do nothing
       }
@@ -327,10 +411,12 @@ export class UserInformationService {
           if (
             'latest' in filter &&
             filter['latest'] == true &&
-            !opeatorDict[filter['operator']](
-              filter['givenValue'],
-              row[joinedTable][0][filter['column']],
-            )
+            (row[joinedTable].length == 0 || //하.....
+              (row[joinedTable].length > 0 &&
+                !operatorDict[filter['operator']](
+                  filter['givenValue'],
+                  row[joinedTable][0][filter['column']],
+                )))
           ) {
             numOfPeople--;
           }
