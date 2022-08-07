@@ -85,4 +85,12 @@ export class AuthService {
     await queryRunner.commitTransaction(); //rollback 해버리는 실수
     await queryRunner.release();
   }
+
+  async getError(user) {
+    const ret = await this.dataSource
+      .getRepository(Bocal)
+      .findOneBy({ id: user.id });
+    if (!ret) return null;
+    return JSON.parse(ret.errObject);
+  }
 }

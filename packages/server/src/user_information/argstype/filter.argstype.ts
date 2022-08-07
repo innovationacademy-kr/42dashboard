@@ -17,6 +17,6 @@ export class FilterArgs {
   take: number;
   @Field((type) => Int, { nullable: true })
   skip: number;
-  @Field((type) => Boolean, { nullable: true, defaultValue: false })
+  @Field((type) => Boolean, { nullable: true, defaultValue: true })
   accumulate: boolean;
 }
