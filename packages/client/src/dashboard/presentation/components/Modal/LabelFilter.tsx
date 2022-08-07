@@ -30,6 +30,7 @@ function LabelFilter(props: LabelFilterProps) {
     setLabel(event.target.value);
   };
 
+  /** TODO: 수평맞추기 */
   return (
     <Section>
       <LabelAttribute value={label} onChange={handleLabelChange} />
