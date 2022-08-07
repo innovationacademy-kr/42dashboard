@@ -53,17 +53,16 @@ type Mutation {
 type Query {
   extractDataIntoSpreadsheet: String!
   getDataToModifyFromDB(sheetName: String!, withDeleted: String!): String!
-  getDomainOfColumnFilter(endDate: DateTime, filters: [Filter!]!, skip: Int, startDate: DateTime, take: Int): [JoinedTable!]!
+  getDomainOfColumnFilter(accumulate: Boolean = true, endDate: DateTime, filters: [Filter!]!, skip: Int, startDate: DateTime, take: Int): [JoinedTable!]!
   getLatestData: String!
-  getNumOfPeopleByFilter(endDate: DateTime, filters: [Filter!]!, skip: Int, startDate: DateTime, take: Int): Int!
-  getPeopleByFilter(endDate: DateTime, filters: [Filter!]!, skip: Int, startDate: DateTime, take: Int): [JoinedTable!]!
-  getPeopleByFilterForAdmin(endDate: DateTime, filters: [Filter!]!, skip: Int, startDate: DateTime, take: Int): [JoinedTable!]!
+  getNumOfPeopleByFilter(accumulate: Boolean = true, endDate: DateTime, filters: [Filter!]!, skip: Int, startDate: DateTime, take: Int): Int!
+  getPeopleByFilter(accumulate: Boolean = true, endDate: DateTime, filters: [Filter!]!, skip: Int, startDate: DateTime, take: Int): [JoinedTable!]!
+  getPeopleByFilterForAdmin(accumulate: Boolean = true, endDate: DateTime, filters: [Filter!]!, skip: Int, startDate: DateTime, take: Int): [JoinedTable!]!
   getUser(column: String, duplicated: String!): [User!]!
   getUserAccessCardInformation(column: String, duplicated: String!): [UserAccessCardInformation!]!
   getUserBlackhole(column: String, duplicated: String!): [UserBlackhole!]!
   getUserComputationFund(column: String, duplicated: String!): [UserComputationFund!]!
   getUserCourseExtension(column: String, duplicated: String!): [UserCourseExtension!]!
-  getUserEducationFundState(column: String, duplicated: String!): [UserEducationFundState!]!
   getUserEmploymentStatus(column: String, duplicated: String!): [UserEmploymentStatus!]!
   getUserHrdNetUtilize(column: String, duplicated: String!): [UserHrdNetUtilize!]!
   getUserHrdNetUtilizeConsent(column: String, duplicated: String!): [UserHrdNetUtilizeConsent!]!

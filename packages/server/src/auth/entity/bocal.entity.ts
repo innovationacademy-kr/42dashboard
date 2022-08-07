@@ -42,9 +42,6 @@ export class Bocal {
   @Column({ name: 'image_url', nullable: false })
   image_url: string;
 
-  @ApiProperty()
-  @Column({ name: 'errObject', nullable: true })
-  errObject: string;
   /**
    * api에서 오는 스태프 정보중에서 식별정보가 무엇무엇이 있는지 알아내서 column 추가하기
    */
@@ -78,4 +75,16 @@ export class PreSet extends BaseEntity {
 
   @ManyToOne(() => Bocal, (bocal) => bocal.preSetArray, { cascade: true })
   bocal: Bocal;
+}
+
+@Entity()
+@ObjectType()
+export class ErrorObject extends BaseEntity {
+  @Field()
+  @PrimaryGeneratedColumn({ name: 'id' }) // preSetdata의 uuid로 이 값을 채울예정
+  id: number;
+
+  @Field()
+  @Column({ name: 'error', nullable: false })
+  error: string;
 }

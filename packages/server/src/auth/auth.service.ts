@@ -7,7 +7,7 @@ import { join } from 'path';
 import { AUTHPARAM } from 'src/config/42oauth';
 import { jsonToFile } from 'src/utils/json-helper/jsonHelper';
 import { DataSource } from 'typeorm';
-import { Bocal, BocalRole } from './entity/bocal.entity';
+import { Bocal, BocalRole, ErrorObject } from './entity/bocal.entity';
 
 @Injectable()
 export class AuthService {
@@ -28,6 +28,7 @@ export class AuthService {
     bocal.image_url = obj.image_url;
     bocal.email = obj.email;
     bocal.role = BocalRole.ADMIN; //이 부분 나중에 분기문으로 처리
+    if (obj.isStaff != true) throw new BadRequestException();
     bocal.isStaff = true;
     console.log('save bocal ', bocal.intraName);
     await this.dataSource.getRepository(Bocal).save(bocal);
@@ -87,10 +88,12 @@ export class AuthService {
   }
 
   async getError(user) {
-    const ret = await this.dataSource
-      .getRepository(Bocal)
-      .findOneBy({ id: user.id });
-    if (!ret) return null;
-    return JSON.parse(ret.errObject);
+    const ret = [];
+    const errArr = await this.dataSource.getRepository(ErrorObject).find();
+    if (errArr.length == 0) return null;
+    for (const element of errArr) {
+      ret.push(JSON.parse(element.error));
+    }
+    return ret;
   }
 }
