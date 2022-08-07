@@ -719,6 +719,7 @@ export class SpreadService {
   }
 
   //테이블 별 하나의 로우 완성하는 함수
+  //rowIdx 인자로 col이 들어오는데 왜 rowIdx로 명명된것인가요
   makeRowPerColumn(row, cols, rowIdx, tuple, entityColumn, tableName) {
     const columnLabel = entityColumn.find(this.compareSpname(cols[rowIdx]));
     //스프레드에 날짜 저장 패턴이 바뀌면 문제가 생길 수 있음
@@ -815,7 +816,7 @@ export class SpreadService {
         }
         if (table['name'] === 'user_learning_data_api') {
           tuple['level'] = api42.level;
-          //tuple['leveled_date'] = new Date(); //동환님께 여쭤보자
+          tuple['leveled_date'] = new Date();
         } //여기 학습데이터를 추가해야함.
       }
       if (table['name'] != 'user') tuple['fk_user_no'] = row[1]; //usertable은 해당 컬럼이 필요가 없음
@@ -851,6 +852,7 @@ export class SpreadService {
     ) {
       // 구글스프레드시트에 컬럼이 페어(값, 날짜)형태로 저장된 경우
       const sheet = [];
+      //const result = [];
       for (const colData in colDatas) {
         const datas = [];
         const columns = colDatas[colData][0];
@@ -892,7 +894,7 @@ export class SpreadService {
               await this.insertArrayToDB(UserLearningDataAPI, data);
             else if (colObj.table === 'UserHrdNetUtilizeConsent')
               await this.insertArrayToDB(UserHrdNetUtilizeConsent, data);
-            // sheet.push(data);
+            //sheet.push(data);
           }
         }
       }
@@ -918,7 +920,6 @@ export class SpreadService {
           }
           payment_data['fk_user_no'] = rows[row][1];
           await this.initValidateDate(repoKey, payment_data, oldDateTable);
-
           const processData = Object.values(autoProcessingDataObj[repoKey]);
           const processedDataObj = await this.autoProcessingData(
             repoKey,
@@ -1016,7 +1017,6 @@ export class SpreadService {
       //지급일 시트 정보 받아서 저장해두기 테이블 관계수정 //확장성을 고려하려 했으나, 지원금 시트(LogColumn)의 특징이 강력하여 함수를 하나 더 만들기로 결정
 
       await this.parseOldSpread(columns, rows, pastSheetData, repoKey);
-      console.log('save', repoKey);
     }
   }
 
@@ -1054,7 +1054,7 @@ export class SpreadService {
 
   makeTableSet(tableSet: TableSet[], endOfTables, tableIdxs) {
     //table의 모든 정보를 TableSet인스턴스에 담는 작업을 하는 함수입니다.
-    console.log(`makeTableSet\n tableIdx : `, tableIdxs);
+    // console.log(`makeTableSet\n tableIdx : `, tableIdxs);
     for (const tableIdx in tableIdxs) {
       const table = {} as TableSet;
       const mapCol =
@@ -1065,8 +1065,8 @@ export class SpreadService {
       table['start'] = endOfTables[tableIdx];
       table['end'] = endOfTables[+tableIdx + 1];
       table['mapCol'] = mapCol;
-      console.log(table.name);
-      console.log(table['mapCol'], 'end makeTablest');
+      // console.log(table.name);
+      // console.log(table['mapCol'], 'end makeTablest');
       tableSet.push(table);
     }
   }
@@ -1098,15 +1098,15 @@ export class SpreadService {
       return 'user_other_employment_status';
     // else if (spreadTable === '지원금 관리' || spreadTable === '12')
     //   return 'user_education_fund_state';
-    else if (spreadTable === '지원금 산정' || spreadTable === '13')
+    else if (spreadTable === '지원금 산정' || spreadTable === '12')
       return 'user_computation_fund';
-    else if (spreadTable === '출입카드_info' || spreadTable === '14')
+    else if (spreadTable === '출입카드_info' || spreadTable === '13')
       return 'user_access_card_information';
-    else if (spreadTable === '기타정보' || spreadTable === '15')
+    else if (spreadTable === '기타정보' || spreadTable === '14')
       return 'user_other_information';
-    else if (spreadTable === 'La Piscine' || spreadTable === '16')
+    else if (spreadTable === 'La Piscine' || spreadTable === '15')
       return 'user_lapiscine_information';
-    return 'nothing table';
+    return 'nothing_table';
   }
 
   isDateType(tuple, column) {
@@ -1133,7 +1133,7 @@ export class SpreadService {
       targetObj[key] = this.createDate(targetObj[key]);
       newOneData[key] = this.createDate(newOneData[key]);
 
-      if (newOneData[key].getTime() != targetObj[key].getTime() + LOCALTIME) {
+      if (newOneData[key].getTime() != targetObj[key].getTime()) {
         await this.initValidateDate(tableName, newOneData, dateTable);
         console.log(
           `table is ${tableName}\n
@@ -1225,7 +1225,7 @@ export class SpreadService {
 
   async updateExpiredDate(repoKey, saveDate, expiredDate) {
     let key;
-
+    //console.log(saveDate, repoKey, expiredDate);
     if (repoKey == 'user') key = 'intra_no';
     else key = 'fk_user_no';
 
@@ -1245,7 +1245,7 @@ export class SpreadService {
         await repo.save(target);
       }
     } catch {
-      throw 'error in updateTuple';
+      throw 'error in update expiredDate';
     }
   }
 
@@ -1340,7 +1340,7 @@ export class SpreadService {
           payment_date: endDate,
         })
         .getMany();
-      console.log(target, '기간 내 휴학 date');
+      if (target.length != 0) console.log(target, '기간 내 휴학 date');
       return target;
     } catch {
       throw 'error : in getAbsenceDates';
@@ -1542,5 +1542,16 @@ export class SpreadService {
     // } catch {
     //   throw 'error : processing data';
     // }
+  }
+
+  /************************************/
+  /*        check error data          */
+  /************************************/
+
+  checkErrorData(tableName, table) {
+    if (tableName === 'user_leave_of_absence') {
+      const begin = new Date(table['begin_absence_date']);
+      const end = new Date(table['end_absence_date']);
+    }
   }
 }

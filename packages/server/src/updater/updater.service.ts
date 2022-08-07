@@ -138,28 +138,6 @@ export class UpdaterService {
       this.userLapiscineInformationRepository,
   };
 
-  // repoArray = [
-  //   this.userRepository,
-  //   this.userPersonalInformationRepository,
-  //   this.userCourseExtensionRepository,
-  //   this.userLeaveOfAbsenceRepository,
-  //   this.userBlackholeRepository,
-  //   this.userInterruptionOfCourseRepository,
-  //   this.userLearningDataAPIRepository,
-  //   this.userLoyaltyManagementRepository,
-  //   this.userEmploymentStatusRepository,
-  //   this.userHrdNetUtilizeConsentRepository,
-  //   this.userHrdNetUtilizeRepository,
-  //   this.userOtherEmploymentStatusRepository,
-  //   // this.userEducationFundStateRepository,
-  //   this.userComputationFundRepository,
-  //   this.userAccessCardInformationRepository,
-  //   this.userOtherInformationRepository,
-  //   this.userLapiscineInformationRepository,
-  // ];
-
-  // apiOfRepo = [this.userLearningDataAPIRepository];
-
   @Cron('00 00 00 * * *') //24시간마다 업데이트
   updatePerDay() {
     console.log('start update', this.updateData());
@@ -179,12 +157,15 @@ export class UpdaterService {
     const tableArray = {};
     for (const table of tableSet) {
       tableArray[table['name']] = {};
-      console.log(table['name'], 'in for');
       tableArray[table['name']] = await this.spreadService.parseSpread(
         columns,
         rows,
         table,
         //api42s,
+      );
+      this.spreadService.checkErrorData(
+        table['name'],
+        tableArray[table['name']],
       );
     }
     const latestData = await this.getLatestAllOneData();
