@@ -7,4 +7,6 @@ export class UpdateDB {
 
   @Field() //에러발생 -> Filter 선언부쪽에 @InputType()붙여주니까 해결됨
   sheetName: string;
+  @Field() //에러발생 -> Filter 선언부쪽에 @InputType()붙여주니까 해결됨
+  withDeleted: string;
 }

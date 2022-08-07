@@ -52,7 +52,7 @@ type Mutation {
 
 type Query {
   extractDataIntoSpreadsheet: String!
-  getDataToModifyFromDB(sheetName: String!): String!
+  getDataToModifyFromDB(sheetName: String!, withDeleted: String!): String!
   getDomainOfColumnFilter(endDate: DateTime, filters: [Filter!]!, skip: Int, startDate: DateTime, take: Int): [JoinedTable!]!
   getLatestData: String!
   getNumOfPeopleByFilter(endDate: DateTime, filters: [Filter!]!, skip: Int, startDate: DateTime, take: Int): Int!
@@ -75,7 +75,7 @@ type Query {
   getUserOtherEmploymentStatus(column: String, duplicated: String!): [UserOtherEmploymentStatus!]!
   getUserOtherInformation(column: String, duplicated: String!): [UserOtherInformation!]!
   getUserPersonalInformation(column: String, duplicated: String!): [UserPersonalInformation!]!
-  saveModifiedDataFromSheet(sheetName: String!): String!
+  saveModifiedDataFromSheet(sheetName: String!, withDeleted: String!): String!
   sendRequestToSpreadWithGoogleAPI: String!
   tempFunction: [JoinedTable!]!
   updateData: String!

@@ -132,8 +132,49 @@ export class SpreadService {
     });
   }
 
+  //삭제정보도 포함하는지 검사하는 함수
+  async checkWithDeleted(withDeleted: string, repoName: string) {
+    if (withDeleted === 'Y') {
+      return await this.dataSource.getRepository(entityArray[repoName]).find({
+        withDeleted: true,
+        order: {
+          pk: 'ASC',
+        },
+      });
+    } else if (withDeleted === 'N') {
+      return await this.dataSource.getRepository(entityArray[repoName]).find({
+        order: {
+          pk: 'ASC',
+        },
+      });
+    } else {
+      return 'error';
+    }
+  }
+
+  async checkLatestWithDeleted(repo, withDeleted: string, repoName: string) {
+    if (withDeleted === 'Y') {
+      return await repo
+        .createQueryBuilder(repoKeys[repoName])
+        .distinctOn([`${repoKeys[repoName]}.fk_user_no`])
+        .orderBy(`${repoKeys[repoName]}.fk_user_no`, 'DESC')
+        .addOrderBy(`${repoKeys[repoName]}.validate_date`, 'DESC')
+        .withDeleted()
+        .getMany();
+    } else if (withDeleted === 'N') {
+      return await repo
+        .createQueryBuilder(repoKeys[repoName])
+        .distinctOn([`${repoKeys[repoName]}.fk_user_no`])
+        .orderBy(`${repoKeys[repoName]}.fk_user_no`, 'DESC')
+        .addOrderBy(`${repoKeys[repoName]}.validate_date`, 'DESC')
+        .getMany();
+    } else {
+      return 'error';
+    }
+  }
+
   /*  DB에 있는 데이터를 수정하기 위해 스프레드 시트로 옮기는 함수  */
-  async getDataToModifyFromDB(endPoint: string, repoName) {
+  async getDataToModifyFromDB(endPoint: string, repoName, withDeleted) {
     // google spread sheet api 가져오기
     const googleSheet = await this.getGoogleSheetAPI();
     const createPage = [
@@ -151,13 +192,8 @@ export class SpreadService {
       pageRes['replies'][0]['addSheet']['properties']['sheetId'];
     if (this.sheetId[repoName] == 0) return "Can't edit user page";
     const values = [];
-    const datas = await this.dataSource
-      .getRepository(entityArray[repoName])
-      .find({
-        order: {
-          pk: 'ASC',
-        },
-      });
+    const datas = await this.checkWithDeleted(withDeleted, repoName);
+    if (datas === 'error') return 'error';
     const spreadCol = this.convDBColumnToSpreadColumn(
       Object.keys(datas[0]),
       EntityColumn[this.capitalize(repoName)],
@@ -262,17 +298,24 @@ export class SpreadService {
     return color;
   }
 
-  addColorLatestData(requests, latestData, sheetId, colNum, color) {
+  //최신데이터의 색 넣을 위치찾기
+  addColorLatestData(
+    requests,
+    values,
+    latestData,
+    sheetId,
+    pkCol,
+    colNum,
+    color,
+  ) {
     latestData.forEach((element) => {
+      let idx;
+      values.forEach((value, index) => {
+        if (value[pkCol] == element['pk']) idx = index;
+        return value[pkCol] == element['pk'];
+      });
       requests.push(
-        this.setColorRange(
-          sheetId,
-          element['pk'],
-          element['pk'] + 1,
-          0,
-          colNum,
-          color,
-        ),
+        this.setColorRange(sheetId, idx, idx + 1, 0, colNum, color),
       );
     });
   }
@@ -291,12 +334,20 @@ export class SpreadService {
       this.setColorRange(sheetId, 0, rowNum, fkCol, fkCol + 1, red),
       this.addFilterView(sheetId, rowNum, 0, colNum, pkCol),
     ];
-    this.addColorLatestData(requests, latestData, sheetId, colNum, blue);
+    this.addColorLatestData(
+      requests,
+      values,
+      latestData,
+      sheetId,
+      pkCol,
+      colNum,
+      blue,
+    );
     const response = await this.controlSheet(endPoint, googleSheet, requests);
   }
 
   /* 수정을 위해 생성했던 시트상에서 수정된 데이터를 DB테이블로 다시 업데이트하는 함수 */
-  async saveModifiedDataFromSheet(endPoint, repoName) {
+  async saveModifiedDataFromSheet(endPoint, repoName, withDeleted) {
     if (this.sheetId[repoName] == 0) return 'no file to save'; //수정하던 시트에 문제가 생긴경우
     if (this.sheetId[repoName] == -1)
       //수정 도중 main이 업데이트된 경우, 해당 시트는 저장할 수 없음.
@@ -304,6 +355,8 @@ export class SpreadService {
     const newDatas = [];
     const errorMsg = {} as ErrorMsg;
     const googleSheet = await this.getGoogleSheetAPI();
+    const deleteDatas = [];
+    const restoreDatas = [];
     const deletePage = [
       {
         //시트를 삭제하는 명령
@@ -327,7 +380,10 @@ export class SpreadService {
       const ret = await this.compareDataToCheckError(
         spreadData,
         repoName,
+        withDeleted,
         newDatas,
+        deleteDatas,
+        restoreDatas,
         errorMsg,
       ); //pk중복 체크도 해야함?
       if (ret === 'column error') {
@@ -348,7 +404,13 @@ export class SpreadService {
         for (const col in columns) {
           this.makeRowPerColumnToModify(row, columns, col, tuple, repoName);
         }
-        await this.updateDataToDB(repoName, tuple);
+        if (deleteDatas.length > 0) {
+          await this.deleteDataToDB(deleteDatas, tuple, repoName);
+        } else if (restoreDatas.length > 0) {
+          await this.restoreDataToDB(restoreDatas, tuple, repoName);
+        } else {
+          await this.updateDataToDB(repoName, tuple);
+        }
       }
       if (newDatas.length > 0) {
         for (const newData of newDatas) {
@@ -362,13 +424,39 @@ export class SpreadService {
               repoName,
             );
           }
-          await this.insertDataToDB(entityArray[repoName], tuple); //동환님이 추가하는 update방식과 비슷 createdate를 기준으로하는 validate는 좀 힘들지도?
+          await this.insertDataToDB(entityArray[repoName], tuple);
         }
       }
       await this.controlSheet(endPoint, googleSheet, deletePage);
       return ERRORMSG.SUCCESS;
     } catch (err) {
       throw err;
+    }
+  }
+
+  async deleteDataToDB(deleteDatas, tuple, repoName) {
+    const deleteData = deleteDatas.find((data) => data.pk == tuple['pk']);
+    if (deleteData !== undefined) {
+      await this.dataSource
+        .getRepository(entityArray[repoName])
+        .createQueryBuilder(repoName)
+        .where(`pk = :pk`, {
+          pk: tuple['pk'],
+        })
+        .softDelete();
+    }
+  }
+
+  async restoreDataToDB(restoreDatas, tuple, repoName) {
+    const restoreData = restoreDatas.find((data) => data.pk == tuple['pk']);
+    if (restoreData !== undefined) {
+      await this.dataSource
+        .getRepository(entityArray[repoName])
+        .createQueryBuilder(repoName)
+        .where(`pk = :pk`, {
+          pk: tuple['pk'],
+        })
+        .restore();
     }
   }
 
@@ -477,18 +565,22 @@ export class SpreadService {
     });
   }
 
-  async compareDataToCheckError(sheet, repoName: string, newDatas, errorMsg) {
-    const datas = await this.dataSource
-      .getRepository(entityArray[repoName])
-      .find({
-        order: {
-          pk: 'ASC',
-        },
-      });
+  // 수정시트를 저장하기 전, 제약조건에 벗어나는지 체크하는 함수입니다.
+  async compareDataToCheckError(
+    sheet,
+    repoName: string,
+    withDeleted: string,
+    newDatas,
+    deletedDatas,
+    restoreDatas,
+    errorMsg,
+  ) {
+    const datas = await this.checkWithDeleted(withDeleted, repoName); // DB데이터 뽑아오기
+    if (datas === 'error') return 'error';
     const dbvalues = [];
     let sheetIdx;
     dbvalues.push(Object.keys(datas[0]));
-    datas.forEach((data) => dbvalues.push(Object.values(data))); // DB데이터 뽑아오기
+    datas.forEach((data) => dbvalues.push(Object.values(data))); //DB데이터 형식 변경 object -> [][]
 
     const repo = await this.dataSource.getRepository(entityArray[repoName]); // 최신데이터 뽑아오기
     const latestData = await repo
@@ -620,6 +712,46 @@ export class SpreadService {
       }
     });
     if (!resultOfCheck) return 'The inserted data is wrong';
+
+    //새로 삭제해야할 항목 추출하는 함수
+    const sheetDeleteDatas = this.setDeleteList(noLatestDatas, dbvalues);
+    const sheetRestoreDatas = this.setRestoreList(noLatestDatas, dbvalues);
+    deletedDatas.push(...sheetDeleteDatas);
+    restoreDatas.push(...sheetDeleteDatas);
+  }
+
+  setDeleteList(noLatestDatas, dbvalues) {
+    let sheetDeleteDatas = noLatestDatas.filter(
+      (data) => data.delete_date != '',
+    );
+    const DBDeleteDatas = dbvalues.filter((data) => data.delete_date != '');
+    sheetDeleteDatas = sheetDeleteDatas.filter((sheetData) => {
+      if (
+        DBDeleteDatas.find((DBData) => DBData.pk == sheetData) === undefined
+      ) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+    return sheetDeleteDatas;
+  }
+
+  setRestoreList(noLatestDatas, dbvalues) {
+    let sheetrestoreDatas = noLatestDatas.filter(
+      (data) => data.delete_date == '',
+    );
+    const DBDeleteDatas = dbvalues.filter((data) => data.delete_date == '');
+    sheetrestoreDatas = sheetrestoreDatas.filter((sheetData) => {
+      if (
+        DBDeleteDatas.find((DBData) => DBData.pk == sheetData) === undefined
+      ) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+    return sheetrestoreDatas;
   }
 
   async updateDataToDB(repoName, tuple) {
@@ -1340,7 +1472,7 @@ export class SpreadService {
           payment_date: endDate,
         })
         .getMany();
-      if (target.length != 0) console.log(target, '기간 내 휴학 date');
+      //if (target.length != 0) console.log(target, '기간 내 휴학 date');
       return target;
     } catch {
       throw 'error : in getAbsenceDates';
