@@ -33,6 +33,10 @@ function DashBoardPage() {
             navigate(`/`);
           });
       }
+      axios
+        .axiosGetError()
+        .then((data) => console.log(data))
+        .catch((error) => console.log(error));
     });
   }, []);
 

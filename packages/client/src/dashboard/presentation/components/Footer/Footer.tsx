@@ -73,10 +73,10 @@ function Footer() {
       {mode !== 'edit' && (
         <ButtonArea>
           <RoundButton
-            onClick={() => {
+            onClick={async () => {
               setRefetchState('loading');
               console.log(`loading`);
-              axios
+              await axios
                 .axiosUpdateData()
                 .then((data) => {
                   setRefetchState('data');
@@ -86,6 +86,10 @@ function Footer() {
                   setRefetchState('error');
                   console.log(`error`);
                 });
+              await axios
+                .axiosGetError()
+                .then((data) => console.log(data))
+                .catch((error) => console.log(error));
             }}
           >
             <RotateRefreshIcon className={refetchState} />

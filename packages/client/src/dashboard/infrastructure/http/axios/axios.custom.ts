@@ -33,3 +33,14 @@ export const axiosLogout = async () => {
     throw error;
   }
 };
+
+const getErrorURL = '/auth/getError';
+
+export const axiosGetError = async () => {
+  try {
+    const response = await axios.instance.get(getErrorURL);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
