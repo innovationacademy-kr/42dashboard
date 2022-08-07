@@ -44,7 +44,7 @@ export class AuthController {
     const access_token = await this.authService.authentication(code);
     res.cookie('access_token', `${access_token}`, {
       httpOnly: true,
-      domain: 'localhost',
+      domain: 'dashboard42.com', // 이 부분도 환경변수
     }); //res.cookie()는 하나만 적용됨. 여러개 호출하면 제일 마지막에 호출된것만 적용됨(??)
     // res.setHeader('WWW-authenticate', `Bearer: realm="DashBoard"`);
     // res.redirect('http://localhost:3000/auth/test'); //redirection해도 됨. 나중에 front Home으로 redirection되게 할 예정.
@@ -87,8 +87,11 @@ export class AuthController {
     description: '에러점검',
     type: Bocal,
   })
-  @UseGuards(AuthGuard('jwt'))
-  async getError(@Req() req) {
-    return await this.authService.getError(req.user);
+  // @UseGuards(AuthGuard('jwt'))
+  async getError(@Req() req, @Res() res: Response) {
+    const data = await this.authService.getError(req.user);
+    if (!data) res.status(200);
+    else res.status(400);
+    res.send({ data });
   }
 }

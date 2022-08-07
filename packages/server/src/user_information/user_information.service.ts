@@ -37,6 +37,7 @@ import { JoinedTable } from './argstype/joinedTable';
 import { Filter } from './filter';
 import {
   entityColumnMapping,
+  entityColumnNotMapping,
   exceptCase,
   getExpireColumn,
   getRawQuery,
@@ -141,7 +142,7 @@ export class UserInformationService {
       }
     }
     // console.log(filterObj);
-    const findObj = this.createFindObj(
+    const {findObj, flag} = this.createFindObj(
       filterObj,
       filterArgs.startDate,
       filterArgs.endDate,
@@ -156,7 +157,7 @@ export class UserInformationService {
     }
     if ('skip' in filterArgs) findObj['skip'] = filterArgs['skip'];
     else findObj['skip'] = 0;
-    return { findObj, filterObj };
+    return { findObj, filterObj, flag };
   }
 
   /**
@@ -191,7 +192,8 @@ export class UserInformationService {
     let filter;
     let column;
     let operator;
-    const ret = {
+    let flag = 0;
+    const findObj = {
       withDeleted, //제일 상단에 와야함
       relations: {},
       where: {},
@@ -211,16 +213,16 @@ export class UserInformationService {
         ) {
           filter['givenValue'] = filter['givenValue'].split(';');
         }
-        ret['where'][column] = this.operatorToORMMethod(filter['operator'])(
+        findObj['where'][column] = this.operatorToORMMethod(filter['operator'])(
           filter['givenValue'],
         ); //overwrite issue 발생가능(명세서에 적어줘야함)
       }
     }
     for (const entityName in filterObj) {
       if (entityName == 'user') continue; // user는 이미 위의 for문에서 처리
-      ret['relations'][entityName] = true;
-      ret['where'][entityName] = {};
-      ret['order'][entityName] = {};
+      findObj['relations'][entityName] = true;
+      findObj['where'][entityName] = {};
+      findObj['order'][entityName] = {};
       for (const idx in filterObj[entityName]) {
         filter = filterObj[entityName][idx];
         operator = filter['operator'];
@@ -233,13 +235,13 @@ export class UserInformationService {
           operator == 'between'
         )
           filter['givenValue'] = filter['givenValue'].split(';');
-        ret['where'][entityName][column] = this.operatorToORMMethod(
+        findObj['where'][entityName][column] = this.operatorToORMMethod(
           filter['operator'],
         )(filter['givenValue']); // overwrite issue 발생가능(명세서에 적어줘야함)
         if ('latest' in filter && filter['latest'] == true) {
-          ret['order'][entityName]['created_at'] = 'DESC';
+          findObj['order'][entityName]['created_at'] = 'DESC';
         } else {
-          ret['order'][entityName]['created_at'] = 'ASC';
+          findObj['order'][entityName]['created_at'] = 'ASC';
         }
       }
       // 한 시점을 특정
@@ -251,9 +253,9 @@ export class UserInformationService {
       //   accumulate
       // ) {
       //   const referenceDate = new Date(startDateString); // Date 타입으로 변환해줘야함
-      //   ret['where'][entityName][getValidateColumn(entityName, column)] =
+      //   findObj['where'][entityName][getValidateColumn(entityName, column)] =
       //     getRawQuery(referenceDate);
-      //   ret['where'][entityName][
+      //   findObj['where'][entityName][
       //     entityColumnMapping[entityName]['expired_date']
       //   ] = MoreThanOrEqual(referenceDate);
       // } else if (
@@ -264,11 +266,11 @@ export class UserInformationService {
       //   !accumulate
       // ) {
       //   const referenceDate = new Date(startDateString); // Date 타입으로 변환해줘야함
-      //   ret['where'][entityName][getValidateColumn(entityName, column)] =
+      //   findObj['where'][entityName][getValidateColumn(entityName, column)] =
       //     Equal(referenceDate);
-      //   // ret['where'][entityName][getValidateColumn(entityName, column)] =
+      //   // findObj['where'][entityName][getValidateColumn(entityName, column)] =
       //   //   getRawQuery(referenceDate);
-      //   // ret['where'][entityName][
+      //   // findObj['where'][entityName][
       //   //   entityColumnMapping[entityName]['expired_date']
       //   // ] = MoreThanOrEqual(referenceDate);
       // } else if (
@@ -279,7 +281,7 @@ export class UserInformationService {
       //   accumulate
       // ) {
       //   const referenceDate = new Date(startDateString); // Date 타입으로 변환해줘야함
-      //   ret['where'][entityName][getValidateColumn(entityName, column)] =
+      //   findObj['where'][entityName][getValidateColumn(entityName, column)] =
       //     getRawQuery(referenceDate);
       // } else if (
       //   startDateString &&
@@ -289,11 +291,11 @@ export class UserInformationService {
       //   !accumulate
       // ) {
       //   const referenceDate = new Date(startDateString); // Date 타입으로 변환해줘야함
-      //   ret['where'][entityName][getValidateColumn(entityName, column)] =
+      //   findObj['where'][entityName][getValidateColumn(entityName, column)] =
       //     Equal(referenceDate);
-      //   // ret['where'][entityName][getValidateColumn(entityName, column)] =
+      //   // findObj['where'][entityName][getValidateColumn(entityName, column)] =
       //   //   getRawQuery(referenceDate);
-      //   // ret['where'][entityName][
+      //   // findObj['where'][entityName][
       //   //   entityColumnMapping[entityName]['expired_date']
       //   // ] = MoreThanOrEqual(referenceDate);
       // }
@@ -306,9 +308,9 @@ export class UserInformationService {
       ) {
         const startDate = new Date(startDateString);
         const endDate = new Date(endDateString);
-        ret['where'][entityName][getValidateColumn(entityName, column)] =
+        findObj['where'][entityName][getValidateColumn(entityName, column)] =
           getRawQuery(endDate); //ok
-        ret['where'][entityName][
+        findObj['where'][entityName][
           entityColumnMapping[entityName][getExpireColumn(entityName)]
         ] = MoreThanOrEqual(startDate); //ok
       } else if (
@@ -317,7 +319,7 @@ export class UserInformationService {
         entityName in entityColumnMapping &&
         !accumulate
       ) {
-        ret['where'][entityName][getValidateColumn(entityName, column)] =
+        findObj['where'][entityName][getValidateColumn(entityName, column)] =
           Between(startDateString, endDateString);
       } else if (
         startDateString &&
@@ -327,43 +329,34 @@ export class UserInformationService {
       ) {
         const startDate = new Date(startDateString);
         const endDate = new Date(endDateString);
-        ret['where'][entityName][getValidateColumn(entityName, column)] =
+        findObj['where'][entityName][getValidateColumn(entityName, column)] =
           getRawQuery(endDate); //ok
-        // 한번 더 걸러야하는데 그건 make_limit에서 처리함
+        // 한번 더 걸러야하는데 그건 make_limit에서 처리함 -> 처리 못해줌
+        flag = 1;
       } else if (
         startDateString &&
         endDateString &&
         (entityName in halfAndHalf || exceptCase(entityName, column)) &&
         !accumulate
       ) {
-        ret['where'][entityName][getValidateColumn(entityName, column)] =
+        findObj['where'][entityName][getValidateColumn(entityName, column)] =
           Between(startDateString, endDateString);
-      } else if ('latest' in filter && filter['latest'] == true) {
+      } else if ('latest' in filter && filter['latest'] == true && (entityName in halfAndHalf || entityName in entityColumnMapping)) {
         // ***********************************************************************************************
         // 애시당초 filter조건에 validate column, expired column을 줄 필요가 없는거 -> entity 수정, common에 수정 필요
         // 프론트에 date 관련된 컬럼 사용자에게 보여주지 말아 달라고 요청하기 -> 도메인 보내주는건 백엔드니까 중한님께 요청드리는게 맞을듯?
         // ***********************************************************************************************
         // 아래 주석 풀면 테스트 코드 페일나옴 (validate_date = '9999-12-31')
-        ret['where'][entityName][getValidateColumn(entityName, column)] =
+        findObj['where'][entityName][getValidateColumn(entityName, column)] =
           LessThan('9999-12-20'); // 디폴트값이 달라지면 이 부분 수정 필요 //덮어쓰는 이슈가 있는지 확인
       } else {
         // do nothing
       }
     }
-    return ret;
+    return {findObj, flag};
   }
 
-  /**
-   * 1. 일관성 달성
-   *    일대일관계에서 붙는 테이블이 없으면 -> null
-   *    일대일관계에서 붙는 테이블이 있으면 -> 객체 하나 => [객체하나] 꼴로 바꾸자 (가)
-   *    filter.latest=false && 일대다관계에서 붙는 테이블이 없으면 -> [](빈테이블) => null로 바꾸자 (나)
-   *    filter.latest=true && 일대다관계에서 붙는 테이블이 있으면 -> [obj1, obj2...]
-   * 2. 최신정보 vs 최신정보+로깅정보
-   *    filter.latest값이 false이면 최신정보+로깅정보 반환
-   *    filter.latest값이 true이면 최신정보만 반환
-   */
-  private makeLimit(data, filterObj, numOfPeople = 0) {
+  private makeLimit(data, filterObj, numOfPeople = 0, flag = 0) {
     let filter;
     let row;
     // let temp: JoinedTable[];
@@ -374,31 +367,18 @@ export class UserInformationService {
         filter = filterObj[joinedTable][idx];
         for (const idx in data) {
           row = data[idx];
-          //(가)
-          if (row[joinedTable] != null && !Array.isArray(row[joinedTable])) {
-            temp = []; //여기서 temp = [JoinTable] 이렇게 오타.. JoinTable은 데코레이터..
-            temp.push(row[joinedTable]);
-            row[joinedTable] = temp;
-            //(나)
-          } else if (
-            row[joinedTable] != null &&
-            Array.isArray(row[joinedTable]) &&
-            row[joinedTable].length == 0
-          ) {
-            row[joinedTable] = null;
-          }
           if (
             row[joinedTable] != null &&
             Array.isArray(row[joinedTable]) &&
+            row[joinedTable].length > 0 &&
             'latest' in filter &&
             filter['latest'] == true
           ) {
             row[joinedTable] = row[joinedTable].slice(0, 1);
-            // console.log(row[joinedTable]);
           }
-          if (
-            'latest' in filter &&
-            filter['latest'] == true &&
+          if ( //최후의 보루
+            (('latest' in filter &&
+            filter['latest'] == true) || flag == 1)&&
             (row[joinedTable].length == 0 || //에러가 터졌으면 안됐는데...?
               (row[joinedTable].length > 0 &&
                 !operatorDict[filter['operator']](
@@ -407,6 +387,7 @@ export class UserInformationService {
                 )))
           ) {
             numOfPeople--;
+            row[joinedTable] = [];
           }
         }
       }
@@ -419,23 +400,23 @@ export class UserInformationService {
   }
 
   async getPeopleByFiter(filterArgs: FilterArgs) {
-    const { findObj, filterObj } = this.filtersToObj(filterArgs);
+    const { findObj, filterObj, flag } = this.filtersToObj(filterArgs);
     let data = await this.dataSource.getRepository(User).find(findObj);
-    const limetedData = this.makeLimit(data, filterObj);
-    data = limetedData.data;
+    const limitedData = this.makeLimit(data, filterObj, 0, flag);
+    data = limitedData.data;
     return data;
   }
 
   async getPeopleByFilterForAdmin(filterArgs: FilterArgs) {
-    const { findObj, filterObj } = this.filtersToObj(filterArgs, true);
+    const { findObj, filterObj, flag } = this.filtersToObj(filterArgs, true);
     let data = await this.dataSource.getRepository(User).find(findObj);
-    const limetedData = this.makeLimit(data, filterObj);
-    data = limetedData.data;
+    const limitedData = this.makeLimit(data, filterObj, 0, flag);
+    data = limitedData.data;
     return data;
   }
 
   async getNumOfPeopleByFilter(filterArgs: FilterArgs): Promise<number> {
-    const { findObj, filterObj } = this.filtersToObj(filterArgs);
+    const { findObj, filterObj, flag } = this.filtersToObj(filterArgs);
     // findAndCount의 return 값 = 배열
     // 0번째 인덱스 = find의 결과
     // 1번째 인덱스 = count의 결과
@@ -444,8 +425,8 @@ export class UserInformationService {
       .findAndCount(findObj);
     const data = dataAndCount[0];
     const count = dataAndCount[1];
-    const limetedData = this.makeLimit(data, filterObj, count);
-    return limetedData.numOfPeople;
+    const limitedData = this.makeLimit(data, filterObj, count, flag);
+    return limitedData.numOfPeople;
   }
 
   async getDomainOfColumnFilter(filterArgs: FilterArgs) {
@@ -478,7 +459,7 @@ export class UserInformationService {
   }
 
   async updateUserInformation(cudDto: CudDto): Promise<boolean> {
-    const findObj = this.createFindObj(cudDto);
+    const {findObj} = this.createFindObj(cudDto);
     const user = await this.dataSource.getRepository(User).findOne(findObj);
     if (user == null) return false;
     const entityName = cudDto.entityName;
@@ -496,7 +477,7 @@ export class UserInformationService {
 
   async deleteUserInformation(cudDto: CudDto) {
     const queryRunner = this.dataSource.createQueryRunner();
-    const findObj = this.createFindObj(cudDto);
+    const {findObj} = this.createFindObj(cudDto);
     const user = await this.dataSource.getRepository(User).findOne(findObj);
     if (user == null) return false;
     const entityName = cudDto.entityName;
@@ -510,7 +491,7 @@ export class UserInformationService {
 
   async recoverUserInformaiton(cudDto: CudDto) {
     const queryRunner = this.dataSource.createQueryRunner();
-    const findObj = this.createFindObj(cudDto);
+    const {findObj} = this.createFindObj(cudDto);
     findObj['withDeleted'] = true; //상단에 위치해야함
     const user = await this.dataSource.getRepository(User).findOne(findObj);
     if (user == null) return false;

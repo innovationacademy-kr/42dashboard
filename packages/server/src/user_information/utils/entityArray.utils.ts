@@ -254,6 +254,7 @@ export {
   NonValExColumnEntity,
   valExColumnEntity,
   entityColumnMapping,
+  entityColumnNotMapping,
   halfAndHalf,
   getValidateColumn,
   getRawQuery,
