@@ -1,8 +1,5 @@
-import * as React from 'react';
 import styled from '@emotion/styled';
 import { Button } from '@mui/material';
-import { useLazyQuery } from '@apollo/client';
-import createValueQuery from '../../../infrastructure/http/graphql/createValueQuery';
 import {
   ColumnType,
   EntityNameType,
@@ -13,9 +10,10 @@ import {
 import FilterAttribute from './filterAttributes/FilterAttribute';
 import returnColumns from './filterAttributes/menuItems/returnColumns';
 import returnOperators from './filterAttributes/menuItems/returnOperators';
-import returnValues from './filterAttributes/menuItems/returnValues';
 import LatestAttribute from './filterAttributes/LatestAttribute';
 import returnEntities from './filterAttributes/menuItems/returnEntities';
+import { useState } from 'react';
+import ValueAttribute from './filterAttributes/ValueAttribute';
 
 const Section = styled.div`
   margin-top: 1rem;
@@ -30,16 +28,11 @@ interface DatasetFilterProps {
 
 export default function QueryFilterAttribute(props: DatasetFilterProps) {
   const { saveSelectedFilter } = props;
-  const [entityName, setEntityName] = React.useState<EntityNameType>('User');
-  const [column, setColumn] = React.useState<ColumnType>('coalition');
-  const [operator, setOperator] = React.useState<OperatorType>('=');
-  const [givenValue, setGivenValue] = React.useState<GivenValueType>('');
-  const [latest, setLatest] = React.useState<boolean>(true);
-  const [getValues, { data, loading, error }] = useLazyQuery(
-    createValueQuery(entityName, column),
-  );
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error :</p>;
+  const [entityName, setEntityName] = useState<EntityNameType>('');
+  const [column, setColumn] = useState<ColumnType>('');
+  const [operator, setOperator] = useState<OperatorType>('=');
+  const [givenValue, setGivenValue] = useState<GivenValueType>('');
+  const [latest, setLatest] = useState<boolean>(true);
 
   const checkEmptyAttribute = () => {
     if (!entityName || !column || !operator || !givenValue || !latest) {
@@ -50,12 +43,14 @@ export default function QueryFilterAttribute(props: DatasetFilterProps) {
   };
 
   const handleEntityNameChange = (event: any) => {
+    setGivenValue('');
+    setColumn('');
     setEntityName(event.target.value);
   };
 
   const handleColumnChange = (event: any) => {
-    setColumn(event.target.value);
-    getValues();
+    setGivenValue('');
+    setColumn(event.target.value || '');
   };
 
   const handleOperatorChange = (event: any) => {
@@ -90,11 +85,12 @@ export default function QueryFilterAttribute(props: DatasetFilterProps) {
         onChange={handleOperatorChange}
         menuItems={returnOperators()}
       />
-      <FilterAttribute
+      <ValueAttribute
         id={'GivenValue'}
         value={givenValue}
         onChange={handleGivenValueChange}
-        menuItems={returnValues({ entityName, column, data })}
+        entityName={entityName || 'None'}
+        column={column || 'None'}
       />
       <LatestAttribute
         id={'Latest'}

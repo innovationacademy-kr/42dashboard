@@ -19,7 +19,6 @@ export default function SaveButton(props: SaveButtonProps) {
   if (loading) return <Button disabled={true}>데이터 로딩중...</Button>;
   if (data) {
     window.open(data['getDataToModifyFromDB'], '_blank');
-    console.log(data);
     return (
       <Alert
         onClick={saveModification}

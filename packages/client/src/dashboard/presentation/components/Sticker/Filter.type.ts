@@ -1,17 +1,9 @@
+import { EntityColumn } from 'common/src';
+
 export type EntityNameType =
-  | 'User'
-  | 'UserPersonalInformation'
-  | 'UserProcessProgress'
-  | 'UserLeaveOfAbsence'
-  | 'UserBlackhole'
-  | 'UserReasonOfBreak'
-  | 'UserOtherInformation'
-  | 'UserLapiscineInformation'
-  | 'UserEmploymentAndFound'
-  | 'UserHrdNetUtilize'
-  | 'UserEducationFundState'
-  | 'UserComputationFund'
-  | 'UserAccessCardInformation';
+  | Extract<keyof typeof EntityColumn, string>
+  | 'None'
+  | '';
 
 export type ColumnType = string;
 

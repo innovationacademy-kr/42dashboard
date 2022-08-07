@@ -135,6 +135,5 @@ export function createBachelorQuery(filterNames: string[], labels: string[]) {
     ${returnQuerys(filterNames).join('\n')}
   }
   `;
-  console.log(query);
   return query;
 }

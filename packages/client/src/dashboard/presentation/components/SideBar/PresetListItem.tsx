@@ -25,7 +25,6 @@ function PresetListItem(props: PresetListItemProps) {
   function myOnClickHandler(e: any) {
     e.stopPropagation();
     changePresetLabel(id, presetLabel);
-    console.log('edit');
     setEdit(!edit);
   }
 
