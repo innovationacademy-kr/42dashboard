@@ -45,7 +45,7 @@ function Login() {
   }, []);
 
   function handleClick() {
-    window.location.href = 'http://dashboard42.com:3000/auth/42';
+    window.location.href = `${process.env.REACT_APP_API_URI}${process.env.REACT_APP_AUTH}`;
   }
 
   return (

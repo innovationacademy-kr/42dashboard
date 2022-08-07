@@ -1,4 +1,4 @@
-import PresetType, { PresetInfoType } from './../domain/preset/preset.type';
+import { PresetInfoType } from './../domain/preset/preset.type';
 import PresetListRepositoryInterface from '../domain/presetList/presetList.repository.interface';
 import PresetListType from '../domain/presetList/presetList.type';
 import presetlistStore from './store/presetList.store';
@@ -9,9 +9,12 @@ class PresetListRepository implements PresetListRepositoryInterface {
     const presetInfos = Array<PresetInfoType>();
 
     await axios
-      .get('http://dashboard42.com:3000/user-information/getAllPreSet', {
-        withCredentials: true,
-      })
+      .get(
+        `${process.env.REACT_APP_API_URI}${process.env.REACT_APP_GET_ALL_PRESET}`,
+        {
+          withCredentials: true,
+        },
+      )
       .then((res) => {
         for (let i = 0; i < res.data.length; i++) {
           presetInfos.push(res.data[i].info);

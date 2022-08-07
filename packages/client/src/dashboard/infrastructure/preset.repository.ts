@@ -6,9 +6,12 @@ import axios from 'axios';
 class PresetRepository implements PresetRepositoryInterface {
   public async getPreset(id: string): Promise<PresetType | null> {
     const preset = await axios
-      .get(`http://dashboard42.com:3000/user-information/getOnePreSet/${id}`, {
-        withCredentials: true,
-      })
+      .get(
+        `${process.env.REACT_APP_API_URI}${process.env.REACT_APP_GET_ONE_PRESET}/${id}`,
+        {
+          withCredentials: true,
+        },
+      )
       .then((res) => {
         return res.data[0];
       });
@@ -23,9 +26,12 @@ class PresetRepository implements PresetRepositoryInterface {
     const { id } = preset;
     let isExist = false;
     await axios
-      .get('http://dashboard42.com:3000/user-information/getAllPreSet', {
-        withCredentials: true,
-      })
+      .get(
+        `${process.env.REACT_APP_API_URI}${process.env.REACT_APP_GET_ALL_PRESET}`,
+        {
+          withCredentials: true,
+        },
+      )
       .then((res) => {
         for (let i = 0; i < res.data.length; i++) {
           if (res.data[i].id === id) isExist = true;
@@ -33,7 +39,7 @@ class PresetRepository implements PresetRepositoryInterface {
       });
     if (isExist) {
       await axios.put(
-        `http://dashboard42.com:3000/user-information/updateOnePreSet/${id}`,
+        `${process.env.REACT_APP_API_URI}${process.env.REACT_APP_UPDATE_ONE_PRESET}/${id}`,
         preset,
         {
           withCredentials: true,
@@ -41,7 +47,7 @@ class PresetRepository implements PresetRepositoryInterface {
       );
     } else {
       await axios.post(
-        'http://dashboard42.com:3000/user-information/addPreSet',
+        `${process.env.REACT_APP_API_URI}${process.env.REACT_APP_ADD_PRESET}`,
         preset,
         {
           withCredentials: true,
@@ -53,7 +59,7 @@ class PresetRepository implements PresetRepositoryInterface {
   public async deletePreset(id: string): Promise<void> {
     await axios
       .delete(
-        `http://dashboard42.com:3000/user-information/deleteOnePreset/${id}`,
+        `${process.env.REACT_APP_API_URI}${process.env.REACT_APP_DELETE_ONE_PRESET}/${id}`,
         {
           withCredentials: true,
         },

@@ -3,7 +3,6 @@ import { Alert, Button } from '@mui/material';
 import createSaveModifiedDataQuery from '../../../infrastructure/http/graphql/createSaveModifiedDataQuery';
 import DoneIcon from '@mui/icons-material/Done';
 import SaveIcon from '@mui/icons-material/Save';
-import { useState } from 'react';
 
 export interface RequestButtonProps {
   entityName: string;
