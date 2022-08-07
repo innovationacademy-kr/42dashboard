@@ -11,7 +11,6 @@ import InputDatasets from './InputDatasets';
 import { FilterConfigType } from '../Sticker/Filter.type';
 import { useMemo } from 'react';
 import StepButtons from './stepper/StepButtons';
-import StepHeader from './stepper/StepHeader';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 
@@ -57,12 +56,10 @@ export default function StickerStepper(props: ModalDatasType) {
   const [datasetFocus, setDatasetFocus] = React.useState(0);
 
   const handleNext = () => {
-    console.log('handlenext');
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
   const handleBack = () => {
-    console.log('handleback');
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 

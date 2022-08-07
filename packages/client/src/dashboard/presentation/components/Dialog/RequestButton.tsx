@@ -19,11 +19,9 @@ export default function RequestButton(props: RequestButtonProps) {
     createSaveModifiedDataQuery(entityName),
   );
 
-  console.log(error, loading, data);
   if (error) return <Button disabled={true}>{error.message}.</Button>;
   if (loading) return <Button disabled={true}>데이터 저장중...</Button>;
   if (data) {
-    console.log(data);
     if (data['saveModifiedDataFromSheet'] === SUCCESS)
       return (
         <Alert

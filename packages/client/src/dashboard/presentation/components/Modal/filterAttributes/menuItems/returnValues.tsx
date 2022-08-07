@@ -9,22 +9,17 @@ export default function returnValues(dependencies: {
   const findValue = (data: any, entityName: string, column: string) => {
     if (data) {
       const entity = 'get' + entityName;
-      const datasets = [];
-      for (let i = 0; i < data[entity].length; i++) {
-        datasets.push(data[entity][i][column]);
-      }
-      return datasets;
+      const values: object[] = data[entity];
+      return values.map((val: any) => val[column]);
     }
     return [];
   };
 
-  return () => {
-    if (data && column && entityName)
-      return findValue(data, entityName, column).map((value: string) => (
-        <MenuItem key={value} value={value}>
-          {value}
-        </MenuItem>
-      ));
-    return null;
-  };
+  if (data && column && entityName)
+    return findValue(data, entityName, column).map((value: string) => (
+      <MenuItem key={value} value={value}>
+        {value}
+      </MenuItem>
+    ));
+  return null;
 }

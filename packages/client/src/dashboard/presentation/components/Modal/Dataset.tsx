@@ -48,7 +48,6 @@ export default function Dataset({
       prev[id] = event.target.value;
       return prev;
     });
-    console.log(datasetNames);
   };
 
   return (
