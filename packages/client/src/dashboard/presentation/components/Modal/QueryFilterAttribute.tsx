@@ -24,10 +24,11 @@ const Section = styled.div`
 
 interface DatasetFilterProps {
   saveSelectedFilter: (queryFilter: FilterConfigType) => void;
+  setLabel?: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export default function QueryFilterAttribute(props: DatasetFilterProps) {
-  const { saveSelectedFilter } = props;
+  const { saveSelectedFilter, setLabel } = props;
   const [entityName, setEntityName] = useState<EntityNameType>('');
   const [column, setColumn] = useState<ColumnType>('');
   const [operator, setOperator] = useState<OperatorType>('=');
@@ -64,6 +65,14 @@ export default function QueryFilterAttribute(props: DatasetFilterProps) {
   const handleLatestChange = (event: any) => {
     setLatest((latest) => !latest);
   };
+  function resetValues() {
+    setEntityName('');
+    setColumn('');
+    setOperator('=');
+    setGivenValue('');
+    setLatest(true);
+    if (setLabel) setLabel('');
+  }
 
   return (
     <Section>
@@ -99,16 +108,17 @@ export default function QueryFilterAttribute(props: DatasetFilterProps) {
       />
       <Button
         variant="contained"
-        onClick={() =>
+        onClick={() => {
           checkEmptyAttribute() &&
-          saveSelectedFilter({
-            entityName,
-            column,
-            operator,
-            givenValue,
-            latest,
-          })
-        }
+            saveSelectedFilter({
+              entityName,
+              column,
+              operator,
+              givenValue,
+              latest,
+            });
+          resetValues();
+        }}
       >
         Save
       </Button>

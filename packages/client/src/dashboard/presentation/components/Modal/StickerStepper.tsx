@@ -4,7 +4,6 @@ import Stepper from '@mui/material/Stepper';
 import Typography from '@mui/material/Typography';
 import TypeBox from './TypeBox';
 import { SelectedLabelFilters } from './InputLabels';
-import styled from '@emotion/styled';
 import { StickerContentType } from '../Sticker/StickerContent.type';
 import InputLabels from './InputLabels';
 import InputDatasets from './InputDatasets';
@@ -13,11 +12,6 @@ import { useMemo } from 'react';
 import StepButtons from './stepper/StepButtons';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
-
-const StyledDiv = styled.div`
-  height: 550px;
-  overflow: scroll;
-`;
 
 interface ModalDatasType {
   type: StickerContentType;
@@ -136,7 +130,7 @@ export default function StickerStepper(props: ModalDatasType) {
   return (
     <Box sx={{ width: '100%' }}>
       <Stepper activeStep={activeStep}>
-        {steps.map((label, index) => {
+        {steps.map((label) => {
           const stepProps: { completed?: boolean } = {};
           return (
             <Step key={label} {...stepProps}>

@@ -1,15 +1,8 @@
-import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import LabelFilter from './LabelFilter';
-import styled from '@emotion/styled';
 import { useState } from 'react';
 import { FilterConfigType } from '../Sticker/Filter.type';
 import SelectedFilter from './SelectedFilter';
-
-const Button = styled(AddCircleOutlineOutlinedIcon)`
-  margin-top: 1rem;
-  width: 100%;
-  position: relative;
-`;
+import { List } from '@mui/material';
 
 export interface SelectedLabelFilters extends FilterConfigType {
   label?: string;
@@ -44,9 +37,7 @@ export default function InputLabels(props: FiltersProps) {
         setLabelAndFilter={setLabelAndFilter}
         addFilter={addFilter}
       />
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
-        {renderSelectedFilters()}
-      </div>
+      <List>{renderSelectedFilters()}</List>
     </>
   );
 }
