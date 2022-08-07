@@ -64,6 +64,7 @@ function useBoard() {
   const handleSectionLayoutChange = (newLayout: Array<Layout>) => {
     boardData.sectionLayouts = newLayout;
     boardDataService.updateBoardData(boardData);
+    window.dispatchEvent(new Event('resize'));
   };
 
   const handleSectionRemove = (sectionId: string) => {
