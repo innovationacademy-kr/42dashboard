@@ -181,7 +181,6 @@ export class UserInformationService {
    *      }
    *    }
    */
-
   private createFindObj(
     filterObj,
     startDateString = null,
@@ -204,7 +203,30 @@ export class UserInformationService {
         filter = filterObj['user'][idx];
         operator = filter['operator'];
         column = filter['column'];
-        if (column == 'null' || column == null) continue; // 예외처리
+        if (column == 'null' || column == null) {
+          // user는 무조건 accumulate 여야함
+          if (startDateString && endDateString) {
+            const startDate = new Date(startDateString);
+            const endDate = new Date(endDateString);
+            findObj['where'][getValidateColumn('user', column)] =
+              getRawQuery(endDate); //ok
+            // 한번 더 걸러야하는데 그건 makeLimit에서 처리함 -> 처리 못해줌 -> flag 설정
+            // -> makeLimit함수 내에서 걸러주는 코드 추가함
+            // flag = 1; //flag설정은 여기서만 해줘도 될듯...? -> NO! -> 애시당초 makeLimit을 실행할 이유가 없음
+          } else if ('latest' in filter && filter['latest'] == true) {
+            // ***********************************************************************************************
+            // 애시당초 filter조건에 validate column, expired column을 줄 필요가 없는거 -> entity 수정, common에 수정 필요
+            // 프론트에 date 관련된 컬럼 사용자에게 보여주지 말아 달라고 요청하기 -> 도메인 보내주는건 백엔드니까 중한님께 요청드리는게 맞을듯?
+            // ***********************************************************************************************
+            // 아래 주석 풀면 테스트 코드 페일나옴 (validate_date = '9999-12-31')
+            findObj['where'][getValidateColumn('user', column)] =
+              LessThan('9999-12-20'); // 디폴트값이 달라지면 이 부분 수정 필요 //덮어쓰는 이슈가 있는지 확인
+            // slice(0, 1)은 makeLimit 함수에서 진행
+          } else {
+            // do nothing
+          }
+          continue;
+        } // 예외처리
         if (
           operator == 'In' ||
           operator == 'in' ||
@@ -218,7 +240,9 @@ export class UserInformationService {
         ); //overwrite issue 발생가능(명세서에 적어줘야함)
         /////////////////////////////////////////////////////
         // console.log(startDateString, endDateString, accumulate);
-        if (startDateString && endDateString && accumulate) {
+        // 무조건 user는 무조건 accumulate 여야함
+        // 애시당초 column의 null 유무에 상관없이 아래 코드는 실행되야하는거
+        if (startDateString && endDateString) {
           const startDate = new Date(startDateString);
           const endDate = new Date(endDateString);
           findObj['where'][getValidateColumn('user', column)] =
@@ -226,14 +250,6 @@ export class UserInformationService {
           // 한번 더 걸러야하는데 그건 makeLimit에서 처리함 -> 처리 못해줌 -> flag 설정
           // -> makeLimit함수 내에서 걸러주는 코드 추가함
           flag = 1;
-        } else if (startDateString && endDateString && !accumulate) {
-          const startDate = new Date(startDateString);
-          const endDate = new Date(endDateString);
-          console.log('user no accumulate', startDate, endDate);
-          findObj['where'][getValidateColumn('user', column)] = Between(
-            startDateString,
-            endDateString,
-          );
         } else if ('latest' in filter && filter['latest'] == true) {
           // ***********************************************************************************************
           // 애시당초 filter조건에 validate column, expired column을 줄 필요가 없는거 -> entity 수정, common에 수정 필요
@@ -256,7 +272,79 @@ export class UserInformationService {
         filter = filterObj[entityName][idx];
         operator = filter['operator'];
         column = filter['column'];
-        if (column == 'null' || column == null) continue; // 예외처리 <- 명세서에 적어주기
+        ///////////////////////////////////////// NOT USER Entity
+        if (column == 'null' || column == null) {
+          if (
+            startDateString &&
+            endDateString &&
+            entityName in entityColumnMapping &&
+            accumulate
+          ) {
+            const startDate = new Date(startDateString);
+            const endDate = new Date(endDateString);
+            findObj['where'][entityName][
+              getValidateColumn(entityName, column)
+            ] = getRawQuery(endDate); //ok
+            findObj['where'][entityName][getExpireColumn(entityName)] =
+              MoreThanOrEqual(startDate); //ok
+          } else if (
+            startDateString &&
+            endDateString &&
+            entityName in entityColumnMapping &&
+            !accumulate
+          ) {
+            findObj['where'][entityName][
+              getValidateColumn(entityName, column)
+            ] = Between(startDateString, endDateString);
+          } else if (
+            startDateString &&
+            endDateString &&
+            entityName in halfAndHalf &&
+            accumulate
+          ) {
+            const startDate = new Date(startDateString);
+            const endDate = new Date(endDateString);
+            findObj['where'][entityName][
+              getValidateColumn(entityName, column)
+            ] = getRawQuery(endDate); //ok
+            // 한번 더 걸러야하는데 그건 makeLimit에서 처리함 -> 처리 못해줌 -> flag 설정
+            // -> makeLimit함수 내에서 걸러주는 코드 추가함
+            flag = 1;
+          } else if (
+            startDateString &&
+            endDateString &&
+            entityName in halfAndHalf &&
+            !accumulate
+          ) {
+            const startDate = new Date(startDateString);
+            const endDate = new Date(endDateString);
+            console.log(startDate, endDate);
+            findObj['where'][entityName][
+              getValidateColumn(entityName, column)
+            ] = Between(startDate, endDate);
+          } else if (
+            // else if가 맞음
+            // 날짜 컬럼이 없는 엔터티에 대해선 아래 로직을 할 필요가 없음
+            'latest' in filter &&
+            filter['latest'] == true &&
+            (entityName in halfAndHalf ||
+              entityName in entityColumnMapping ||
+              exceptCase(entityName, column)) //여긴 이 조건 넣는게 맞을듯?
+          ) {
+            // ***********************************************************************************************
+            // 애시당초 filter조건에 validate column, expired column을 줄 필요가 없는거 -> entity 수정, common에 수정 필요
+            // 프론트에 date 관련된 컬럼 사용자에게 보여주지 말아 달라고 요청하기 -> 도메인 보내주는건 백엔드니까 중한님께 요청드리는게 맞을듯?
+            // ***********************************************************************************************
+            // 아래 주석 풀면 테스트 코드 페일나옴 (validate_date = '9999-12-31')
+            findObj['where'][entityName][
+              getValidateColumn(entityName, column)
+            ] = LessThan('9999-12-20'); //디폴트값이 달라지면 이 부분 수정 필요 //덮어쓰는 이슈가 있는지 확인
+          } else {
+            // do nothing
+          }
+          continue;
+        } // 예외처리 <- 명세서에 적어주기
+        //////////////////////////////////////////////////////// NOT USER Entity
         if (
           operator == 'In' ||
           operator == 'in' ||
@@ -273,71 +361,83 @@ export class UserInformationService {
         } else {
           findObj['order'][entityName]['validate_date'] = 'ASC';
         }
-      }
-      // Range 조건
-      if (
-        startDateString &&
-        endDateString &&
-        entityName in entityColumnMapping &&
-        accumulate
-      ) {
-        const startDate = new Date(startDateString);
-        const endDate = new Date(endDateString);
-        findObj['where'][entityName][getValidateColumn(entityName, column)] =
-          getRawQuery(endDate); //ok
-        findObj['where'][entityName][
-          entityColumnMapping[entityName][getExpireColumn(entityName)]
-        ] = MoreThanOrEqual(startDate); //ok
-      } else if (
-        startDateString &&
-        endDateString &&
-        entityName in entityColumnMapping &&
-        !accumulate
-      ) {
-        findObj['where'][entityName][getValidateColumn(entityName, column)] =
-          Between(startDateString, endDateString);
-      } else if (
-        startDateString &&
-        endDateString &&
-        (entityName in halfAndHalf || exceptCase(entityName, column)) &&
-        accumulate
-      ) {
-        console.log('여기 도달해야함');
-        const startDate = new Date(startDateString);
-        const endDate = new Date(endDateString);
-        findObj['where'][entityName][getValidateColumn(entityName, column)] =
-          getRawQuery(endDate); //ok
-        // 한번 더 걸러야하는데 그건 makeLimit에서 처리함 -> 처리 못해줌 -> flag 설정
-        // -> makeLimit함수 내에서 걸러주는 코드 추가함
-        flag = 1;
-      } else if (
-        startDateString &&
-        endDateString &&
-        (entityName in halfAndHalf || exceptCase(entityName, column)) &&
-        !accumulate
-      ) {
-        const startDate = new Date(startDateString);
-        const endDate = new Date(endDateString);
-        console.log(startDate, endDate);
-        findObj['where'][entityName][getValidateColumn(entityName, column)] =
-          Between(startDate, endDate);
-      } else if (
-        // 날짜 컬럼이 없는 엔터티에 대해선 아래 로직을 할 필요가 없음
-        'latest' in filter &&
-        filter['latest'] == true &&
-        (entityName in halfAndHalf ||
-          entityName in entityColumnMapping ||
-          exceptCase(entityName, column))
-      ) {
-        // ***********************************************************************************************
-        // 애시당초 filter조건에 validate column, expired column을 줄 필요가 없는거 -> entity 수정, common에 수정 필요
-        // 프론트에 date 관련된 컬럼 사용자에게 보여주지 말아 달라고 요청하기 -> 도메인 보내주는건 백엔드니까 중한님께 요청드리는게 맞을듯?
-        // ***********************************************************************************************
-        // 아래 주석 풀면 테스트 코드 페일나옴 (validate_date = '9999-12-31')
-        findObj['where'][entityName][getValidateColumn(entityName, column)] =
-          LessThan('9999-12-20'); // 디폴트값이 달라지면 이 부분 수정 필요 //덮어쓰는 이슈가 있는지 확인
-      } else {
-        // do nothing
+        // Range 조건
+        console.log(
+          entityName,
+          'entityName in entityColumnMapping',
+          entityName in entityColumnMapping,
+        );
+        if (entityName in entityColumnMapping) {
+          console.log(getExpireColumn(entityName));
+        }
+        console.log('accumulate: ', accumulate);
+        if (
+          startDateString &&
+          endDateString &&
+          entityName in entityColumnMapping &&
+          accumulate &&
+          column
+        ) {
+          const startDate = new Date(startDateString);
+          const endDate = new Date(endDateString);
+          findObj['where'][entityName][getValidateColumn(entityName, column)] =
+            getRawQuery(endDate); //ok
+          findObj['where'][entityName][getExpireColumn(entityName)] =
+            MoreThanOrEqual(startDate); //ok
+        } else if (
+          startDateString &&
+          endDateString &&
+          entityName in entityColumnMapping &&
+          !accumulate &&
+          column
+        ) {
+          findObj['where'][entityName][getValidateColumn(entityName, column)] =
+            Between(startDateString, endDateString);
+        } else if (
+          startDateString &&
+          endDateString &&
+          (entityName in halfAndHalf || exceptCase(entityName, column)) &&
+          accumulate &&
+          column
+        ) {
+          const startDate = new Date(startDateString);
+          const endDate = new Date(endDateString);
+          findObj['where'][entityName][getValidateColumn(entityName, column)] =
+            getRawQuery(endDate); //ok
+          // 한번 더 걸러야하는데 그건 makeLimit에서 처리함 -> 처리 못해줌 -> flag 설정
+          // -> makeLimit함수 내에서 걸러주는 코드 추가함
+          flag = 1;
+        } else if (
+          startDateString &&
+          endDateString &&
+          (entityName in halfAndHalf || exceptCase(entityName, column)) &&
+          !accumulate &&
+          column
+        ) {
+          const startDate = new Date(startDateString);
+          const endDate = new Date(endDateString);
+          console.log(startDate, endDate);
+          findObj['where'][entityName][getValidateColumn(entityName, column)] =
+            Between(startDate, endDate);
+        } else if (
+          // 날짜 컬럼이 없는 엔터티에 대해선 아래 로직을 할 필요가 없음
+          'latest' in filter &&
+          filter['latest'] == true &&
+          (entityName in halfAndHalf ||
+            entityName in entityColumnMapping ||
+            exceptCase(entityName, column)) &&
+          column
+        ) {
+          // ***********************************************************************************************
+          // 애시당초 filter조건에 validate column, expired column을 줄 필요가 없는거 -> entity 수정, common에 수정 필요
+          // 프론트에 date 관련된 컬럼 사용자에게 보여주지 말아 달라고 요청하기 -> 도메인 보내주는건 백엔드니까 중한님께 요청드리는게 맞을듯?
+          // ***********************************************************************************************
+          // 아래 주석 풀면 테스트 코드 페일나옴 (validate_date = '9999-12-31')
+          findObj['where'][entityName][getValidateColumn(entityName, column)] =
+            LessThan('9999-12-20'); // 디폴트값이 달라지면 이 부분 수정 필요 //덮어쓰는 이슈가 있는지 확인
+        } else {
+          // do nothing
+        }
       }
     }
     return { findObj, flag };
@@ -352,7 +452,22 @@ export class UserInformationService {
       if (joinedTable == 'user') continue;
       for (const idx in filterObj[joinedTable]) {
         filter = filterObj[joinedTable][idx];
-        if (filter.column == 'null' || filter.column == null) continue; //이거 없는게 문제였음(사용상황을 너무 이상적인걸로 한정해버려서 이 케이스 생각을못함)
+        if (
+          (filter.column == 'null' || filter.column == null) &&
+          filter.latest == false
+        ) {
+          if (
+            row[joinedTable] != null &&
+            Array.isArray(row[joinedTable]) &&
+            row[joinedTable].length > 0 &&
+            'latest' in filter &&
+            filter['latest'] == true
+          ) {
+            row[joinedTable] = row[joinedTable].slice(0, 1);
+            console.log('slice!', row[joinedTable]);
+          }
+          continue;
+        } //이거 없는게 문제였음(사용상황을 너무 이상적인걸로 한정해버려서 이 케이스 생각을못함)
         for (const idx in data) {
           row = data[idx];
           if (
@@ -363,6 +478,7 @@ export class UserInformationService {
             filter['latest'] == true
           ) {
             row[joinedTable] = row[joinedTable].slice(0, 1);
+            console.log('slice!', row[joinedTable]);
           }
           if (
             //최후의 보루
@@ -395,7 +511,11 @@ export class UserInformationService {
     console.log('--------------------------------------------');
     console.log(findObj);
     console.log('--------------------------------------------');
+    console.log('find 구문에 들어감');
     let data = await this.dataSource.getRepository(User).find(findObj);
+    console.log('--------------------------------------------');
+    console.log(data);
+    console.log('--------------------------------------------');
     const limitedData = this.makeLimit(data, filterObj, 0, flag);
     data = limitedData.data;
     return data;
