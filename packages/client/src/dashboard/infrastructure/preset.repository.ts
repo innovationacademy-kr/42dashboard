@@ -22,7 +22,7 @@ class PresetRepository implements PresetRepositoryInterface {
     presetStore.setPreset(preset);
   }
 
-  public async addPreset(preset: PresetType): Promise<void> {
+  public async savePreset(preset: PresetType): Promise<void> {
     const { id } = preset;
     let isExist = false;
     await axios
@@ -45,7 +45,8 @@ class PresetRepository implements PresetRepositoryInterface {
           withCredentials: true,
         },
       );
-    } else {
+    }
+    if (!isExist) {
       await axios.post(
         `${process.env.REACT_APP_API_URI}${process.env.REACT_APP_ADD_PRESET}`,
         preset,

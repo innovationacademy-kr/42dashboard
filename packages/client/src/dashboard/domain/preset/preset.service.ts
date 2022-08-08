@@ -12,8 +12,8 @@ class PresetService {
     return this.presetRepository.setPreset(preset);
   }
 
-  public async addPreset(preset: PresetType): Promise<void> {
-    return this.presetRepository.addPreset(preset);
+  public async savePreset(preset: PresetType): Promise<void> {
+    return this.presetRepository.savePreset(preset);
   }
 
   public async deletePreset(id: string): Promise<void> {
