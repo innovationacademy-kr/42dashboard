@@ -17,8 +17,8 @@ interface ModalProps {
   addStickerData: (sticker: StickerDataType) => Promise<void>;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  startDate?: string;
-  endDate?: string;
+  startDate?: Date;
+  endDate?: Date;
 }
 
 const stepperStyle = {
@@ -35,15 +35,8 @@ const stepperStyle = {
 };
 
 const ModalFrame = (props: ModalProps) => {
-  const {
-    sectionId,
-    renderAddedSticker,
-    addStickerData,
-    isOpen,
-    setIsOpen,
-    startDate,
-    endDate,
-  } = props;
+  const { sectionId, renderAddedSticker, addStickerData, isOpen, setIsOpen } =
+    props;
 
   const [type, setType] = useState<StickerContentType>('none');
   const [labels, setLabels] = useState<string[]>([]);
@@ -65,12 +58,6 @@ const ModalFrame = (props: ModalProps) => {
       newStickerData = makeTableStickerData({
         sectionId,
         type,
-        labels,
-        labelFilter: filters,
-        datasetNames,
-        arrayOfDataSet: datasets,
-        startDate,
-        endDate,
       });
     }
     if (type === 'text') {
@@ -135,14 +122,9 @@ const ModalFrame = (props: ModalProps) => {
     >
       <Box sx={stepperStyle}>
         <StickerStepper
-          datasets={datasets}
+          chartProps={chartProps}
           type={type}
           setType={setType}
-          setLabels={setLabels}
-          setFilters={setFilters}
-          setDatasets={setDatasets}
-          datasetNames={datasetNames}
-          setDatasetNames={setDatasetNames}
           applyFiltersModal={AddStickerDataset}
           reset={reset}
           setReset={setReset}

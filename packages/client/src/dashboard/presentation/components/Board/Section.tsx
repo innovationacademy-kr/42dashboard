@@ -7,7 +7,13 @@ import RGL, { Layout, WidthProvider } from 'react-grid-layout';
 import ModalFrame from '../Modal/Modal';
 import { useState, useEffect } from 'react';
 import EditToolBar from '../Common/EditToolBar';
-import { useQuery } from '@apollo/client';
+import { PeriodFilterType } from '../../../domain/sectionDatas/sectionData.type';
+import { TableProps } from '../Table/Table';
+import {
+  ChartQueryIngredientType,
+  TableQueryIngredientType,
+} from '../../../application/services/useDataset';
+import { ChartProps } from '../Charts/ChartData';
 
 const ReactGridLayout = WidthProvider(RGL.Responsive);
 
@@ -18,10 +24,15 @@ interface SectionProps {
   handleStickerAdd: (sectionId: string, stickerId: string) => void;
   handleStickerRemove: (sectionId: string, stickerId: string) => void;
   handleStickerLayoutChange: (sectionId: string, newLayout: Layout[]) => void;
+  handlePreriodFilterUpdate: (
+    sectionId: string,
+    periodFilter: PeriodFilterType,
+  ) => void;
 }
 
 export default function Section(props: SectionProps) {
-  const { stickerDatas, addStickerData, removeSticker } = useStickers();
+  const { stickerDatas, addStickerData, removeSticker, updateStickerDatas } =
+    useStickers();
   const {
     id,
     stickerLayouts,
@@ -29,15 +40,98 @@ export default function Section(props: SectionProps) {
     handleStickerAdd,
     handleStickerLayoutChange,
     handleStickerRemove,
+    handlePreriodFilterUpdate,
   } = props;
   const [isOpen, setIsOpen] = useState(false);
-  // const [endDate, setEndDate] = useState(now.current);
-  // const [startDate, setStartDate] = useState(now.current);
-  const [startDate, setStartDate] = useState(new Date(0));
-  const [endDate, setEndDate] = useState(new Date(0));
-  const [grade, setGrade] = useState('');
-  const [isChecked, setIsChecked] = useState(''); //TODO(sonkang) : 필요한지 생각해야 함
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [grade, setGrade] = useState<string | undefined>(undefined);
   const { getControlMode } = useMode();
+
+  useEffect(() => {
+    handlePreriodFilterUpdate(id, { startDate, endDate, grade });
+    const updateTargetStickerDatas = stickerDatas.filter(
+      (stickerData) => stickerData.sectionId === id,
+    );
+    const restOfStickerDatas = stickerDatas.filter(
+      (stickerData) => stickerData.sectionId !== id,
+    );
+    const tableStickerDatas = updateTargetStickerDatas.filter(
+      (stickerData) => stickerData.data.type.match(/table/) !== null,
+    );
+
+    const chartStickerDatas = updateTargetStickerDatas.filter(
+      (stickerData) => stickerData.data.type.match(/(.+Chart)/) !== null,
+    );
+    tableStickerDatas.forEach((stickerData) => {
+      const newProps = stickerData.data.contentProps as TableProps;
+      const tableQueryIngredient = newProps.queryData
+        .queryIngredient as TableQueryIngredientType;
+      // 기간 일경우와 기수일경우 나눠서 로직 실행
+
+      tableQueryIngredient.startDate = startDate;
+      tableQueryIngredient.endDate = endDate;
+      // grade는 undefined이면, 필터에서 찾아서 제거.
+      if (!tableQueryIngredient.filterNames.includes('sectionGradeFilter')) {
+        tableQueryIngredient.filterNames.push('sectionGradeFilter');
+      }
+      if (grade !== undefined) {
+        newProps.queryData.filters.sectionGradeFilter = {
+          entityName: 'user',
+          column: 'grade',
+          operator: '=',
+          givenValue: grade,
+          latest: true,
+        };
+      } else {
+        newProps.queryData.filters.sectionGradeFilter = {
+          entityName: 'user',
+          column: null,
+          operator: null,
+          givenValue: null,
+          latest: true,
+        };
+      }
+    });
+    chartStickerDatas.forEach((stickerData) => {
+      const newProps = stickerData.data.contentProps as ChartProps;
+      const chartQueryIngredient = newProps.queryData
+        .queryIngredient as ChartQueryIngredientType;
+      chartQueryIngredient.startDate = startDate;
+      chartQueryIngredient.endDate = endDate;
+      // grade는 undefined이면, 필터에서 찾아서 제거.
+      if (!chartQueryIngredient.filterNames.includes('sectionGradeFilter')) {
+        chartQueryIngredient.filterNames.push('sectionGradeFilter');
+      }
+      chartQueryIngredient.filterSetsPerData.forEach((filterSet) => {
+        if (!filterSet.includes('sectionGradeFilter')) {
+          filterSet.push('sectionGradeFilter');
+        }
+      });
+      if (grade !== undefined) {
+        newProps.queryData.filters.sectionGradeFilter = {
+          entityName: 'user',
+          column: 'grade',
+          operator: '=',
+          givenValue: grade,
+          latest: true,
+        };
+      } else {
+        newProps.queryData.filters.sectionGradeFilter = {
+          entityName: 'user',
+          column: null,
+          operator: null,
+          givenValue: null,
+          latest: true,
+        };
+      }
+    });
+    updateStickerDatas([
+      ...tableStickerDatas,
+      ...chartStickerDatas,
+      ...restOfStickerDatas,
+    ]);
+  }, [startDate, endDate, grade]);
 
   console.log('startDate !!!: ', startDate);
   function drawStickers() {
@@ -57,7 +151,7 @@ export default function Section(props: SectionProps) {
       </div>
     ));
   }
-
+  const periodFilter: PeriodFilterType = { startDate, endDate, grade };
   return (
     <>
       {getControlMode() === 'edit' && (
@@ -66,13 +160,10 @@ export default function Section(props: SectionProps) {
           setIsOpen={setIsOpen}
           removeItem={handleSectionRemove}
           id={id}
-          startDate={startDate}
           setStartDate={setStartDate}
-          endDate={endDate}
           setEndDate={setEndDate}
-          setIsChecked={setIsChecked}
-          grade={grade}
           setGrade={setGrade}
+          periodFilter={periodFilter}
         />
       )}
       <ModalFrame
@@ -81,8 +172,8 @@ export default function Section(props: SectionProps) {
         sectionId={id}
         renderAddedSticker={handleStickerAdd}
         addStickerData={addStickerData}
-        startDate={startDate.toISOString()}
-        endDate={endDate.toISOString()}
+        startDate={startDate}
+        endDate={endDate}
       ></ModalFrame>
       <ReactGridLayout
         onDragStart={(a, b, c, d, e) => e.stopPropagation()}

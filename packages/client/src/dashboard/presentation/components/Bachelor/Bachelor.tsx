@@ -8,14 +8,14 @@ import {
   TableRow,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
-import useChartDataset from '../../../application/services/useDataset';
+import useGqlQuery from '../../../application/services/useDataset';
 import { ChartProps } from '../Charts/ChartData';
 
 export type BachelorProps = ChartProps;
 
 export default function BachelorStickerContent(props: BachelorProps) {
   const { labels, queryData } = props;
-  const { data, loading, error } = useChartDataset(queryData);
+  const { data, loading, error } = useGqlQuery(queryData);
   const [values, setValues] = useState<string[]>([]);
 
   useEffect(() => {

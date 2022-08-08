@@ -34,6 +34,7 @@ services:
         networks:
             - default
             - our_net
+        shm_size: "1g"
         # network_mode: "host"
         # volumes:
         #     - D:/postgresql/data/:/var/lib/postgresql/data

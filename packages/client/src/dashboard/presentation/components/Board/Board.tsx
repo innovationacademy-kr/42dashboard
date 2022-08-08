@@ -24,6 +24,7 @@ export default function Board() {
     handleStickerAdd,
     handleStickerRemove,
     handleStickerLayoutChange,
+    handlePreriodFilterUpdate,
   } = useSections();
 
   const {
@@ -38,6 +39,11 @@ export default function Board() {
 
   const sectionData: SectionDataType = {
     id: uuid(),
+    periodFilter: {
+      startDate: undefined,
+      endDate: undefined,
+      grade: undefined,
+    },
     stickerIds: [],
     stickerLayouts: [],
   };
@@ -58,6 +64,7 @@ export default function Board() {
             handleStickerAdd={handleStickerAdd}
             handleStickerLayoutChange={handleStickerLayoutChange}
             handleStickerRemove={handleStickerRemove}
+            handlePreriodFilterUpdate={handlePreriodFilterUpdate}
           />
         </div>
       );

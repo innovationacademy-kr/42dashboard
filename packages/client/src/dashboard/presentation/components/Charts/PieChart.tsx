@@ -1,13 +1,13 @@
 import { Pie } from 'react-chartjs-2';
 import { Chart, registerables } from 'chart.js';
-import useChartDataset from '../../../application/services/useDataset';
+import useGqlQuery from '../../../application/services/useDataset';
 import { ChartProps } from './ChartData';
 
 Chart.register(...registerables);
 
 export default function PieChart(props: ChartProps) {
   const { labels, queryData, datasetNames, options } = props;
-  const { data, loading, error } = useChartDataset(queryData);
+  const { data, loading, error } = useGqlQuery(queryData);
   const datasets = [];
   const defaultOptions = {
     responsive: true,

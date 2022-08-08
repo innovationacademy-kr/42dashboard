@@ -1,13 +1,13 @@
 import { Bar } from 'react-chartjs-2';
 import { Chart, registerables } from 'chart.js';
 import { ChartProps } from './ChartData';
-import useChartDataset from '../../../application/services/useDataset';
+import useGqlQuery from '../../../application/services/useDataset';
 
 Chart.register(...registerables);
 
 export default function BarChart(props: ChartProps) {
   const { labels, queryData, datasetNames, options } = props;
-  const { data, loading, error } = useChartDataset(queryData);
+  const { data, loading, error } = useGqlQuery(queryData);
   const datasets = [];
   const defaultOptions = {
     responsive: true,

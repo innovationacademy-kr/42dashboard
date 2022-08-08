@@ -6,7 +6,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
-import useChartDataset, {
+import useGqlQuery, {
   QueryDataType,
 } from '../../../application/services/useDataset';
 import { useEffect, useState } from 'react';
@@ -40,7 +40,7 @@ type TableCellType = string | number;
 
 export function TableStickerContent(props: TableProps) {
   const { columnGroups, columns, queryData } = props;
-  const { data, loading, error } = useChartDataset(queryData); // data는 row 배열
+  const { data, loading, error } = useGqlQuery(queryData); // data는 row 배열
   const [rowsState, setRowsState] = useState<TableCellType[][]>([]);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);

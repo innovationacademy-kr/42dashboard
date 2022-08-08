@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import SectionDatasService from '../../domain/sectionDatas/sectionData.service';
-import SectionDataType from '../../domain/sectionDatas/sectionData.type';
+import SectionDataType, {
+  PeriodFilterType,
+} from '../../domain/sectionDatas/sectionData.type';
 import sectionDatasRepository from '../../infrastructure/sectionDatas.repository';
 import sectionDatasStore from '../../infrastructure/store/sectionDatas.store';
 import { Layout } from 'react-grid-layout';
@@ -19,9 +21,19 @@ function useSections() {
     },
   );
 
-  const addSectionData = (sectionDatas: SectionDataType | undefined) => {
-    if (sectionDatas === undefined) return;
-    return sectionDatasService.addSectionData(sectionDatas);
+  const addSectionData = (sectionData: SectionDataType | undefined) => {
+    if (sectionData === undefined) return;
+    return sectionDatasService.addSectionData(sectionData);
+  };
+
+  const handlePreriodFilterUpdate = (
+    id: string,
+    periodFilter: PeriodFilterType,
+  ) => {
+    const section = sectionDatasStore.getSectionDataById(id);
+    if (!section) return new Error('Section not found');
+    section.periodFilter = periodFilter;
+    sectionDatasService.updateSectionData(section);
   };
 
   const removeSectionData = (id: string) => {
@@ -92,6 +104,7 @@ function useSections() {
     handleStickerAdd,
     handleStickerRemove,
     handleStickerLayoutChange,
+    handlePreriodFilterUpdate,
   };
 }
 

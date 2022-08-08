@@ -4,7 +4,7 @@ import { ColumnDataType } from '../../presentation/components/Table/Table';
 import { QueryVariablesType } from '../services/useDataset';
 import camelize from './camelize';
 
-const createAllColumnDatas = () => {
+export const createAllColumnDatas = () => {
   const allColumns: ColumnDataType[] = [];
   for (const value of Object.values(EntityColumn)) {
     value.forEach((column) => {
@@ -17,7 +17,7 @@ const createAllColumnDatas = () => {
   return allColumns;
 };
 
-const createFieldsLiterals = () => {
+export const createFieldsLiterals = () => {
   const fieldLiterals: string[] = [];
 
   for (const [key, value] of Object.entries(EntityColumn)) {
@@ -33,7 +33,7 @@ const createFieldsLiterals = () => {
   return fieldLiterals;
 };
 
-const createAllEntityNamesArray = () => {
+export const createAllEntityNamesArray = () => {
   const allEntityNames: string[] = [];
   for (const key of Object.keys(EntityColumn)) {
     allEntityNames.push(key);
@@ -41,7 +41,7 @@ const createAllEntityNamesArray = () => {
   return allEntityNames;
 };
 
-const createAllEntityFilters = () => {
+export const createAllEntityFilters = () => {
   const allEntityFilters: QueryVariablesType = {};
   for (const key of Object.keys(EntityColumn)) {
     allEntityFilters[key] = {
