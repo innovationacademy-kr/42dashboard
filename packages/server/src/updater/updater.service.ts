@@ -43,7 +43,7 @@ import { entityArray } from 'src/user_information/utils/getDomain.utils';
 import { EntityColumn } from 'src/common/EntityColumn';
 import { tableName } from 'src/common/tableName';
 import { elementAt } from 'rxjs';
-import { Bocal } from 'src/auth/entity/bocal.entity';
+import { Bocal, ErrorObject } from 'src/auth/entity/bocal.entity';
 
 interface RepoDict {
   [repositoryName: string]:
@@ -176,7 +176,6 @@ export class UpdaterService {
       if (!intraNoArray.some((spreadNO) => DBNo.intra_no == spreadNO))
         return DBNo.intra_no;
     });
-    console.log(deleteData.length, userInDB.length, intraNoArray.length);
 
     if (intraNoArray.length > userInDB.length) {
       deleteOrEdit = true;
@@ -197,13 +196,19 @@ export class UpdaterService {
         errObject,
       )
     ) {
-      // const err = JSON.stringify(errObject);
-      // await this.dataSource
-      // .createQueryBuilder()
-      // .insert()
-      // .into(Bocal)
-      // .values(err)
-      // .execute();
+      const err = JSON.stringify(errObject);
+      const errorObject = {} as ErrObject;
+
+      errorObject['error'] = err;
+
+      await this.spreadService.insertDataToDB(ErrorObject, errorObject);
+      return 'Error while inserting data with main sheet';
+    } else {
+      await this.dataSource
+        .createQueryBuilder()
+        .delete()
+        .from(ErrorObject)
+        .execute();
     }
 
     /***************************************/
@@ -344,7 +349,6 @@ export class UpdaterService {
 
     //#REF! or #ERROR! 인지 확인
     if (!this.checkOperationError(rows, tuple)) {
-      console.log(tuple.index, tuple.value);
       tuple['sheet'] = '0. 학사정보관리(main)';
       tuple['msg'] =
         '구글 스프레드 시트에 계산되지 않은 값들이 있습니다. 확인해주세요';
@@ -352,6 +356,7 @@ export class UpdaterService {
 
       return false;
     }
+    return true;
   }
 
   async getRecoverArray(transferArray, intraNoCol) {
