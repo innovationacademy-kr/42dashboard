@@ -8,7 +8,7 @@ import createValueQuery from '../../../infrastructure/http/graphql/createValueQu
 
 interface GradePickerProps {
   grade?: string;
-  setGrade?: React.Dispatch<React.SetStateAction<string>>;
+  setGrade?: React.Dispatch<React.SetStateAction<string | undefined>>;
 }
 
 export default function GradePicker(props: GradePickerProps) {

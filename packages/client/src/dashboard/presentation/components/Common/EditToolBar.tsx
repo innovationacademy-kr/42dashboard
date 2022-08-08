@@ -2,7 +2,9 @@ import React from 'react';
 import styled from '@emotion/styled';
 import useSections from '../../../application/services/useSectionDatas';
 import useBoard from '../../../application/services/useBoard';
-import SectionDataType from '../../../domain/sectionDatas/sectionData.type';
+import SectionDataType, {
+  PeriodFilterType,
+} from '../../../domain/sectionDatas/sectionData.type';
 import { Button } from '@mui/material';
 import PeriodModal from '../PeriodModal/PeriodModal';
 
@@ -15,13 +17,10 @@ interface EditToolBarProps {
   setIsOpen?: ((isOpen: boolean) => void) | undefined;
   removeItem?: ((id: string) => void) | undefined;
   id?: string;
-  startDate?: Date;
-  setStartDate?: React.Dispatch<React.SetStateAction<Date>>;
-  endDate?: Date;
-  setEndDate?: React.Dispatch<React.SetStateAction<Date>>;
-  setIsChecked?: React.Dispatch<React.SetStateAction<string>>;
-  grade?: string;
-  setGrade?: React.Dispatch<React.SetStateAction<string>>;
+  periodFilter?: PeriodFilterType;
+  setStartDate?: React.Dispatch<React.SetStateAction<Date | undefined>>;
+  setEndDate?: React.Dispatch<React.SetStateAction<Date | undefined>>;
+  setGrade?: React.Dispatch<React.SetStateAction<string | undefined>>;
 }
 
 const EditToolBarArea = styled.div`
@@ -47,13 +46,10 @@ const EditToolBar = (props: EditToolBarProps) => {
     setIsOpen,
     removeItem,
     id,
-    startDate,
     setStartDate,
-    endDate,
     setEndDate,
-    setIsChecked,
-    grade,
     setGrade,
+    periodFilter,
   } = props;
 
   return (
@@ -74,19 +70,15 @@ const EditToolBar = (props: EditToolBarProps) => {
         </Button>
       )}
       {type === 'Section' &&
-        startDate &&
+        periodFilter &&
         setStartDate &&
-        endDate &&
         setEndDate &&
-        setIsChecked && (
+        setGrade && (
           <PeriodModal
-            startDate={startDate}
             setStartDate={setStartDate}
-            endDate={endDate}
             setEndDate={setEndDate}
-            setIsChecked={setIsChecked}
-            grade={grade}
             setGrade={setGrade}
+            periodFilter={periodFilter || {}}
           />
         )}
       {type === 'Sticker' && <Button>Apply Filter</Button>}

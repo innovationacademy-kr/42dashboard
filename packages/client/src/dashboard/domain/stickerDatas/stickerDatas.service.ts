@@ -12,6 +12,13 @@ class StickerDatasService {
     return this.stickerDatasRepository.addStickerData(newStickerData);
   }
 
+  public async updateStickerData(
+    id: string,
+    newStickerData: StickerDataType,
+  ): Promise<void> {
+    return this.stickerDatasRepository.updateStickerData(id, newStickerData);
+  }
+
   public async removeStickerData(id: string): Promise<void> {
     return this.stickerDatasRepository.removeStickerData(id);
   }

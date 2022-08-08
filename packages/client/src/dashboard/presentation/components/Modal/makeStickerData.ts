@@ -1,14 +1,18 @@
-import StickerDataType from '../../../domain/stickerDatas/stickerData.type';
-import createQuery from '../../../infrastructure/http/graphql/createQuery';
-import { v4 as uuid } from 'uuid';
 import {
   QueryDataType,
   QueryVariablesType,
-} from '../../../application/services/useDataset';
-import { DocumentNode } from '@apollo/client';
+  TableQueryIngredientType,
+} from './../../../application/services/useDataset';
+import StickerDataType from '../../../domain/stickerDatas/stickerData.type';
+import { v4 as uuid } from 'uuid';
 import { StickerContentType } from '../Sticker/StickerContent.type';
 import { FilterConfigType } from '../Sticker/Filter.type';
-import DEFAULT_TABLE_PROPS from '../../../application/utils/DEFAULT_TABLE_PROPS';
+import {
+  createAllColumnDatas,
+  createAllEntityFilters,
+  createAllEntityNamesArray,
+  createFieldsLiterals,
+} from '../../../application/utils/DEFAULT_TABLE_PROPS';
 import camelize from '../../../application/utils/camelize';
 import stringToUnicode from '../../../application/utils/stringToNum';
 import DEFAULT_BACHELOR_PROPS from '../../../application/utils/DEFAULT_BACHELOR_PROPS';
@@ -65,8 +69,8 @@ export interface MakeChartStickerType {
   labelFilter: FilterConfigType[];
   datasetNames: string[];
   arrayOfDataSet: FilterConfigType[][];
-  startDate?: string;
-  endDate?: string;
+  startDate?: Date;
+  endDate?: Date;
 }
 
 export function makeChartStickerData({
@@ -84,20 +88,22 @@ export function makeChartStickerData({
     ...makeQueryFilterVariables(arrayOfDataSet.flat()),
   };
   const filterNames: string[] = returnFilterNames(queryVariables);
-  const filterSets: string[][] = returnFilterSets(arrayOfDataSet, labelFilter);
-  const query: DocumentNode = createQuery(
-    filterNames,
-    labels,
-    filterSets,
-    startDate,
-    endDate,
+  const filterSetsPerData: string[][] = returnFilterSets(
+    arrayOfDataSet,
+    labelFilter,
   );
 
   const queryData: QueryDataType = {
-    query: query,
+    queryIngredient: {
+      filterNames,
+      labels,
+      filterSetsPerData,
+      startDate,
+      endDate,
+    },
     filters: queryVariables,
+    stickerContentType: type,
   };
-  console.log(query);
   return {
     id: uuid(),
     sectionId: sectionId,
@@ -121,12 +127,26 @@ export function makeTableStickerData({
   sectionId,
   type,
 }: MakeTableStickerType): StickerDataType {
+  const tableQueryIngredient: TableQueryIngredientType = {
+    filterNames: createAllEntityNamesArray(),
+    fields: createFieldsLiterals(),
+  };
+
+  const queryData: QueryDataType = {
+    stickerContentType: 'table',
+    queryIngredient: tableQueryIngredient,
+    filters: createAllEntityFilters(),
+  };
+
   return {
     id: uuid(),
     sectionId: sectionId,
     data: {
       type: type,
-      contentProps: DEFAULT_TABLE_PROPS,
+      contentProps: {
+        columns: createAllColumnDatas(),
+        queryData,
+      },
     },
   };
 }
@@ -134,7 +154,7 @@ export function makeTableStickerData({
 export function makeBachelorStickerData({
   sectionId,
   type,
-}: MakeTableStickerType) {
+}: MakeTableStickerType): StickerDataType {
   return {
     id: uuid(),
     sectionId,

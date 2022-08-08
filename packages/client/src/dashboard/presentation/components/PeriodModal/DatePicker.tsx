@@ -6,9 +6,9 @@ import { useCallback, useMemo } from 'react';
 
 interface DatePickerProps {
   startDate: Date;
-  setStartDate: React.Dispatch<React.SetStateAction<Date>>;
+  setStartDate: React.Dispatch<React.SetStateAction<Date | undefined>>;
   endDate: Date;
-  setEndDate: React.Dispatch<React.SetStateAction<Date>>;
+  setEndDate: React.Dispatch<React.SetStateAction<Date | undefined>>;
 }
 
 export default function DatePicker(props: DatePickerProps) {
@@ -22,9 +22,9 @@ export default function DatePicker(props: DatePickerProps) {
   );
   console.log(
     `startDate.toISOString(): `,
-    startDate.toISOString().slice(0, 10),
+    startDate?.toISOString().slice(0, 10),
   );
-  console.log(`endDate.toISOString(): `, endDate.toISOString().slice(0, 10));
+  console.log(`endDate.toISOString(): `, endDate?.toISOString().slice(0, 10));
   const ranges = useMemo(() => {
     return [
       {

@@ -18,6 +18,13 @@ class StickerDatasRepository implements StickersDatasRepositoryInterface {
     stickerDatasStore.setStickerDatas(stickerDatas);
   }
 
+  public async updateStickerData(id: string, newStickerData: StickerDataType) {
+    const stickerDatas = stickerDatasStore
+      .getStickerDatas()
+      .filter((stickerData) => stickerData.id !== id);
+    stickerDatasStore.setStickerDatas([...stickerDatas, newStickerData]);
+  }
+
   public async removeStickerData(id: string) {
     const stickerDatas = stickerDatasStore
 

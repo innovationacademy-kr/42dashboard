@@ -1,7 +1,5 @@
-import * as React from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import styled from '@emotion/styled';
 import Modal from '@mui/material/Modal';
 import DatePicker from './DatePicker';
 import Radio from '@mui/material/Radio';
@@ -10,6 +8,8 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import GradePicker from './GradePicker';
+import { PeriodFilterType } from '../../../domain/sectionDatas/sectionData.type';
+import { useState } from 'react';
 
 const style = {
   position: 'absolute',
@@ -25,27 +25,22 @@ const style = {
 };
 
 interface PeriodProps {
-  startDate: Date;
-  setStartDate: React.Dispatch<React.SetStateAction<Date>>;
-  endDate: Date;
-  setEndDate: React.Dispatch<React.SetStateAction<Date>>;
-  setIsChecked: React.Dispatch<React.SetStateAction<string>>;
-  grade?: string;
-  setGrade?: React.Dispatch<React.SetStateAction<string>>;
+  setStartDate: React.Dispatch<React.SetStateAction<Date | undefined>>;
+  setEndDate: React.Dispatch<React.SetStateAction<Date | undefined>>;
+  setGrade: React.Dispatch<React.SetStateAction<string | undefined>>;
+  periodFilter: PeriodFilterType;
 }
 
 export default function PeriodModal(props: PeriodProps) {
   const {
-    startDate,
+    periodFilter: { startDate, endDate, grade },
     setStartDate,
-    endDate,
     setEndDate,
-    setIsChecked,
-    grade,
     setGrade,
   } = props;
-  const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState('Period');
+
+  const [open, setOpen] = useState<boolean>(false);
+  const [value, setValue] = useState<string>('Period');
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
@@ -78,14 +73,14 @@ export default function PeriodModal(props: PeriodProps) {
           {value === 'Period' && (
             <>
               <DatePicker
-                startDate={startDate}
+                startDate={startDate ? new Date(startDate) : new Date()}
                 setStartDate={setStartDate}
-                endDate={endDate}
+                endDate={endDate ? new Date(endDate) : new Date()}
                 setEndDate={setEndDate}
               />
               <Button
                 onClick={() => {
-                  setIsChecked('Date');
+                  setGrade(undefined);
                   handleClose();
                   console.log(`startDate: `, startDate, `endDate: `, endDate);
                 }}
@@ -99,7 +94,8 @@ export default function PeriodModal(props: PeriodProps) {
               <GradePicker grade={grade} setGrade={setGrade} />
               <Button
                 onClick={() => {
-                  setIsChecked('Grade');
+                  setStartDate(undefined);
+                  setEndDate(undefined);
                   handleClose();
                 }}
               >

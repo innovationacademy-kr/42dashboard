@@ -56,9 +56,15 @@ function returnVariables(
   skip?: number,
   take?: number,
 ) {
+  console.log('STARTDATE', typeof startDate);
+  console.log('ENDDATE', typeof endDate);
   const filterNamesLiteral = `filters: [${returnFilters(filterNames)}]`;
-  const startDateLiteral = startDate ? `startDate: ${startDate}` : '';
-  const endDateLiteral = endDate ? `endDate: ${endDate}` : '';
+  const startDateLiteral = startDate
+    ? `startDate: "${new Date(startDate).toISOString().slice(0, 10)}"`
+    : '';
+  const endDateLiteral = endDate
+    ? `endDate: "${new Date(endDate).toISOString().slice(0, 10)}"`
+    : '';
   const skipLiteral = skip ? `skip: ${skip}` : '';
   const takeLiteral = take ? `take: ${take}` : '';
 
@@ -84,20 +90,26 @@ function returnVariables(
  *   alias: getNumOfPeopleByFilter(filters: [$filtersGrade])
  * }`
  */
-export default function createQuery(
+export default function createQueryForChart(
   filterNames: string[],
   labels: string[],
   filterSetsPerData: string[][],
-  startDate?: string,
-  endDate?: string,
+  startDate?: Date,
+  endDate?: Date,
 ) {
   //TODO : error handlers
 
+  const startDateStr = startDate
+    ? new Date(startDate).toISOString().slice(0, 10)
+    : undefined;
+  const endDateStr = endDate
+    ? new Date(endDate).toISOString().slice(0, 10)
+    : undefined;
   const query = `query GetDatasets(
     ${returnFilterVariables(filterNames).join('\n')}
   ) {
     ${filterSetsPerData
-      .map(returnRequest(labels, startDate, endDate))
+      .map(returnRequest(labels, startDateStr, endDateStr))
       .join('\n')}
   }`;
   console.log('query', query);
@@ -128,6 +140,7 @@ export function createQueryForTable(
        }
     }
   `;
+  console.log(query);
   return gql(query);
 }
 
@@ -137,7 +150,7 @@ function returnQuerys(filterNames: string[]) {
   });
 }
 
-export function createBachelorQuery(filterNames: string[], labels: string[]) {
+export function createBachelorQuery(filterNames: string[]) {
   const query = gql` query getData(
     ${returnFilterVariables(filterNames).join('\n')}
   ) {

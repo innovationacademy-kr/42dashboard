@@ -1,3 +1,4 @@
+import { BachelorProps } from './../Bachelor/Bachelor';
 import {
   BarControllerChartOptions,
   ChartData,
@@ -77,7 +78,11 @@ interface TextStickerType {
   content: string;
 }
 
-export type StickerContentPropType = ChartProps | TableProps | TextProps;
+export type StickerContentPropType =
+  | ChartProps
+  | TableProps
+  | TextProps
+  | BachelorProps;
 
 // [getNumOfPeopleByFilter(filters: [$filtersGrade, $filtersMan]), getNumOfPeopleByFilter(filters: [$filtersGrade, $filtersWoman]),  ]
 // labels : 데이터 세트의 각 데이터에 매치되는 라벨의 배열

@@ -21,15 +21,33 @@ function useStickers() {
     return stickersService.getStickerData(id);
   };
 
+  const updateStickerDatas = (stickerDatas: Array<StickerDataType>) => {
+    stickersStore.setStickerDatas(stickerDatas);
+  };
+
   const addStickerData = async (newSticker: StickerDataType) => {
     return await stickersService.addStickerData(newSticker);
+  };
+
+  const updateStickerData = async (newStickerData: StickerDataType) => {
+    return await stickersService.updateStickerData(
+      newStickerData.id,
+      newStickerData,
+    );
   };
 
   const removeSticker = async (id: string) => {
     return await stickersService.removeStickerData(id);
   };
 
-  return { stickerDatas, getSticker, addStickerData, removeSticker };
+  return {
+    stickerDatas,
+    getSticker,
+    addStickerData,
+    updateStickerData,
+    updateStickerDatas,
+    removeSticker,
+  };
 }
 
 export default useStickers;

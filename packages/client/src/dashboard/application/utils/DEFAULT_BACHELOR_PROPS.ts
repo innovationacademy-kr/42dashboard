@@ -1,5 +1,8 @@
-import { createBachelorQuery } from '../../infrastructure/http/graphql/createQuery';
-import { QueryVariablesType } from '../services/useDataset';
+import {
+  BachelorQueryIngredientType,
+  QueryDataType,
+  QueryVariablesType,
+} from '../services/useDataset';
 
 const filters: QueryVariablesType = {
   registration: {
@@ -75,13 +78,19 @@ const labels: string[] = [
 const datasetNames = ['학적현황', '코어현황'];
 const options = {};
 
+const bachelorQueryIngredient: BachelorQueryIngredientType = {
+  filterNames: entityNamesArray,
+};
+const queryData: QueryDataType = {
+  stickerContentType: 'bachelor',
+  queryIngredient: bachelorQueryIngredient,
+  filters,
+};
+
 const DEFAULT_BACHELOR_PROPS = {
   labels,
   datasetNames,
-  queryData: {
-    query: createBachelorQuery(entityNamesArray, entityNamesArray),
-    filters,
-  },
+  queryData,
   options,
 };
 
