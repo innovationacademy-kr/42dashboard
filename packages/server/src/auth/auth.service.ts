@@ -1,16 +1,15 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectDataSource } from '@nestjs/typeorm';
 import axios from 'axios';
-import { createReadStream, open, write, writeFile } from 'fs';
-import { join } from 'path';
 import { AUTHPARAM } from 'src/config/42oauth';
-import { jsonToFile } from 'src/utils/json-helper/jsonHelper';
 import { DataSource } from 'typeorm';
 import { Bocal, BocalRole, ErrorObject } from './entity/bocal.entity';
 
 @Injectable()
 export class AuthService {
+  private readonly logger: Logger = new Logger('authService');
+
   constructor(
     @InjectDataSource() private dataSource: DataSource,
     private jwtService: JwtService,
@@ -30,6 +29,7 @@ export class AuthService {
     bocal.image_url = obj.image_url;
     bocal.email = obj.email;
     bocal.role = BocalRole.ADMIN; //이 부분 나중에 분기문으로 처리
+    // if (obj.isStaff != true) throw new BadRequestException();
     bocal.isStaff = true;
     console.log('save bocal ', bocal.intraName);
     await this.dataSource.getRepository(Bocal).save(bocal);
@@ -49,12 +49,27 @@ export class AuthService {
       url += `${key}=`;
       url += `${param[key]}&`;
     }
+    this.logger.debug(`url: ${url}`);
     try {
       response42 = await axios.post(url);
     } catch (what) {
       console.log('42 token reqest error', what);
       throw new BadRequestException();
     } finally {
+      let cache = [];
+      this.logger.debug(
+        JSON.stringify(response42, (key, value) => {
+          if (typeof value === 'object' && value !== null) {
+            // Duplicate reference found, discard key
+            if (cache.includes(value)) return;
+
+            // Store value in our collection
+            cache.push(value);
+          }
+          return value;
+        }),
+      );
+      cache = null;
       const {
         access_token,
         token_type,
@@ -63,12 +78,15 @@ export class AuthService {
         scope,
         created_at,
       } = response42.data;
+      this.logger.debug(`response 42 ${response42}`);
       response42 = await axios.get('https://api.intra.42.fr/v2/me', {
         headers: {
           Authorization: `Bearer ${access_token}`,
         },
       });
     }
+    this.logger.debug(`response 42 ${response42}`);
+
     // 아래에서 id는 고유 number임 ("huchoi"같은 intra_id가 아님)
     const payload = {
       id: response42.data.id,
@@ -77,6 +95,8 @@ export class AuthService {
       image_url: response42.data.image_url,
       isStaff: response42.data['staff?'],
     };
+    this.logger.debug(`payload ${payload}`);
+
     return await this.createJwt(payload);
   }
 

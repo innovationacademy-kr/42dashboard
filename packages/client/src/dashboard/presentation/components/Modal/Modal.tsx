@@ -102,6 +102,17 @@ const ModalFrame = (props: ModalProps) => {
     setDatasetNames([]);
   }
 
+  const chartProps = {
+    labels,
+    setLabels,
+    filters,
+    setFilters,
+    datasets,
+    setDatasets,
+    datasetNames,
+    setDatasetNames,
+  };
+
   return (
     <Modal
       open={isOpen}
@@ -120,14 +131,9 @@ const ModalFrame = (props: ModalProps) => {
     >
       <Box sx={stepperStyle}>
         <StickerStepper
-          datasets={datasets}
           type={type}
           setType={setType}
-          setLabels={setLabels}
-          setFilters={setFilters}
-          setDatasets={setDatasets}
-          datasetNames={datasetNames}
-          setDatasetNames={setDatasetNames}
+          chartProps={chartProps}
           applyFiltersModal={AddStickerDataset}
           reset={reset}
           setReset={setReset}
