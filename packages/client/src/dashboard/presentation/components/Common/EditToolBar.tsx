@@ -4,6 +4,7 @@ import useSections from '../../../application/services/useSectionDatas';
 import useBoard from '../../../application/services/useBoard';
 import SectionDataType from '../../../domain/sectionDatas/sectionData.type';
 import { Button } from '@mui/material';
+import PeriodModal from '../PeriodModal/PeriodModal';
 
 type ToolType = 'Board' | 'Section' | 'Sticker';
 
@@ -14,6 +15,13 @@ interface EditToolBarProps {
   setIsOpen?: ((isOpen: boolean) => void) | undefined;
   removeItem?: ((id: string) => void) | undefined;
   id?: string;
+  startDate?: Date;
+  setStartDate?: React.Dispatch<React.SetStateAction<Date>>;
+  endDate?: Date;
+  setEndDate?: React.Dispatch<React.SetStateAction<Date>>;
+  setIsChecked?: React.Dispatch<React.SetStateAction<string>>;
+  grade?: string;
+  setGrade?: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const EditToolBarArea = styled.div`
@@ -32,7 +40,21 @@ const EditToolBarArea = styled.div`
 const EditToolBar = (props: EditToolBarProps) => {
   const { addSectionData } = useSections();
   const { handleSectionAdd, handleSavePreset } = useBoard();
-  const { type, sectionData, sectionId, setIsOpen, removeItem, id } = props;
+  const {
+    type,
+    sectionData,
+    sectionId,
+    setIsOpen,
+    removeItem,
+    id,
+    startDate,
+    setStartDate,
+    endDate,
+    setEndDate,
+    setIsChecked,
+    grade,
+    setGrade,
+  } = props;
 
   return (
     <EditToolBarArea>
@@ -51,6 +73,22 @@ const EditToolBar = (props: EditToolBarProps) => {
           Add Sticker
         </Button>
       )}
+      {type === 'Section' &&
+        startDate &&
+        setStartDate &&
+        endDate &&
+        setEndDate &&
+        setIsChecked && (
+          <PeriodModal
+            startDate={startDate}
+            setStartDate={setStartDate}
+            endDate={endDate}
+            setEndDate={setEndDate}
+            setIsChecked={setIsChecked}
+            grade={grade}
+            setGrade={setGrade}
+          />
+        )}
       {type === 'Sticker' && <Button>Apply Filter</Button>}
       {type === 'Board' && (
         <Button onClick={() => handleSavePreset()}>Save Preset</Button>

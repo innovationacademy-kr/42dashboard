@@ -34,6 +34,7 @@ function StickerContentFactory(props: StickerContentFactoryProps) {
   const { getControlMode } = useMode();
   const mode = getControlMode();
 
+  console.log(type, contentProps);
   switch (type) {
     case 'pieChart':
       return (

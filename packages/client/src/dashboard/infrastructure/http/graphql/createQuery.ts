@@ -36,12 +36,16 @@ function returnAlias(labels: string[], index: number): string {
 /**
  * sometin: getNumOfPeopleByFilter(filters: [$filtersGrade, $filtersMan])
  */
-function returnRequest(labels: string[]) {
+function returnRequest(labels: string[], startDate?: string, endDate?: string) {
   return (filterSet: string[], index: number): string => {
     const alias = returnAlias(labels, index);
     const queryName = 'getNumOfPeopleByFilter';
     const filters = returnFilters(filterSet);
-    return `${alias}: ${queryName}(filters: [${filters}])`;
+    return `${alias}: ${queryName}(filters: [${filters}]${
+      startDate && endDate
+        ? `, startDate: "${startDate}", endDate: "${endDate}"`
+        : ''
+    })`;
   };
 }
 
@@ -84,14 +88,19 @@ export default function createQuery(
   filterNames: string[],
   labels: string[],
   filterSetsPerData: string[][],
+  startDate?: string,
+  endDate?: string,
 ) {
   //TODO : error handlers
 
   const query = `query GetDatasets(
     ${returnFilterVariables(filterNames).join('\n')}
   ) {
-    ${filterSetsPerData.map(returnRequest(labels)).join('\n')}
+    ${filterSetsPerData
+      .map(returnRequest(labels, startDate, endDate))
+      .join('\n')}
   }`;
+  console.log('query', query);
   return gql(query);
 }
 

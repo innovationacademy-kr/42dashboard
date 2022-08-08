@@ -20,8 +20,8 @@ export class AuthService {
    */
   async createJwt(obj) {
     // 아래 if문은 주석문은 배포할때 주석풀어주기
-    if (obj.isStaff != true)
-      throw new BadRequestException('staff가 아니기때문에 로그인 허용 불가');
+    // if (obj.isStaff != true)
+    //   throw new BadRequestException('staff가 아니기때문에 로그인 허용 불가');
     const bocal = this.dataSource.getRepository(Bocal).create();
     bocal.id = obj.id;
     bocal.intraName = obj.intraName;
