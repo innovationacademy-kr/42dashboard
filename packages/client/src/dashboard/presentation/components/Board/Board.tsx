@@ -12,10 +12,6 @@ import EditToolBar from '../Common/EditToolBar';
 
 const ReactGridLayout = WidthProvider(RGL.Responsive);
 
-export interface BoardProps {
-  preset: PresetType;
-}
-
 export default function Board() {
   const {
     addSectionData,

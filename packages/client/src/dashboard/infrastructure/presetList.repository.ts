@@ -6,7 +6,7 @@ import axios from 'axios';
 
 class PresetListRepository implements PresetListRepositoryInterface {
   public async getPresetList(): Promise<PresetListType> {
-    const presetInfos = Array<PresetInfoType>();
+    const presetInfos: PresetInfoType[] = [];
 
     await axios
       .get(
