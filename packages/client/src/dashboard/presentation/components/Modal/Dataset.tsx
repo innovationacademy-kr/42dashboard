@@ -6,7 +6,6 @@ import QueryFilterAttribute from './QueryFilterAttribute';
 import SelectedFilter from './SelectedFilter';
 import { FilterConfigType } from '../Sticker/Filter.type';
 import TextField from '@mui/material/TextField';
-import { useState } from 'react';
 import { Button } from '@mui/material';
 
 export interface DatasetProps {
@@ -67,6 +66,7 @@ export default function Dataset({
       newFilters[id].push(queryFilter);
       return newFilters;
     });
+    return true;
   };
   const onChangeDatasetName = (event: React.ChangeEvent<HTMLInputElement>) => {
     setDatasetNames((prev) => {
