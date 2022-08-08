@@ -118,6 +118,14 @@ export const EntityColumn = {
     { spName: '수령여부', dbName: 'received' },
     { spName: '수령금액', dbName: 'recevied_amount' },
     { spName: '특이사항', dbName: 'uniqueness' },
+    // {
+    //   spName: '총 지급 개월',
+    //   dbName: 'total_payment_of_number',
+    // },
+    // { spName: '총 지급액', dbName: 'total_payment_of_money' },
+    // { spName: '지원만료일', dbName: 'payment_end_date' },
+    // { spName: '지원만료', dbName: 'payment_ended' },
+    // { spName: '특이사항', dbName: 'uniqueness' },
   ],
   UserAccessCardInformation: [
     //userAccessCardInformation

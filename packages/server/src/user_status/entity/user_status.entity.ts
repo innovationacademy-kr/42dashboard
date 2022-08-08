@@ -62,7 +62,7 @@ export class UserLearningDataAPI extends BaseEntity {
   leveled_date: Date;
 
   @Field({ nullable: true, defaultValue: 'N' })
-  @Column({ name: 'outcircle', nullable: true, default: 'N' })
+  @Column({ name: 'outcircle', nullable: false, default: 'N' })
   outcircle: string;
 
   @Field({ nullable: true })

@@ -31,6 +31,7 @@ import {
   DEFAULT_VALUE,
   dateTable,
   autoProcessingDataObj,
+  oldDateTable,
 } from './name_types/updater.name';
 import {
   UserComputationFund,
@@ -38,12 +39,6 @@ import {
 } from 'src/user_payment/entity/user_payment.entity';
 import { MAIN_SHEET, SPREAD_END_POINT } from 'src/config/key';
 import { UpdateDB } from 'src/user_information/argstype/updateSheet.argstype';
-import { ErrObject } from 'src/auth/dto/errObject.dto';
-import { entityArray } from 'src/user_information/utils/getDomain.utils';
-import { EntityColumn } from 'src/common/EntityColumn';
-import { tableName } from 'src/common/tableName';
-import { elementAt } from 'rxjs';
-import { Bocal, ErrorObject } from 'src/auth/entity/bocal.entity';
 
 interface RepoDict {
   [repositoryName: string]:
@@ -259,12 +254,16 @@ export class UpdaterService {
         columns,
         rows,
         table,
-        api42s,
+        //api42s,
       );
       this.spreadService.checkErrorData(
         table['name'],
         tableArray[table['name']],
       );
+      // if (table['name'] == 'user_blackhole') {
+      //   console.log(tableArray[table['name']], '123');
+      //   while (1);
+      // }
     }
     const latestData = await this.getLatestAllOneData();
     await this.compareNewDataWithLatestData(tableArray, latestData);
@@ -525,7 +524,13 @@ export class UpdaterService {
       .createQueryBuilder('user')
       .getMany();
     for (const user of userTable['user']) {
-      await this.findTargetByKey(this.repoDict['user'], 'user', user, allUser);
+      await this.findTargetByKey(
+        this.repoDict['user'],
+        'user',
+        user,
+        allUser,
+        oldDateTable,
+      );
     }
     for (const sheetIdx in pastDataOnSheet) {
       //위에 tableSet.[0].name 이런식으로 이름을 가져올 수 있지만 위에선 user table만 받아와서 다시 받음
@@ -617,7 +622,7 @@ export class UpdaterService {
     );
   }
 
-  async findTargetByKey(repo, tableName, newOneData, targetObj) {
+  async findTargetByKey(repo, tableName, newOneData, targetObj, dateTable) {
     const emptyObj = {};
     //try {
     //스프레드 데이터가 db 데이터에 있는지 확인.
@@ -632,7 +637,6 @@ export class UpdaterService {
         }
       }
     }
-    await this.spreadService.initValidateDate(tableName, newOneData, dateTable);
 
     if (autoProcessingDataObj[tableName] != undefined) {
       const processData = Object.values(autoProcessingDataObj[tableName]);
@@ -645,7 +649,13 @@ export class UpdaterService {
       if (processData !== undefined) newOneData = processedDataObj;
     }
 
-    console.log(`insert ${tableName} due to dosend't exist spread data in db`);
+    // console.log(`insert ${tableName} due to dosend't exist spread data in db`);-----------------------
+    if (tableName == 'user_computation_fund') {
+      console.log(
+        `insert ${tableName} due to dosend't exist spread data in db`,
+      );
+    }
+    await this.spreadService.initValidateDate(tableName, newOneData, dateTable);
     const newTuple = await repo.create(newOneData);
     await repo.save(newTuple); /*.catch(() => {
         return 'error save';
@@ -673,6 +683,9 @@ export class UpdaterService {
     for (const repoKey of repoNameArray) {
       const repo = this.repoDict[repoKey];
       const newTable = newTables[repoKey];
+      if (repoKey == 'user_blackhole') {
+        //console.log(newTable, 'before');
+      }
       //스프레스에서 받아온 newTable가 비어있다면 밑에 for문에서 not iterable로 터지니까 예외처리
       if (newTable == undefined) {
         console.log(repoKey, ' : ', newTable, 'datas is undefined');
@@ -685,6 +698,7 @@ export class UpdaterService {
           repoKey, //user entity인지 구분하기 위함, intra_no를 넘겨서 구분지어도 되긴하지만, 조금 더 범용성을 위해서 repoKey를 넘김
           newOneData, //스프레드 테이블 내 객체들 중 하나
           latestData[repoKey], //최신 데이터 테이블 중 하나
+          dateTable,
         );
         //반환한 객체가 비어있다면 내부에서 save를 하고 나오므로 contitnue;
         if (this.isEmptyObj(targetObj) === true) {
@@ -698,6 +712,7 @@ export class UpdaterService {
           targetObj,
         );
       }
+      console.log('save', repoKey);
     }
     //return 'done!!';
   }
@@ -755,13 +770,8 @@ export class UpdaterService {
       //this.processChangeData(newOneData, targetObj, key, checkedDefaulte, repo);
       //스프레드에 널값이라면 default 값으로 바꾸고, default가 아님에도 불구하고 값이 다르다면 save
       if (newOneData[key] != targetObj[key]) {
-        await this.spreadService.initValidateDate(
-          tableName,
-          newOneData,
-          dateTable,
-        );
-
         if (autoProcessingDataObj[tableName] != undefined) {
+          console.log(newOneData, '123');
           const processData = Object.values(autoProcessingDataObj[tableName]);
           const processedDataObj = await this.spreadService.autoProcessingData(
             tableName,
@@ -770,9 +780,10 @@ export class UpdaterService {
             dateTable,
           );
           if (processData !== undefined) newOneData = processedDataObj;
+          console.log(newOneData, '0000000000000');
         }
-        console.log(newOneData, '???');
         if (tableName != 'user') {
+          console.log(newOneData);
           await this.saveTuple(repo, newOneData);
         }
         //intra_no 가 이미 테이블에 있는 경우 삽입하지 않음, 해서 create를 사용하지 않고 find로 tuple을 가져옴
