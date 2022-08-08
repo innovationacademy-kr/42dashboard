@@ -11,8 +11,25 @@ import SideBarListItem from './SideBarListItem';
 import PresetListItem from './PresetListItem';
 
 function SideBar() {
-  const { presetList, preset, changePreset, createPreset, changePresetLabel } =
-    usePreset();
+  const {
+    presetList,
+    changePresetList,
+    preset,
+    changePreset,
+    createPreset,
+    changePresetLabel,
+    removePreset,
+  } = usePreset();
+
+  async function deletePreset(id: string) {
+    await removePreset(id);
+    changePresetList({
+      presetInfos: presetList.presetInfos.filter(
+        (presetInfo) => presetInfo.id !== id,
+      ),
+    });
+    console.log('deletePreset: ', id);
+  }
 
   const drawerWidth = 240;
   return (
@@ -34,6 +51,7 @@ function SideBar() {
               icon={ShowChart}
               label={presetInfo.label}
               description={presetInfo.description}
+              deletePreset={deletePreset}
               onClick={() => changePreset(presetInfo.id)}
               selected={presetInfo.id === preset?.id}
               changePresetLabel={changePresetLabel}

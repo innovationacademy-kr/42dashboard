@@ -20,7 +20,8 @@ function useBoard() {
     setBoardData(newBoardData);
   });
 
-  const handleSavePreset = () => {
+  // save in memory data to db
+  const handleSavePreset = async () => {
     const preset = presetStore.getPreset();
     if (!preset) return;
     const boardData = boardDataStore.getBoardData();
@@ -31,7 +32,7 @@ function useBoard() {
       sectionDatas,
       stickerDatas,
     };
-    presetService.savePreset({
+    await presetService.savePreset({
       id: preset.info.id,
       data: presetData,
       info: preset.info,

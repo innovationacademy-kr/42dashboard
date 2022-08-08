@@ -13,6 +13,7 @@ class PresetRepository implements PresetRepositoryInterface {
         },
       )
       .then((res) => {
+        console.log('get result', res);
         return res.data[0];
       });
     return preset;
@@ -23,6 +24,7 @@ class PresetRepository implements PresetRepositoryInterface {
   }
 
   public async savePreset(preset: PresetType): Promise<void> {
+    console.log('svaePreset');
     const { id } = preset;
     let isExist = false;
     await axios
@@ -37,6 +39,7 @@ class PresetRepository implements PresetRepositoryInterface {
           if (res.data[i].id === id) isExist = true;
         }
       });
+    console.log('isExist', isExist);
     if (isExist) {
       await axios.put(
         `${process.env.REACT_APP_API_URI}${process.env.REACT_APP_UPDATE_ONE_PRESET}/${id}`,

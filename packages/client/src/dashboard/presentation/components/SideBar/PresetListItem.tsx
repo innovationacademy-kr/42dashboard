@@ -6,7 +6,9 @@ import useMode from '../../../application/services/useMode';
 import { useState } from 'react';
 import TextField from '@mui/material/TextField';
 import useBoard from '../../../application/services/useBoard';
+import { useEffect } from 'react';
 import usePreset from '../../../application/services/usePreset';
+
 export interface PresetListItemProps {
   icon: SvgIconComponent; // mui/icons-material 에 있는 아이콘 타입
   label: string;
@@ -15,26 +17,26 @@ export interface PresetListItemProps {
   onClick?: () => void;
   changePresetLabel: (id: string, label: string) => void;
   id: string;
+  deletePreset: (id: string) => void;
 }
 
 function PresetListItem(props: PresetListItemProps) {
-  const { icon, label, onClick, selected, changePresetLabel, id } = props;
-  const [edit, setEdit] = useState(false);
+  const {
+    icon,
+    label,
+    onClick,
+    selected,
+    changePresetLabel,
+    id,
+    deletePreset,
+  } = props;
   const [presetLabel, setPresetLabel] = useState(label);
   const { getControlMode } = useMode();
-  const { handleDeletePreset } = useBoard();
   const IconType = icon;
 
-  function myOnClickHandler(e: any) {
-    e.stopPropagation();
+  useEffect(() => {
     changePresetLabel(id, presetLabel);
-    setEdit(!edit);
-  }
-
-  async function deletePreset(id: string) {
-    await handleDeletePreset(id);
-    console.log('deletePreset: ', id);
-  }
+  }, [getControlMode()]);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setPresetLabel(event.target.value);
@@ -42,26 +44,25 @@ function PresetListItem(props: PresetListItemProps) {
   return (
     <ListItemButton
       sx={{ pl: 4 }}
-      onClick={onClick || undefined}
-      selected={selected || false}
+      onClick={() => {
+        if (getControlMode() !== 'edit') onClick?.();
+      }}
+      selected={selected}
     >
       <ListItemIcon>
-        {selected && getControlMode() === 'edit' && !edit ? (
+        {getControlMode() === 'edit' ? (
           <DeleteIcon color="disabled" onClick={() => deletePreset(id)} />
         ) : (
           <IconType />
         )}
       </ListItemIcon>
-      {selected && getControlMode() === 'edit' && !edit ? (
-        <>
-          <TextField
-            id="outlined-name"
-            label="Name"
-            value={presetLabel}
-            onChange={handleChange}
-          />
-          <EditIcon color="disabled" onClick={myOnClickHandler} />
-        </>
+      {getControlMode() === 'edit' ? (
+        <TextField
+          id="outlined-name"
+          label="Name"
+          value={presetLabel}
+          onChange={handleChange}
+        />
       ) : (
         <ListItemText primary={presetLabel} />
       )}
