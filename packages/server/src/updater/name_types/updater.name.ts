@@ -386,10 +386,10 @@ export const oldDateTable = {
   [repoKeys.userInterruptionOfCourse]: 'validate_date',
   [repoKeys.userLearningDataAPI]: 'validate_date',
   [repoKeys.userLoyaltyManagement]: 'validate_date',
-  [repoKeys.userEmploymentStatus]: 'validate_date',
+  [repoKeys.userEmploymentStatus]: 'employment_date',
   [repoKeys.userHrdNetUtilizeConsent]: 'consented_date',
   [repoKeys.userHrdNetUtilize]: 'hrd_net_date',
-  [repoKeys.userOtherEmploymentStatus]: 'validate_date',
+  [repoKeys.userOtherEmploymentStatus]: 'employment_date',
   // [repoKeys.userEducationFundState]: 'validate_date',
   [repoKeys.userComputationFund]: 'payment_date',
   [repoKeys.userAccessCardInformation]: 'validate_date',
@@ -460,12 +460,18 @@ export const aggregateDataObj = {
     total_payment_of_money: {
       aggregateColumn: 'recevied_amount',
       operator: 'SUM',
-      value: 0,
+      value: 0, //0원도 받은것으로 확인함
     },
     total_payment_period_number: {
       aggregateColumn: 'received',
       operator: 'COUNT',
       value: undefined,
     },
+  },
+};
+
+export const exceptDataObj = {
+  user: {
+    uniqueness: 'transfer',
   },
 };

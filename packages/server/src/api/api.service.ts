@@ -49,7 +49,7 @@ export class ApiService {
 
   async requestApi(token) {
     let apiData = [];
-    let pageNum = 19; //cant find 발생할 수 있으니, 17정도로 줄여야됨
+    let pageNum = 1; //cant find 발생할 수 있으니, 17정도로 줄여야됨
     const apiUrl = 'https://api.intra.42.fr';
     const apiEndPoint = 'v2/cursus/21/cursus_users';
     const filter = `filter[campus_id]=29`;

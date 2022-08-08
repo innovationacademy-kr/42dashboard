@@ -52,8 +52,8 @@ type Mutation {
 
 type Query {
   extractDataIntoSpreadsheet: String!
-  getDataToModifyFromDB(sheetName: String!, withDeleted: String!): String!
-  getDomainOfColumnFilter(accumulate: Boolean = true, endDate: DateTime, filters: [Filter!]!, skip: Int, startDate: DateTime, take: Int): [JoinedTable!]!
+  getDataToModifyFromDB(sheetName: String!): String!
+  getDomainOfColumnFilter(endDate: DateTime, filters: [Filter!]!, skip: Int, startDate: DateTime, take: Int): [JoinedTable!]!
   getLatestData: String!
   getNumOfPeopleByFilter(accumulate: Boolean = true, endDate: DateTime, filters: [Filter!]!, skip: Int, startDate: DateTime, take: Int): Int!
   getPeopleByFilter(accumulate: Boolean = true, endDate: DateTime, filters: [Filter!]!, skip: Int, startDate: DateTime, take: Int): [JoinedTable!]!
