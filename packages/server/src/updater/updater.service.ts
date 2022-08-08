@@ -59,7 +59,6 @@ interface RepoDict {
     | Repository<UserHrdNetUtilizeConsent>
     | Repository<UserHrdNetUtilize>
     | Repository<UserOtherEmploymentStatus>
-    // | Repository<UserEducationFundState>
     | Repository<UserComputationFund>
     | Repository<UserAccessCardInformation>
     | Repository<UserOtherInformation>
@@ -133,7 +132,6 @@ export class UpdaterService {
     [repoKeys.userHrdNetUtilize]: this.userHrdNetUtilizeRepository,
     [repoKeys.userOtherEmploymentStatus]:
       this.userOtherEmploymentStatusRepository,
-    // [repoKeys.userEducationFundState]: this.userEducationFundStateRepository,
     [repoKeys.userComputationFund]: this.userComputationFundRepository,
     [repoKeys.userAccessCardInformation]:
       this.userAccessCardInformationRepository,
@@ -150,32 +148,30 @@ export class UpdaterService {
   async updateData() {
     const tableSet = [] as TableSet[];
     const errObject = [] as ErrObject[];
-    let deleteOrEdit;
+    let deleteOrEdit: boolean;
     const spreadData =
       await this.spreadService.sendRequestToSpreadWithGoogleAPI(
         SPREAD_END_POINT,
         MAIN_SHEET,
       );
-    await this.spreadService.composeTableData(spreadData, tableSet, false); //시트를 테이블 별로 나눠 정보를 저장 TableSet 배열 구성
     const tables = await spreadData[0].filter((value) => value != ''); //모든 테이블
     const columns = spreadData[1]; //모든 테이블의 컬럼 ex) [Intra No., Intra ID, 성명 ...]
     const rows = (await spreadData).filter((value, index) => index > 1); //모든 테이블의 로우 [1,	68641,	kilee, ...]
     const intraNoCol = columns.findIndex((col) => col === 'Intra No.'); //pk
-    const uniquenessCol = columns.findIndex((col) => col === 'uniqueness');
+    const uniquenessCol = columns.findIndex((col) => col === '특이사항');
     const intraNoArray = rows.map((row) => row[intraNoCol]);
-    const tuple = {} as ErrObject;
-    let errIndex;
-    let errValue;
     const userInDB = await this.dataSource
       .getRepository(User)
       .createQueryBuilder('user')
       .select('user.intra_no')
       .orderBy('user.intra_no', 'ASC')
       .getMany();
-    const deleteData = userInDB.filter((DBNo) => {
-      if (!intraNoArray.some((spreadNO) => DBNo.intra_no == spreadNO))
+    const deleteData = userInDB.filter((DBNo: User) => {
+      if (!intraNoArray.some((spreadNO: number) => DBNo.intra_no == spreadNO))
         return DBNo.intra_no;
     });
+
+    /***************에러 검증****************/
 
     if (intraNoArray.length > userInDB.length) {
       deleteOrEdit = true;
@@ -184,8 +180,11 @@ export class UpdaterService {
         deleteData.length === userInDB.length - intraNoArray.length;
     }
 
-    /***************에러 검증****************/
-
+    await this.dataSource
+      .createQueryBuilder()
+      .delete()
+      .from(ErrorObject)
+      .execute();
     if (
       !this.checkErrorBeforeUpdate(
         tables,
@@ -196,32 +195,36 @@ export class UpdaterService {
         errObject,
       )
     ) {
-      const err = JSON.stringify(errObject);
-      const errorObject = {} as ErrObject;
+      // const err = JSON.stringify(errObject);
+      // const errorObject = {} as ErrObject;
 
-      errorObject['error'] = err;
+      // errorObject['error'] = err;
 
-      await this.spreadService.insertDataToDB(ErrorObject, errorObject);
+      // await this.spreadService.insertDataToDB(ErrorObject, errorObject);
+      // return 'Error while inserting data with main sheet';
+
+      const errorObject = {};
+      console.log(errObject, '-----------');
+      for (const err of errObject) {
+        console.log(err);
+        errorObject['error'] = JSON.stringify(err);
+        await this.spreadService.insertDataToDB(ErrorObject, errorObject);
+      }
+
       return 'Error while inserting data with main sheet';
-    } else {
-      await this.dataSource
-        .createQueryBuilder()
-        .delete()
-        .from(ErrorObject)
-        .execute();
     }
-
     /***************************************/
+    /*************사전 처리 작업***************/
 
-    /*************사전 처리 작업***************/ //개발중
-    //만약 특이사항값이 transfer라면 soft-delete
+    // //만약 특이사항값이 transfer라면 soft-delete
     // const transferArray = rows.filter(
     //   (row) => row[uniquenessCol] === 'transfer',
     // );
-    // console.log('TransferArray: ', transferArray, transferArray.length);
+    // console.log(transferArray);
     // if (transferArray.length > 0) {
     //   await this.checkSoftDeletedInMain(transferArray, intraNoCol);
     // }
+    // //rows = rows.filter((row) => row[uniquenessCol] !== 'transfer');
 
     // //삭제되었던 transfer가 다시 복구되는 경우
     // const nonTransferObject = await this.getRecoverArray(
@@ -231,26 +234,23 @@ export class UpdaterService {
     // const nonTransferArray = nonTransferObject.map(
     //   (nonTransfer) => nonTransfer.intra_no,
     // );
-    // console.log(
-    //   'nonTransferArray: ',
-    //   nonTransferArray,
-    //   nonTransferArray.length,
-    // );
+    // console.log(nonTransferObject);
     // if (nonTransferArray.length > 0) {
     //   await this.checkRecoverInMain(nonTransferArray, intraNoCol);
     // }
 
-    // //시트에서 유저가 사라졌다면 삭제
-    // console.log('DeleteOrEdit: ', deleteOrEdit);
-    // if (deleteOrEdit) {
-    //   await this.checkDeletedInMain(deleteData);
-    // }
-    // //시트에서 유저 intra_no이 변경된 경우 intra_no 수정
-    // else {
-    //   await this.checkPKEditState(userInDB, intraNoArray);
-    // }
+    //시트에서 유저가 사라졌다면 삭제
+    if (deleteOrEdit) {
+      await this.checkDeletedInMain(deleteData);
+    }
+    //시트에서 유저 intra_no이 변경된 경우 intra_no 수정
+    else {
+      await this.checkPKEditState(userInDB, intraNoArray);
+    }
 
-    /****************************************/
+    /*******************************************/
+    /************* 데이터 파싱 작업 ***************/
+    await this.spreadService.composeTableData(spreadData, tableSet, false); //시트를 테이블 별로 나눠 정보를 저장 TableSet 배열 구성
     const api42s = await this.apiService.getApi();
     const tableArray = {};
     for (const table of tableSet) {
@@ -269,6 +269,7 @@ export class UpdaterService {
     const latestData = await this.getLatestAllOneData();
     await this.compareNewDataWithLatestData(tableArray, latestData);
     return await 'All data has been updated';
+    /*******************************************/
   }
 
   initTupleAndErrObject(tuple, errIndex, errValue) {
@@ -297,9 +298,8 @@ export class UpdaterService {
         'intra No의 수정, 삭제 작업이 동시에 일어났습니다. 작업을 분리해주세요';
       tuple['index'] = '';
       tuple['value'] = '';
-      errObject.push(tuple);
+      errObject.push(Object.assign({}, tuple));
       console.log('DeleteOrEdit check: ', tuple);
-      return false;
     }
 
     //intra no이 중복되어 들어왔는지 확인
@@ -307,7 +307,7 @@ export class UpdaterService {
       const checkDup =
         intraNoArray.indexOf(element) !== intraNoArray.lastIndexOf(element);
       if (checkDup) {
-        tuple['index'] = intraNoArray.lastIndexOf(element);
+        tuple['index'] = intraNoArray.lastIndexOf(element) + 1;
         tuple['value'] = element;
       }
       return checkDup;
@@ -315,9 +315,8 @@ export class UpdaterService {
     if (isDup) {
       tuple['sheet'] = '0. 학사정보관리(main)';
       tuple['msg'] = 'intra no가 중복되었습니다. 중복값을 수정해주세요';
-      errObject.push(tuple);
+      errObject.push(Object.assign({}, tuple));
       console.log('isDup check: ', tuple);
-      return false;
     }
 
     //컬럼이름이 변경되었는지 확인
@@ -325,15 +324,14 @@ export class UpdaterService {
       tuple['sheet'] = '0. 학사정보관리(main)';
       tuple['msg'] =
         '구글 스프레드 시트의 컬럼값이 수정되었습니다. 정해진 컬럼으로 되돌려주세요';
-      errObject.push(tuple);
+      errObject.push(Object.assign({}, tuple));
       console.log('columns check: ', tuple);
-      return false;
     }
 
     //테이블 이름이 변경되었는지 확인
     const DBTables = Object.values(tableName);
     const checkTable = DBTables.every((DBtable) => {
-      const ret = tables.some((table) => table === DBtable);
+      const ret = tables.some((table: string) => table === DBtable);
       if (!ret) tuple['value'] = DBtable;
       return ret;
     });
@@ -342,9 +340,8 @@ export class UpdaterService {
       tuple['msg'] =
         '구글 스프레드 시트의 테이블값이 수정되었습니다. 정해진 테이블으로 되돌려주세요';
       tuple['index'] = `table:0`;
-      errObject.push(tuple);
+      errObject.push(Object.assign({}, tuple));
       console.log('DBTables check: ', tuple);
-      return false;
     }
 
     //#REF! or #ERROR! 인지 확인
@@ -352,17 +349,19 @@ export class UpdaterService {
       tuple['sheet'] = '0. 학사정보관리(main)';
       tuple['msg'] =
         '구글 스프레드 시트에 계산되지 않은 값들이 있습니다. 확인해주세요';
-      errObject.push(tuple);
-
-      return false;
+      errObject.push(Object.assign({}, tuple));
     }
-    return true;
+    if (errObject.length > 0) {
+      return false;
+    } else {
+      return true;
+    }
   }
 
   async getRecoverArray(transferArray, intraNoCol) {
     const transferDB = await this.dataSource
       .getRepository(User)
-      .find({ where: { uniqueness: 'transfer' } }); //transfer가 적혀있는 값들을 가져옴
+      .find({ withDeleted: true, where: { uniqueness: 'transfer' } }); //transfer가 적혀있는 값들을 가져옴
     const nonTransferArray = transferDB.filter((transDB) => {
       return transferArray.every(
         (transferSheet) => transDB.intra_no !== transferSheet[intraNoCol],
@@ -450,22 +449,27 @@ export class UpdaterService {
 
   //메인데이터 soft삭제
   async checkSoftDeletedInMain(deleteData, intraNoCol) {
+    console.log('soft-delete');
     deleteData.forEach(async (deleteUser) => {
       const queryRunner = this.dataSource.createQueryRunner();
       const user = await this.dataSource
         .getRepository(User)
         .find({ where: { intra_no: deleteUser[intraNoCol] } });
+      console.log(user);
       queryRunner.manager.softRemove(user);
     });
   }
 
   //메인데이터 soft삭제된 데이터 회복
   async checkRecoverInMain(recoverData, intraNoCol) {
+    console.log('soft-recover');
     recoverData.forEach(async (recoverUser) => {
       const queryRunner = this.dataSource.createQueryRunner();
-      const user = await this.dataSource
-        .getRepository(User)
-        .find({ where: { intra_no: recoverUser[intraNoCol] } });
+      const user = await this.dataSource.getRepository(User).find({
+        withDeleted: true,
+        where: { intra_no: recoverUser[intraNoCol] },
+      });
+      console.log(user);
       queryRunner.manager.recover(user);
     });
   }
@@ -516,6 +520,7 @@ export class UpdaterService {
       tableSet[0],
       undefined,
     ); //기본 키값이 되는 유저정보 가져오기
+
     const allUser = await this.repoDict['user']
       .createQueryBuilder('user')
       .getMany();
@@ -541,6 +546,18 @@ export class UpdaterService {
         console.log('save', repoKey);
       }
     }
+    // const personalRepo = await this.dataSource.getRepository(
+    //   UserPersonalInformation,
+    // );
+    // const transferUser = personalRepo.find({ withDeleted: true, where: { uniqueness: 'transfer' } }); //transfer가 적혀있는 값들을 가져옴
+    // personalRepo.save(transferUser);
+    // await this.dataSource
+    // .getRepository(entityArray[repoName])
+    // .createQueryBuilder(repoName)
+    // .where(`pk = :pk`, {
+    //   pk: tuple['pk'],
+    // })
+    // .softDelete();
     return await 'All old data has been updated';
   }
 
