@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Logger,
   Post,
   Query,
   Req,
@@ -20,14 +21,18 @@ import { ConfigService } from '@nestjs/config';
 //authentication 과 authorization은 다름
 @Controller('auth')
 export class AuthController {
+  private readonly logger: Logger = new Logger('auth');
   constructor(
     private authService: AuthService,
     @InjectDataSource() private dataSource: DataSource,
     private jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
+
   @Get('/42')
   async authenticationUser(@Res() res: Response) {
+    this.logger.debug('get /42');
+
     return res.redirect(OAUTHURL);
   }
 
@@ -42,7 +47,10 @@ export class AuthController {
   @Get('/42/redirection')
   async redirect(@Query('code') code: string, @Res() res: Response) {
     // console.log(code);
+    this.logger.debug('get /42/redirection');
     const access_token = await this.authService.authentication(code);
+    this.logger.debug('access token : ', access_token);
+
     res.cookie('access_token', `${access_token}`, {
       httpOnly: true,
       domain: this.configService.get('APP_DOMAIN'),

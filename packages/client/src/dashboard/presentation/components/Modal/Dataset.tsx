@@ -31,7 +31,14 @@ export default function Dataset({
 
   function renderSelectedFilters() {
     return dataset.map((filter, index) => {
-      return SelectedFilter({ data: { ...filter }, idx: index });
+      return SelectedFilter({
+        data: { ...filter },
+        idx: index,
+        removeFilter: (idx: number) => {
+          // TODO: 진짜 removefilter함수를 전해줄것.
+          console.log(idx);
+        },
+      });
     });
   }
 

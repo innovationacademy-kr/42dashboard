@@ -7,6 +7,6 @@ export const Operator = {
   below: '<',
   in: 'in',
   between: 'beetween',
-  like: 'like',
-  ilike: 'ilike',
+  // like: 'like',
+  // ilike: 'ilike',
 };

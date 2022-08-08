@@ -15,32 +15,35 @@ import StepLabel from '@mui/material/StepLabel';
 
 interface ModalDatasType {
   type: StickerContentType;
-  datasets: FilterConfigType[][];
   setType: React.Dispatch<React.SetStateAction<StickerContentType>>;
-  setLabels: React.Dispatch<React.SetStateAction<string[]>>;
-  setFilters: React.Dispatch<React.SetStateAction<FilterConfigType[]>>;
-  datasetNames: string[];
-  setDatasetNames: React.Dispatch<React.SetStateAction<string[]>>;
-  setDatasets: React.Dispatch<React.SetStateAction<FilterConfigType[][]>>;
+  chartProps: {
+    labels: string[];
+    setLabels: React.Dispatch<React.SetStateAction<string[]>>;
+    filters: FilterConfigType[];
+    setFilters: React.Dispatch<React.SetStateAction<FilterConfigType[]>>;
+    datasets: FilterConfigType[][];
+    setDatasets: React.Dispatch<React.SetStateAction<FilterConfigType[][]>>;
+    datasetNames: string[];
+    setDatasetNames: React.Dispatch<React.SetStateAction<string[]>>;
+  };
   applyFiltersModal: () => void;
   reset: boolean;
   setReset: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function StickerStepper(props: ModalDatasType) {
+  const { type, setType, chartProps, applyFiltersModal, reset, setReset } =
+    props;
   const {
-    type,
-    setType,
+    labels,
     setLabels,
+    filters,
     setFilters,
     datasets,
     setDatasets,
     datasetNames,
     setDatasetNames,
-    applyFiltersModal,
-    reset,
-    setReset,
-  } = props;
+  } = chartProps;
 
   const [steps, setSteps] = React.useState<string[]>(['Type 정하기!']);
   const [activeStep, setActiveStep] = React.useState(0);
@@ -55,10 +58,6 @@ export default function StickerStepper(props: ModalDatasType) {
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  };
-
-  const handleReset = () => {
-    setActiveStep(0);
   };
 
   const changeDatasetFocus = (i: number) => {
@@ -110,6 +109,7 @@ export default function StickerStepper(props: ModalDatasType) {
           setLabelAndFilter={setLabelAndFilter}
           selectedLabels={selectedLabels}
           setSelectedLabels={setSelectedLabels}
+          chartProps={chartProps}
         />
       );
     } else if (activeStep === 2) {

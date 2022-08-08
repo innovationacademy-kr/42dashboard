@@ -18,7 +18,6 @@ export default function ValueAttribute(props: ValueAttributeProps) {
   );
 
   if (loading) return <p>Loading...</p>;
-  console.log(entityName, column, data);
   return (
     <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
       <InputLabel id={id}>{id}</InputLabel>

@@ -39,16 +39,16 @@ const filters: QueryVariablesType = {
   },
   common: {
     entityName: 'userLearningDataAPI',
-    column: 'outcircle',
+    column: 'outcircled_date',
     operator: '=',
-    givenValue: 'N',
+    givenValue: '9999-12-31',
     latest: true,
   },
   outter: {
     entityName: 'userLearningDataAPI',
     column: 'outcircle',
-    operator: '=',
-    givenValue: 'Y',
+    operator: '!=',
+    givenValue: '9999-12-31',
     latest: true,
   },
 };
