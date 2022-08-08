@@ -45,21 +45,27 @@ const ModalFrame = (props: ModalProps) => {
 
   /** switch to type & handle properly */
   function AddStickerDataset() {
+    let newStickerData: StickerDataType | null = null;
     if (type === 'bachelor') {
-      const newStickerData = makeBachelorStickerData({
+      newStickerData = makeBachelorStickerData({
         sectionId,
         type,
       });
-
-      /** store sticker data to store */
-      addStickerData(newStickerData);
-      /** render sticker */
-      renderAddedSticker(sectionId, newStickerData.id);
     }
-
-    /** make sticker data */
+    if (type === 'table') {
+      newStickerData = makeTableStickerData({
+        sectionId,
+        type,
+      });
+    }
+    if (type === 'text') {
+      newStickerData = makeTextStickerData({
+        sectionId,
+        type,
+      });
+    }
     if (type === 'barChart' || type === 'lineChart' || type === 'pieChart') {
-      const newStickerData = makeChartStickerData({
+      newStickerData = makeChartStickerData({
         sectionId,
         type,
         labels,
@@ -67,26 +73,9 @@ const ModalFrame = (props: ModalProps) => {
         datasetNames,
         arrayOfDataSet: datasets,
       });
-      /** store sticker data to store */
-      addStickerData(newStickerData);
-      /** render sticker */
-      renderAddedSticker(sectionId, newStickerData.id);
     }
-    if (type === 'table') {
-      const newStickerData: StickerDataType = makeTableStickerData({
-        sectionId,
-        type,
-      });
-      /** store sticker data to store */
-      addStickerData(newStickerData);
-      /** render sticker */
-      renderAddedSticker(sectionId, newStickerData.id);
-    }
-    if (type === 'text') {
-      const newStickerData: StickerDataType = makeTextStickerData({
-        sectionId,
-        type,
-      });
+
+    if (newStickerData !== null) {
       /** store sticker data to store */
       addStickerData(newStickerData);
       /** render sticker */

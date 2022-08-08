@@ -7,6 +7,7 @@ import SelectedFilter from './SelectedFilter';
 import { FilterConfigType } from '../Sticker/Filter.type';
 import TextField from '@mui/material/TextField';
 import { useState } from 'react';
+import { Button } from '@mui/material';
 
 export interface DatasetProps {
   id: number;
@@ -27,18 +28,29 @@ export default function Dataset({
   focus,
   changeFocusOn,
 }: DatasetProps) {
-  const [message, setMessage] = useState('');
-
   function renderSelectedFilters() {
     return dataset.map((filter, index) => {
       return SelectedFilter({
         data: { ...filter },
         idx: index,
         removeFilter: (idx: number) => {
-          // TODO: 진짜 removefilter함수를 전해줄것.
           console.log(idx);
         },
       });
+    });
+  }
+
+  function removeDataset() {
+    setDatasets((prevDatasets: FilterConfigType[][]) => {
+      const newDatasets = [...prevDatasets];
+      newDatasets.splice(id, 1);
+      if (newDatasets.length > 0) return newDatasets;
+      else return [[]];
+    });
+    setDatasetNames((prevDatasetNames: string[]) => {
+      const newDatasetNames = [...prevDatasetNames];
+      newDatasetNames.splice(id, 1);
+      return newDatasetNames;
     });
   }
 
@@ -50,10 +62,10 @@ export default function Dataset({
     });
   };
   const onChangeDatasetName = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setMessage(event.target.value);
     setDatasetNames((prev) => {
-      prev[id] = event.target.value;
-      return prev;
+      const newDatasetNames = [...prev];
+      newDatasetNames[id] = event.target.value;
+      return newDatasetNames;
     });
   };
 
@@ -68,9 +80,10 @@ export default function Dataset({
           <TextField
             placeholder={`Dataset ${id}`}
             variant="standard"
-            value={datasetNames[id] || message}
+            value={datasetNames[id] ?? ''}
             onChange={onChangeDatasetName}
           />
+          <Button onClick={removeDataset}>Delete</Button>
         </AccordionSummary>
         <AccordionDetails>
           <QueryFilterAttribute saveSelectedFilter={saveSelectedFilter} />
