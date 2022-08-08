@@ -60,7 +60,9 @@ export class UserOtherEmploymentStatus extends BaseEntity {
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userOtherEmploymentStatus)
+  @ManyToOne(() => User, (user) => user.userOtherEmploymentStatus, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }
@@ -177,7 +179,9 @@ export class UserHrdNetUtilizeConsent extends BaseEntity {
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userHrdNetUtilizeConsent)
+  @ManyToOne(() => User, (user) => user.userHrdNetUtilizeConsent, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }
@@ -249,7 +253,9 @@ export class UserHrdNetUtilize extends BaseEntity {
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userHrdNetUtilize)
+  @ManyToOne(() => User, (user) => user.userHrdNetUtilize, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }
@@ -305,7 +311,9 @@ export class UserEmploymentStatus extends BaseEntity {
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userEmploymentStatus)
+  @ManyToOne(() => User, (user) => user.userEmploymentStatus, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }

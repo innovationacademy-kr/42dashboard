@@ -59,7 +59,9 @@ export class UserOtherInformation extends BaseEntity {
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userOtherInformation)
+  @ManyToOne(() => User, (user) => user.userOtherInformation, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }

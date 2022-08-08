@@ -76,7 +76,9 @@ export class UserPersonalInformation {
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string; //외래키값을 선언하지 않으면 null으로 판단됨
 
-  @ManyToOne(() => User, (user) => user.userPersonalInformation)
+  @ManyToOne(() => User, (user) => user.userPersonalInformation, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'fk_user_no' }) //user와 이름이 중복되는 에러로 인해 이름변경
   user: User;
 }

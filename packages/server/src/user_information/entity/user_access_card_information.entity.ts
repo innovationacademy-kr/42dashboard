@@ -70,7 +70,9 @@ export class UserAccessCardInformation extends BaseEntity {
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userAccessCardInformation)
+  @ManyToOne(() => User, (user) => user.userAccessCardInformation, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }

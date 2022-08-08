@@ -403,14 +403,14 @@ export class SpreadService {
         const tuple = {};
         for (const col in columns) {
           this.makeRowPerColumnToModify(row, columns, col, tuple, repoName);
-        }
-        if (deleteDatas.length > 0) {
-          await this.deleteDataToDB(deleteDatas, tuple, repoName);
-        } else if (restoreDatas.length > 0) {
-          await this.restoreDataToDB(restoreDatas, tuple, repoName);
-        } else {
-          await this.updateDataToDB(repoName, tuple);
-        }
+        } //수정요망 ???
+        // if (deleteDatas.length > 0) {
+        //   await this.deleteDataToDB(deleteDatas, tuple, repoName);
+        // } else if (restoreDatas.length > 0) {
+        //   await this.restoreDataToDB(restoreDatas, tuple, repoName);
+        // } else {
+        await this.updateDataToDB(repoName, tuple);
+        // }
       }
       if (newDatas.length > 0) {
         for (const newData of newDatas) {
@@ -717,7 +717,7 @@ export class SpreadService {
     const sheetDeleteDatas = this.setDeleteList(noLatestDatas, dbvalues);
     const sheetRestoreDatas = this.setRestoreList(noLatestDatas, dbvalues);
     deletedDatas.push(...sheetDeleteDatas);
-    restoreDatas.push(...sheetDeleteDatas);
+    restoreDatas.push(...sheetRestoreDatas);
   }
 
   setDeleteList(noLatestDatas, dbvalues) {
