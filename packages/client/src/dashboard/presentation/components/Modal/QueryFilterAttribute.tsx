@@ -36,7 +36,7 @@ export default function QueryFilterAttribute(props: DatasetFilterProps) {
   const [latest, setLatest] = useState<boolean>(true);
 
   const checkEmptyAttribute = () => {
-    if (!entityName || !column || !operator || !givenValue || !latest) {
+    if (!entityName || !column || !operator || !givenValue) {
       alert('빈칸을 채워 주세요');
       return false;
     }

@@ -66,6 +66,8 @@ export default function InputLabels(props: FiltersProps) {
         key={idx}
         idx={idx}
         data={label}
+        setLabels={setLabels}
+        setSelectedLabels={setSelectedLabels}
         removeFilter={removeFilter}
       />
     ));
