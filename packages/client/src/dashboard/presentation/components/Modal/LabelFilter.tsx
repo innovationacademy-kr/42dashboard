@@ -22,8 +22,13 @@ function LabelFilter(props: LabelFilterProps) {
   const [label, setLabel] = React.useState<string>('');
 
   const saveSelectedFilter = (queryFilter: FilterConfigType) => {
+    if (!label) {
+      alert('라벨을 입력해주세요');
+      return false;
+    }
     setLabelAndFilter(label, queryFilter);
     addFilter({ label, ...queryFilter });
+    return true;
   };
 
   const handleLabelChange = (event: React.ChangeEvent<HTMLInputElement>) => {

@@ -23,7 +23,7 @@ const Section = styled.div`
 `;
 
 interface DatasetFilterProps {
-  saveSelectedFilter: (queryFilter: FilterConfigType) => void;
+  saveSelectedFilter: (queryFilter: FilterConfigType) => boolean;
   setLabel?: React.Dispatch<React.SetStateAction<string>>;
 }
 
@@ -116,8 +116,8 @@ export default function QueryFilterAttribute(props: DatasetFilterProps) {
               operator,
               givenValue,
               latest,
-            });
-          resetValues();
+            }) &&
+            resetValues();
         }}
       >
         Save

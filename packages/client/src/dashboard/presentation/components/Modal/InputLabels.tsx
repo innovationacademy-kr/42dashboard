@@ -1,8 +1,7 @@
 import LabelFilter from './LabelFilter';
-import { useState } from 'react';
 import { FilterConfigType } from '../Sticker/Filter.type';
 import SelectedFilter from './SelectedFilter';
-import { Button, List } from '@mui/material';
+import { List } from '@mui/material';
 
 export interface SelectedLabelFilters extends FilterConfigType {
   label?: string;
