@@ -75,21 +75,25 @@ function Footer() {
           <RoundButton
             onClick={async () => {
               setRefetchState('loading');
-              console.log(`loading`);
               await axios
                 .axiosUpdateData()
                 .then((data) => {
                   setRefetchState('data');
-                  console.log(`data`);
                 })
                 .catch((error) => {
                   setRefetchState('error');
-                  console.log(`error`);
                 });
               await axios
                 .axiosGetError()
-                .then((data) => console.log(data))
-                .catch((error) => console.log(error));
+                .then((data) => console.log('SUCCESS'))
+                .catch((error) => {
+                  let alertMsg = '';
+                  const errorMessages = error.response.data.data;
+                  for (let i = 0; i < errorMessages.length; i += 1) {
+                    alertMsg += `${errorMessages[i].sheet} sheet 내 ${errorMessages[i].index} 인덱스의 값이 ${errorMessages[i].value} 입니다\n${errorMessages[i].msg}\n\n`;
+                  }
+                  alert(alertMsg);
+                });
             }}
           >
             <RotateRefreshIcon className={refetchState} />
