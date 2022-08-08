@@ -40,10 +40,7 @@ export default function InputLabels(props: FiltersProps) {
     setDatasetNames,
   } = chartProps;
 
-  const [count, setCount] = useState(0);
-
   function addFilter(newFilter: SelectedLabelFilters) {
-    setCount(count + 1);
     setSelectedLabels((prevLabels) => [...prevLabels, newFilter]);
   }
   function removeFilter(idx: number) {
@@ -62,7 +59,6 @@ export default function InputLabels(props: FiltersProps) {
       newFilters.splice(idx, 1);
       return newFilters;
     });
-    setCount((count) => count - 1);
   }
 
   function renderSelectedFilters() {
