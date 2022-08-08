@@ -22,6 +22,10 @@ export class UserPersonalInformation {
   pk: number;
 
   @Field()
+  @Column({ name: 'name', nullable: false, default: 'NO_NAME' })
+  name: string;
+
+  @Field()
   @Column({ name: 'region', nullable: true })
   region: string;
 
@@ -48,6 +52,14 @@ export class UserPersonalInformation {
   @Field()
   @Column({ name: 'email', nullable: true })
   email: string;
+
+  @Field()
+  @Column({ name: 'uniqueness', nullable: true })
+  uniqueness: string;
+
+  @Field()
+  @Column({ name: 'anonymization', nullable: true })
+  anonymization: string;
 
   @Field()
   @CreateDateColumn({ name: 'created_date' })

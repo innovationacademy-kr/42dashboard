@@ -51,6 +51,27 @@ import {
 import { EntityColumn } from 'src/common/EntityColumn';
 
 export const LOCALTIME = 32400000;
+export const REMAINDPAYMENTPERIOD = 24;
+
+// export const enum TABLENUM {
+//   USER = 0,
+//   USERPERSONAL = 1,
+//   USERCOURSEEXTENSION = 2,
+//   USERLEAVEOFABSENCE = 3,
+//   USERBLACKHOLE = 4,
+//   USERINTERRUPTIONOFCOURSE = 5,
+//   USERLEARNINGDATAAPI = 6,
+//   USERLOYALTYMANAGEMENT = 7,
+//   USEREMPLOYMENTSTATUS = 8,
+//   USERHRDNETUTILIZECONSENT = 9,
+//   USERHRDNETUTILIZE = 10,
+//   USEROTHEREMPLOYMENTSTATUS = 11,
+//   USEREDUCATIONFUNDSTATE = 12,
+//   USERCOMPUTATIONFUND = 13,
+//   USERACCESSCARDINFORMATION = 14,
+//   USEROTHERINFORMATION = 15,
+//   USERLAPISCINEINFORMATION = 16,
+// }
 
 export const pastDataOnSheet = [
   //spread수정해야함!
@@ -240,7 +261,6 @@ export const enum DEFAULT_VALUE {
 export const defaultVALUE = {
   user: {
     intra_id: 'NOT_EXIST',
-    name: 'NO_NAME',
     grade: '0기',
     academic_state: 'BLACK_HOLE',
     start_process_date: '9999-12-31',
@@ -249,6 +269,7 @@ export const defaultVALUE = {
   },
 
   user_personal_information: {
+    name: 'NO_NAME',
     validate_date: '9999-12-31',
     expired_date: '9999-12-31',
   },
@@ -331,7 +352,7 @@ export const defaultVALUE = {
   },
 
   // user_education_fund_state: {
-  //   total_payment_of_number: 0,
+  //   total_real_payment_of_number: 0,
   //   total_payment_of_money: '0',
   //   payment_end_date: '9999-12-31',
   //   //uniqueness: '0',
@@ -343,13 +364,14 @@ export const defaultVALUE = {
   user_computation_fund: {
     payment_date: '9999-12-31',
     received: 'N',
-    recevied_amount: 0,
+    recevied_amount: -1,
     validate_date: '9999-12-31',
     expired_date: '9999-12-31',
     //아래 컬럼들은 spread에 없어 서버에서 처리하여 저장하는 데이터
-    total_payment_of_number: 0,
+    total_real_payment_of_number: 0,
     total_payment_of_money: 0,
     total_payment_period_number: 0,
+    remaind_payment_period: REMAINDPAYMENTPERIOD,
     payment_end_date: '9999-12-31',
     payment_ended: '지원',
     uniqueness: '0',
@@ -440,11 +462,18 @@ export const classType = {
 //db에서 직접 처리해야 하는 데이터가 많아질 경우 관리하기 위한 obj
 export const autoProcessingDataObj = {
   [repoKeys.userComputationFund]: {
-    totalPaymentOfNumber: 'total_payment_of_number',
+    //0원 초과의 금액을 받은 수
+    totalRealPaymentOfNumber: 'total_real_payment_of_number',
+    //지금까지 받은 총 지원금
     totalPaymentOfMoney: 'total_payment_of_money',
+    //0원 포함 지원금 받은 수
     totalPaymentPeriod: 'total_payment_period_number',
+    //지원만료날짜
     paymentEndDate: 'payment_end_date',
+    //지원 만료 상태 식별
     paymentEnded: 'payment_ended',
+    //지원금 지급 받을 수 있는 개월 수
+    remaindPaymentPeriod: 'remaind_payment_period',
   },
 };
 
@@ -452,20 +481,23 @@ export const autoProcessingDataObj = {
 export const aggregateDataObj = {
   [repoKeys.userComputationFund]: {
     //컬럼 이름으로 조회하므로 스네이크 표기법
-    total_payment_of_number: {
-      aggregateColumn: 'received',
-      operator: 'COUNT',
-      value: 'Y',
+    total_real_payment_of_number: {
+      aggregateColumn: 'recevied_amount',
+      aggregate: 'COUNT',
+      operator: '>',
+      value: 0,
     },
     total_payment_of_money: {
       aggregateColumn: 'recevied_amount',
-      operator: 'SUM',
+      aggregate: 'SUM',
+      operator: '>=',
       value: 0, //0원도 받은것으로 확인함
     },
     total_payment_period_number: {
-      aggregateColumn: 'received',
-      operator: 'COUNT',
-      value: undefined,
+      aggregateColumn: 'recevied_amount',
+      aggregate: 'COUNT',
+      operator: '>=',
+      value: 0,
     },
   },
 };
