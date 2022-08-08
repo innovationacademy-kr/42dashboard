@@ -25,6 +25,7 @@ class PresetListRepository implements PresetListRepositoryInterface {
   }
 
   public async setPresetList(presetList: PresetListType): Promise<void> {
+    console.log('setList', presetList);
     presetlistStore.setPresetList(presetList);
   }
 }

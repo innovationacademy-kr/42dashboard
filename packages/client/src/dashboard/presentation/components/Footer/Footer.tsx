@@ -7,6 +7,8 @@ import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import IosShareIcon from '@mui/icons-material/IosShare';
+import usePreset from '../../../application/services/usePreset';
+import useBoard from '../../../application/services/useBoard';
 
 const RoundButton = styled.button`
   display: inline-block;
@@ -60,6 +62,7 @@ const ButtonArea = styled.div`
 function Footer() {
   const { setControlMode, getControlMode } = useMode();
   const [refetchState, setRefetchState] = React.useState('data');
+  const { handleSavePreset } = useBoard();
 
   const mode = getControlMode();
 
@@ -67,7 +70,14 @@ function Footer() {
     <FooterArea>
       {mode === 'edit' && (
         <ButtonArea>
-          <RoundButton onClick={() => setControlMode('view')}>VIEW</RoundButton>
+          <RoundButton
+            onClick={async () => {
+              await handleSavePreset();
+              setControlMode('view');
+            }}
+          >
+            VIEW
+          </RoundButton>
         </ButtonArea>
       )}
       {mode !== 'edit' && (

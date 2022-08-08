@@ -53,7 +53,7 @@ const EditToolBar = (props: EditToolBarProps) => {
       )}
       {type === 'Sticker' && <Button>Apply Filter</Button>}
       {type === 'Board' && (
-        <Button onClick={() => handleSavePreset()}>Save Preset</Button>
+        <Button onClick={handleSavePreset}>Save Preset</Button>
       )}
       {type === 'Section' && (
         <Button onClick={() => removeItem && id && removeItem(id)}>

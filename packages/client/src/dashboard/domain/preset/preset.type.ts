@@ -18,3 +18,7 @@ export interface PresetInfoType {
   label: string;
   description?: string;
 }
+
+// export default interface PresetListType {
+//   presetInfos: PresetInfoType[];
+// }

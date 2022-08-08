@@ -5,7 +5,7 @@ class PresetService {
   constructor(protected presetRepository: PresetRepositoryInterface) {}
 
   public async getPreset(id: string): Promise<PresetType | null> {
-    return this.presetRepository.getPreset(id);
+    return await this.presetRepository.getPreset(id);
   }
 
   public async setPreset(preset: PresetType): Promise<void> {
@@ -13,11 +13,11 @@ class PresetService {
   }
 
   public async savePreset(preset: PresetType): Promise<void> {
-    return this.presetRepository.savePreset(preset);
+    return await this.presetRepository.savePreset(preset);
   }
 
   public async deletePreset(id: string): Promise<void> {
-    return this.presetRepository.deletePreset(id);
+    return await this.presetRepository.deletePreset(id);
   }
 }
 

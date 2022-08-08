@@ -10,7 +10,7 @@ class PresetStore {
   }
 
   public setPreset(preset: PresetType) {
-    zustandStore.setState({ preset: preset });
+    zustandStore.setState({ preset });
   }
 
   public getPreset(): PresetType | null {

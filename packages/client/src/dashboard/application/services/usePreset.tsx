@@ -15,8 +15,6 @@ import StickerDataType from '../../domain/stickerDatas/stickerData.type';
 import presetListRepository from '../../infrastructure/presetList.repository';
 import PresetListService from '../../domain/presetList/presetList.service';
 import useMode from '../../application/services/useMode';
-import { log } from 'console';
-import axios from 'axios';
 
 const presetService = new PresetService(presetRepository);
 const presetListService = new PresetListService(presetListRepository);
@@ -41,19 +39,22 @@ function usePreset() {
   });
 
   useEffect(() => {
-    const fetchPresetList = async () => {
-      const presetList = await presetListService.getPresetList();
+    async function fetchPresetList() {
+      // from db
+      const presetList = await presetListService.getPresetList(); // from db
+      // if no presetLiset, create one
       if (presetList.presetInfos.length !== 0) {
         presetListStore.setPresetList(presetList);
-        changePreset(presetList.presetInfos[0].id);
+        await changePreset(presetList.presetInfos[0].id);
       } else {
         createPreset();
       }
-    };
+    }
     fetchPresetList();
   }, []);
 
   useEffect(() => {
+    // update board, section, sticker datas in memory
     if (preset && preset.data) {
       boardDataStore.setBoardData(preset.data.boardData);
       sectionDatasStore.setSectionDatas(preset.data.sectionDatas);
@@ -65,13 +66,18 @@ function usePreset() {
   const changePreset = async (id: string) => {
     const presetData = await presetService.getPreset(id);
     if (presetData) {
-      return presetService.setPreset(presetData);
+      return await presetService.setPreset(presetData);
     }
   };
 
+  const changePresetList = (presetList: PresetListType) => {
+    presetListService.setPresetList(presetList);
+  };
+
   const createPreset = () => {
-    const newPresetData = {
-      id: uuid(),
+    const newPresetId = uuid();
+    const newPreset = {
+      id: newPresetId,
       data: {
         boardData: {
           sectionIds: Array<string>(),
@@ -80,26 +86,31 @@ function usePreset() {
         sectionDatas: Array<SectionDataType>(),
         stickerDatas: Array<StickerDataType>(),
       },
+      info: {
+        id: newPresetId,
+        label: '새 프리셋',
+        description: '프리셋 설명',
+      },
     };
-    const newPresetInfo = {
-      id: newPresetData.id,
-      label: '새 프리셋',
-      description: '프리셋 설명',
-    };
+
+    // update preset store state
     presetStore.setPreset({
-      id: newPresetData.id,
-      data: newPresetData.data,
-      info: newPresetInfo,
+      id: newPresetId,
+      data: newPreset.data,
+      info: newPreset.info,
     });
+
+    // add to prestList in memory
     presetListStore.setPresetList({
-      presetInfos: [...presetList.presetInfos, newPresetInfo],
-    });
+      presetInfos: [newPreset.info, ...presetList.presetInfos],
+    }); // set 하는 순간 랜더가 다시 시작 되나?
+    console.log(presetList.presetInfos);
     setControlMode('edit');
   };
 
-  // const deletePreset = async (id: string) => {
-  //   await presetService.deletePreset(id);
-  // };
+  const removePreset = async (id: string) => {
+    await presetService.deletePreset(id);
+  };
 
   const changePresetLabel = async (id: string, label: string) => {
     const presetData = await presetService.getPreset(id);
@@ -108,8 +119,8 @@ function usePreset() {
         (presetInfo) => presetInfo.id !== id,
       );
       const newPresetInfo = {
-        id: id,
-        label: label,
+        id,
+        label,
         description: '프리셋 설명',
       };
       presetStore.setPreset({
@@ -125,9 +136,10 @@ function usePreset() {
   return {
     preset,
     presetList,
+    changePresetList,
     createPreset,
     changePreset,
-    // deletePreset,
+    removePreset,
     changePresetLabel,
   };
 }
