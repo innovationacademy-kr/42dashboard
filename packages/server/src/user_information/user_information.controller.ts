@@ -66,8 +66,9 @@ export class UserInformationController {
   /**
    * body는 아래 구조라고 가정
    *  {
-   *    "id": "231asdf-sda231",
-   *    "data": {......}
+   *    "id": "something",
+   *    "data": {...},
+   *    "info": {...},
    *  }
    */
   @Post('/addPreSet')

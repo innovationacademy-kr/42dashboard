@@ -235,7 +235,7 @@ function getValidateColumn(entityName, column) {
 }
 
 function getExpireColumn(entityName, column = null) {
-  return entityColumnMapping[entityName]['validate_date'];
+  return entityColumnMapping[entityName]['expired_date'];
 }
 
 function getRawQuery(refDate) {
