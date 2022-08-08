@@ -547,11 +547,13 @@ export class SpreadService {
   //dbData = DB에 있던 latest 데이터, newData = 갱신된 데이터
   compareDateIsNew(dbData, newData, validCol, errorMsg) {
     const datePattern = /[0-9]{4}-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[0-1])$/;
+    const datePattern2 =
+      /[0-9]{4} (0?[1-9]|1[012]) (0?[1-9]|[12][0-9]|3[0-1])$/;
 
     return dbData.every((data, idx) => {
       let oldDate;
 
-      if (datePattern.test(data)) {
+      if (datePattern.test(data) || datePattern2.test(data)) {
         oldDate = new Date(data);
         return this.convSheetDataToDate(
           newData,
@@ -889,6 +891,8 @@ export class SpreadService {
     //스프레드에 날짜 저장 패턴이 바뀌면 문제가 생길 수 있음
     const datePattern =
       /[0-9]{4}. (0?[1-9]|1[012]). (0?[1-9]|[12][0-9]|3[0-1])$/; // yyyy-mm-dd 형식인지 체크
+    const datePattern2 =
+      /[0-9]{4}.(0?[1-9]|1[012]).(0?[1-9]|[12][0-9]|3[0-1])$/; // yyyy-mm-dd 형식인지 체크
     const numberPattern = /[^-\,0-9]/g;
     if (
       row[rowIdx] !== null &&
@@ -897,7 +901,7 @@ export class SpreadService {
       row[rowIdx] !== '#REF' &&
       row[rowIdx] !== '#REF!'
     ) {
-      if (datePattern.test(row[rowIdx])) {
+      if (datePattern.test(row[rowIdx]) || datePattern2.test(row[rowIdx])) {
         tuple[`${columnLabel.dbName}`] = this.changeDate(row[rowIdx]);
       } else if (row[rowIdx] !== '') {
         if (
@@ -934,8 +938,10 @@ export class SpreadService {
   makeRowPerColumnToModify(row, columns, col, tuple, repoName) {
     const datePattern =
       /[0-9]{4}. (0?[1-9]|1[012]). (0?[1-9]|[12][0-9]|3[0-1])$/;
+    const datePattern2 =
+      /[0-9]{4}.(0?[1-9]|1[012]).(0?[1-9]|[12][0-9]|3[0-1])$/;
     if (row[col] !== '') {
-      if (datePattern.test(row[col])) {
+      if (datePattern.test(row[col]) || datePattern2.test(row[col])) {
         tuple[columns[col]] = this.changeDate(row[col]);
       } else if (
         row[col] !== null ||
@@ -981,49 +987,6 @@ export class SpreadService {
       // if (this.checkExeptData(table['name'], tuple) == false) {
       //   continue; //예외처리 된 tuple은 밑에서 push 하지 않는다.
       // }
-      // if (
-      //   row[1] == 68857 ||
-      //   row[1] == 69065 ||
-      //   row[1] == 69033 ||
-      //   row[1] == 69003 ||
-      //   row[1] == 69030 ||
-      //   row[1] == 76124 ||
-      //   row[1] == 76212 ||
-      //   row[1] == 76167 ||
-      //   row[1] == 79672 ||
-      //   row[1] == 81736 ||
-      //   row[1] == 81737 ||
-      //   row[1] == 79636 ||
-      //   row[1] == 69192 || //
-      //   row[1] == 69138 ||
-      //   row[1] == 69016 ||
-      //   row[1] == 68939 ||
-      //   row[1] == 68867 ||
-      //   row[1] == 68902 ||
-      //   row[1] == 68963 ||
-      //   row[1] == 69159 ||
-      //   row[1] == 68912 ||
-      //   row[1] == 68868 ||
-      //   row[1] == 69144 ||
-      //   row[1] == 69001 ||
-      //   row[1] == 69097 ||
-      //   row[1] == 69031 ||
-      //   row[1] == 68874 ||
-      //   row[1] == 69063 ||
-      //   row[1] == 68893 ||
-      //   row[1] == 68854 ||
-      //   row[1] == 69021 ||
-      //   row[1] == 69059 ||
-      //   row[1] == 68909 ||
-      //   row[1] == 68995 ||
-      //   row[1] == 72440 ||
-      //   row[1] == 76144 ||
-      //   row[1] == 76275 ||
-      //   row[1] == 76200 ||
-      //   row[1] == 74906
-      // ) {
-      //   continue;
-      // }
       if (api42s != undefined) {
         // 해당 intra_no인 사람의 api 데이터를 가져오가
         const api42 = await this.apiService.getTupleFromApi(row[1], api42s);
@@ -1036,8 +999,8 @@ export class SpreadService {
         // }
         if (table['name'] === 'user_learning_data_api') {
           tuple['level'] = api42.level;
-          tuple['leveled_date'] = new Date('7777-12-31');
-        } //여기 학습데이터를 추가해야함.
+          //tuple['leveled_date'] = new Date('7777-12-31');
+        }
       }
       if (table['name'] != 'user') tuple['fk_user_no'] = row[1]; //usertable은 해당 컬럼이 필요가 없음
       tupleArray.push(tuple);
@@ -1123,9 +1086,10 @@ export class SpreadService {
 
   async makeAColumnInTable(cols, rows, date, repoKey) {
     const pattern = /[0-9]{4}. (0?[1-9]|1[012]). (0?[1-9]|[12][0-9]|3[0-1])$/; // yyyy. mm. dd 형식인지 체크
+    const pattern2 = /[0-9]{4}.(0?[1-9]|1[012]).(0?[1-9]|[12][0-9]|3[0-1])$/; // yyyy. mm. dd 형식인지 체크
     for (const col in cols) {
       date = cols[col];
-      if (pattern.test(cols[col])) {
+      if (pattern.test(cols[col]) || pattern2.test(cols[col])) {
         for (const row in rows) {
           let payment_data = {};
           payment_data[EntityColumn['UserComputationFund'][0].dbName] =
