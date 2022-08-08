@@ -1,4 +1,4 @@
-import { Box, CssBaseline } from '@mui/material';
+import { Box, CssBaseline, Paper } from '@mui/material';
 import AppBar from '../components/AppBar/AppBar';
 import ProfileMenu from '../components/AppBar/ProfileMenu/ProfileMenu';
 import Board from '../components/Board/Board';
@@ -30,7 +30,7 @@ function DashBoardPage() {
           .then((response: any) => response.data)
           .then((data) => setUser(data))
           .catch((error) => {
-            navigate(`/`);
+            // navigate(`/`);
           });
       }
     });
@@ -76,7 +76,7 @@ function DashBoardPage() {
   );
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Paper sx={{ display: 'flex', height: '100vh' }}>
       <CssBaseline />
       <AppBar>
         <Logo />
@@ -89,7 +89,7 @@ function DashBoardPage() {
         <Footer />
       </MainArea>
       <ModificationDialog open={open} setOpen={setOpen} />
-    </Box>
+    </Paper>
   );
 }
 
