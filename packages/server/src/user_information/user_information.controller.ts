@@ -54,6 +54,15 @@ export class UserInformationController {
     return 'hello user!';
   }
 
+  @Get('/in')
+  testUser2() {
+    const t = {
+      test: 'huchoi',
+    };
+    const t1 = 'test' in t;
+    const t2 = 'huchoi' in t;
+    return { 1: t1, 2: t2 };
+  }
   /**
    * body는 아래 구조라고 가정
    *  {
