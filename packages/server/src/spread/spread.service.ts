@@ -15,6 +15,7 @@ import {
   exceptDataObj,
   LOCALTIME,
   oldDateTable,
+  REMAINDPAYMENTPERIOD,
   repoKeys,
 } from 'src/updater/name_types/updater.name';
 import { UserHrdNetUtilizeConsent } from 'src/user_job/entity/user_job.entity';
@@ -799,6 +800,17 @@ export class SpreadService {
     return /^[0-9]+$/.test(str);
   }
 
+  changeDateToString(tmp: Date) {
+    console.log(tmp);
+    const year = tmp.getFullYear();
+    const tmpMonth = tmp.getMonth() + 1;
+    const tmpDay = tmp.getDate();
+    const month = tmpMonth >= 10 ? tmpMonth : '0' + tmpMonth;
+    const day = tmpDay >= 10 ? tmpDay : '0' + tmpDay;
+    console.log(`${year}-${month}-${day}`);
+    return `${year}-${month}-${day}`;
+  }
+
   changeDate(str: string): Date {
     const convStr = str.replace(/. /g, '-');
     const tmp = new Date(convStr);
@@ -969,49 +981,49 @@ export class SpreadService {
       // if (this.checkExeptData(table['name'], tuple) == false) {
       //   continue; //예외처리 된 tuple은 밑에서 push 하지 않는다.
       // }
-      if (
-        row[1] == 68857 ||
-        row[1] == 69065 ||
-        row[1] == 69033 ||
-        row[1] == 69003 ||
-        row[1] == 69030 ||
-        row[1] == 76124 ||
-        row[1] == 76212 ||
-        row[1] == 76167 ||
-        row[1] == 79672 ||
-        row[1] == 81736 ||
-        row[1] == 81737 ||
-        row[1] == 79636 ||
-        row[1] == 69192 || //
-        row[1] == 69138 ||
-        row[1] == 69016 ||
-        row[1] == 68939 ||
-        row[1] == 68867 ||
-        row[1] == 68902 ||
-        row[1] == 68963 ||
-        row[1] == 69159 ||
-        row[1] == 68912 ||
-        row[1] == 68868 ||
-        row[1] == 69144 ||
-        row[1] == 69001 ||
-        row[1] == 69097 ||
-        row[1] == 69031 ||
-        row[1] == 68874 ||
-        row[1] == 69063 ||
-        row[1] == 68893 ||
-        row[1] == 68854 ||
-        row[1] == 69021 ||
-        row[1] == 69059 ||
-        row[1] == 68909 ||
-        row[1] == 68995 ||
-        row[1] == 72440 ||
-        row[1] == 76144 ||
-        row[1] == 76275 ||
-        row[1] == 76200 ||
-        row[1] == 74906
-      ) {
-        continue;
-      }
+      // if (
+      //   row[1] == 68857 ||
+      //   row[1] == 69065 ||
+      //   row[1] == 69033 ||
+      //   row[1] == 69003 ||
+      //   row[1] == 69030 ||
+      //   row[1] == 76124 ||
+      //   row[1] == 76212 ||
+      //   row[1] == 76167 ||
+      //   row[1] == 79672 ||
+      //   row[1] == 81736 ||
+      //   row[1] == 81737 ||
+      //   row[1] == 79636 ||
+      //   row[1] == 69192 || //
+      //   row[1] == 69138 ||
+      //   row[1] == 69016 ||
+      //   row[1] == 68939 ||
+      //   row[1] == 68867 ||
+      //   row[1] == 68902 ||
+      //   row[1] == 68963 ||
+      //   row[1] == 69159 ||
+      //   row[1] == 68912 ||
+      //   row[1] == 68868 ||
+      //   row[1] == 69144 ||
+      //   row[1] == 69001 ||
+      //   row[1] == 69097 ||
+      //   row[1] == 69031 ||
+      //   row[1] == 68874 ||
+      //   row[1] == 69063 ||
+      //   row[1] == 68893 ||
+      //   row[1] == 68854 ||
+      //   row[1] == 69021 ||
+      //   row[1] == 69059 ||
+      //   row[1] == 68909 ||
+      //   row[1] == 68995 ||
+      //   row[1] == 72440 ||
+      //   row[1] == 76144 ||
+      //   row[1] == 76275 ||
+      //   row[1] == 76200 ||
+      //   row[1] == 74906
+      // ) {
+      //   continue;
+      // }
       if (api42s != undefined) {
         // 해당 intra_no인 사람의 api 데이터를 가져오가
         const api42 = await this.apiService.getTupleFromApi(row[1], api42s);
@@ -1129,13 +1141,15 @@ export class SpreadService {
           payment_data['fk_user_no'] = rows[row][1];
           const processData = Object.values(autoProcessingDataObj[repoKey]);
           const processedDataObj = await this.autoProcessingData(
-            repoKey,
             payment_data,
-            processData,
-            oldDateTable,
+            repoKey,
+
+            // processData,
+            // oldDateTable,
           );
           //processData에 처리된 값이 있다면 payment_data에 처리된 객체로 재 할당
-          if (processData !== undefined) payment_data = processedDataObj;
+          //if (processData !== undefined)
+          payment_data = processedDataObj;
           await this.initValidateDate(repoKey, payment_data, oldDateTable);
           await this.insertArrayToDB(UserComputationFund, payment_data);
         }
@@ -1349,12 +1363,14 @@ export class SpreadService {
           const processData = Object.values(autoProcessingDataObj[tableName]);
           console.log(newOneData, '111111');
           const processedDataObj = await this.autoProcessingData(
-            tableName,
             newOneData,
-            processData,
-            dateTable,
+            tableName,
+
+            // processData,
+            // dateTable,
           );
-          if (processData !== undefined) newOneData = processedDataObj;
+          // if (processData !== undefined)
+          newOneData = processedDataObj;
           console.log(newOneData, '222222');
         }
         await this.initValidateDate(tableName, newOneData, dateTable);
@@ -1401,7 +1417,7 @@ export class SpreadService {
         .getOne();
       return target;
     } catch {
-      throw 'error : getLatestOneData';
+      throw `error : ${tableName} getLatestOneData`;
     }
   }
 
@@ -1506,266 +1522,268 @@ export class SpreadService {
     saveDate['expired_date'] = defaultDate;
   }
 
+  isEmptyObj(obj): boolean {
+    if (
+      obj === null ||
+      (obj.constructor === Object && Object.keys(obj).length === 0)
+    )
+      return true;
+    return false;
+  }
+
   /************************************/
   /*        auto processing data      */
   /************************************/
 
-  getDateDiff(startDate: Date, endDate: Date) {
-    const start = startDate.getTime();
-    const end = endDate.getTime();
-    const diff = end - start;
-    return diff;
-  }
+  // getDateDiff(startDate: Date, endDate: Date) {
+  //   const start = startDate.getTime();
+  //   const end = endDate.getTime();
+  //   const diff = end - start;
+  //   return diff;
+  // }
 
-  //date에다가 dateObj에 있는 데이터객체 내에서 기간의 범위를 받아 저장해줌
-  getDateAdd(date: Date, dateObj, startDate, endDate) {
-    let sumDate = 0;
-    //try {
-    for (const obj of dateObj) {
-      const absenceDate = this.getDateDiff(obj[startDate], obj[endDate]);
-      sumDate += absenceDate;
-    }
-    sumDate += date.getTime();
-    return new Date(sumDate);
-    // } catch {
-    //   throw 'error : getDateAdd';
-    // }
-  }
+  // //date에다가 dateObj에 있는 데이터객체 내에서 기간의 범위를 받아 저장해줌
+  // getDateAdd(date: Date, dateObj, startDate, endDate) {
+  //   let sumDate = 0;
+  //   //try {
+  //   for (const obj of dateObj) {
+  //     const absenceDate = this.getDateDiff(obj[startDate], obj[endDate]);
+  //     sumDate += absenceDate;
+  //   }
+  //   sumDate += date.getTime();
+  //   return new Date(sumDate);
+  //   // } catch {
+  //   //   throw 'error : getDateAdd';
+  //   // }
+  // }
 
   //talbleName에서 tuple.pk를 갖는 컬럼 조회
-  async getAbsenceDates(tableName, tuple, startDate: Date, endDate: Date) {
-    try {
-      const repo = this.dataSource.getRepository(classType[tableName]);
-      let key;
+  async getAbsenceDates(tableName, tuple, baseDate: Date) {
+    // try {
+    const repo = this.dataSource.getRepository(classType[tableName]);
+    let key;
 
-      if (tableName == 'user') key = 'intra_no';
-      else key = 'fk_user_no';
-      const target = await repo
-        .createQueryBuilder(tableName)
-        .select(`${tableName}.begin_absence_date`)
-        .addSelect(`${tableName}.return_from_absence_date`)
-        .where(`${key} = :key`, { key: tuple[key] }) //저장하고자 하는 데이터와 키값이 같은 최신 데이터를 가져오기 위함
-        .andWhere(`begin_absence_date >= :startDate`, {
-          startDate,
-        })
-        .andWhere(`begin_absence_date <= :payment_date`, {
-          payment_date: endDate,
-        })
-        .getMany();
-      if (target.length != 0) console.log(target, '기간 내 휴학 date');
-      return target;
-    } catch {
-      throw 'error : in getAbsenceDates';
-    }
+    if (tableName == 'user') key = 'intra_no';
+    else key = 'fk_user_no';
+    const target = await repo
+      .createQueryBuilder(tableName)
+      .select(`${tableName}.begin_absence_date`)
+      .addSelect(`${tableName}.return_from_absence_date`)
+      .distinctOn([`${tableName}.fk_user_no`])
+      .orderBy(`${tableName}.fk_user_no`, 'ASC')
+      .addOrderBy(`${tableName}.validate_date`, 'ASC')
+      .where(`${key} = :key`, { key: tuple[key] }) //저장하고자 하는 데이터와 키값이 같은 최신 데이터를 가져오기 위함
+      .andWhere(`begin_absence_date <= :baseDate`, {
+        baseDate,
+      })
+      .andWhere(`end_absence_date >= :baseDate`, {
+        baseDate,
+      })
+      .getOne();
+    // if (target.length != 0) console.log(target, '기간 내 휴학 date');-----------------------
+    return target;
+    // } catch {
+    //   throw 'error : in getAbsenceDates';
+    // }
   }
+  // async getBeforeDate(tableName, tuple, baseDateColumn, baseDate, valuDate) {
+  //   try {
+  //     const repo = this.dataSource.getRepository(classType[tableName]);
+  //     let key;
 
-  async getAggregateValue(
+  async getAggregateData(
     tableName,
     tuple,
     column,
     valueColumn,
+    aggregate,
     operator,
     value,
     date,
   ) {
     const repo = this.dataSource.getRepository(classType[tableName]);
     let key;
-
+    // console.log(
+    //   'is?\n',
+    //   tuple,
+    //   '\n',
+    //   'date : ',date,
+    //   '\n',
+    // );
     if (tableName == 'user') key = 'intra_no';
     else key = 'fk_user_no';
     // 조건이 필요한 value가 있는 경우
-    if (value !== undefined) {
-      const sumValue = await repo
-        .createQueryBuilder(tableName)
-        .select(`${operator}(${tableName}.${valueColumn})`, `${column}`)
-        .where(`${key} = :key`, { key: tuple[key] }) //저장하고자 하는 데이터와 키값이 같은 최신 데이터를 가져오기 위함
-        .andWhere(`${date} <= :date`, {
-          date: tuple[date],
-        })
-        .andWhere(
-          new Brackets((qb) => {
-            qb.where(`${valueColumn} = :value`, {
-              value,
-            }).orWhere(`${valueColumn} > :value`, {
-              value,
-            });
-          }),
-        )
-        .getRawOne(); //sum같은 집게된 값을 얻으려면 getMany같은 entity값을 받은 것이 아닌 원시값을 받는 raw를 써야함
-      return sumValue;
-    } else {
-      const sumValue = await repo
-        .createQueryBuilder(tableName)
-        .select(`${operator}(${tableName}.${valueColumn})`, `${column}`)
-        .where(`${key} = :key`, { key: tuple[key] }) //저장하고자 하는 데이터와 키값이 같은 최신 데이터를 가져오기 위함
-        .andWhere(`${date} <= :date`, {
-          date: tuple[date],
-        })
-        .getRawOne(); //sum같은 집게된 값을 얻으려면 getMany같은 entity값을 받은 것이 아닌 원시값을 받는 raw를 써야함
-      return sumValue;
+    const sumValue = await repo
+      .createQueryBuilder(tableName)
+      .select(`${aggregate}(${tableName}.${valueColumn})`, `${column}`)
+      .where(`${key} = :key`, { key: tuple[key] }) //저장하고자 하는 데이터와 키값이 같은 데이터를 가져오기 위함
+      .andWhere(`${oldDateTable[tableName]} <= :date`, {
+        date, //this.changeDateToString(date), //지급일 이전 데이터 중에서
+      })
+      .andWhere(`${valueColumn} ${operator} :value`, {
+        //받은 금액이 0이상이면
+        value,
+      })
+      .getRawOne(); //sum같은 집게된 값을 얻으려면 getMany같은 entity값을 받은 것이 아닌 원시값을 받는 raw를 써야함
+    return sumValue;
+  }
+
+  /**
+ *  else if 지급액이 0이면
+    지급일 이전 휴학 시작 데이터가 있는값들 가져오기
+           if 지급일이 복학일보다 이전인 처음 데이터만 뽑아오기()
+             지원 만료일 1달 추가후 이전 데이터 값 가져오기 , 처리 무시
+          else 휴학한 적이 없다는 것
+             정상처리
+ */
+  setObj(srcObj, destObj) {
+    const keyArray = Object.keys(destObj);
+    for (const key of keyArray) {
+      srcObj[key] = destObj[key];
+    }
+  }
+  async processAbsenceDate(tuple, tableName, target) {
+    const baseDate = tuple['payment_date'];
+    const absenceDates = await this.getAbsenceDates(
+      'user_leave_of_absence',
+      tuple,
+      baseDate,
+    );
+    // const dateDoff = this.getDateDiff(
+    //   absenceDates['begin_absence_date'],
+    //   absenceDates['end_absence_date'],
+    // );
+    if (target) {
+      //휴학을 했다면
+      console.log(target, 'target');
+      console.log(absenceDates, 'absencedate\n\n\n\n\n\n\n');
+      if (!this.isEmptyObj(absenceDates)) {
+        this.setObj(tuple, target);
+        console.log(tuple['payment_end_date']);
+        console.log(tuple['payment_end_date'].getMonth());
+        console.log(tuple['payment_end_date'].getMonth() + 1);
+        tuple['payment_end_date'].setMonth(
+          tuple['payment_end_date'].getMonth() + 1,
+        );
+        console.log(tuple, '휴학기간 1달 증가');
+      } else {
+        //돈을 받았는데 휴학한 적이 없다면 정상처리
+        await this.normalProcess(tuple, tableName);
+      }
     }
   }
 
-  //value는 저장하고자 하는 튜플에 적용시킬 값입니다.
-  async autoProcessingData(tableName, data, processData, dateTable) {
-    // try {
-    //processData가 없는 테이블인 경우 동작하지 않음
-    if (processData === undefined || processData === null) return;
-    const target = await this.getLatestOneData(tableName, data, dateTable);
-    // if (tableName == 'user_computation_fund' && data['fk_user_no'] == '68641')
-    //   console.log(JSON.stringify(target, null, 4));
+  async normalProcess(tuple, tableName) {
+    console.log(tuple, tableName);
+    if (aggregateDataObj[tableName] !== undefined) {
+      const processData = Object.keys(aggregateDataObj[tableName]);
+      for (const column of processData) {
+        /**
+         * {
+            aggregateColumn: 'received',
+            operator: 'COUNT',
+            value: 0,
+          },
+         */
+        const aggregateData = aggregateDataObj[tableName][column];
 
-    //autoProcessingDataObj처리되는 테이블이라면 해당 객체의 value를 받아오기
-    if (target) {
-      if (tableName === 'user_computation_fund') {
-        console.log('in target');
-        for (const column of processData) {
-          let totalValue;
-
-          if (
-            //집계되는 컬럼이라면 집계하여 total 값을 가져옴
-            Object.keys(aggregateDataObj[tableName]).some(
-              (value) => value === column,
-            )
-          ) {
-            totalValue = await this.getAggregateValue(
-              tableName,
-              data,
-              column,
-              aggregateDataObj[tableName][column]['aggregateColumn'],
-              aggregateDataObj[tableName][column]['operator'],
-              aggregateDataObj[tableName][column]['value'],
-              dateTable[tableName],
-            );
-          }
-          if (column === 'total_payment_of_number') {
-            if (Number(data['recevied_amount']) > 0)
-              data[column] = Number(totalValue[column]) + 1;
-            else data[column] = totalValue[column];
-          } else if (column === 'total_payment_of_money') {
-            data[column] =
-              Number(totalValue[column]) + Number(data['recevied_amount']);
-          } else if (column === 'total_payment_period_number') {
-            data[column] = Number(totalValue[column]) + 1;
-          } else if (column === 'payment_end_date') {
-            //기존 데이터의 지원만료일자부터 최근 지급일까지사이에 휴학일 구해서 초기화
-            // if (data['fk_user_no'] == '68641')
-            //   console.log(data, 'zzz');
-            const absenceDates = await this.getAbsenceDates(
-              'user_leave_of_absence',
-              data,
-              target['payment_date'], //startDate
-              new Date(data.payment_date), //endDate
-            );
-            //기간 내에 휴학한 이력이 없으면 기존 paymeny_end_date
-            if (absenceDates.length == 0) data[column] = target[column];
-            else {
-              //최근 저장된 data의 만료일자에 휴학한 일자를 합하여 저장.
-              data[column] = this.getDateAdd(
-                target[column],
-                absenceDates,
-                'begin_absence_date',
-                'return_from_absence_date',
-              );
-              // console.log(------------------------------
-              //   `${column} value ${target[column]} processing to ${data[column]}`,
-              // );
-              if (target[column] == undefined || target[column] == null) {
-                console.log(target, '3333');
-              }
-            }
-          } else if (column === 'payment_ended') {
-            if (data['total_payment_period_number'] >= 24) {
-              data[column] = '만료';
-            }
-          }
-        }
+        const aggreagate = await this.getAggregateData(
+          tableName,
+          tuple,
+          column,
+          aggregateData['aggregateColumn'],
+          aggregateData['aggregate'],
+          aggregateData['operator'],
+          aggregateData['value'],
+          tuple['payment_date'],
+        );
+        tuple[column] = Number(aggreagate[column]);
       }
-    } else {
-      //시간 기준점을 적용하여 sql을 처리하는 방법을 적용하지 못해서 일단 if else 로 처리함
-      if (tableName === 'user_computation_fund') {
-        console.log('not in target');
-        //processData에 있는 컬럼들만 default값 갖는 객체에서 불러와 넣어주기
-        for (const column of processData) {
-          let totalValue;
-
-          if (
-            //집계되는 컬럼이라면 집계하여 total 값을 가져옴
-            Object.keys(aggregateDataObj[tableName]).some(
-              (value) => value === column,
-            )
-          ) {
-            totalValue = await this.getAggregateValue(
-              tableName,
-              data,
-              column,
-              aggregateDataObj[tableName][column]['aggregateColumn'],
-              aggregateDataObj[tableName][column]['operator'],
-              aggregateDataObj[tableName][column]['value'],
-              dateTable[tableName],
-            );
-          }
-          if (column === 'total_payment_of_number') {
-            if (Number(data['recevied_amount']) > 0)
-              data[column] = Number(totalValue[column]) + 1;
-            else data[column] = totalValue[column];
-          } else if (column === 'total_payment_of_money') {
-            data[column] =
-              Number(totalValue[column]) + Number(data['recevied_amount']);
-          } else if (column === 'total_payment_period_number') {
-            data[column] = Number(totalValue[column]) + 1;
-          } else if (column === 'payment_end_date') {
-            if (data['fk_user_no'] == '68641') console.log(data, 'ddddd');
-            const startDateObj = await this.getLatestOneData(
-              'user',
-              data,
-              dateTable,
-            );
-            //과정 시작일부터 금액 지급받은날 사이에 휴학일자 구해오기
-            if (startDateObj !== undefined) {
-              const absenceDates = await this.getAbsenceDates(
-                'user_leave_of_absence',
-                data,
-                startDateObj['start_process_date'],
-                new Date(data.payment_date),
-              );
-              //휴학을 한적이 없다면, 기본 종요일자가 마지막 지원금 받는 날짜.
-              //기본 종료일자를 받기위해 과정 연장 테이블을 가져와야 하는데, 과정이 2년뒤 종료이므로 계산하여 처리함.
-              if (absenceDates.length == 0) {
-                data[column] = startDateObj['start_process_date'];
-                data[column].setFullYear(data[column].getFullYear() + 2);
-              } else {
-                const startDateObj = await this.getLatestOneData(
-                  'user_course_extension',
-                  data,
-                  dateTable,
-                );
-                //최근 저장된 data의 만료일자에 휴학한 일자를 합하여 저장.
-                data[column] = this.getDateAdd(
-                  startDateObj['basic_expiration_date'],
-                  absenceDates,
-                  'begin_absence_date',
-                  'return_from_absence_date',
-                );
-              }
-              // console.log(------------------------------
-              //   `${column} value ${startDateObj['basic_expiration_date']} processing to ${data[column]}`,
-              // );
-            }
-          } else if (column === 'payment_ended') {
-            //target이 없다면 defualt값인 지원일 테니 없어도 되는 로직입니다.
-            if (data['total_payment_period_number'] >= 24) {
-              data[column] = '만료';
-            } else data[column] = '지원';
-          }
-        }
-      }
+      //남은 지원 잔여 기간은 24 - 지급 받은 월 수
+      tuple['remaind_payment_period'] =
+        REMAINDPAYMENTPERIOD - tuple['total_payment_period_number'];
     }
-    if (data['fk_user_no'] == '68641') console.log(data, dateTable[tableName]);
-    return await data;
-    // } catch {
-    //   throw 'error : processing data';
-    // }
+  }
+
+  ignoreProcess(tuple, target) {
+    if (target) this.setObj(tuple, target);
+    else {
+      tuple['recevied_amount'] = 0;
+      tuple['received'] = 'N';
+    }
+  }
+
+  async autoProcessingData(tuple, tableName) {
+    try {
+      if (tableName == 'user_computation_fund') {
+        console.log(tuple, '1');
+        const startDateObj = await this.getLatestOneData(
+          'user',
+          tuple,
+          dateTable,
+        );
+        console.log(tuple, '2');
+        const target = await this.getLatestOneData(tableName, tuple, dateTable);
+        console.log(tuple, '3');
+        //지급일이 과정 시작일 보다 이전일때
+        console.log(
+          '지급일: ',
+          tuple['payment_date'],
+          '과정시작: ',
+          startDateObj['start_process_date'],
+        );
+        if (
+          tuple['payment_date'].getTime() <
+          startDateObj['start_process_date'].getTime()
+        ) {
+          console.log('지급일 < 과정시작');
+          //지급액이 -1 인지 확인
+          if (tuple['recevied_amount'] == -1) {
+            //기존 데이터 그대로 받거나, 지급액 0으로 바꾸고 무시
+            this.ignoreProcess(tuple, target);
+            console.log(tuple, '4');
+          } else {
+            await this.normalProcess(tuple, tableName);
+            console.log(tuple, '5');
+          }
+        } //지급일이 과정 시작일 보다 이후면
+        else {
+          console.log('과정시작 < 지급일');
+          if (tuple['recevied_amount'] == -1) {
+            //기존 데이터 그대로 받거나, 지급액 0으로 바꾸고 무시
+            this.ignoreProcess(tuple, target);
+            console.log(tuple, '6');
+          } //지급일 이전 휴학 시작 데이터가 있는값들 가져와 처리
+          else if (tuple['recevied_amount'] == 0) {
+            console.log(tuple, '7');
+            this.processAbsenceDate(tuple, tableName, target);
+          } else if (tuple['recevied_amount'] >= 0) {
+            await this.normalProcess(tuple, tableName);
+            // console.log(tuple, '8');
+          }
+        }
+        // if 지급일이 과정 시작일 보다 이전일때
+        //   if 지급액이 -1 인지 확인
+        //        기존 데이터 그대로 받거나, 지급액 0으로 바꾸고 무시
+        //   else 정상처리
+        // else if 지급일이 과정 시작일 보다 이후면
+        //        if 지급액이 -1인지 확인
+        //             기존 데이터 그대로 받거나, 지급액 0으로 바꾸고 무시
+        //        else if 지급액이 0이면
+        /**                  지급일 이전 휴학 시작 데이터가 있는값들 가져오기
+         *                   if 지급일이 복학일보다 이전인 처음 데이터만 뽑아오기()
+         *                        지원 만료일 1달 추가후 이전 데이터 값 가져오기 , 처리 무시
+         *                   else 휴학한 적이 없다는 것
+         *                          정상처리
+         *        else if 지급액 0 초과면
+         *                  정상 처리 로직 및 실질적 돈 받은것 +1
+         */
+      }
+    } catch {
+      throw 'autoProcessingData';
+    }
+    console.log(tuple, '9');
+    return tuple;
   }
 
   /************************************/

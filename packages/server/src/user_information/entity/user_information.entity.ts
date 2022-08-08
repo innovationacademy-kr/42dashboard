@@ -52,10 +52,6 @@ export class User {
   intra_id: string;
 
   @Field()
-  @Column({ name: 'name', nullable: false, default: 'NO_NAME' })
-  name: string;
-
-  @Field()
   @Column({ name: 'grade', nullable: false, default: '0기' })
   grade: string;
 
@@ -74,14 +70,6 @@ export class User {
   @Field()
   @Column({ name: 'academic_state', nullable: false, default: 'BLACK_HOLE' })
   academic_state: string;
-
-  @Field()
-  @Column({ name: 'uniqueness', nullable: true })
-  uniqueness: string;
-
-  @Field()
-  @Column({ name: 'anonymization', nullable: true })
-  anonymization: string;
 
   @Field()
   @CreateDateColumn({ name: 'created_date' })

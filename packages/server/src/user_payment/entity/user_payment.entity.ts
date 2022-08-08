@@ -38,8 +38,8 @@ export class UserComputationFund extends BaseEntity {
 
   //스프레드에서 받아온 데이터 기반으로 계산해서 기록하는 컬럼
   @Field({ nullable: false })
-  @Column({ name: 'total_payment_of_number', nullable: false, default: 0 })
-  total_payment_of_number: number;
+  @Column({ name: 'total_real_payment_of_number', nullable: false, default: 0 })
+  total_real_payment_of_number: number;
 
   //스프레드에서 받아온 데이터 기반으로 계산해서 기록하는 컬럼
   //스프레드엔 문자열로 되어있지만 db에서 불러와 쿼리처리할 때 number형식이어야 함
@@ -60,6 +60,11 @@ export class UserComputationFund extends BaseEntity {
   @Field({ nullable: false })
   @Column({ name: 'total_payment_period_number', nullable: false, default: 0 })
   total_payment_period_number: number;
+
+  //스프레드에서 받아온 데이터 기반으로 계산해서 기록하는 컬럼
+  @Field({ nullable: false })
+  @Column({ name: 'remaind_payment_period', nullable: false, default: 24 })
+  remaind_payment_period: number;
 
   //스프레드에서 받아온 데이터 기반으로 계산해서 기록하는 컬럼
   @Field({ nullable: false })

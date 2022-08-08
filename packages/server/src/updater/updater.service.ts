@@ -39,6 +39,7 @@ import {
 } from 'src/user_payment/entity/user_payment.entity';
 import { MAIN_SHEET, SPREAD_END_POINT } from 'src/config/key';
 import { UpdateDB } from 'src/user_information/argstype/updateSheet.argstype';
+import { tableName } from 'src/common/tableName';
 
 interface RepoDict {
   [repositoryName: string]:
@@ -641,12 +642,14 @@ export class UpdaterService {
     if (autoProcessingDataObj[tableName] != undefined) {
       const processData = Object.values(autoProcessingDataObj[tableName]);
       const processedDataObj = await this.spreadService.autoProcessingData(
-        tableName,
         newOneData,
-        processData,
-        dateTable,
+        tableName,
+
+        // processData,
+        // dateTable,
       );
-      if (processData !== undefined) newOneData = processedDataObj;
+      //if (processData !== undefined)
+      newOneData = processedDataObj;
     }
 
     // console.log(`insert ${tableName} due to dosend't exist spread data in db`);-----------------------
@@ -665,12 +668,6 @@ export class UpdaterService {
     // } catch {
     //   throw 'error at finding target by key';
     // }
-  }
-
-  isEmptyObj(obj): boolean {
-    if (obj.constructor === Object || Object.keys(obj).length === 0)
-      return true;
-    return false;
   }
 
   //newData -> spread
@@ -701,7 +698,7 @@ export class UpdaterService {
           dateTable,
         );
         //반환한 객체가 비어있다면 내부에서 save를 하고 나오므로 contitnue;
-        if (this.isEmptyObj(targetObj) === true) {
+        if (this.spreadService.isEmptyObj(targetObj) === true) {
           continue;
         }
         //타겟을 찾았고, 바뀐게 있다면, 저장
@@ -774,12 +771,14 @@ export class UpdaterService {
           console.log(newOneData, '123');
           const processData = Object.values(autoProcessingDataObj[tableName]);
           const processedDataObj = await this.spreadService.autoProcessingData(
-            tableName,
             newOneData,
-            processData,
-            dateTable,
+            tableName,
+
+            // processData,
+            // dateTable,
           );
-          if (processData !== undefined) newOneData = processedDataObj;
+          //if (processData !== undefined)
+          newOneData = processedDataObj;
           console.log(newOneData, '0000000000000');
         }
         if (tableName != 'user') {

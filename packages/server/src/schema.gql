@@ -83,7 +83,6 @@ type Query {
 
 type User {
   academic_state: String!
-  anonymization: String!
   coalition: String!
   created_date: DateTime!
   deleted_date: DateTime!
@@ -91,9 +90,7 @@ type User {
   grade: String!
   intra_id: String!
   intra_no: Float!
-  name: String!
   start_process_date: DateTime!
-  uniqueness: String!
   validate_date: DateTime!
 }
 
@@ -133,9 +130,10 @@ type UserComputationFund {
   pk: Int!
   received: String!
   recevied_amount: Float!
+  remaind_payment_period: Float!
   total_payment_of_money: Float!
-  total_payment_of_number: Float!
   total_payment_period_number: Float!
+  total_real_payment_of_number: Float!
   uniqueness: String
   validate_date: DateTime!
 }
@@ -276,15 +274,18 @@ type UserOtherInformation {
 
 type UserPersonalInformation {
   age: String!
+  anonymization: String!
   birthday: String!
   created_date: DateTime!
   deleted_date: DateTime!
   email: String!
   expired_date: DateTime!
   gender: String!
+  name: String!
   phone_number: String!
   pk: Int!
   region: String!
   social_security_key: String!
+  uniqueness: String!
   validate_date: DateTime!
 }
