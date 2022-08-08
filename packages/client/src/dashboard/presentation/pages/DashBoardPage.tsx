@@ -30,7 +30,7 @@ function DashBoardPage() {
           .then((response: any) => response.data)
           .then((data) => setUser(data))
           .catch((error) => {
-            navigate(`/`);
+            //navigate(`/`);
           });
       } else {
         axios

@@ -5,8 +5,9 @@ import useStickers from '../../../application/services/useStickers';
 import useMode from '../../../application/services/useMode';
 import RGL, { Layout, WidthProvider } from 'react-grid-layout';
 import ModalFrame from '../Modal/Modal';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import EditToolBar from '../Common/EditToolBar';
+import { useQuery } from '@apollo/client';
 
 const ReactGridLayout = WidthProvider(RGL.Responsive);
 
@@ -30,8 +31,15 @@ export default function Section(props: SectionProps) {
     handleStickerRemove,
   } = props;
   const [isOpen, setIsOpen] = useState(false);
+  // const [endDate, setEndDate] = useState(now.current);
+  // const [startDate, setStartDate] = useState(now.current);
+  const [startDate, setStartDate] = useState(new Date(0));
+  const [endDate, setEndDate] = useState(new Date(0));
+  const [grade, setGrade] = useState('');
+  const [isChecked, setIsChecked] = useState(''); //TODO(sonkang) : 필요한지 생각해야 함
   const { getControlMode } = useMode();
 
+  console.log('startDate !!!: ', startDate);
   function drawStickers() {
     return stickerLayouts.map((sticker: Layout, idx) => (
       <div key={sticker.i}>
@@ -58,6 +66,13 @@ export default function Section(props: SectionProps) {
           setIsOpen={setIsOpen}
           removeItem={handleSectionRemove}
           id={id}
+          startDate={startDate}
+          setStartDate={setStartDate}
+          endDate={endDate}
+          setEndDate={setEndDate}
+          setIsChecked={setIsChecked}
+          grade={grade}
+          setGrade={setGrade}
         />
       )}
       <ModalFrame
@@ -66,6 +81,8 @@ export default function Section(props: SectionProps) {
         sectionId={id}
         renderAddedSticker={handleStickerAdd}
         addStickerData={addStickerData}
+        startDate={startDate.toISOString()}
+        endDate={endDate.toISOString()}
       ></ModalFrame>
       <ReactGridLayout
         onDragStart={(a, b, c, d, e) => e.stopPropagation()}

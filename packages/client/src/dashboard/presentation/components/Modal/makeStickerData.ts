@@ -65,6 +65,8 @@ export interface MakeChartStickerType {
   labelFilter: FilterConfigType[];
   datasetNames: string[];
   arrayOfDataSet: FilterConfigType[][];
+  startDate?: string;
+  endDate?: string;
 }
 
 export function makeChartStickerData({
@@ -74,6 +76,8 @@ export function makeChartStickerData({
   labelFilter,
   datasetNames,
   arrayOfDataSet,
+  startDate,
+  endDate,
 }: MakeChartStickerType): StickerDataType {
   const queryVariables: QueryVariablesType = {
     ...makeQueryFilterVariables(labelFilter),
@@ -81,12 +85,19 @@ export function makeChartStickerData({
   };
   const filterNames: string[] = returnFilterNames(queryVariables);
   const filterSets: string[][] = returnFilterSets(arrayOfDataSet, labelFilter);
-  const query: DocumentNode = createQuery(filterNames, labels, filterSets);
+  const query: DocumentNode = createQuery(
+    filterNames,
+    labels,
+    filterSets,
+    startDate,
+    endDate,
+  );
 
   const queryData: QueryDataType = {
     query: query,
     filters: queryVariables,
   };
+  console.log(query);
   return {
     id: uuid(),
     sectionId: sectionId,
