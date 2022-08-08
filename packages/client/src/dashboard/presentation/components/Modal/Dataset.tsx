@@ -30,12 +30,19 @@ export default function Dataset({
 }: DatasetProps) {
   function renderSelectedFilters() {
     return dataset.map((filter, index) => {
+      function removeFilter() {
+        setDatasets((prevDatasets) => {
+          const newDatasets = [...prevDatasets];
+          newDatasets[id] = [...newDatasets[id]];
+          newDatasets[id].splice(index, 1);
+          return newDatasets;
+        });
+      }
+
       return SelectedFilter({
         data: { ...filter },
         idx: index,
-        removeFilter: (idx: number) => {
-          console.log(idx);
-        },
+        removeFilter,
       });
     });
   }
