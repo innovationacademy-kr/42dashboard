@@ -235,6 +235,12 @@ function getValidateColumn(entityName, column) {
 }
 
 function getExpireColumn(entityName, column = null) {
+  console.log(entityName);
+  console.log(
+    entityName,
+    'getExpireColumn',
+    entityColumnMapping[entityName]['expired_date'],
+  );
   return entityColumnMapping[entityName]['expired_date'];
 }
 
