@@ -217,7 +217,7 @@ export class UserInformationService {
           filter['givenValue'],
         ); //overwrite issue 발생가능(명세서에 적어줘야함)
         /////////////////////////////////////////////////////
-        console.log(startDateString, endDateString, accumulate);
+        // console.log(startDateString, endDateString, accumulate);
         if (startDateString && endDateString && accumulate) {
           const startDate = new Date(startDateString);
           const endDate = new Date(endDateString);
@@ -229,10 +229,10 @@ export class UserInformationService {
         } else if (startDateString && endDateString && !accumulate) {
           const startDate = new Date(startDateString);
           const endDate = new Date(endDateString);
-          console.log(startDate, endDate);
+          console.log('user no accumulate', startDate, endDate);
           findObj['where'][getValidateColumn('user', column)] = Between(
-            startDate,
-            endDate,
+            startDateString,
+            endDateString,
           );
         } else if ('latest' in filter && filter['latest'] == true) {
           // ***********************************************************************************************
@@ -274,62 +274,7 @@ export class UserInformationService {
           findObj['order'][entityName]['validate_date'] = 'ASC';
         }
       }
-      // 한 시점을 특정
-      // if (
-      //   startDateString &&
-      //   endDateString &&
-      //   startDateString == endDateString &&
-      //   entityName in entityColumnMapping &&
-      //   accumulate
-      // ) {
-      //   const referenceDate = new Date(startDateString); // Date 타입으로 변환해줘야함
-      //   findObj['where'][entityName][getValidateColumn(entityName, column)] =
-      //     getRawQuery(referenceDate);
-      //   findObj['where'][entityName][
-      //     entityColumnMapping[entityName]['expired_date']
-      //   ] = MoreThanOrEqual(referenceDate);
-      // } else if (
-      //   startDateString &&
-      //   endDateString &&
-      //   startDateString == endDateString &&
-      //   entityName in entityColumnMapping &&
-      //   !accumulate
-      // ) {
-      //   const referenceDate = new Date(startDateString); // Date 타입으로 변환해줘야함
-      //   findObj['where'][entityName][getValidateColumn(entityName, column)] =
-      //     Equal(referenceDate);
-      //   // findObj['where'][entityName][getValidateColumn(entityName, column)] =
-      //   //   getRawQuery(referenceDate);
-      //   // findObj['where'][entityName][
-      //   //   entityColumnMapping[entityName]['expired_date']
-      //   // ] = MoreThanOrEqual(referenceDate);
-      // } else if (
-      //   startDateString &&
-      //   endDateString &&
-      //   startDateString == endDateString &&
-      //   entityName in halfAndHalf &&
-      //   accumulate
-      // ) {
-      //   const referenceDate = new Date(startDateString); // Date 타입으로 변환해줘야함
-      //   findObj['where'][entityName][getValidateColumn(entityName, column)] =
-      //     getRawQuery(referenceDate);
-      // } else if (
-      //   startDateString &&
-      //   endDateString &&
-      //   startDateString == endDateString &&
-      //   entityName in halfAndHalf &&
-      //   !accumulate
-      // ) {
-      //   const referenceDate = new Date(startDateString); // Date 타입으로 변환해줘야함
-      //   findObj['where'][entityName][getValidateColumn(entityName, column)] =
-      //     Equal(referenceDate);
-      //   // findObj['where'][entityName][getValidateColumn(entityName, column)] =
-      //   //   getRawQuery(referenceDate);
-      //   // findObj['where'][entityName][
-      //   //   entityColumnMapping[entityName]['expired_date']
-      //   // ] = MoreThanOrEqual(referenceDate);
-      // }
-      // 아래 부터는 시점 Range 조건
+      // Range 조건
       if (
         startDateString &&
         endDateString &&
@@ -357,6 +302,7 @@ export class UserInformationService {
         (entityName in halfAndHalf || exceptCase(entityName, column)) &&
         accumulate
       ) {
+        console.log('여기 도달해야함');
         const startDate = new Date(startDateString);
         const endDate = new Date(endDateString);
         findObj['where'][entityName][getValidateColumn(entityName, column)] =
@@ -446,6 +392,9 @@ export class UserInformationService {
 
   async getPeopleByFiter(filterArgs: FilterArgs) {
     const { findObj, filterObj, flag } = this.filtersToObj(filterArgs);
+    console.log('--------------------------------------------');
+    console.log(findObj);
+    console.log('--------------------------------------------');
     let data = await this.dataSource.getRepository(User).find(findObj);
     const limitedData = this.makeLimit(data, filterObj, 0, flag);
     data = limitedData.data;
@@ -454,6 +403,9 @@ export class UserInformationService {
 
   async getPeopleByFilterForAdmin(filterArgs: FilterArgs) {
     const { findObj, filterObj, flag } = this.filtersToObj(filterArgs, true);
+    console.log('--------------------------------------------');
+    console.log(findObj);
+    console.log('--------------------------------------------');
     let data = await this.dataSource.getRepository(User).find(findObj);
     const limitedData = this.makeLimit(data, filterObj, 0, flag);
     data = limitedData.data;
@@ -462,6 +414,9 @@ export class UserInformationService {
 
   async getNumOfPeopleByFilter(filterArgs: FilterArgs): Promise<number> {
     const { findObj, filterObj, flag } = this.filtersToObj(filterArgs);
+    console.log('--------------------------------------------');
+    console.log(findObj);
+    console.log('--------------------------------------------');
     // findAndCount의 return 값 = 배열
     // 0번째 인덱스 = find의 결과
     // 1번째 인덱스 = count의 결과
