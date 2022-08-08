@@ -19,4 +19,9 @@ export class UpdaterController {
   getLatestData() {
     return this.updaterService.getLatestAllOneData();
   }
+
+  @Get('/api')
+  getApi() {
+    return this.apiService.getApi();
+  }
 }

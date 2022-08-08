@@ -40,6 +40,9 @@ import {
 import { MAIN_SHEET, SPREAD_END_POINT } from 'src/config/key';
 import { UpdateDB } from 'src/user_information/argstype/updateSheet.argstype';
 import { tableName } from 'src/common/tableName';
+import { ErrObject } from 'src/auth/dto/errObject.dto';
+import { ErrorObject } from 'src/auth/entity/bocal.entity';
+import { EntityColumn } from 'src/common/EntityColumn';
 
 interface RepoDict {
   [repositoryName: string]:
@@ -248,6 +251,7 @@ export class UpdaterService {
     /************* 데이터 파싱 작업 ***************/
     await this.spreadService.composeTableData(spreadData, tableSet, false); //시트를 테이블 별로 나눠 정보를 저장 TableSet 배열 구성
     const api42s = await this.apiService.getApi();
+    return api42s;
     const tableArray = {};
     for (const table of tableSet) {
       tableArray[table['name']] = {};
@@ -360,11 +364,11 @@ export class UpdaterService {
 
   async getRecoverArray(transferArray, intraNoCol) {
     const transferDB = await this.dataSource
-      .getRepository(User)
-      .find({ withDeleted: true, where: { uniqueness: 'transfer' } }); //transfer가 적혀있는 값들을 가져옴
+      .getRepository(UserPersonalInformation)
+      .find({ where: { uniqueness: 'transfer' } }); //transfer가 적혀있는 값들을 가져옴
     const nonTransferArray = transferDB.filter((transDB) => {
       return transferArray.every(
-        (transferSheet) => transDB.intra_no !== transferSheet[intraNoCol],
+        (transferSheet) => transDB.fk_user_no !== transferSheet[intraNoCol],
       );
     });
     return nonTransferArray;
