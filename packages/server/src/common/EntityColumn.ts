@@ -10,7 +10,6 @@ export const EntityColumn = {
     { spName: '학적(수동)', dbName: 'academic_state' }, //[api]
     { spName: '특이사항', dbName: 'uniqueness' },
     { spName: '익명화', dbName: 'anonymization' },
-    { spName: '학생기록삭제', dbName: 'deleted_date' },
   ],
   UserPersonalInformation: [
     //userPersonalInformation

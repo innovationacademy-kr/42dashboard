@@ -97,7 +97,9 @@ export class UserComputationFund extends BaseEntity {
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userComputationFund)
+  @ManyToOne(() => User, (user) => user.userComputationFund, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }

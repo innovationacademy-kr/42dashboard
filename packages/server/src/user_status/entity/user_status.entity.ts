@@ -96,7 +96,9 @@ export class UserLearningDataAPI extends BaseEntity {
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userLearningDataAPI)
+  @ManyToOne(() => User, (user) => user.userLearningDataAPI, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }
@@ -148,7 +150,9 @@ export class UserLoyaltyManagement extends BaseEntity {
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userLoyaltyManagement)
+  @ManyToOne(() => User, (user) => user.userLoyaltyManagement, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }
@@ -216,7 +220,9 @@ export class UserCourseExtension extends BaseEntity {
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userCourseExtension)
+  @ManyToOne(() => User, (user) => user.userCourseExtension, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }
@@ -285,7 +291,9 @@ export class UserBlackhole extends BaseEntity {
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userBlackhole)
+  @ManyToOne(() => User, (user) => user.userBlackhole, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }
@@ -365,7 +373,9 @@ export class UserLeaveOfAbsence extends BaseEntity {
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userLeaveOfAbsence)
+  @ManyToOne(() => User, (user) => user.userLeaveOfAbsence, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }
@@ -425,7 +435,9 @@ export class UserInterruptionOfCourse extends BaseEntity {
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userInterruptionOfCourse)
+  @ManyToOne(() => User, (user) => user.userInterruptionOfCourse, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }
@@ -484,7 +496,9 @@ export class UserLapiscineInformation extends BaseEntity {
   @Column({ name: 'fk_user_no', nullable: false })
   fk_user_no: string;
 
-  @ManyToOne(() => User, (user) => user.userLapiscineInformation)
+  @ManyToOne(() => User, (user) => user.userLapiscineInformation, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }

@@ -38,6 +38,12 @@ import {
 } from 'src/user_payment/entity/user_payment.entity';
 import { MAIN_SHEET, SPREAD_END_POINT } from 'src/config/key';
 import { UpdateDB } from 'src/user_information/argstype/updateSheet.argstype';
+import { ErrObject } from 'src/auth/dto/errObject.dto';
+import { entityArray } from 'src/user_information/utils/getDomain.utils';
+import { EntityColumn } from 'src/common/EntityColumn';
+import { tableName } from 'src/common/tableName';
+import { elementAt } from 'rxjs';
+import { Bocal } from 'src/auth/entity/bocal.entity';
 
 interface RepoDict {
   [repositoryName: string]:
@@ -95,8 +101,6 @@ export class UpdaterService {
     private userHrdNetUtilizeRepository: Repository<UserHrdNetUtilize>,
     @InjectRepository(UserOtherEmploymentStatus)
     private userOtherEmploymentStatusRepository: Repository<UserOtherEmploymentStatus>,
-    // @InjectRepository(UserEducationFundState)
-    // private userEducationFundStateRepository: Repository<UserEducationFundState>,
     @InjectRepository(UserComputationFund)
     private userComputationFundRepository: Repository<UserComputationFund>,
     @InjectRepository(UserAccessCardInformation)
@@ -145,14 +149,103 @@ export class UpdaterService {
 
   async updateData() {
     const tableSet = [] as TableSet[];
+    const errObject = [] as ErrObject[];
+    let deleteOrEdit;
     const spreadData =
       await this.spreadService.sendRequestToSpreadWithGoogleAPI(
         SPREAD_END_POINT,
         MAIN_SHEET,
       );
     await this.spreadService.composeTableData(spreadData, tableSet, false); //시트를 테이블 별로 나눠 정보를 저장 TableSet 배열 구성
+    const tables = await spreadData[0].filter((value) => value != ''); //모든 테이블
     const columns = spreadData[1]; //모든 테이블의 컬럼 ex) [Intra No., Intra ID, 성명 ...]
     const rows = (await spreadData).filter((value, index) => index > 1); //모든 테이블의 로우 [1,	68641,	kilee, ...]
+    const intraNoCol = columns.findIndex((col) => col === 'Intra No.'); //pk
+    const uniquenessCol = columns.findIndex((col) => col === 'uniqueness');
+    const intraNoArray = rows.map((row) => row[intraNoCol]);
+    const tuple = {} as ErrObject;
+    let errIndex;
+    let errValue;
+    const userInDB = await this.dataSource
+      .getRepository(User)
+      .createQueryBuilder('user')
+      .select('user.intra_no')
+      .orderBy('user.intra_no', 'ASC')
+      .getMany();
+    const deleteData = userInDB.filter((DBNo) => {
+      if (!intraNoArray.some((spreadNO) => DBNo.intra_no == spreadNO))
+        return DBNo.intra_no;
+    });
+    console.log(deleteData.length, userInDB.length, intraNoArray.length);
+
+    if (intraNoArray.length > userInDB.length) {
+      deleteOrEdit = true;
+    } else {
+      deleteOrEdit =
+        deleteData.length === userInDB.length - intraNoArray.length;
+    }
+
+    /***************에러 검증****************/
+
+    if (
+      !this.checkErrorBeforeUpdate(
+        tables,
+        columns,
+        rows,
+        deleteOrEdit,
+        intraNoArray,
+        errObject,
+      )
+    ) {
+      // const err = JSON.stringify(errObject);
+      // await this.dataSource
+      // .createQueryBuilder()
+      // .insert()
+      // .into(Bocal)
+      // .values(err)
+      // .execute();
+    }
+
+    /***************************************/
+
+    /*************사전 처리 작업***************/ //개발중
+    //만약 특이사항값이 transfer라면 soft-delete
+    // const transferArray = rows.filter(
+    //   (row) => row[uniquenessCol] === 'transfer',
+    // );
+    // console.log('TransferArray: ', transferArray, transferArray.length);
+    // if (transferArray.length > 0) {
+    //   await this.checkSoftDeletedInMain(transferArray, intraNoCol);
+    // }
+
+    // //삭제되었던 transfer가 다시 복구되는 경우
+    // const nonTransferObject = await this.getRecoverArray(
+    //   transferArray,
+    //   intraNoCol,
+    // );
+    // const nonTransferArray = nonTransferObject.map(
+    //   (nonTransfer) => nonTransfer.intra_no,
+    // );
+    // console.log(
+    //   'nonTransferArray: ',
+    //   nonTransferArray,
+    //   nonTransferArray.length,
+    // );
+    // if (nonTransferArray.length > 0) {
+    //   await this.checkRecoverInMain(nonTransferArray, intraNoCol);
+    // }
+
+    // //시트에서 유저가 사라졌다면 삭제
+    // console.log('DeleteOrEdit: ', deleteOrEdit);
+    // if (deleteOrEdit) {
+    //   await this.checkDeletedInMain(deleteData);
+    // }
+    // //시트에서 유저 intra_no이 변경된 경우 intra_no 수정
+    // else {
+    //   await this.checkPKEditState(userInDB, intraNoArray);
+    // }
+
+    /****************************************/
     const api42s = await this.apiService.getApi();
     const tableArray = {};
     for (const table of tableSet) {
@@ -171,6 +264,205 @@ export class UpdaterService {
     const latestData = await this.getLatestAllOneData();
     await this.compareNewDataWithLatestData(tableArray, latestData);
     return await 'All data has been updated';
+  }
+
+  initTupleAndErrObject(tuple, errIndex, errValue) {
+    tuple['sheet'] = '';
+    tuple['msg'] = '';
+    tuple['index'] = '';
+    tuple['value'] = '';
+    errIndex = null;
+    errValue = null;
+  }
+
+  checkErrorBeforeUpdate(
+    tables,
+    columns,
+    rows,
+    DeleteOrEdit,
+    intraNoArray,
+    errObject,
+  ) {
+    const tuple = {} as ErrObject;
+
+    //수정과 삭제가 동시에 일어났는지 확인
+    if (!DeleteOrEdit) {
+      tuple['sheet'] = '0. 학사정보관리(main)';
+      tuple['msg'] =
+        'intra No의 수정, 삭제 작업이 동시에 일어났습니다. 작업을 분리해주세요';
+      tuple['index'] = '';
+      tuple['value'] = '';
+      errObject.push(tuple);
+      console.log('DeleteOrEdit check: ', tuple);
+      return false;
+    }
+
+    //intra no이 중복되어 들어왔는지 확인
+    const isDup = intraNoArray.some((element) => {
+      const checkDup =
+        intraNoArray.indexOf(element) !== intraNoArray.lastIndexOf(element);
+      if (checkDup) {
+        tuple['index'] = intraNoArray.lastIndexOf(element);
+        tuple['value'] = element;
+      }
+      return checkDup;
+    });
+    if (isDup) {
+      tuple['sheet'] = '0. 학사정보관리(main)';
+      tuple['msg'] = 'intra no가 중복되었습니다. 중복값을 수정해주세요';
+      errObject.push(tuple);
+      console.log('isDup check: ', tuple);
+      return false;
+    }
+
+    //컬럼이름이 변경되었는지 확인
+    if (!this.getAllColumnInDB(columns, tuple)) {
+      tuple['sheet'] = '0. 학사정보관리(main)';
+      tuple['msg'] =
+        '구글 스프레드 시트의 컬럼값이 수정되었습니다. 정해진 컬럼으로 되돌려주세요';
+      errObject.push(tuple);
+      console.log('columns check: ', tuple);
+      return false;
+    }
+
+    //테이블 이름이 변경되었는지 확인
+    const DBTables = Object.values(tableName);
+    const checkTable = DBTables.every((DBtable) => {
+      const ret = tables.some((table) => table === DBtable);
+      if (!ret) tuple['value'] = DBtable;
+      return ret;
+    });
+    if (!(DBTables.length === tables.length && checkTable)) {
+      tuple['sheet'] = '0. 학사정보관리(main)';
+      tuple['msg'] =
+        '구글 스프레드 시트의 테이블값이 수정되었습니다. 정해진 테이블으로 되돌려주세요';
+      tuple['index'] = `table:0`;
+      errObject.push(tuple);
+      console.log('DBTables check: ', tuple);
+      return false;
+    }
+
+    //#REF! or #ERROR! 인지 확인
+    if (!this.checkOperationError(rows, tuple)) {
+      console.log(tuple.index, tuple.value);
+      tuple['sheet'] = '0. 학사정보관리(main)';
+      tuple['msg'] =
+        '구글 스프레드 시트에 계산되지 않은 값들이 있습니다. 확인해주세요';
+      errObject.push(tuple);
+
+      return false;
+    }
+  }
+
+  async getRecoverArray(transferArray, intraNoCol) {
+    const transferDB = await this.dataSource
+      .getRepository(User)
+      .find({ where: { uniqueness: 'transfer' } }); //transfer가 적혀있는 값들을 가져옴
+    const nonTransferArray = transferDB.filter((transDB) => {
+      return transferArray.every(
+        (transferSheet) => transDB.intra_no !== transferSheet[intraNoCol],
+      );
+    });
+    return nonTransferArray;
+  }
+
+  checkOperationError(rows, tuple) {
+    const indexTuple = {};
+    const indexArray = [];
+    const valueArray = [];
+    let ret;
+    rows.forEach((row, numIdx) => {
+      row.forEach((domain, alphaIdx) => {
+        ret = domain !== '#REF!' && domain !== '#ERROR!';
+        if (!ret) {
+          indexTuple[this.spreadService.numToAlpha(alphaIdx + 1)] = numIdx + 1;
+          indexArray.push(JSON.stringify(indexTuple));
+          valueArray.push(domain);
+        }
+      });
+    });
+    if (valueArray.length > 0) ret = false;
+    tuple['index'] = indexArray.toString();
+    tuple['value'] = valueArray.toString();
+    return ret;
+  }
+
+  getAllColumnInDB(columns, tuple) {
+    let checkColumn;
+    const entities = Object.values(EntityColumn);
+    const entityCols = [];
+    for (const entity in entities) {
+      entityCols.push(...entities[entity]);
+    }
+    checkColumn = columns.every((col, index) => {
+      let flag = false;
+      if (col === 'no.') return true; // 스프레드에 있는 no.은 따로 entity에서 저장 x
+      if (
+        entityCols.some((entity) => {
+          return entity.spName === col;
+        })
+      ) {
+        flag = true;
+      }
+      if (!flag) {
+        tuple['index'] = `${this.spreadService.numToAlpha(index + 1)}:1`;
+        tuple['value'] = col;
+      }
+      return flag;
+    });
+    // 스프레드에 있는 no.은 따로 entity에서 저장 x
+    if (entityCols.length + 1 !== columns.length) {
+      checkColumn = false;
+    }
+    return checkColumn;
+  }
+
+  //삽입과 삭제와 수정은 동시에 일어날 수 없음.
+  async checkDeletedInMain(deleteData) {
+    deleteData.forEach(async (deleteUser) => {
+      const queryRunner = this.dataSource.createQueryRunner();
+      const user = await this.dataSource
+        .getRepository(User)
+        .find({ where: { intra_no: deleteUser.intra_no } });
+      queryRunner.manager.remove(user);
+    });
+    console.log('pkedit :', deleteData);
+  }
+
+  //수정 조금 수정해야함. 수정하고자하는 위치를 수정 -> 저장 -> 정렬
+  async checkPKEditState(userInDB, intraNoArray) {
+    userInDB.forEach(async (DBNo, index) => {
+      if (DBNo.intra_no != intraNoArray[index]) {
+        const queryRunner = this.dataSource.createQueryRunner();
+        const user = await this.dataSource
+          .getRepository(User)
+          .find({ where: { intra_no: DBNo.intra_no } });
+        queryRunner.manager.save(user);
+      }
+    });
+    console.log('pkedit :', userInDB, intraNoArray);
+  }
+
+  //메인데이터 soft삭제
+  async checkSoftDeletedInMain(deleteData, intraNoCol) {
+    deleteData.forEach(async (deleteUser) => {
+      const queryRunner = this.dataSource.createQueryRunner();
+      const user = await this.dataSource
+        .getRepository(User)
+        .find({ where: { intra_no: deleteUser[intraNoCol] } });
+      queryRunner.manager.softRemove(user);
+    });
+  }
+
+  //메인데이터 soft삭제된 데이터 회복
+  async checkRecoverInMain(recoverData, intraNoCol) {
+    recoverData.forEach(async (recoverUser) => {
+      const queryRunner = this.dataSource.createQueryRunner();
+      const user = await this.dataSource
+        .getRepository(User)
+        .find({ where: { intra_no: recoverUser[intraNoCol] } });
+      queryRunner.manager.recover(user);
+    });
   }
 
   /**
@@ -457,6 +749,7 @@ export class UpdaterService {
           );
           if (processData !== undefined) newOneData = processedDataObj;
         }
+        console.log(newOneData, '???');
         if (tableName != 'user') {
           await this.saveTuple(repo, newOneData);
         }
