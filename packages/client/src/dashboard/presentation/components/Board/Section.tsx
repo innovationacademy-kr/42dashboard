@@ -163,6 +163,9 @@ export default function Section(props: SectionProps) {
           setStartDate={setStartDate}
           setEndDate={setEndDate}
           setGrade={setGrade}
+          startDate={startDate}
+          endDate={endDate}
+          grade={grade}
         />
       )}
       <ModalFrame
