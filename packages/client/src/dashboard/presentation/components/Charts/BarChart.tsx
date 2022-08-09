@@ -1,6 +1,6 @@
 import { Bar } from 'react-chartjs-2';
 import { Chart, registerables } from 'chart.js';
-import { ChartProps } from './ChartData';
+import { ChartProps, backgroundColor, borderColor } from './ChartData';
 import useGqlQuery from '../../../application/services/useDataset';
 
 Chart.register(...registerables);
@@ -12,6 +12,19 @@ export default function BarChart(props: ChartProps) {
   const defaultOptions = {
     responsive: true,
     maintainAspectRatio: false,
+    plugins: {
+      tooltip: {
+        callbacks: {
+          afterLabel: function (tooltipItem: any) {
+            let total = 0;
+            tooltipItem.dataset.data.map((data: number) => {
+              total += data;
+            });
+            return `${((tooltipItem.raw / total) * 100).toFixed(2)}%`;
+          },
+        },
+      },
+    },
   };
 
   if (loading) return <p>Loading...</p>;
@@ -21,12 +34,15 @@ export default function BarChart(props: ChartProps) {
   while (dataArray.length > 0) {
     datasets.push(dataArray.splice(0, labels.length));
   }
+
   const barData = {
     labels,
     datasets: datasets.map((dataset, idx) => ({
       label: datasetNames[idx],
       data: dataset,
-      backgroundColor: ['#36A2EB', '#FF6384'],
+      backgroundColor: backgroundColor[idx],
+      borderColor: borderColor[idx],
+      borderWidth: 1,
     })),
   };
 
