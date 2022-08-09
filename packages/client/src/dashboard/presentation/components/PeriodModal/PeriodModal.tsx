@@ -1,5 +1,5 @@
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
+import styled from '@emotion/styled';
 import Modal from '@mui/material/Modal';
 import DatePicker from './DatePicker';
 import Radio from '@mui/material/Radio';
@@ -10,6 +10,18 @@ import FormLabel from '@mui/material/FormLabel';
 import GradePicker from './GradePicker';
 import { PeriodFilterType } from '../../../domain/sectionDatas/sectionData.type';
 import { useState } from 'react';
+import { ReactComponent as IconFilter } from '../../../../assets/icons/filter-solid.svg';
+
+const Button = styled.button`
+  background-color: none;
+  border: 0;
+  outline: 0;
+  cursor: pointer;
+  background-color: transparent;
+  &:hover {
+    background-color: lightgrey;
+  }
+`;
 
 const style = {
   position: 'absolute',
@@ -49,8 +61,13 @@ export default function PeriodModal(props: PeriodProps) {
   };
 
   return (
-    <div>
-      <Button onClick={handleOpen}>Set Period</Button>
+    <>
+      <Button
+        onClick={handleOpen}
+        style={{ position: 'absolute', right: '2rem' }}
+      >
+        <IconFilter style={{ width: '1rem' }} />
+      </Button>
       <Modal open={open} onClose={handleClose}>
         <Box sx={style}>
           <FormControl>
@@ -105,6 +122,6 @@ export default function PeriodModal(props: PeriodProps) {
           )}
         </Box>
       </Modal>
-    </div>
+    </>
   );
 }
