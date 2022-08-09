@@ -47,6 +47,9 @@ export interface SectionEditToolBarProps {
   setStartDate?: React.Dispatch<React.SetStateAction<Date | undefined>>;
   setEndDate?: React.Dispatch<React.SetStateAction<Date | undefined>>;
   setGrade?: React.Dispatch<React.SetStateAction<string | undefined>>;
+  startDate?: Date | undefined;
+  endDate?: Date | undefined;
+  grade?: string | undefined;
 }
 
 export const SectionEditToolBar = (props: SectionEditToolBarProps) => {
@@ -58,6 +61,9 @@ export const SectionEditToolBar = (props: SectionEditToolBarProps) => {
     setEndDate,
     setGrade,
     periodFilter,
+    startDate,
+    endDate,
+    grade,
   } = props;
 
   return (
@@ -79,6 +85,13 @@ export const SectionEditToolBar = (props: SectionEditToolBarProps) => {
           periodFilter={periodFilter || {}}
         />
       )}
+      {startDate && endDate && !grade && (
+        <>
+          {startDate.getFullYear()}/{startDate.getMonth()}/{startDate.getDate()}
+          ~{endDate.getFullYear()}/{endDate.getMonth()}/{endDate.getDate()}
+        </>
+      )}
+      {grade && !startDate && <>기수 : {grade}</>}
       {
         <Button onClick={() => removeItem && id && removeItem(id)}>
           Remove
