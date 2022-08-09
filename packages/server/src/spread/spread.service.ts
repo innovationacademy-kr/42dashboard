@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConsoleLogger, Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { ApiService } from 'src/api/api.service';
 import { google } from 'googleapis';
@@ -978,7 +978,7 @@ export class SpreadService {
     }
   }
 
-  async parseSpread(cols, rows, table, api42s?) {
+  async parseSpread(cols, rows, table, transferUser, api42s?) {
     const tupleArray = [];
     for (const key of Object.keys(this.sheetId)) {
       //수정 도중 main이 업데이트 되면 저장이 불가하므로 id를 전부 -1로 초기화
@@ -1002,6 +1002,7 @@ export class SpreadService {
       // }
       if (api42s != undefined) {
         // 해당 intra_no인 사람의 api 데이터를 가져오가
+<<<<<<< HEAD
         const api42 = await this.apiService.getTupleFromApi(row[1], api42s);
         if (api42) {
           if (table['name'] === 'user_personal_information') {
@@ -1015,6 +1016,25 @@ export class SpreadService {
             tuple['level'] = api42.level;
             //tuple['leveled_date'] = new Date('7777-12-31');
           }
+=======
+        const intraNo = cols.findIndex((col) => col === 'Intra No.');
+        const isTransfer = transferUser.some(
+          (transUser) => row[intraNo] === transUser[intraNo],
+        );
+        if (isTransfer) {
+          const api42 = await this.apiService.getTupleFromApi(row[1], api42s);
+          if (table['name'] === 'user_personal_information') {
+            tuple['email'] = api42.email;
+            tuple['phone_number'] = api42.phone_number;
+          }
+          if (table['name'] === 'user_blackhole') {
+            tuple['blackhole_date'] = api42.blackhole_date;
+          }
+          if (table['name'] === 'user_learning_data_api') {
+            tuple['level'] = api42.level;
+            tuple['leveled_date'] = new Date();
+          } //여기 학습데이터를 추가해야함.
+>>>>>>> 79cbce5 (feat(server/error): feat: prevent for transfer)
         }
       }
       if (table['name'] != 'user') tuple['fk_user_no'] = row[1]; //usertable은 해당 컬럼이 필요가 없음
@@ -1248,7 +1268,6 @@ export class SpreadService {
       );
       const columns = spreadData[0];
       const rows = (await spreadData).filter((value, index) => index > 0);
-
       //지급일 시트 정보 받아서 저장해두기 테이블 관계수정 //확장성을 고려하려 했으나, 지원금 시트(LogColumn)의 특징이 강력하여 함수를 하나 더 만들기로 결정
 
       await this.parseOldSpread(columns, rows, pastSheetData, repoKey);

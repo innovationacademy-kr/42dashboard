@@ -162,6 +162,11 @@ export class UpdaterService {
     const rows = spreadData.filter((value, index) => index > 1); //모든 테이블의 로우 [1,	68641,	kilee, ...]
     const intraNoCol = columns.findIndex((col) => col === 'Intra No.'); //pk
     const uniquenessCol = columns.findIndex((col) => col === '특이사항');
+    const transferUser = rows.filter(
+      (row) => row[uniquenessCol] === 'transfer',
+    );
+    //dB에는 softdelete되었는데, 시트에는 살아있어서 pk중복문제발생
+    //rows = rows.filter((row) => row[uniquenessCol] != 'transfer'); //임시로 transfer는 저장하지 않도록 나중에 soft-delete로 변경 api오류때문에 문제발생하기에 아예안받음.
     const intraNoArray = rows.map((row) => row[intraNoCol]);
     const userInDB = await this.dataSource
       .getRepository(User)
@@ -173,7 +178,6 @@ export class UpdaterService {
       if (!intraNoArray.some((spreadNO: number) => DBNo.intra_no == spreadNO))
         return DBNo.intra_no;
     });
-
     /***************에러 검증****************/
 
     // if (intraNoArray.length > userInDB.length) {
@@ -199,9 +203,7 @@ export class UpdaterService {
     //   )
     // ) {
     //   const errorObject = {};
-    //   console.log(errObject, '-----------');
     //   for (const err of errObject) {
-    //     console.log(err);
     //     errorObject['error'] = JSON.stringify(err);
     //     await this.spreadService.insertDataToDB(ErrorObject, errorObject);
     //   }
@@ -211,15 +213,20 @@ export class UpdaterService {
     /***************************************/
     /*************사전 처리 작업***************/
 
-    // //만약 특이사항값이 transfer라면 soft-delete
+    // transfer의 경우 삭제하게된다면, data관리에 문제가 생김
+    // 기본적으로 softdelete한 항목은 보이지 않아야하는데, 시트에서는 항상 값이 들어옴
+    // 고로 삭제가 아닌 따로 transfer관리가 필요하다고 생각됨.
+    // 결론 - api42에서 데이터 받아오는것을 막아주는 것으로 끝맺음.
+
+    //만약 특이사항값이 transfer라면 soft-delete
     // const transferArray = rows.filter(
     //   (row) => row[uniquenessCol] === 'transfer',
     // );
-    // console.log(transferArray);
+    // //console.log(transferArray);
     // if (transferArray.length > 0) {
+    //   //rows = rows.filter((row) => row[uniquenessCol] != 'transfer');
     //   await this.checkSoftDeletedInMain(transferArray, intraNoCol);
     // }
-    // //rows = rows.filter((row) => row[uniquenessCol] !== 'transfer');
 
     // //삭제되었던 transfer가 다시 복구되는 경우
     // const nonTransferObject = await this.getRecoverArray(
@@ -229,7 +236,7 @@ export class UpdaterService {
     // const nonTransferArray = nonTransferObject.map(
     //   (nonTransfer) => nonTransfer.intra_no,
     // );
-    // console.log(nonTransferObject);
+    // //console.log(nonTransferObject);
     // if (nonTransferArray.length > 0) {
     //   await this.checkRecoverInMain(nonTransferArray, intraNoCol);
     // }
@@ -257,6 +264,7 @@ export class UpdaterService {
         columns,
         rows,
         table,
+        transferUser,
         api42s,
       );
     }
@@ -362,6 +370,7 @@ export class UpdaterService {
         (transferSheet) => transDB.fk_user_no !== transferSheet[intraNoCol],
       );
     });
+    console.log('nontransfer: ', nonTransferArray);
     return nonTransferArray;
   }
 
@@ -372,7 +381,7 @@ export class UpdaterService {
     let ret;
     rows.forEach((row, numIdx) => {
       row.forEach((domain, alphaIdx) => {
-        ret = domain !== '#REF!' && domain !== '#ERROR!';
+        ret = domain !== '#REF!' && domain !== '#ERROR!' && domain !== '#N/A';
         if (!ret) {
           indexTuple[this.spreadService.numToAlpha(alphaIdx + 1)] = numIdx + 1;
           indexArray.push(JSON.stringify(indexTuple));
@@ -425,7 +434,7 @@ export class UpdaterService {
         .find({ where: { intra_no: deleteUser.intra_no } });
       queryRunner.manager.remove(user);
     });
-    console.log('pkedit :', deleteData);
+    console.log('pkdelete :', deleteData);
   }
 
   //수정 조금 수정해야함. 수정하고자하는 위치를 수정 -> 저장 -> 정렬
@@ -509,10 +518,17 @@ export class UpdaterService {
     await this.spreadService.composeTableData(spreadData, tableSet, true);
     const columns = spreadData[1];
     const rows = (await spreadData).filter((value, index) => index > 1);
+    const uniquenessCol = columns.findIndex((col) => col === '특이사항'); //임시로 transfer는 저장하지 않도록 나중에 soft-delete로 변경 api오류때문에 문제발생하기에 아예안받음.
+    const intraNoCol = columns.findIndex((col) => col === 'Intra No.');
+    const transferUser = rows.filter(
+      (row) => row[uniquenessCol] === 'transfer',
+    );
+    // rows = rows.filter((row) => row[uniquenessCol] != 'transfer');
     userTable['user'] = await this.spreadService.parseSpread(
       columns,
       rows,
       tableSet[0],
+      transferUser,
       undefined,
     ); //기본 키값이 되는 유저정보 가져오기
     const allUser = await this.repoDict['user']
@@ -602,6 +618,13 @@ export class UpdaterService {
       );
     }
   }
+
+  // maketestsheet() {
+  //   return await this.spreadService.maketestsheet(
+  //     SPREAD_END_POINT,
+  //     '0. 학사정보관리(main)',
+  //   );
+  // }
 
   async saveModifiedDataFromSheet(updateDB: UpdateDB) {
     return await this.spreadService.saveModifiedDataFromSheet(
