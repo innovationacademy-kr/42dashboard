@@ -2,13 +2,12 @@ import './styles.css';
 import './styles2.css';
 import RGL, { Layout, WidthProvider } from 'react-grid-layout';
 import Section from './Section';
-import PresetType from '../../../domain/preset/preset.type';
 import useSections from '../../../application/services/useSectionDatas';
 import useBoard from '../../../application/services/useBoard';
 import useMode from '../../../application/services/useMode';
 import { v4 as uuid } from 'uuid';
 import SectionDataType from '../../../domain/sectionDatas/sectionData.type';
-import EditToolBar from '../Common/EditToolBar';
+import { BoardEditToolBar } from '../Common/EditToolBar';
 
 const ReactGridLayout = WidthProvider(RGL.Responsive);
 
@@ -76,10 +75,11 @@ export default function Board() {
       }}
     >
       {getControlMode() === 'edit' && (
-        <EditToolBar
-          type="Board"
+        <BoardEditToolBar
           sectionData={sectionData}
-          sectionId={sectionData.id}
+          addSectionData={addSectionData}
+          handleSectionAdd={handleSectionAdd}
+          handleSavePreset={handleSavePreset}
         />
       )}
       <ReactGridLayout

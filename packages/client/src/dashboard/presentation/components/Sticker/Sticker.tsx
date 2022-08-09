@@ -2,7 +2,7 @@ import StickerContentFactory, {
   StickerContentFactoryProps,
 } from './StickerContentFactory';
 import useMode from '../../../application/services/useMode';
-import EditToolBar from '../Common/EditToolBar';
+import { StickerEditToolBar } from '../Common/EditToolBar';
 
 interface StickerProps {
   id: string;
@@ -16,7 +16,10 @@ function Sticker(props: StickerProps) {
   return (
     <>
       {getControlMode() === 'edit' && (
-        <EditToolBar type="Sticker" removeItem={handleStickerRemove} id={id} />
+        <StickerEditToolBar
+          handelStickerRemove={handleStickerRemove}
+          stickerId={id}
+        />
       )}
       <StickerContentFactory
         type={data.type}

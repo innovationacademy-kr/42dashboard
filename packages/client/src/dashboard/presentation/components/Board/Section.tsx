@@ -6,7 +6,7 @@ import useMode from '../../../application/services/useMode';
 import RGL, { Layout, WidthProvider } from 'react-grid-layout';
 import ModalFrame from '../Modal/Modal';
 import { useState, useEffect } from 'react';
-import EditToolBar from '../Common/EditToolBar';
+import { SectionEditToolBar } from '../Common/EditToolBar';
 import { PeriodFilterType } from '../../../domain/sectionDatas/sectionData.type';
 import { TableProps } from '../Table/Table';
 import {
@@ -155,15 +155,14 @@ export default function Section(props: SectionProps) {
   return (
     <>
       {getControlMode() === 'edit' && (
-        <EditToolBar
-          type="Section"
+        <SectionEditToolBar
           setIsOpen={setIsOpen}
           removeItem={handleSectionRemove}
           id={id}
+          periodFilter={periodFilter}
           setStartDate={setStartDate}
           setEndDate={setEndDate}
           setGrade={setGrade}
-          periodFilter={periodFilter}
         />
       )}
       <ModalFrame
