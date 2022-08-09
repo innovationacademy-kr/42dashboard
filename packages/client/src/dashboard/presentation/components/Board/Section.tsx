@@ -31,8 +31,13 @@ interface SectionProps {
 }
 
 export default function Section(props: SectionProps) {
-  const { stickerDatas, addStickerData, removeSticker, updateStickerDatas } =
-    useStickers();
+  const {
+    stickerDatas,
+    addStickerData,
+    removeSticker,
+    updateStickerDatas,
+    updateStickerData,
+  } = useStickers();
   const {
     id,
     stickerLayouts,
@@ -146,6 +151,7 @@ export default function Section(props: SectionProps) {
               removeSticker(stickerId);
               handleStickerRemove(id, stickerId);
             }}
+            handleStickerUpdate={updateStickerData}
           />
         )}
       </div>

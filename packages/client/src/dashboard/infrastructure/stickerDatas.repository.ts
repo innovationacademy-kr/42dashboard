@@ -1,6 +1,7 @@
 import StickersDatasRepositoryInterface from '../domain/stickerDatas/stickerDatas.repository.interface';
 import StickerDataType from '../domain/stickerDatas/stickerData.type';
 import stickerDatasStore from './store/stickerDatas.store';
+import { StickerContentFactoryProps } from '../presentation/components/Sticker/StickerContentFactory';
 
 class StickerDatasRepository implements StickersDatasRepositoryInterface {
   public getStickerData(id: string) {
@@ -18,11 +19,16 @@ class StickerDatasRepository implements StickersDatasRepositoryInterface {
     stickerDatasStore.setStickerDatas(stickerDatas);
   }
 
-  public async updateStickerData(id: string, newStickerData: StickerDataType) {
-    const stickerDatas = stickerDatasStore
+  public async updateStickerData(
+    id: string,
+    newStickerData: StickerContentFactoryProps,
+  ) {
+    const restStickerDatas = stickerDatasStore
       .getStickerDatas()
       .filter((stickerData) => stickerData.id !== id);
-    stickerDatasStore.setStickerDatas([...stickerDatas, newStickerData]);
+    const targetStickerData = this.getStickerData(id);
+    targetStickerData.data = newStickerData;
+    stickerDatasStore.setStickerDatas([...restStickerDatas, targetStickerData]);
   }
 
   public async removeStickerData(id: string) {
