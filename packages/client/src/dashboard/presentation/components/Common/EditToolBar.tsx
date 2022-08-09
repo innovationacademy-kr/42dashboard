@@ -1,27 +1,10 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import useSections from '../../../application/services/useSectionDatas';
-import useBoard from '../../../application/services/useBoard';
 import SectionDataType, {
   PeriodFilterType,
 } from '../../../domain/sectionDatas/sectionData.type';
 import { Button } from '@mui/material';
 import PeriodModal from '../PeriodModal/PeriodModal';
-
-type ToolType = 'Board' | 'Section' | 'Sticker';
-
-interface EditToolBarProps {
-  type: ToolType;
-  sectionData?: SectionDataType | undefined;
-  sectionId?: string | undefined;
-  setIsOpen?: ((isOpen: boolean) => void) | undefined;
-  removeItem?: ((id: string) => void) | undefined;
-  id?: string;
-  periodFilter?: PeriodFilterType;
-  setStartDate?: React.Dispatch<React.SetStateAction<Date | undefined>>;
-  setEndDate?: React.Dispatch<React.SetStateAction<Date | undefined>>;
-  setGrade?: React.Dispatch<React.SetStateAction<string | undefined>>;
-}
 
 const EditToolBarArea = styled.div`
   display: flex;
