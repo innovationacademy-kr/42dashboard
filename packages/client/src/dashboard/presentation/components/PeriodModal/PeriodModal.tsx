@@ -36,6 +36,11 @@ const style = {
   p: 4,
 };
 
+const ButtonArea = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
 interface PeriodProps {
   setStartDate: React.Dispatch<React.SetStateAction<Date | undefined>>;
   setEndDate: React.Dispatch<React.SetStateAction<Date | undefined>>;
@@ -95,29 +100,53 @@ export default function PeriodModal(props: PeriodProps) {
                 endDate={endDate ? new Date(endDate) : new Date()}
                 setEndDate={setEndDate}
               />
-              <Button
-                onClick={() => {
-                  setGrade(undefined);
-                  handleClose();
-                  console.log(`startDate: `, startDate, `endDate: `, endDate);
-                }}
-              >
-                Save
-              </Button>
+              <ButtonArea>
+                <Button
+                  onClick={() => {
+                    setGrade(undefined);
+                    handleClose();
+                    console.log(`startDate: `, startDate, `endDate: `, endDate);
+                  }}
+                >
+                  저장
+                </Button>
+                <Button
+                  onClick={() => {
+                    setStartDate(undefined);
+                    setEndDate(undefined);
+                    setGrade(undefined);
+                    handleClose();
+                  }}
+                >
+                  초기화
+                </Button>
+              </ButtonArea>
             </>
           )}
           {value === 'Grade' && (
             <>
               <GradePicker grade={grade} setGrade={setGrade} />
-              <Button
-                onClick={() => {
-                  setStartDate(undefined);
-                  setEndDate(undefined);
-                  handleClose();
-                }}
-              >
-                Save
-              </Button>
+              <ButtonArea>
+                <Button
+                  onClick={() => {
+                    setStartDate(undefined);
+                    setEndDate(undefined);
+                    handleClose();
+                  }}
+                >
+                  저장
+                </Button>
+                <Button
+                  onClick={() => {
+                    setStartDate(undefined);
+                    setEndDate(undefined);
+                    setGrade(undefined);
+                    handleClose();
+                  }}
+                >
+                  초기화
+                </Button>
+              </ButtonArea>
             </>
           )}
         </Box>
