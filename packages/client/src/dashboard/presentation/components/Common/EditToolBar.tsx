@@ -3,12 +3,12 @@ import styled from '@emotion/styled';
 import SectionDataType, {
   PeriodFilterType,
 } from '../../../domain/sectionDatas/sectionData.type';
-import { Button } from '@mui/material';
 import PeriodModal from '../PeriodModal/PeriodModal';
 import { StickerContentFactoryProps } from '../Sticker/StickerContentFactory';
 import { ReactComponent as IconRemove } from '../../../../assets/icons/xmark-solid.svg';
 import { ReactComponent as IconAdd } from '../../../../assets/icons/plus-solid.svg';
 import { ReactComponent as IconSave } from '../../../../assets/icons/floppy-disk-solid.svg';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 const Button = styled.button`
   background-color: none;
@@ -140,7 +140,9 @@ export const StickerEditToolBar = (props: StickerEditToolBarProps) => {
 
   return (
     <EditToolBarArea>
-      <Button onClick={() => setIsConfigOpen(true)}>apply config</Button>
+      <Button onClick={() => setIsConfigOpen(true)}>
+        <SettingsIcon />
+      </Button>
       <Button
         onClick={() => handelStickerRemove(stickerId)}
         style={{ position: 'absolute', right: '0' }}
