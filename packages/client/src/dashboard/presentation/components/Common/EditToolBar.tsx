@@ -3,7 +3,9 @@ import styled from '@emotion/styled';
 import SectionDataType, {
   PeriodFilterType,
 } from '../../../domain/sectionDatas/sectionData.type';
+import { Button } from '@mui/material';
 import PeriodModal from '../PeriodModal/PeriodModal';
+import { StickerContentFactoryProps } from '../Sticker/StickerContentFactory';
 import { ReactComponent as IconRemove } from '../../../../assets/icons/xmark-solid.svg';
 import { ReactComponent as IconAdd } from '../../../../assets/icons/plus-solid.svg';
 import { ReactComponent as IconSave } from '../../../../assets/icons/floppy-disk-solid.svg';
@@ -124,15 +126,21 @@ export const SectionEditToolBar = (props: SectionEditToolBarProps) => {
 };
 interface StickerEditToolBarProps {
   stickerId: string;
+  data: StickerContentFactoryProps;
   handelStickerRemove: (id: string) => void;
+  isConfigOpen: boolean;
+  setIsConfigOpen: (isConfigOpen: boolean) => void;
   // 설정 적용 something
   // updateStickerData:
 }
 
 export const StickerEditToolBar = (props: StickerEditToolBarProps) => {
-  const { stickerId, handelStickerRemove } = props;
+  const { stickerId, handelStickerRemove, isConfigOpen, setIsConfigOpen } =
+    props;
+
   return (
     <EditToolBarArea>
+      <Button onClick={() => setIsConfigOpen(true)}>apply config</Button>
       <Button
         onClick={() => handelStickerRemove(stickerId)}
         style={{ position: 'absolute', right: '0' }}

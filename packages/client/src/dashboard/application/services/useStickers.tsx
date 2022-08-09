@@ -3,6 +3,7 @@ import StickersService from '../../domain/stickerDatas/stickerDatas.service';
 import StickerDataType from '../../domain/stickerDatas/stickerData.type';
 import stickerDatasRepository from '../../infrastructure/stickerDatas.repository';
 import stickersStore from '../../infrastructure/store/stickerDatas.store';
+import { StickerContentFactoryProps } from '../../presentation/components/Sticker/StickerContentFactory';
 
 const stickersService = new StickersService(stickerDatasRepository);
 
@@ -29,11 +30,11 @@ function useStickers() {
     return await stickersService.addStickerData(newSticker);
   };
 
-  const updateStickerData = async (newStickerData: StickerDataType) => {
-    return await stickersService.updateStickerData(
-      newStickerData.id,
-      newStickerData,
-    );
+  const updateStickerData = async (
+    stickerId: string,
+    newStickerData: StickerContentFactoryProps,
+  ) => {
+    return await stickersService.updateStickerData(stickerId, newStickerData);
   };
 
   const removeSticker = async (id: string) => {

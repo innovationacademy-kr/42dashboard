@@ -33,31 +33,28 @@ export interface TableProps {
   columnGroups?: ColumnGroupType[];
   columns: ColumnDataType[];
   queryData: QueryDataType;
+  visibleColumns: boolean[];
   // options?: TableOptions;
 }
 
 type TableCellType = string | number;
 
 export function TableStickerContent(props: TableProps) {
-  const { columnGroups, columns, queryData } = props;
+  const { columnGroups, columns, queryData, visibleColumns } = props;
   const { data, loading, error } = useGqlQuery(queryData); // data는 row 배열
   const [rowsState, setRowsState] = useState<TableCellType[][]>([]);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);
-  const [visibleColumns, setVisibleColumns] = useState<boolean[]>([]);
   const { getControlMode } = useMode();
-
   const mode = getControlMode();
 
   useEffect(() => {
-    console.log('Length', columns.length);
-    const initArray = new Array(columns.length).fill(false);
-    initArray[0] = true;
-    initArray[1] = true;
-    initArray[2] = true;
-    setVisibleColumns(initArray);
-  }, [columns]);
-
+    if (visibleColumns.length === 0) {
+      visibleColumns.length = columns.length;
+      visibleColumns.fill(false);
+      visibleColumns.fill(true, 0, 3);
+    }
+  }, []);
   useEffect(() => {
     if (data) {
       setRowsState(getRowsFromGqlResponse(data));
@@ -74,12 +71,6 @@ export function TableStickerContent(props: TableProps) {
     setPage(0);
   };
 
-  const handleColumnVisibilityChange = (index: number) => {
-    const newVisibleColumns = [...visibleColumns];
-    newVisibleColumns[index] = !newVisibleColumns[index];
-    setVisibleColumns(newVisibleColumns);
-  };
-
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -89,13 +80,6 @@ export function TableStickerContent(props: TableProps) {
 
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-      {mode === 'edit' && (
-        <ColumnSelector
-          columns={columns}
-          columnsVisibility={visibleColumns}
-          handleColumnVisibilityChange={handleColumnVisibilityChange}
-        />
-      )}
       <TableContainer sx={{ maxHeight: '500px' }}>
         <Table stickyHeader size="small" aria-label="sticky table">
           <TableHead>

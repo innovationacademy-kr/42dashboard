@@ -145,6 +145,7 @@ export function makeTableStickerData({
       type: type,
       contentProps: {
         columns: createAllColumnDatas(),
+        visibleColumns: [],
         queryData,
       },
     },

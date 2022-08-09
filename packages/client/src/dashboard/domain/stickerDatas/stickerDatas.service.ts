@@ -1,3 +1,4 @@
+import { StickerContentFactoryProps } from '../../presentation/components/Sticker/StickerContentFactory';
 import StickerDataType from './stickerData.type';
 import StickersRepositoryInterface from './stickerDatas.repository.interface';
 
@@ -14,7 +15,7 @@ class StickerDatasService {
 
   public async updateStickerData(
     id: string,
-    newStickerData: StickerDataType,
+    newStickerData: StickerContentFactoryProps,
   ): Promise<void> {
     return this.stickerDatasRepository.updateStickerData(id, newStickerData);
   }
