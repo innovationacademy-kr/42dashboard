@@ -3,23 +3,23 @@ export const EntityColumn = {
     //user
     { spName: 'Intra No.', dbName: 'intra_no' },
     { spName: 'Intra ID', dbName: 'intra_id' },
-    { spName: '성명', dbName: 'name' },
     { spName: '기수', dbName: 'grade' },
     { spName: '과정시작', dbName: 'start_process_date' },
     { spName: '코알리숑', dbName: 'coalition' },
     { spName: '학적(수동)', dbName: 'academic_state' }, //[api]
-    { spName: '특이사항', dbName: 'uniqueness' },
-    { spName: '익명화', dbName: 'anonymization' },
   ],
   UserPersonalInformation: [
     //userPersonalInformation
     { spName: '지역', dbName: 'region' },
     { spName: '성별', dbName: 'gender' },
+    { spName: '성명', dbName: 'name' },
     { spName: '생년월일', dbName: 'birthday' },
     { spName: '키값', dbName: 'social_security_key' },
     { spName: '만 나이', dbName: 'age' },
     { spName: '휴대폰', dbName: 'phone_number' }, // [api]
     { spName: '이메일', dbName: 'email' }, // [api]
+    { spName: '특이사항', dbName: 'uniqueness' },
+    { spName: '익명화', dbName: 'anonymization' },
     //이메일, 전화번호는 api
   ],
   UserCourseExtension: [

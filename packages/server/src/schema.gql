@@ -75,7 +75,6 @@ type Query {
   getUserOtherInformation(column: String, duplicated: String!): [UserOtherInformation!]!
   getUserPersonalInformation(column: String, duplicated: String!): [UserPersonalInformation!]!
   saveModifiedDataFromSheet(sheetName: String!, withDeleted: String!): String!
-  sendRequestToSpreadWithGoogleAPI: String!
   tempFunction: [JoinedTable!]!
   updateData: String!
   updateOldData: String!
