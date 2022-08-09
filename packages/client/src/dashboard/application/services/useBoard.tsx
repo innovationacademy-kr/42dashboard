@@ -9,6 +9,8 @@ import PresetService from '../../domain/preset/preset.service';
 import sectionDatasStore from '../../infrastructure/store/sectionDatas.store';
 import stickerDatasStore from '../../infrastructure/store/stickerDatas.store';
 import presetStore from '../../infrastructure/store/preset.store';
+import SectionDataType from '../../domain/sectionDatas/sectionData.type';
+import StickerDataType from '../../domain/stickerDatas/stickerData.type';
 
 const boardDataService = new BoardDataService(boardDataRepository);
 const presetService = new PresetService(presetRepository);
@@ -24,14 +26,16 @@ function useBoard() {
   const handleSavePreset = async () => {
     const preset = presetStore.getPreset();
     if (!preset) return;
-    const boardData = boardDataStore.getBoardData();
-    const sectionDatas = sectionDatasStore.getSectionDatas();
-    const stickerDatas = stickerDatasStore.getStickerDatas();
+    const boardData: BoardDataType = boardDataStore.getBoardData();
+    const sectionDatas: SectionDataType[] = sectionDatasStore.getSectionDatas();
+    const stickerDatas: StickerDataType[] = stickerDatasStore.getStickerDatas();
+    console.log(boardData, sectionDatas, stickerDatas);
     const presetData = {
       boardData,
       sectionDatas,
       stickerDatas,
     };
+    console.log(preset);
     await presetService.savePreset({
       id: preset.info.id,
       data: presetData,
