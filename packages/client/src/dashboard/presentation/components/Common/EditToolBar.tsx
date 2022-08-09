@@ -3,14 +3,28 @@ import styled from '@emotion/styled';
 import SectionDataType, {
   PeriodFilterType,
 } from '../../../domain/sectionDatas/sectionData.type';
-import { Button } from '@mui/material';
 import PeriodModal from '../PeriodModal/PeriodModal';
+import { ReactComponent as IconRemove } from '../../../../assets/icons/xmark-solid.svg';
+import { ReactComponent as IconAdd } from '../../../../assets/icons/plus-solid.svg';
+import { ReactComponent as IconSave } from '../../../../assets/icons/floppy-disk-solid.svg';
+
+const Button = styled.button`
+  background-color: none;
+  border: 0;
+  outline: 0;
+  cursor: pointer;
+  background-color: transparent;
+  &:hover {
+    background-color: lightgrey;
+  }
+`;
 
 const EditToolBarArea = styled.div`
+  position: relative;
   display: flex;
   width: 100%;
   height: 2rem;
-  justify-content: space-between;
+  align-items: center;
   border: 1px solid blue;
 `;
 
@@ -32,9 +46,14 @@ export const BoardEditToolBar = (props: BoardEditToolBarProps) => {
           handleSectionAdd(sectionData.id);
         }}
       >
-        Add Section
+        <IconAdd style={{ width: '1rem' }} />
       </Button>
-      <Button onClick={handleSavePreset}>Save Preset</Button>
+      <Button
+        onClick={handleSavePreset}
+        style={{ position: 'absolute', right: '0' }}
+      >
+        <IconSave style={{ width: '1rem' }} />
+      </Button>
     </EditToolBarArea>
   );
 };
@@ -74,7 +93,7 @@ export const SectionEditToolBar = (props: SectionEditToolBarProps) => {
             setIsOpen && setIsOpen(true);
           }}
         >
-          Add Sticker
+          <IconAdd style={{ width: '1rem' }} />
         </Button>
       }
       {periodFilter && setStartDate && setEndDate && setGrade && (
@@ -91,10 +110,13 @@ export const SectionEditToolBar = (props: SectionEditToolBarProps) => {
           ~{endDate.getFullYear()}/{endDate.getMonth()}/{endDate.getDate()}
         </>
       )}
-      {grade && !startDate && <>기수 : {grade}</>}
+      {grade && !startDate && <>{grade}</>}
       {
-        <Button onClick={() => removeItem && id && removeItem(id)}>
-          Remove
+        <Button
+          onClick={() => removeItem && id && removeItem(id)}
+          style={{ position: 'absolute', right: '0' }}
+        >
+          <IconRemove style={{ width: '1rem' }} />
         </Button>
       }
     </EditToolBarArea>
@@ -111,7 +133,12 @@ export const StickerEditToolBar = (props: StickerEditToolBarProps) => {
   const { stickerId, handelStickerRemove } = props;
   return (
     <EditToolBarArea>
-      <Button onClick={() => handelStickerRemove(stickerId)}>Remove</Button>
+      <Button
+        onClick={() => handelStickerRemove(stickerId)}
+        style={{ position: 'absolute', right: '0' }}
+      >
+        <IconRemove style={{ width: '1rem' }} />
+      </Button>
     </EditToolBarArea>
   );
 };
