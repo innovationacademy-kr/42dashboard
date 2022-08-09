@@ -31,18 +31,43 @@ const EditToolBarArea = styled.div`
   border: 1px solid blue;
 `;
 
-// TODO: hybae
-// Section - Remove Section 추가
-// Sticker - Apply Filter 추가
-// Sticker - Remove Sticker 추가
+interface BoardEditToolBarProps {
+  sectionData: SectionDataType;
+  addSectionData: (sectionData: SectionDataType) => void;
+  handleSectionAdd: (sectionId: string) => void;
+  handleSavePreset: () => void;
+}
 
-const EditToolBar = (props: EditToolBarProps) => {
-  const { addSectionData } = useSections();
-  const { handleSectionAdd, handleSavePreset } = useBoard();
+export const BoardEditToolBar = (props: BoardEditToolBarProps) => {
+  const { sectionData, addSectionData, handleSectionAdd, handleSavePreset } =
+    props;
+  return (
+    <EditToolBarArea>
+      <Button
+        onClick={() => {
+          addSectionData(sectionData);
+          handleSectionAdd(sectionData.id);
+        }}
+      >
+        Add Section
+      </Button>
+      <Button onClick={handleSavePreset}>Save Preset</Button>
+    </EditToolBarArea>
+  );
+};
+
+export interface SectionEditToolBarProps {
+  setIsOpen?: ((isOpen: boolean) => void) | undefined;
+  removeItem?: ((id: string) => void) | undefined;
+  id?: string;
+  periodFilter?: PeriodFilterType;
+  setStartDate?: React.Dispatch<React.SetStateAction<Date | undefined>>;
+  setEndDate?: React.Dispatch<React.SetStateAction<Date | undefined>>;
+  setGrade?: React.Dispatch<React.SetStateAction<string | undefined>>;
+}
+
+export const SectionEditToolBar = (props: SectionEditToolBarProps) => {
   const {
-    type,
-    sectionData,
-    sectionId,
     setIsOpen,
     removeItem,
     id,
@@ -54,48 +79,43 @@ const EditToolBar = (props: EditToolBarProps) => {
 
   return (
     <EditToolBarArea>
-      {type === 'Board' && (
+      {
         <Button
           onClick={() => {
-            addSectionData(sectionData);
-            handleSectionAdd(sectionId);
+            setIsOpen && setIsOpen(true);
           }}
         >
-          Add Section
-        </Button>
-      )}
-      {type === 'Section' && (
-        <Button onClick={() => setIsOpen && setIsOpen(true)}>
           Add Sticker
         </Button>
+      }
+      {periodFilter && setStartDate && setEndDate && setGrade && (
+        <PeriodModal
+          setStartDate={setStartDate}
+          setEndDate={setEndDate}
+          setGrade={setGrade}
+          periodFilter={periodFilter || {}}
+        />
       )}
-      {type === 'Section' &&
-        periodFilter &&
-        setStartDate &&
-        setEndDate &&
-        setGrade && (
-          <PeriodModal
-            setStartDate={setStartDate}
-            setEndDate={setEndDate}
-            setGrade={setGrade}
-            periodFilter={periodFilter || {}}
-          />
-        )}
-      {type === 'Sticker' && <Button>Apply Filter</Button>}
-      {type === 'Board' && (
-        <Button onClick={handleSavePreset}>Save Preset</Button>
-      )}
-      {type === 'Section' && (
+      {
         <Button onClick={() => removeItem && id && removeItem(id)}>
           Remove
         </Button>
-      )}
-      {type === 'Sticker' && (
-        <Button onClick={() => removeItem && id && removeItem(id)}>
-          Remove
-        </Button>
-      )}
+      }
     </EditToolBarArea>
   );
 };
-export default EditToolBar;
+interface StickerEditToolBarProps {
+  stickerId: string;
+  handelStickerRemove: (id: string) => void;
+  // 설정 적용 something
+  // updateStickerData:
+}
+
+export const StickerEditToolBar = (props: StickerEditToolBarProps) => {
+  const { stickerId, handelStickerRemove } = props;
+  return (
+    <EditToolBarArea>
+      <Button onClick={() => handelStickerRemove(stickerId)}>Remove</Button>
+    </EditToolBarArea>
+  );
+};
