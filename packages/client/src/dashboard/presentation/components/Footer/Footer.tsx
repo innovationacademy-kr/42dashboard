@@ -64,6 +64,7 @@ function Footer() {
   const [refetchState, setRefetchState] = React.useState('data');
   const { handleSavePreset } = useBoard();
 
+  console.log('Footer: ');
   const mode = getControlMode();
 
   return (
@@ -97,12 +98,12 @@ function Footer() {
                 .axiosGetError()
                 .then((data) => console.log('SUCCESS'))
                 .catch((error) => {
-                  let alertMsg = '';
-                  const errorMessages = error.response.data.data;
-                  for (let i = 0; i < errorMessages.length; i += 1) {
-                    alertMsg += `${errorMessages[i].sheet} sheet 내 ${errorMessages[i].index} 인덱스의 값이 ${errorMessages[i].value} 입니다\n${errorMessages[i].msg}\n\n`;
-                  }
-                  alert(alertMsg);
+                  // let alertMsg = '';
+                  // const errorMessages = error.response.data.data;
+                  // for (let i = 0; i < errorMessages.length; i += 1) {
+                  //   alertMsg += `${errorMessages[i].sheet} sheet 내 ${errorMessages[i].index} 인덱스의 값이 ${errorMessages[i].value} 입니다\n${errorMessages[i].msg}\n\n`;
+                  // }
+                  // alert(alertMsg);
                 });
             }}
           >

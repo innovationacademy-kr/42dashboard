@@ -26,6 +26,7 @@ class PresetRepository implements PresetRepositoryInterface {
   public async savePreset(preset: PresetType): Promise<void> {
     console.log('svaePreset');
     const { id } = preset;
+    console.log('preset', preset);
     let isExist = false;
     await axios
       .get(

@@ -31,6 +31,7 @@ function SideBar() {
     console.log('deletePreset: ', id);
   }
 
+  console.log('sidebar presetList: ', presetList);
   const drawerWidth = 240;
   return (
     <Drawer
@@ -52,7 +53,7 @@ function SideBar() {
               label={presetInfo.label}
               description={presetInfo.description}
               deletePreset={deletePreset}
-              onClick={() => changePreset(presetInfo.id)}
+              changeSelectedPreset={() => changePreset(presetInfo.id)}
               selected={presetInfo.id === preset?.id}
               changePresetLabel={changePresetLabel}
             />

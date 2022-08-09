@@ -74,7 +74,7 @@ function usePreset() {
     presetListService.setPresetList(presetList);
   };
 
-  const createPreset = () => {
+  const createPreset = async () => {
     const newPresetId = uuid();
     const newPreset = {
       id: newPresetId,
@@ -94,17 +94,22 @@ function usePreset() {
     };
 
     // update preset store state
-    presetStore.setPreset({
+    presetService.setPreset({
       id: newPresetId,
       data: newPreset.data,
       info: newPreset.info,
     });
 
+    // save preset to db
+    await presetService.savePreset(newPreset);
+
+    console.log('create preset', newPreset);
+
     // add to prestList in memory
     presetListStore.setPresetList({
-      presetInfos: [newPreset.info, ...presetList.presetInfos],
-    }); // set 하는 순간 랜더가 다시 시작 되나?
-    console.log(presetList.presetInfos);
+      presetInfos: [...presetList.presetInfos, newPreset.info],
+    });
+    console.log('createPreset', presetList); // 적용안됨.
     setControlMode('edit');
   };
 
@@ -112,24 +117,28 @@ function usePreset() {
     await presetService.deletePreset(id);
   };
 
+  // 해당 아이디의 info의 라벨을 수정한다.
   const changePresetLabel = async (id: string, label: string) => {
-    const presetData = await presetService.getPreset(id);
+    const presetData = await presetService.getPreset(id); // from db
     if (presetData && presetList) {
-      const newPresetInfoList = presetList.presetInfos.filter(
-        (presetInfo) => presetInfo.id !== id,
-      );
+      //create new preset Info
       const newPresetInfo = {
-        id,
+        ...presetData.info,
         label,
-        description: '프리셋 설명',
       };
-      presetStore.setPreset({
-        id: id,
-        data: presetData.data,
-        info: newPresetInfo,
+
+      // update preset db state
+      await presetService.setPreset({ ...presetData, info: newPresetInfo });
+
+      // create updated presetInfoList
+      const newPresetInfos = presetList.presetInfos.map((info) => {
+        if (info.id === id) return newPresetInfo;
+        return info;
       });
+
+      // add to prestList in memory
       presetListStore.setPresetList({
-        presetInfos: [newPresetInfo, ...newPresetInfoList],
+        presetInfos: newPresetInfos,
       });
     }
   };
