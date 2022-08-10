@@ -181,6 +181,12 @@ const entityColumnNotMapping = {
 // expired_date에 값을 어떻게 저장해 주는지를 모르고 있는 상황
 // ************************************************
 
+const columnDateMapping = [
+  'enterprise',
+  'employmented',
+  'enterprise',
+  'absenced',
+];
 ///////////////////////////////////////////////////
 const halfAndHalf = {
   user: {
@@ -265,6 +271,7 @@ export {
   entityColumnMapping,
   entityColumnNotMapping,
   halfAndHalf,
+  columnDateMapping,
   getValidateColumn,
   getRawQuery,
   getExpireColumn,

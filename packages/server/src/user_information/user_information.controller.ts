@@ -26,7 +26,7 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { Request, Response } from 'express';
 import { takeLast } from 'rxjs';
 import { Bocal, BocalRole, PreSet } from 'src/auth/entity/bocal.entity';
-import { DataSource, Equal, IsNull, Not } from 'typeorm';
+import { DataSource, Equal, IsNull, LessThan, Not } from 'typeorm';
 // import { PreSet } from './entity/preset.entity';
 import { User } from './entity/user_information.entity';
 import { UserInformationService } from './user_information.service';
@@ -63,6 +63,85 @@ export class UserInformationController {
     const t2 = 'huchoi' in t;
     return { 1: t1, 2: t2 };
   }
+
+  async promiseElement(take: number, skip: number) {
+    const findObj = {
+      relations: {
+        userPersonalInformation: true,
+        userCourseExtension: true,
+        userLeaveOfAbsence: true,
+        userBlackhole: true,
+        userInterruptionOfCourse: true,
+        userLearningDataAPI: true,
+        userLoyaltyManagement: true,
+        userEmploymentStatus: true,
+        userHrdNetUtilizeConsent: true,
+        userHrdNetUtilize: true,
+        userOtherEmploymentStatus: true,
+        userComputationFund: true,
+        userAccessCardInformation: true,
+        userOtherInformation: true,
+        userLapiscineInformation: true,
+      },
+      where: {
+        start_process_date: LessThan(new Date('9999-12-31')),
+      },
+      // order: {i},
+      // cache: true,
+      take,
+      skip, // take 10으로 주는게 적당할듯?
+    };
+    const userRepository = await this.dataSource.getRepository(User);
+    const result = await userRepository.find(findObj);
+  }
+
+  @Get('/out2')
+  async testOut2() {
+    const findObj = {
+      relations: {
+        // userPersonalInformation: true,
+        // userCourseExtension: true,
+        // userLeaveOfAbsence: true,
+        // userBlackhole: true,
+        // userInterruptionOfCourse: true,
+        userLearningDataAPI: true,
+        // userLoyaltyManagement: true,
+        // userEmploymentStatus: true,
+        // userHrdNetUtilizeConsent: true,
+        userHrdNetUtilize: true,
+        // userOtherEmploymentStatus: true,
+        // userComputationFund: true,
+        // userAccessCardInformation: true,
+        // userOtherInformation: true,
+        // userLapiscineInformation: true,
+      },
+      where: {
+        // start_process_date: LessThan(new Date('9999-12-31')),
+      },
+      select: { intra_no: true, userLearningDataAPI: false },
+      // order: {i},
+      // cache: true,
+      // take: 10,
+    };
+    const userRepository = await this.dataSource.getRepository(User);
+    const result = await userRepository.find(findObj);
+    return result;
+  }
+
+  // @Get('/out1')
+  // async testOut1() {
+  //   const proemiseArray = [];
+  //   let ret = [];
+  //   for (let i = 0; i < 10; i++) {
+  //     proemiseArray.push(this.promiseElement(10, i * 10));
+  //   }
+  //   Promise.all(proemiseArray).then((responses) =>
+  //     responses.forEach((response) => {
+  //       ret = ret.concat(response);
+  //     }),
+  //   ).then();
+  // }
+
   /**
    * body는 아래 구조라고 가정
    *  {
