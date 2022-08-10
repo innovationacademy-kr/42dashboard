@@ -366,7 +366,7 @@ export const oldDateTable = {
   [repoKeys.userLeaveOfAbsence]: 'begin_absence_date',
   [repoKeys.userBlackhole]: 'validate_date',
   [repoKeys.userInterruptionOfCourse]: 'validate_date',
-  [repoKeys.userLearningDataAPI]: 'validate_date',
+  [repoKeys.userLearningDataAPI]: 'manyDateTable', //날짜 저장의 기준이 여러개인 table
   [repoKeys.userLoyaltyManagement]: 'validate_date',
   [repoKeys.userEmploymentStatus]: 'employment_date',
   [repoKeys.userHrdNetUtilizeConsent]: 'consented_date',
@@ -395,6 +395,15 @@ export const dateTable = {
   [repoKeys.userAccessCardInformation]: 'validate_date',
   [repoKeys.userOtherInformation]: 'validate_date',
   [repoKeys.userLapiscineInformation]: 'validate_date',
+};
+
+export const manyDateTable = {
+  [repoKeys.userLearningDataAPI]: [
+    'scored_date',
+    'circled_date',
+    'leveled_date',
+    'outcircled_date',
+  ],
 };
 
 export const classType = {
