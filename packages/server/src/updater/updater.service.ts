@@ -612,8 +612,8 @@ export class UpdaterService {
           .distinctOn([`${repoKey}.${key}`])
           .orderBy(`${repoKey}.${key}`, 'DESC')
           .getMany();
-          // returnArray[repoKey] = latestValue;
-      console.log('-------------------------------------');
+        // returnArray[repoKey] = latestValue;
+        console.log('-------------------------------------');
       }
       return returnArray;
 
