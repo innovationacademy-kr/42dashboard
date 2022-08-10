@@ -20,9 +20,11 @@ function Profile(props: ProfileProps) {
         variant={props.shape || 'circular'}
         src={props.imgSrc}
         sx={{
-          bgcolor: props.color || green[500],
+          bgcolor: props.color || '#1976d2',
           width: props.size || 56,
           height: props.size || 56,
+          boxShadow:
+            '0px 3px 5px -1px rgb(0 0 0 / 20%), 0px 6px 10px 0px rgb(0 0 0 / 14%)',
         }}
       >
         {initial}

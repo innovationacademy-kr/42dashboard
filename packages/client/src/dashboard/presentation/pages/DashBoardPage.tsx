@@ -91,7 +91,7 @@ function DashBoardPage() {
   );
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <div style={{ display: 'flex' }}>
       <CssBaseline />
       <AppBar>
         <Logo />
@@ -104,7 +104,7 @@ function DashBoardPage() {
         <Footer />
       </MainArea>
       <ModificationDialog open={open} setOpen={setOpen} />
-    </Box>
+    </div>
   );
 }
 
