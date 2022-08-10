@@ -10,23 +10,23 @@ const LoginPage = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: black;
   height: 100vh;
 `;
 
 const LoginButton = styled.button`
-  width: 500px;
-  height: 100px;
+  width: 400px;
+  height: 80px;
   border-radius: 1rem;
   background-color: darkgrey;
   cursor: pointer;
-  font-size: 3rem;
+  font-size: 2rem;
   transition: all 0.7s;
   color: black;
+  margin: 2rem;
   &:hover {
     background-color: grey;
     color: white;
-    font-size: 4rem;
+    font-size: 3rem;
   }
 `;
 
