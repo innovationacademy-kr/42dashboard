@@ -35,10 +35,7 @@ import {
   UserHrdNetUtilizeConsent,
   UserOtherEmploymentStatus,
 } from 'src/user_job/entity/user_job.entity';
-import {
-  UserComputationFund,
-  // UserEducationFundState,
-} from 'src/user_payment/entity/user_payment.entity';
+import { UserComputationFund } from 'src/user_payment/entity/user_payment.entity';
 import {
   UserBlackhole,
   UserCourseExtension,
@@ -52,26 +49,6 @@ import { EntityColumn } from 'src/common/EntityColumn';
 
 export const LOCALTIME = 32400000;
 export const REMAINDPAYMENTPERIOD = 24;
-
-// export const enum TABLENUM {
-//   USER = 0,
-//   USERPERSONAL = 1,
-//   USERCOURSEEXTENSION = 2,
-//   USERLEAVEOFABSENCE = 3,
-//   USERBLACKHOLE = 4,
-//   USERINTERRUPTIONOFCOURSE = 5,
-//   USERLEARNINGDATAAPI = 6,
-//   USERLOYALTYMANAGEMENT = 7,
-//   USEREMPLOYMENTSTATUS = 8,
-//   USERHRDNETUTILIZECONSENT = 9,
-//   USERHRDNETUTILIZE = 10,
-//   USEROTHEREMPLOYMENTSTATUS = 11,
-//   USEREDUCATIONFUNDSTATE = 12,
-//   USERCOMPUTATIONFUND = 13,
-//   USERACCESSCARDINFORMATION = 14,
-//   USEROTHERINFORMATION = 15,
-//   USERLAPISCINEINFORMATION = 16,
-// }
 
 export const pastDataOnSheet = [
   //spread수정해야함!
@@ -167,13 +144,6 @@ export const pastDataOnSheet = [
     columns: EntityColumn['UserOtherEmploymentStatus'],
     table: 'UserOtherEmploymentStatus',
   },
-  // {
-  //   // 지원금관리
-  //   endPoint: SPREAD_END_POINT,
-  //   Id: [SUB_EDUCATIONFUNDSTATE_ID],
-  //   columns: EntityColumn['UserEducationFundState'],
-  //   table: 'UserEducationFundState',
-  // },
   {
     // 지원금 산정
     endPoint: null,
@@ -243,7 +213,6 @@ export const repoKeys = {
   userHrdNetUtilizeConsent: 'user_hrd_net_utilize_consent',
   userHrdNetUtilize: 'user_hrd_net_utilize',
   userOtherEmploymentStatus: 'user_other_employment_status',
-  // userEducationFundState: 'user_education_fund_state',
   userComputationFund: 'user_computation_fund',
   userAccessCardInformation: 'user_access_card_information',
   userOtherInformation: 'user_other_information',
@@ -290,7 +259,6 @@ export const defaultVALUE = {
   },
 
   user_blackhole: {
-    //remaining_period: 0,
     blackhole_date: '9999-12-31',
     blackholed_level: 0,
     validate_date: '9999-12-31',
@@ -299,6 +267,7 @@ export const defaultVALUE = {
 
   user_interruption_of_course: {
     break_date: '9999-12-31', //이름 변경 요망validate_date: '9999-12-31',
+    validate_date: '9999-12-31',
     expired_date: '9999-12-31',
   },
 
@@ -350,15 +319,6 @@ export const defaultVALUE = {
     validate_date: '9999-12-31',
     expired_date: '9999-12-31',
   },
-
-  // user_education_fund_state: {
-  //   total_real_payment_of_number: 0,
-  //   total_payment_of_money: '0',
-  //   payment_end_date: '9999-12-31',
-  //   //uniqueness: '0',
-  //   validate_date: '9999-12-31',
-  //   expired_date: '9999-12-31',
-  // },
 
   //하위시트에서 받아올 때는 makeAColumnInTable에서 초기화를 함
   user_computation_fund: {
@@ -412,7 +372,6 @@ export const oldDateTable = {
   [repoKeys.userHrdNetUtilizeConsent]: 'consented_date',
   [repoKeys.userHrdNetUtilize]: 'hrd_net_date',
   [repoKeys.userOtherEmploymentStatus]: 'employment_date',
-  // [repoKeys.userEducationFundState]: 'validate_date',
   [repoKeys.userComputationFund]: 'payment_date',
   [repoKeys.userAccessCardInformation]: 'validate_date',
   [repoKeys.userOtherInformation]: 'validate_date',
@@ -432,7 +391,6 @@ export const dateTable = {
   [repoKeys.userHrdNetUtilizeConsent]: 'validate_date',
   [repoKeys.userHrdNetUtilize]: 'validate_date',
   [repoKeys.userOtherEmploymentStatus]: 'validate_date',
-  // [repoKeys.userEducationFundState]: 'validate_date',
   [repoKeys.userComputationFund]: 'validate_date',
   [repoKeys.userAccessCardInformation]: 'validate_date',
   [repoKeys.userOtherInformation]: 'validate_date',
@@ -452,7 +410,6 @@ export const classType = {
   [repoKeys.userHrdNetUtilizeConsent]: UserHrdNetUtilizeConsent,
   [repoKeys.userHrdNetUtilize]: UserHrdNetUtilize,
   [repoKeys.userOtherEmploymentStatus]: UserOtherEmploymentStatus,
-  // [repoKeys.userEducationFundState]: UserEducationFundState,
   [repoKeys.userComputationFund]: UserComputationFund,
   [repoKeys.userAccessCardInformation]: UserAccessCardInformation,
   [repoKeys.userOtherInformation]: UserOtherInformation,
@@ -499,11 +456,5 @@ export const aggregateDataObj = {
       operator: '>=',
       value: 0,
     },
-  },
-};
-
-export const exceptDataObj = {
-  user: {
-    uniqueness: 'transfer',
   },
 };
