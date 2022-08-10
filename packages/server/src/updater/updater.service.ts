@@ -296,7 +296,6 @@ export class UpdaterService {
     errorMsg,
   ) {
     const tuple = {} as ErrorMsg;
-    const repoName = Object.keys(repoKeys);
 
     //수정과 삭제가 동시에 일어났는지 확인
     if (!DeleteOrEdit) {
@@ -429,7 +428,8 @@ export class UpdaterService {
       return flag;
     });
     // 스프레드에 있는 no.은 따로 entity에서 저장 x
-    if (entityCols.length + 1 !== columns.length) {
+    // 스프레드에 있던 지원금산정 컬럼 삭제
+    if (entityCols.length !== columns.length + 5) {
       checkColumn = false;
     }
     return checkColumn;
