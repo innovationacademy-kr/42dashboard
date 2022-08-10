@@ -1504,20 +1504,33 @@ export class SpreadService {
     return DEFAULT_VALUE.DEFAULT;
   }
 
-  async initValidateDate(repoKey, saveDate, dateTable) {
+  getBaseDate(saveData) {
+    const values = Object.values(saveData).filter(
+      (value) => Object.prototype.toString.call(value) === '[object Date]',
+    );
+    const baseDate = values.find(
+      (date: Date) => date.getTime() < new Date('9999-12-30').getTime(),
+    );
+    return baseDate;
+  }
+
+  async initValidateDate(repoKey, saveData, dateTable) {
     // console.log(repoKey, '\n', saveDate, '\n', dateTable[repoKey]);
     const now = new Date();
     const defaultDate = new Date('9999-12-31');
     //데이터의 유효성을 확인하는 컬럼이 validate_date라면, 저장하는 데이터의 시간을 기점으로 저장
     if (dateTable[repoKey] === 'validate_date') {
-      saveDate['validate_date'] = now;
+      saveData['validate_date'] = now;
+    } //날짜 저장의 기준이 여러개인 table
+    else if (dateTable[repoKey] === 'manyDateTable') {
+      saveData['validate_date'] = this.getBaseDate(saveData);
     } else {
-      saveDate['validate_date'] = saveDate[dateTable[repoKey]]; //기준 data가 validate_date가 아니면 기준이 되는 column의 값을 validate_date에 넣어줌
+      saveData['validate_date'] = saveData[dateTable[repoKey]]; //기준 data가 validate_date가 아니면 기준이 되는 column의 값을 validate_date에 넣어줌
     }
     //데이터의 기준날짜가 있는 table이면, 과거 데이터의 만료일자는 현재 저장하고자하는 데이터의 기준 date 값을 넣어야됨
-    const expiredDate = saveDate['validate_date'];
-    await this.updateExpiredDate(repoKey, saveDate, expiredDate); //await 지워도 될지도?
-    saveDate['expired_date'] = defaultDate;
+    const expiredDate = saveData['validate_date'];
+    await this.updateExpiredDate(repoKey, saveData, expiredDate); //await 지워도 될지도?
+    saveData['expired_date'] = defaultDate;
   }
 
   isEmptyObj(obj): boolean {

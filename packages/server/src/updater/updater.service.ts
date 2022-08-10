@@ -46,6 +46,7 @@ import { ErrorObject } from 'src/auth/entity/bocal.entity';
 import { EntityColumn } from 'src/common/EntityColumn';
 import { APIS } from 'googleapis/build/src/apis';
 import { entityArray } from 'src/user_information/utils/getDomain.utils';
+import { ExceptionsHandler } from '@nestjs/core/exceptions/exceptions-handler';
 
 interface RepoDict {
   [repositoryName: string]:
@@ -568,7 +569,7 @@ export class UpdaterService {
       }
       return returnArray;
     } catch {
-      throw 'eere';
+      throw ExceptionsHandler;
     }
   }
 
