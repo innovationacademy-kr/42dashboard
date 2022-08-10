@@ -198,14 +198,6 @@ export class UpdaterService {
         errObject,
       )
     ) {
-      // const err = JSON.stringify(errObject);
-      // const errorObject = {} as ErrObject;
-
-      // errorObject['error'] = err;
-
-      // await this.spreadService.insertDataToDB(ErrorObject, errorObject);
-      // return 'Error while inserting data with main sheet';
-
       const errorObject = {};
       console.log(errObject, '-----------');
       for (const err of errObject) {
@@ -219,28 +211,28 @@ export class UpdaterService {
     /***************************************/
     /*************사전 처리 작업***************/
 
-    //만약 특이사항값이 transfer라면 soft-delete
-    const transferArray = rows.filter(
-      (row) => row[uniquenessCol] === 'transfer',
-    );
-    console.log(transferArray);
-    if (transferArray.length > 0) {
-      await this.checkSoftDeletedInMain(transferArray, intraNoCol);
-    }
-    //rows = rows.filter((row) => row[uniquenessCol] !== 'transfer');
+    // //만약 특이사항값이 transfer라면 soft-delete
+    // const transferArray = rows.filter(
+    //   (row) => row[uniquenessCol] === 'transfer',
+    // );
+    // console.log(transferArray);
+    // if (transferArray.length > 0) {
+    //   await this.checkSoftDeletedInMain(transferArray, intraNoCol);
+    // }
+    // //rows = rows.filter((row) => row[uniquenessCol] !== 'transfer');
 
-    //삭제되었던 transfer가 다시 복구되는 경우
-    const nonTransferObject = await this.getRecoverArray(
-      transferArray,
-      intraNoCol,
-    );
-    const nonTransferArray = nonTransferObject.map(
-      (nonTransfer) => nonTransfer.intra_no,
-    );
-    console.log(nonTransferObject);
-    if (nonTransferArray.length > 0) {
-      await this.checkRecoverInMain(nonTransferArray, intraNoCol);
-    }
+    // //삭제되었던 transfer가 다시 복구되는 경우
+    // const nonTransferObject = await this.getRecoverArray(
+    //   transferArray,
+    //   intraNoCol,
+    // );
+    // const nonTransferArray = nonTransferObject.map(
+    //   (nonTransfer) => nonTransfer.intra_no,
+    // );
+    // console.log(nonTransferObject);
+    // if (nonTransferArray.length > 0) {
+    //   await this.checkRecoverInMain(nonTransferArray, intraNoCol);
+    // }
 
     // 시트에서 유저가 사라졌다면 삭제
     if (deleteOrEdit) {
