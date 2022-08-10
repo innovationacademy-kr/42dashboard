@@ -17,7 +17,9 @@ export default function PieChart(props: ChartProps) {
       tooltip: {
         callbacks: {
           title: function (tooltipItem: any) {
-            return `${tooltipItem[0].dataset.label}`;
+            if (tooltipItem[0].dataset.label)
+              return `${tooltipItem[0].dataset.label}`;
+            else return '';
           },
           afterLabel: function (tooltipItem: any) {
             let total = 0;
@@ -42,7 +44,7 @@ export default function PieChart(props: ChartProps) {
   const pieData = {
     labels,
     datasets: datasets.map((dataset, idx) => ({
-      label: datasetNames[idx],
+      label: datasetNames[idx] ? datasetNames[idx] : 'Default',
       data: dataset,
       backgroundColor: backgroundColor,
       borderColor: borderColor,
