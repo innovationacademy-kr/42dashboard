@@ -1,4 +1,4 @@
-import { Checkbox } from '@mui/material';
+import { Checkbox, FormControlLabel } from '@mui/material';
 
 export interface WithButtonProps {
   checked: boolean;
@@ -12,5 +12,12 @@ export default function WithButton(props: WithButtonProps) {
     onChange(!checked);
   }
 
-  return <Checkbox value={checked} onClick={handleChange} />;
+  return (
+    <FormControlLabel
+      value="start"
+      control={<Checkbox value={checked} onClick={handleChange} />}
+      label="삭제된 데이터 포함"
+      labelPlacement="start"
+    />
+  );
 }
