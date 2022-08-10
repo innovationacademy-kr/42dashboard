@@ -291,7 +291,7 @@ export const defaultVALUE = {
 
   user_blackhole: {
     //remaining_period: 0,
-    blackhost_date: '9999-12-31',
+    blackhole_date: '9999-12-31',
     blackholed_level: 0,
     validate_date: '9999-12-31',
     expired_date: '9999-12-31',
@@ -302,7 +302,7 @@ export const defaultVALUE = {
     expired_date: '9999-12-31',
   },
 
-  user_learnig_data_api: {
+  user_learning_data_api: {
     coalition_score: 0,
     scored_date: '9999-12-31',
     circle: 0,

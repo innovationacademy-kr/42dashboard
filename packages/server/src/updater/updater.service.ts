@@ -32,6 +32,7 @@ import {
   dateTable,
   autoProcessingDataObj,
   oldDateTable,
+  classType,
 } from './name_types/updater.name';
 import {
   UserComputationFund,
@@ -43,6 +44,9 @@ import { tableName } from 'src/common/tableName';
 import { ErrObject } from 'src/auth/dto/errObject.dto';
 import { ErrorObject } from 'src/auth/entity/bocal.entity';
 import { EntityColumn } from 'src/common/EntityColumn';
+import { APIS } from 'googleapis/build/src/apis';
+import { PARSEDAPI } from 'src/config/api';
+import { entityArray } from 'src/user_information/utils/getDomain.utils';
 
 interface RepoDict {
   [repositoryName: string]:
@@ -153,9 +157,9 @@ export class UpdaterService {
         SPREAD_END_POINT,
         MAIN_SHEET,
       );
-    const tables = await spreadData[0].filter((value) => value != ''); //모든 테이블
+    const tables = spreadData[0].filter((value) => value != ''); //모든 테이블
     const columns = spreadData[1]; //모든 테이블의 컬럼 ex) [Intra No., Intra ID, 성명 ...]
-    const rows = (await spreadData).filter((value, index) => index > 1); //모든 테이블의 로우 [1,	68641,	kilee, ...]
+    const rows = spreadData.filter((value, index) => index > 1); //모든 테이블의 로우 [1,	68641,	kilee, ...]
     const intraNoCol = columns.findIndex((col) => col === 'Intra No.'); //pk
     const uniquenessCol = columns.findIndex((col) => col === '특이사항');
     const intraNoArray = rows.map((row) => row[intraNoCol]);
@@ -172,46 +176,46 @@ export class UpdaterService {
 
     /***************에러 검증****************/
 
-    if (intraNoArray.length > userInDB.length) {
-      deleteOrEdit = true;
-    } else {
-      deleteOrEdit =
-        deleteData.length === userInDB.length - intraNoArray.length;
-    }
+    // if (intraNoArray.length > userInDB.length) {
+    //   deleteOrEdit = true;
+    // } else {
+    //   deleteOrEdit =
+    //     deleteData.length === userInDB.length - intraNoArray.length;
+    // }
 
-    await this.dataSource
-      .createQueryBuilder()
-      .delete()
-      .from(ErrorObject)
-      .execute();
-    if (
-      !this.checkErrorBeforeUpdate(
-        tables,
-        columns,
-        rows,
-        deleteOrEdit,
-        intraNoArray,
-        errObject,
-      )
-    ) {
-      // const err = JSON.stringify(errObject);
-      // const errorObject = {} as ErrObject;
+    // await this.dataSource
+    //   .createQueryBuilder()
+    //   .delete()
+    //   .from(ErrorObject)
+    //   .execute();
+    // if (
+    //   !this.checkErrorBeforeUpdate(
+    //     tables,
+    //     columns,
+    //     rows,
+    //     deleteOrEdit,
+    //     intraNoArray,
+    //     errObject,
+    //   )
+    // ) {
+    //   // const err = JSON.stringify(errObject);
+    //   // const errorObject = {} as ErrObject;
 
-      // errorObject['error'] = err;
+    //   // errorObject['error'] = err;
 
-      // await this.spreadService.insertDataToDB(ErrorObject, errorObject);
-      // return 'Error while inserting data with main sheet';
+    //   // await this.spreadService.insertDataToDB(ErrorObject, errorObject);
+    //   // return 'Error while inserting data with main sheet';
 
-      const errorObject = {};
-      console.log(errObject, '-----------');
-      for (const err of errObject) {
-        console.log(err);
-        errorObject['error'] = JSON.stringify(err);
-        await this.spreadService.insertDataToDB(ErrorObject, errorObject);
-      }
+    //   const errorObject = {};
+    //   console.log(errObject, '-----------');
+    //   for (const err of errObject) {
+    //     console.log(err);
+    //     errorObject['error'] = JSON.stringify(err);
+    //     await this.spreadService.insertDataToDB(ErrorObject, errorObject);
+    //   }
 
-      return 'Error while inserting data with main sheet';
-    }
+    //   return 'Error while inserting data with main sheet';
+    // }
     /***************************************/
     /*************사전 처리 작업***************/
 
@@ -249,28 +253,44 @@ export class UpdaterService {
 
     /*******************************************/
     /************* 데이터 파싱 작업 ***************/
+
+    // const userTable = {};
+    // userTable['user'] = await this.spreadService.parseSpread(
+    //   columns,
+    //   rows,
+    //   tableSet[0],
+    //   undefined,
+    // ); //기본 키값이 되는 유저정보 가져오기
+
+    // const allUser = await this.repoDict['user']
+    //   .createQueryBuilder('user')
+    //   .getMany();
+    // for (const user of userTable['user']) {
+    //   await this.findTargetByKey(
+    //     this.repoDict['user'],
+    //     'user',
+    //     user,
+    //     allUser,
+    //     oldDateTable,
+    //   );
+    // }
+
     await this.spreadService.composeTableData(spreadData, tableSet, false); //시트를 테이블 별로 나눠 정보를 저장 TableSet 배열 구성
-    const api42s = await this.apiService.getApi();
-    return api42s;
+    //const api42s = PARSEDAPI; //await this.apiService.getApi();
+
     const tableArray = {};
     for (const table of tableSet) {
+      console.log(table['name']);
       tableArray[table['name']] = {};
       tableArray[table['name']] = await this.spreadService.parseSpread(
         columns,
         rows,
         table,
-        //api42s,
+        // api42s,
       );
-      this.spreadService.checkErrorData(
-        table['name'],
-        tableArray[table['name']],
-      );
-      // if (table['name'] == 'user_blackhole') {
-      //   console.log(tableArray[table['name']], '123');
-      //   while (1);
-      // }
     }
     const latestData = await this.getLatestAllOneData();
+    console.log(latestData, 'getLatestAllOneData');
     await this.compareNewDataWithLatestData(tableArray, latestData);
     return await 'All data has been updated';
     /*******************************************/
@@ -524,7 +544,6 @@ export class UpdaterService {
       tableSet[0],
       undefined,
     ); //기본 키값이 되는 유저정보 가져오기
-
     const allUser = await this.repoDict['user']
       .createQueryBuilder('user')
       .getMany();
@@ -556,37 +575,71 @@ export class UpdaterService {
         console.log('save', repoKey);
       }
     }
-    // const personalRepo = await this.dataSource.getRepository(
-    //   UserPersonalInformation,
-    // );
-    // const transferUser = personalRepo.find({ withDeleted: true, where: { uniqueness: 'transfer' } }); //transfer가 적혀있는 값들을 가져옴
-    // personalRepo.save(transferUser);
-    // await this.dataSource
-    // .getRepository(entityArray[repoName])
-    // .createQueryBuilder(repoName)
-    // .where(`pk = :pk`, {
-    //   pk: tuple['pk'],
-    // })
-    // .softDelete();
     return await 'All old data has been updated';
   }
 
   async getLatestAllOneData() {
-    const returnArray = {};
-    const valueArray = Object.values(repoKeys);
-    let key;
+    try {
+      // const returnArray = {};
+      // const valueArray = Object.values(repoKeys);
+      // let key;
+      // console.log('for query');
 
-    for (const repoKey of valueArray) {
-      if (repoKey == 'user') key = 'intra_no';
-      else key = 'fk_user_no';
-      returnArray[repoKey] = await this.repoDict[repoKey]
-        .createQueryBuilder(repoKey)
-        .distinctOn([`${repoKey}.${key}`])
-        .orderBy(`${repoKey}.${key}`, 'DESC')
-        .addOrderBy(`${repoKey}.${dateTable[repoKey]}`, 'DESC')
-        .getMany();
+      // returnArray['gg'] = await this.userPersonalInformationRepository
+      //   .createQueryBuilder('user_personal_information')
+      //   .distinctOn([`${'user_personal_information'}.fk_user_no`])
+      //   .orderBy(`${'user_personal_information'}.fk_user_no`, 'DESC')
+      //   .addOrderBy('user_personal_information.validate_date', 'DESC')
+      //   .getMany();
+
+      // return returnArray;
+      const returnArray = {};
+      const valueArray = Object.values(repoKeys);
+      let key;
+      console.log(valueArray, 'valueArray');
+      for (const repoKey of valueArray) {
+        console.log(repoKey, 'for query');
+        if (repoKey == 'user') {
+          key = 'intra_no';
+          console.log(key, 'key1');
+        } else {
+          key = 'fk_user_no';
+          console.log(key, 'key2');
+        }
+        await this.dataSource
+          .getRepository(classType[repoKey])
+          .createQueryBuilder(repoKey)
+          .distinctOn([`${repoKey}.${key}`])
+          .orderBy(`${repoKey}.${key}`, 'DESC')
+          .getMany();
+          // returnArray[repoKey] = latestValue;
+      console.log('-------------------------------------');
+      }
+      return returnArray;
+
+      // const returnArray = {};
+      // const valueArray = Object.values(repoKeys);
+      // let key;
+      // for (const repoKey of valueArray) {
+      //   console.log(repoKey, 'for query');
+      //   if (repoKey == 'user') {
+      //     key = 'intra_no';
+      //     console.log(key, 'key1');
+      //   } else {
+      //     key = 'fk_user_no';
+      //     console.log(key, 'key2');
+      //   }
+      //   returnArray[repoKey] = await this.repoDict[repoKey]
+      //     .createQueryBuilder(repoKey)
+      //     .distinctOn([`${repoKey}.${key}`])
+      //     .orderBy(`${repoKey}.${key}`, 'DESC')
+      //     .addOrderBy(`${repoKey}.${dateTable[repoKey]}`, 'DESC')
+      //     .getMany();
+      // }
+      // return returnArray;
+    } catch {
+      throw 'eere';
     }
-    return returnArray;
   }
 
   async extractDataIntoSpreadsheet() {
@@ -648,19 +701,15 @@ export class UpdaterService {
       const processedDataObj = await this.spreadService.autoProcessingData(
         newOneData,
         tableName,
-
         // processData,
         // dateTable,
       );
-      //if (processData !== undefined)
-      newOneData = processedDataObj;
+      if (processData !== undefined) newOneData = processedDataObj;
     }
 
     // console.log(`insert ${tableName} due to dosend't exist spread data in db`);-----------------------
-    if (tableName == 'user_computation_fund') {
-      console.log(
-        `insert ${tableName} due to dosend't exist spread data in db`,
-      );
+    if (newOneData['fk_user_no'] == 68641) {
+      console.log(tableName, ':', newOneData, '111111111');
     }
     await this.spreadService.initValidateDate(tableName, newOneData, dateTable);
     const newTuple = await repo.create(newOneData);
@@ -684,34 +733,31 @@ export class UpdaterService {
     for (const repoKey of repoNameArray) {
       const repo = this.repoDict[repoKey];
       const newTable = newTables[repoKey];
-      if (repoKey == 'user_blackhole') {
-        //console.log(newTable, 'before');
-      }
+
       //스프레스에서 받아온 newTable가 비어있다면 밑에 for문에서 not iterable로 터지니까 예외처리
-      if (newTable == undefined) {
-        console.log(repoKey, ' : ', newTable, 'datas is undefined');
-        continue;
-      }
-      //스프레드에서 table 명으로 나누어 파싱해 둔 데이터를 tableName 구별하여 같은 Db 데이터 테이블에서 해당하는 객체를 받아옴
-      for (const newOneData of newTable) {
-        targetObj = await this.findTargetByKey(
-          repo, //스프레드엔 있고 DB엔 없을 때 해당 학생 저장하기 위함
-          repoKey, //user entity인지 구분하기 위함, intra_no를 넘겨서 구분지어도 되긴하지만, 조금 더 범용성을 위해서 repoKey를 넘김
-          newOneData, //스프레드 테이블 내 객체들 중 하나
-          latestData[repoKey], //최신 데이터 테이블 중 하나
-          dateTable,
-        );
-        //반환한 객체가 비어있다면 내부에서 save를 하고 나오므로 contitnue;
-        if (this.spreadService.isEmptyObj(targetObj) === true) {
-          continue;
+      if (newTable != undefined) {
+        //스프레드에서 table 명으로 나누어 파싱해 둔 데이터를 tableName 구별하여 같은 Db 데이터 테이블에서 해당하는 객체를 받아옴
+        for (const newOneData of newTable) {
+          targetObj = await this.findTargetByKey(
+            repo, //스프레드엔 있고 DB엔 없을 때 해당 학생 저장하기 위함
+            repoKey, //user entity인지 구분하기 위함, intra_no를 넘겨서 구분지어도 되긴하지만, 조금 더 범용성을 위해서 repoKey를 넘김
+            newOneData, //스프레드 테이블 내 객체들 중 하나
+            latestData[repoKey], //최신 데이터 테이블 중 하나
+            dateTable,
+          );
+          //반환한 객체가 비어있지 않다면
+          if (this.spreadService.isEmptyObj(targetObj) === false) {
+            //타겟을 찾았고, 바뀐게 있다면, 저장
+            await this.saveChangedData(
+              repo, //repoKey만 보내 해당 함수내에서 repoDict로 repo를 생성하여 save 시도하면 해당 함수내에선 repository를 명확히 특정할 수 없다 판단하므로 인자로 repo를 넘겨줌
+              repoKey,
+              newOneData,
+              targetObj,
+            );
+          }
         }
-        //타겟을 찾았고, 바뀐게 있다면, 저장
-        await this.saveChangedData(
-          repo, //repoKey만 보내 해당 함수내에서 repoDict로 repo를 생성하여 save 시도하면 해당 함수내에선 repository를 명확히 특정할 수 없다 판단하므로 인자로 repo를 넘겨줌
-          repoKey,
-          newOneData,
-          targetObj,
-        );
+      } else {
+        console.log(repoKey, ' : ', newTable, 'datas is undefined');
       }
       console.log('save', repoKey);
     }
@@ -738,7 +784,7 @@ export class UpdaterService {
     let checkedDate;
     // try {
     const keys: string[] = Object.keys(newOneData);
-
+    let changed = 0;
     for (const key of keys) {
       //new data(spread)의 key 값이 default 값을 갖는 column 일때, null 값 파악 후 초기화
       if (
@@ -760,44 +806,36 @@ export class UpdaterService {
         tableName,
         key,
         repo,
+        changed,
       );
       if (
         //날짜의 변경을 확인하고 바꾸었던가, 날짜인 데이터지만 바뀌지 않았을 때 다음 column 조회
-        checkedDate === DEFAULT_VALUE.CHANGED ||
-        checkedDate === DEFAULT_VALUE.DATE
+        checkedDate === DEFAULT_VALUE.NOT
       ) {
-        continue;
+        //this.processChangeData(newOneData, targetObj, key, checkedDefaulte, repo);
+        //스프레드에 널값이라면 default 값으로 바꾸고, default가 아님에도 불구하고 값이 다르다면 save
+        if (newOneData[key] != targetObj[key]) {
+          changed = 1;
+        }
+      } else if (checkedDate === DEFAULT_VALUE.CHANGED) {
+        //date에서 date 값 비교했을 때 바뀌어야 할 때
+        changed = 1;
       }
-      //this.processChangeData(newOneData, targetObj, key, checkedDefaulte, repo);
-      //스프레드에 널값이라면 default 값으로 바꾸고, default가 아님에도 불구하고 값이 다르다면 save
-      if (newOneData[key] != targetObj[key]) {
-        if (autoProcessingDataObj[tableName] != undefined) {
-          console.log(newOneData, '123');
-          const processData = Object.values(autoProcessingDataObj[tableName]);
-          const processedDataObj = await this.spreadService.autoProcessingData(
-            newOneData,
-            tableName,
-
-            // processData,
-            // dateTable,
-          );
-          //if (processData !== undefined)
-          newOneData = processedDataObj;
-          console.log(newOneData, '0000000000000');
-        }
-        if (tableName != 'user') {
-          console.log(newOneData);
-          await this.saveTuple(repo, newOneData);
-        }
-        //intra_no 가 이미 테이블에 있는 경우 삽입하지 않음, 해서 create를 사용하지 않고 find로 tuple을 가져옴
-        else {
-          this.spreadService.updateTuple(
-            tableName,
-            newOneData,
-            key,
-            newOneData[key],
-          );
-        }
+    }
+    if (autoProcessingDataObj[tableName] != undefined) {
+      const processData = Object.values(autoProcessingDataObj[tableName]);
+      const processedDataObj = await this.spreadService.autoProcessingData(
+        newOneData,
+        tableName,
+      );
+      if (processData !== undefined) newOneData = processedDataObj;
+    }
+    await this.spreadService.initValidateDate(tableName, newOneData, dateTable);
+    if (changed == 1) {
+      if (tableName !== 'user') await this.saveTuple(repo, newOneData);
+      //intra_no 가 이미 테이블에 있는 경우 삽입하지 않음, 해서 create를 사용하지 않고 find로 tuple을 가져옴
+      else {
+        this.spreadService.updateUser(newOneData);
       }
     }
     // } catch {

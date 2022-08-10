@@ -20,8 +20,8 @@ export class UpdaterController {
     return this.updaterService.getLatestAllOneData();
   }
 
-  @Get('/api')
-  getApi() {
-    return this.apiService.getApi();
-  }
+  // @Get('/api')
+  // getApi() {
+  //   return this.apiService.getApi();
+  // }
 }

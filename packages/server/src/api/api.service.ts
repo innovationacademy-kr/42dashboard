@@ -172,7 +172,7 @@ export class ApiService {
       }
     }
     console.log('cant find', intra_no);
-    return -1;
+    return false;
   }
 
   async parseApi(api42s) {
