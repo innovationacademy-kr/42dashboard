@@ -18,7 +18,7 @@ import UserType from '../../domain/user/user.type';
 // userInfo API를 통해 데이터 받아올 경우, userData set
 // 그 외의 경우, 로그인 페이지로 라우팅
 function DashBoardPage() {
-  const { setUser, getUser } = useUser();
+  const { setUser, getUser, userInfo } = useUser();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
@@ -30,19 +30,19 @@ function DashBoardPage() {
           .then((response: any) => response.data)
           .then((data) => setUser(data))
           .catch((error) => {
-            //navigate(`/`);
+            navigate(`/`);
           });
       } else {
         axios
           .axiosGetError()
           .then((data) => console.log('SUCCESS'))
           .catch((error) => {
-            // let alertMsg = '';
-            // const errorMessages = error.response.data.data;
-            // for (let i = 0; i < errorMessages.length; i += 1) {
-            //   alertMsg += `${errorMessages[i].sheet} sheet 내 ${errorMessages[i].index} 인덱스의 값이 ${errorMessages[i].value} 입니다\n${errorMessages[i].msg}\n\n`;
-            // }
-            // alert(alertMsg);
+            let alertMsg = '';
+            const errorMessages = error.response.data.data;
+            for (let i = 0; i < errorMessages.length; i += 1) {
+              alertMsg += `${errorMessages[i].sheet} sheet 내 ${errorMessages[i].index} 인덱스의 값이 ${errorMessages[i].value} 입니다\n${errorMessages[i].msg}\n\n`;
+            }
+            alert(alertMsg);
           });
       }
     });
@@ -53,7 +53,10 @@ function DashBoardPage() {
     document.cookie = key + '=; path=/; expires=' + now.toUTCString() + ';';
   }
 
-  const profile = { name: 'kilee', size: 48 };
+  const profile = {
+    name: userInfo?.intraName || 'null',
+    size: 48,
+  };
 
   const profileMenuItems = [
     {
