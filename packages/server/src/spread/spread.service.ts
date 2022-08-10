@@ -30,6 +30,7 @@ import {
 } from 'src/user_information/utils/getDomain.utils';
 import { ideahub } from 'googleapis/build/src/apis/ideahub';
 import { ERRORMSG, ErrorMsg, formatError } from './msg/errorMsg.msg';
+import { User } from 'src/user_information/entity/user_information.entity';
 
 @Injectable()
 export class SpreadService {
@@ -547,13 +548,11 @@ export class SpreadService {
   //dbData = DB에 있던 latest 데이터, newData = 갱신된 데이터
   compareDateIsNew(dbData, newData, validCol, errorMsg) {
     const datePattern = /[0-9]{4}-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[0-1])$/;
-    const datePattern2 =
-      /[0-9]{4} (0?[1-9]|1[012]) (0?[1-9]|[12][0-9]|3[0-1])$/;
 
     return dbData.every((data, idx) => {
       let oldDate;
 
-      if (datePattern.test(data) || datePattern2.test(data)) {
+      if (datePattern.test(data)) {
         oldDate = new Date(data);
         return this.convSheetDataToDate(
           newData,
@@ -803,18 +802,19 @@ export class SpreadService {
   }
 
   changeDateToString(tmp: Date) {
-    console.log(tmp);
     const year = tmp.getFullYear();
     const tmpMonth = tmp.getMonth() + 1;
     const tmpDay = tmp.getDate();
     const month = tmpMonth >= 10 ? tmpMonth : '0' + tmpMonth;
     const day = tmpDay >= 10 ? tmpDay : '0' + tmpDay;
-    console.log(`${year}-${month}-${day}`);
     return `${year}-${month}-${day}`;
   }
 
-  changeDate(str: string): Date {
-    const convStr = str.replace(/. /g, '-');
+  changeDate(str: string, dateShape): Date {
+    // if (dateShape == /./g) {
+    //   str.replace('.', '-');
+    // }
+    const convStr = str.replace(dateShape, '-');
     const tmp = new Date(convStr);
     const insertHyphen = (str, sub) =>
       `${str.slice(0, 4)}${sub}${str.slice(4, 6)}${sub}${str.slice(6)}`;
@@ -826,6 +826,11 @@ export class SpreadService {
     const tmpDay = tmp.getDate();
     const month = tmpMonth >= 10 ? tmpMonth : '0' + tmpMonth;
     const day = tmpDay >= 10 ? tmpDay : '0' + tmpDay;
+    const checkForDate = new Date(`${year}-${month}-${day}`);
+    if (!(checkForDate instanceof Date) || isNaN(checkForDate.getTime())) {
+      console.log('invalid date is : ', str, 'conv: ', convStr);
+      console.log(new Date(`${year}-${month}-${day}`));
+    }
     return new Date(`${year}-${month}-${day}`);
   }
 
@@ -889,20 +894,36 @@ export class SpreadService {
     const columnLabel = entityColumn.find(this.compareSpname(cols[rowIdx]));
 
     //스프레드에 날짜 저장 패턴이 바뀌면 문제가 생길 수 있음
+    const dateName = /date$/;
     const datePattern =
       /[0-9]{4}. (0?[1-9]|1[012]). (0?[1-9]|[12][0-9]|3[0-1])$/; // yyyy-mm-dd 형식인지 체크
     const datePattern2 =
       /[0-9]{4}.(0?[1-9]|1[012]).(0?[1-9]|[12][0-9]|3[0-1])$/; // yyyy-mm-dd 형식인지 체크
     const numberPattern = /[^-\,0-9]/g;
+    let dateShape = null;
+    if (datePattern.test(row[rowIdx])) {
+      dateShape = /\. /g;
+    } else if (datePattern2.test(row[rowIdx])) {
+      dateShape = /\./g;
+    }
+    dateShape = this.checkDatePattern(row[rowIdx]);
     if (
       row[rowIdx] !== null &&
       row[rowIdx] !== undefined &&
       columnLabel !== undefined &&
       row[rowIdx] !== '#REF' &&
-      row[rowIdx] !== '#REF!'
+      row[rowIdx] !== '#REF!' &&
+      row[rowIdx] !== ''
     ) {
-      if (datePattern.test(row[rowIdx]) || datePattern2.test(row[rowIdx])) {
-        tuple[`${columnLabel.dbName}`] = this.changeDate(row[rowIdx]);
+      // if (dateName.test(columnLabel.dbName)) {
+      //   console.log(columnLabel.dbName);
+      //   console.log(row[rowIdx]);
+      // }
+      if (dateShape != null || dateName.test(columnLabel.dbName)) {
+        tuple[`${columnLabel.dbName}`] = this.changeDate(
+          row[rowIdx],
+          dateShape,
+        );
       } else if (row[rowIdx] !== '') {
         if (
           !numberPattern.test(row[rowIdx]) &&
@@ -936,13 +957,10 @@ export class SpreadService {
   }
 
   makeRowPerColumnToModify(row, columns, col, tuple, repoName) {
-    const datePattern =
-      /[0-9]{4}. (0?[1-9]|1[012]). (0?[1-9]|[12][0-9]|3[0-1])$/;
-    const datePattern2 =
-      /[0-9]{4}.(0?[1-9]|1[012]).(0?[1-9]|[12][0-9]|3[0-1])$/;
     if (row[col] !== '') {
-      if (datePattern.test(row[col]) || datePattern2.test(row[col])) {
-        tuple[columns[col]] = this.changeDate(row[col]);
+      const dateShape = this.checkDatePattern(row[col]);
+      if (dateShape != null) {
+        tuple[columns[col]] = this.changeDate(row[col], dateShape);
       } else if (
         row[col] !== null ||
         row[col] !== '' ||
@@ -963,7 +981,6 @@ export class SpreadService {
 
   async parseSpread(cols, rows, table, api42s?) {
     const tupleArray = [];
-
     for (const key of Object.keys(this.sheetId)) {
       //수정 도중 main이 업데이트 되면 저장이 불가하므로 id를 전부 -1로 초기화
       this.sheetId[key] = -1;
@@ -981,25 +998,24 @@ export class SpreadService {
           table['name'],
         );
       }
-      // if (table['name'] == 'user_learning_data_api') {
-      //   console.log(table['mapCol'], 'cocoodoc');
-      // }
       // if (this.checkExeptData(table['name'], tuple) == false) {
       //   continue; //예외처리 된 tuple은 밑에서 push 하지 않는다.
       // }
       if (api42s != undefined) {
         // 해당 intra_no인 사람의 api 데이터를 가져오가
         const api42 = await this.apiService.getTupleFromApi(row[1], api42s);
-        if (table['name'] === 'user_personal_information') {
-          tuple['email'] = api42.email;
-          //tuple['phone_number'] = api42.phone_number;
-        }
-        // if (table['name'] === 'user_blackhole') {
-        //   tuple['blackhole_date'] = api42.blackhole_date;
-        // }
-        if (table['name'] === 'user_learning_data_api') {
-          tuple['level'] = api42.level;
-          //tuple['leveled_date'] = new Date('7777-12-31');
+        if (api42) {
+          if (table['name'] === 'user_personal_information') {
+            tuple['email'] = api42.email;
+            //tuple['phone_number'] = api42.phone_number;
+          }
+          // if (table['name'] === 'user_blackhole') {
+          //   tuple['blackhole_date'] = api42.blackhole_date;
+          // }
+          if (table['name'] === 'user_learning_data_api') {
+            tuple['level'] = api42.level;
+            //tuple['leveled_date'] = new Date('7777-12-31');
+          }
         }
       }
       if (table['name'] != 'user') tuple['fk_user_no'] = row[1]; //usertable은 해당 컬럼이 필요가 없음
@@ -1084,16 +1100,30 @@ export class SpreadService {
     }
   }
 
+  checkDatePattern(date: string) {
+    let dataPattern = null;
+    const datePattern1 =
+      /[0-9]{4}\. (0?[1-9]|1[012])\. (0?[1-9]|[12][0-9]|3[0-1])$/; // yyyy-mm-dd 형식인지 체크
+    const datePattern2 =
+      /[0-9]{4}\.(0?[1-9]|1[012])\.(0?[1-9]|[12][0-9]|3[0-1])$/; // yyyy-mm-dd 형식인지 체크
+    const dateName = /date$/;
+    if (datePattern1.test(date)) {
+      dataPattern = /\. /g;
+    } else if (datePattern2.test(date)) {
+      dataPattern = /\./g;
+    }
+    return dataPattern;
+  }
+
   async makeAColumnInTable(cols, rows, date, repoKey) {
-    const pattern = /[0-9]{4}. (0?[1-9]|1[012]). (0?[1-9]|[12][0-9]|3[0-1])$/; // yyyy. mm. dd 형식인지 체크
-    const pattern2 = /[0-9]{4}.(0?[1-9]|1[012]).(0?[1-9]|[12][0-9]|3[0-1])$/; // yyyy. mm. dd 형식인지 체크
+    let datePattern = null;
     for (const col in cols) {
       date = cols[col];
-      if (pattern.test(cols[col]) || pattern2.test(cols[col])) {
+      if ((datePattern = this.checkDatePattern(cols[col])) !== null) {
         for (const row in rows) {
           let payment_data = {};
           payment_data[EntityColumn['UserComputationFund'][0].dbName] =
-            this.changeDate(date); //yyyy. mm. dd -> yyyy-mm-dd
+            this.changeDate(date, datePattern); //yyyy. mm. dd -> yyyy-mm-dd
           if (rows[row][col] === '0' || rows[row][col] === undefined) {
             payment_data[EntityColumn['UserComputationFund'][1].dbName] = 'N';
             payment_data[EntityColumn['UserComputationFund'][2].dbName] = 0;
@@ -1103,18 +1133,38 @@ export class SpreadService {
               Number(rows[row][col].replace(/\,/g, '')); //1,000,000 -> 1000000
           }
           payment_data['fk_user_no'] = rows[row][1];
+          if (
+            payment_data['fk_user_no'] == '68641' &&
+            payment_data['payment_date'].getTime() >=
+              new Date('2021-05-01').getTime()
+          ) {
+            console.log(payment_data, '66774');
+            // payment_data['recevied_amount'] = 7777;
+          }
           const processData = Object.values(autoProcessingDataObj[repoKey]);
           const processedDataObj = await this.autoProcessingData(
             payment_data,
             repoKey,
-
             // processData,
             // oldDateTable,
           );
           //processData에 처리된 값이 있다면 payment_data에 처리된 객체로 재 할당
-          //if (processData !== undefined)
-          payment_data = processedDataObj;
+          if (processData !== undefined) payment_data = processedDataObj;
+          if (
+            repoKey == 'user_computation_fund' &&
+            payment_data['total_payment_of_money'] >= 9000000 &&
+            payment_data['fk_user_no'] == '68641'
+          ) {
+            console.log(payment_data, '4555');
+          }
           await this.initValidateDate(repoKey, payment_data, oldDateTable);
+          if (
+            repoKey == 'user_computation_fund' &&
+            payment_data['total_payment_of_money'] >= 9000000 &&
+            payment_data['fk_user_no'] == '68641'
+          ) {
+            console.log(payment_data, '444433');
+          }
           await this.insertArrayToDB(UserComputationFund, payment_data);
         }
       }
@@ -1310,45 +1360,12 @@ export class SpreadService {
     return new Date(date);
   }
 
-  async checkDateValue(newOneData, targetObj, tableName, key, repo) {
+  async checkDateValue(newOneData, targetObj, tableName, key, repo, changed) {
     if (this.isDateType(newOneData, key) == DEFAULT_VALUE.DATE) {
       targetObj[key] = this.createDate(targetObj[key]);
       newOneData[key] = this.createDate(newOneData[key]);
 
       if (newOneData[key].getTime() != targetObj[key].getTime()) {
-        // console.log(----------------------------
-        //   `table is ${tableName}\n
-        //   column name is ${key} \n`,
-        //   targetObj[key],
-        //   'is date changed to ',
-        //   newOneData[key],
-        // );
-        if (autoProcessingDataObj[tableName] !== undefined) {
-          const processData = Object.values(autoProcessingDataObj[tableName]);
-          console.log(newOneData, '111111');
-          const processedDataObj = await this.autoProcessingData(
-            newOneData,
-            tableName,
-
-            // processData,
-            // dateTable,
-          );
-          // if (processData !== undefined)
-          newOneData = processedDataObj;
-          console.log(newOneData, '222222');
-        }
-        await this.initValidateDate(tableName, newOneData, dateTable);
-        if (tableName !== 'user') {
-          //if (tableName == 'user_computation_fund') {
-          console.log(`insert ${tableName} due to change date`);
-          //}
-          const changeData = repo.create(newOneData);
-          repo.save(changeData);
-        } else {
-          //user는 update 해줘야됨
-          targetObj[key] = newOneData[key];
-          repo.save(targetObj);
-        }
         return DEFAULT_VALUE.CHANGED;
       } else {
         //date 변환시켰는데 값이 같다면 다음 컬럼을 비교하기 위해 DATE 를 리턴해줌
@@ -1385,32 +1402,49 @@ export class SpreadService {
     }
   }
 
-  async updateTuple(repoKey, tuple, column, value) {
-    try {
-      const repo = this.dataSource.getRepository(classType[repoKey]);
-      const target = await this.getLatestOneData(repoKey, tuple, dateTable);
-
-      const checkedDate = await this.checkDateValue(
-        tuple,
-        target,
-        repoKey,
-        column,
-        repo,
-      );
-
-      if (target && checkedDate === DEFAULT_VALUE.NOT) {
-        if (target[column] !== tuple[column]) {
-          // console.log(--------------------------------
-          //   `change! ${repoKey}'s ${column} value ${target[column]} to ${value}`,
-          // );
-          target[column] = value;
-          await repo.save(target);
-        }
-      }
-    } catch {
-      throw 'error in updateTuple';
-    }
+  async updateUser(tuple) {
+    await this.dataSource
+      .createQueryBuilder()
+      .update(User)
+      .set({
+        intra_id: tuple['intra_id'],
+        grade: tuple['grade'],
+        start_process_date: tuple['start_process_date'],
+        coalition: tuple['coalition'],
+        academic_state: tuple['academic_state'],
+      })
+      .where('intra_no = :intra_no', { intra_no: tuple['intra_no'] })
+      .execute();
   }
+
+  // async updateTuple(repoKey, tuple, column, value) {
+  //   const changed = 0;
+  //   try {
+  //     const repo = this.dataSource.getRepository(classType[repoKey]);
+  //     const target = await this.getLatestOneData(repoKey, tuple, dateTable);
+
+  //     const checkedDate = await this.checkDateValue(
+  //       tuple,
+  //       target,
+  //       repoKey,
+  //       column,
+  //       repo,
+  //       changed,
+  //     );
+
+  //     if (target && checkedDate === DEFAULT_VALUE.NOT) {
+  //       if (target[column] !== tuple[column]) {
+  //         // console.log(--------------------------------
+  //         //   `change! ${repoKey}'s ${column} value ${target[column]} to ${value}`,
+  //         // );
+  //         target[column] = value;
+  //         await repo.save(target);
+  //       }
+  //     }
+  //   } catch {
+  //     throw 'error in updateTuple';
+  //   }
+  // }
 
   async updateExpiredDate(tableName, saveDate, expiredDate) {
     let key;
@@ -1472,8 +1506,9 @@ export class SpreadService {
   }
 
   async initValidateDate(repoKey, saveDate, dateTable) {
+    // console.log(repoKey, '\n', saveDate, '\n', dateTable[repoKey]);
     const now = new Date();
-    const defaultDate = new Date('9999-12-30');
+    const defaultDate = new Date('9999-12-31');
     //데이터의 유효성을 확인하는 컬럼이 validate_date라면, 저장하는 데이터의 시간을 기점으로 저장
     if (dateTable[repoKey] === 'validate_date') {
       saveDate['validate_date'] = now;
@@ -1490,8 +1525,9 @@ export class SpreadService {
     if (
       obj === null ||
       (obj.constructor === Object && Object.keys(obj).length === 0)
-    )
+    ) {
       return true;
+    }
     return false;
   }
 
@@ -1499,27 +1535,27 @@ export class SpreadService {
   /*        auto processing data      */
   /************************************/
 
-  // getDateDiff(startDate: Date, endDate: Date) {
-  //   const start = startDate.getTime();
-  //   const end = endDate.getTime();
-  //   const diff = end - start;
-  //   return diff;
-  // }
+  getDateDiff(startDate: Date, endDate: Date) {
+    const start = startDate.getTime();
+    const end = endDate.getTime();
+    const diff = end - start;
+    return diff;
+  }
 
-  // //date에다가 dateObj에 있는 데이터객체 내에서 기간의 범위를 받아 저장해줌
-  // getDateAdd(date: Date, dateObj, startDate, endDate) {
-  //   let sumDate = 0;
-  //   //try {
-  //   for (const obj of dateObj) {
-  //     const absenceDate = this.getDateDiff(obj[startDate], obj[endDate]);
-  //     sumDate += absenceDate;
-  //   }
-  //   sumDate += date.getTime();
-  //   return new Date(sumDate);
-  //   // } catch {
-  //   //   throw 'error : getDateAdd';
-  //   // }
-  // }
+  //date에다가 dateObj에 있는 데이터객체 내에서 기간의 범위를 받아 저장해줌
+  getDateAdd(date: Date, dateObj, startDate, endDate) {
+    let sumDate = 0;
+    //try {
+    for (const obj of dateObj) {
+      const absenceDate = this.getDateDiff(obj[startDate], obj[endDate]);
+      sumDate += absenceDate;
+    }
+    sumDate += date.getTime();
+    return new Date(sumDate);
+    // } catch {
+    //   throw 'error : getDateAdd';
+    // }
+  }
 
   //talbleName에서 tuple.pk를 갖는 컬럼 조회
   async getAbsenceDates(tableName, tuple, baseDate: Date) {
@@ -1540,7 +1576,7 @@ export class SpreadService {
       .andWhere(`begin_absence_date <= :baseDate`, {
         baseDate,
       })
-      .andWhere(`end_absence_date >= :baseDate`, {
+      .andWhere(`return_from_absence_date >= :baseDate`, {
         baseDate,
       })
       .getOne();
@@ -1606,6 +1642,14 @@ export class SpreadService {
       srcObj[key] = destObj[key];
     }
   }
+
+  async setPaymentEndDate(tuple, date: Date, month) {
+    //const strDate = this.changeDateToString(date);
+    const baseMonth = date.getMonth();
+    date.setMonth(baseMonth + month);
+    tuple['payment_end_date'] = date;
+  }
+
   async processAbsenceDate(tuple, tableName, target) {
     const baseDate = tuple['payment_date'];
     const absenceDates = await this.getAbsenceDates(
@@ -1619,26 +1663,24 @@ export class SpreadService {
     // );
     if (target) {
       //휴학을 했다면
-      console.log(target, 'target');
-      console.log(absenceDates, 'absencedate\n\n\n\n\n\n\n');
+      // console.log(target, 'target');
+      // console.log(absenceDates, 'absencedate\n\n\n\n\n\n\n');
       if (!this.isEmptyObj(absenceDates)) {
         this.setObj(tuple, target);
-        console.log(tuple['payment_end_date']);
-        console.log(tuple['payment_end_date'].getMonth());
-        console.log(tuple['payment_end_date'].getMonth() + 1);
-        tuple['payment_end_date'].setMonth(
-          tuple['payment_end_date'].getMonth() + 1,
-        );
-        console.log(tuple, '휴학기간 1달 증가');
+        // console.log(tuple['payment_end_date']);
+        // console.log(tuple['payment_end_date'].getMonth());
+        // console.log(tuple['payment_end_date'].getMonth() + 1);
+        this.setPaymentEndDate(tuple, tuple['payment_end_date'], 1);
+        // console.log(tuple, '휴학기간 1달 증가');
       } else {
         //돈을 받았는데 휴학한 적이 없다면 정상처리
-        await this.normalProcess(tuple, tableName);
+        await this.normalProcess(tuple, tableName, target);
       }
     }
   }
 
-  async normalProcess(tuple, tableName) {
-    console.log(tuple, tableName);
+  async normalProcess(tuple, tableName, target) {
+    // console.log(tuple, tableName);
     if (aggregateDataObj[tableName] !== undefined) {
       const processData = Object.keys(aggregateDataObj[tableName]);
       for (const column of processData) {
@@ -1661,93 +1703,134 @@ export class SpreadService {
           aggregateData['value'],
           tuple['payment_date'],
         );
-        tuple[column] = Number(aggreagate[column]);
+        if (aggregateData['aggregate'] == 'COUNT') {
+          if (Number(tuple['recevied_amount']) > 0) {
+            tuple[column] = Number(aggreagate[column]) + 1;
+          } else if (
+            Number(tuple['recevied_amount']) >= 0 &&
+            column != 'total_real_payment_of_number'
+          ) {
+            tuple[column] = Number(aggreagate[column]) + 1;
+          } else if (column == 'total_real_payment_of_number') {
+            tuple[column] = Number(aggreagate[column]);
+          }
+        } else if (aggregateData['aggregate'] == 'SUM') {
+          tuple[column] = Number(aggreagate[column]) + tuple['recevied_amount'];
+        }
+        // if (tuple['fk_user_no'] == '68641') {
+        //   console.log('in nomal : ', column, ' : ', tuple[column]);
+        //   console.log(tuple, '1');
+        // }
       }
       //남은 지원 잔여 기간은 24 - 지급 받은 월 수
       tuple['remaind_payment_period'] =
         REMAINDPAYMENTPERIOD - tuple['total_payment_period_number'];
+      tuple['payment_end_date'] = target['payment_end_date'];
     }
   }
 
   ignoreProcess(tuple, target) {
-    if (target) this.setObj(tuple, target);
-    else {
+    if (target) {
+      console.log('ignore before tuple', tuple);
+      tuple = {};
+      Object.assign(tuple, target);
+      console.log('ignore after tuple', tuple);
+    } else {
       tuple['recevied_amount'] = 0;
       tuple['received'] = 'N';
     }
   }
 
   async autoProcessingData(tuple, tableName) {
-    try {
-      if (tableName == 'user_computation_fund') {
-        console.log(tuple, '1');
-        const startDateObj = await this.getLatestOneData(
-          'user',
-          tuple,
-          dateTable,
-        );
-        console.log(tuple, '2');
-        const target = await this.getLatestOneData(tableName, tuple, dateTable);
-        console.log(tuple, '3');
-        //지급일이 과정 시작일 보다 이전일때
-        console.log(
-          '지급일: ',
-          tuple['payment_date'],
-          '과정시작: ',
-          startDateObj['start_process_date'],
-        );
-        if (
-          tuple['payment_date'].getTime() <
-          startDateObj['start_process_date'].getTime()
-        ) {
-          console.log('지급일 < 과정시작');
-          //지급액이 -1 인지 확인
-          if (tuple['recevied_amount'] == -1) {
-            //기존 데이터 그대로 받거나, 지급액 0으로 바꾸고 무시
-            this.ignoreProcess(tuple, target);
-            console.log(tuple, '4');
-          } else {
-            await this.normalProcess(tuple, tableName);
-            console.log(tuple, '5');
-          }
-        } //지급일이 과정 시작일 보다 이후면
-        else {
-          console.log('과정시작 < 지급일');
-          if (tuple['recevied_amount'] == -1) {
-            //기존 데이터 그대로 받거나, 지급액 0으로 바꾸고 무시
-            this.ignoreProcess(tuple, target);
-            console.log(tuple, '6');
-          } //지급일 이전 휴학 시작 데이터가 있는값들 가져와 처리
-          else if (tuple['recevied_amount'] == 0) {
-            console.log(tuple, '7');
-            this.processAbsenceDate(tuple, tableName, target);
-          } else if (tuple['recevied_amount'] >= 0) {
-            await this.normalProcess(tuple, tableName);
-            // console.log(tuple, '8');
-          }
-        }
-        // if 지급일이 과정 시작일 보다 이전일때
-        //   if 지급액이 -1 인지 확인
-        //        기존 데이터 그대로 받거나, 지급액 0으로 바꾸고 무시
-        //   else 정상처리
-        // else if 지급일이 과정 시작일 보다 이후면
-        //        if 지급액이 -1인지 확인
-        //             기존 데이터 그대로 받거나, 지급액 0으로 바꾸고 무시
-        //        else if 지급액이 0이면
-        /**                  지급일 이전 휴학 시작 데이터가 있는값들 가져오기
-         *                   if 지급일이 복학일보다 이전인 처음 데이터만 뽑아오기()
-         *                        지원 만료일 1달 추가후 이전 데이터 값 가져오기 , 처리 무시
-         *                   else 휴학한 적이 없다는 것
-         *                          정상처리
-         *        else if 지급액 0 초과면
-         *                  정상 처리 로직 및 실질적 돈 받은것 +1
-         */
+    // try {
+    if (tableName == 'user_computation_fund') {
+      const startDateObj = await this.getLatestOneData(
+        'user',
+        tuple,
+        dateTable,
+      );
+
+      const target = await this.getLatestOneData(tableName, tuple, dateTable); //dateTable old??
+      //지급일이 과정 시작일 보다 이전일때
+      // console.log(
+      //   '지급일: ',
+      //   tuple['payment_date'],
+      //   '과정시작: ',
+      //   startDateObj['start_process_date'],
+      // );
+      if (startDateObj && target == null) {
+        this.setPaymentEndDate(tuple, startDateObj['start_process_date'], 23);
       }
-    } catch {
-      throw 'autoProcessingData';
+      // if (tuple['fk_user_no'] == '68641') console.log(tuple, '111');
+      if (
+        target &&
+        startDateObj &&
+        tuple &&
+        tuple['payment_date'].getTime() <
+          startDateObj['start_process_date'].getTime()
+      ) {
+        // console.log('지급일 < 과정시작');
+        //지급액이 -1 인지 확인
+        if (tuple['recevied_amount'] == -1 || tuple['recevied'] == 'N') {
+          //기존 데이터 그대로 받거나, 지급액 0으로 바꾸고 무시
+          this.ignoreProcess(tuple, target);
+          // if (tuple['fk_user_no'] == '68641') console.log(tuple, '222');
+        } else {
+          await this.normalProcess(tuple, tableName, target);
+          // if (tuple['fk_user_no'] == '68641') console.log(tuple, '333');
+        }
+      } //지급일이 과정 시작일 보다 이후면
+      else if (tuple && target) {
+        // console.log('과정시작 < 지급일');
+        if (tuple['recevied_amount'] == -1 || tuple['recevied'] == 'N') {
+          //기존 데이터 그대로 받거나, 지급액 0으로 바꾸고 무시
+          this.ignoreProcess(tuple, target);
+        } //지급일 이전 휴학 시작 데이터가 있는값들 가져와 처리
+        else if (tuple['recevied_amount'] == 0) {
+          this.processAbsenceDate(tuple, tableName, target);
+        } else if (tuple['recevied_amount'] >= 0) {
+          await this.normalProcess(tuple, tableName, target);
+        }
+
+        if (tuple['remaind_payment_period'] <= 0) {
+          tuple['payment_ended'] = '만료';
+        }
+      }
+
+      // if (target != null)
+      //   if (
+      //     tableName == 'user_computation_fund' &&
+      //     target['total_payment_of_money'] > 8000000 &&
+      //     target['fk_user_no'] == '68641'
+      //   ) {
+      //     console.log(tuple, '444433');
+      //   }
+      if (tuple['pk'] == 127) {
+        console.log(tuple);
+        while (1);
+      }
+      return tuple;
+
+      // if 지급일이 과정 시작일 보다 이전일때
+      //   if 지급액이 -1 인지 확인
+      //        기존 데이터 그대로 받거나, 지급액 0으로 바꾸고 무시
+      //   else 정상처리
+      // else if 지급일이 과정 시작일 보다 이후면
+      //        if 지급액이 -1인지 확인
+      //             기존 데이터 그대로 받거나, 지급액 0으로 바꾸고 무시
+      //        else if 지급액이 0이면
+      /**                  지급일 이전 휴학 시작 데이터가 있는값들 가져오기
+       *                   if 지급일이 복학일보다 이전인 처음 데이터만 뽑아오기()
+       *                        지원 만료일 1달 추가후 이전 데이터 값 가져오기 , 처리 무시
+       *                   else 휴학한 적이 없다는 것
+       *                          정상처리
+       *        else if 지급액 0 초과면
+       *                  정상 처리 로직 및 실질적 돈 받은것 +1
+       */
     }
-    console.log(tuple, '9');
-    return tuple;
+    // } catch {
+    //   throw error : in autoProcessingData ExceptionsHandler;
+    // }
   }
 
   /************************************/

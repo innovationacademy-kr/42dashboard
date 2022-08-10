@@ -38,4 +38,13 @@ export class UpdaterResolver {
   getLatestData() {
     return this.updaterService.getLatestAllOneData();
   }
+
+  @Query(() => String)
+  test() {
+    const dateName = /date$/;
+
+    console.log('outcircled_date', dateName.test('outcircled_date'));
+
+    return 'success';
+  }
 }
