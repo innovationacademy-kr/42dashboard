@@ -48,6 +48,11 @@ export class UserComputationFund extends BaseEntity {
   total_payment_of_money: number;
 
   //스프레드에서 받아온 데이터 기반으로 계산해서 기록하는 컬럼
+  @Field({ nullable: false })
+  @Column({ name: 'total_payment_period_number', nullable: false, default: 0 })
+  total_payment_period_number: number;
+
+  //스프레드에서 받아온 데이터 기반으로 계산해서 기록하는 컬럼
   @Field({ nullable: true })
   @Column({
     name: 'payment_end_date',
@@ -55,11 +60,6 @@ export class UserComputationFund extends BaseEntity {
     default: '9999-12-31',
   })
   payment_end_date: Date;
-
-  //스프레드에서 받아온 데이터 기반으로 계산해서 기록하는 컬럼
-  @Field({ nullable: false })
-  @Column({ name: 'total_payment_period_number', nullable: false, default: 0 })
-  total_payment_period_number: number;
 
   //스프레드에서 받아온 데이터 기반으로 계산해서 기록하는 컬럼
   @Field({ nullable: false })

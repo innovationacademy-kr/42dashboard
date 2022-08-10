@@ -176,73 +176,73 @@ export class UpdaterService {
 
     /***************에러 검증****************/
 
-    // if (intraNoArray.length > userInDB.length) {
-    //   deleteOrEdit = true;
-    // } else {
-    //   deleteOrEdit =
-    //     deleteData.length === userInDB.length - intraNoArray.length;
-    // }
+    if (intraNoArray.length > userInDB.length) {
+      deleteOrEdit = true;
+    } else {
+      deleteOrEdit =
+        deleteData.length === userInDB.length - intraNoArray.length;
+    }
 
-    // await this.dataSource
-    //   .createQueryBuilder()
-    //   .delete()
-    //   .from(ErrorObject)
-    //   .execute();
-    // if (
-    //   !this.checkErrorBeforeUpdate(
-    //     tables,
-    //     columns,
-    //     rows,
-    //     deleteOrEdit,
-    //     intraNoArray,
-    //     errObject,
-    //   )
-    // ) {
-    //   // const err = JSON.stringify(errObject);
-    //   // const errorObject = {} as ErrObject;
+    await this.dataSource
+      .createQueryBuilder()
+      .delete()
+      .from(ErrorObject)
+      .execute();
+    if (
+      !this.checkErrorBeforeUpdate(
+        tables,
+        columns,
+        rows,
+        deleteOrEdit,
+        intraNoArray,
+        errObject,
+      )
+    ) {
+      // const err = JSON.stringify(errObject);
+      // const errorObject = {} as ErrObject;
 
-    //   // errorObject['error'] = err;
+      // errorObject['error'] = err;
 
-    //   // await this.spreadService.insertDataToDB(ErrorObject, errorObject);
-    //   // return 'Error while inserting data with main sheet';
+      // await this.spreadService.insertDataToDB(ErrorObject, errorObject);
+      // return 'Error while inserting data with main sheet';
 
-    //   const errorObject = {};
-    //   console.log(errObject, '-----------');
-    //   for (const err of errObject) {
-    //     console.log(err);
-    //     errorObject['error'] = JSON.stringify(err);
-    //     await this.spreadService.insertDataToDB(ErrorObject, errorObject);
-    //   }
+      const errorObject = {};
+      console.log(errObject, '-----------');
+      for (const err of errObject) {
+        console.log(err);
+        errorObject['error'] = JSON.stringify(err);
+        await this.spreadService.insertDataToDB(ErrorObject, errorObject);
+      }
 
-    //   return 'Error while inserting data with main sheet';
-    // }
+      return 'Error while inserting data with main sheet';
+    }
     /***************************************/
     /*************사전 처리 작업***************/
 
-    // //만약 특이사항값이 transfer라면 soft-delete
-    // const transferArray = rows.filter(
-    //   (row) => row[uniquenessCol] === 'transfer',
-    // );
-    // console.log(transferArray);
-    // if (transferArray.length > 0) {
-    //   await this.checkSoftDeletedInMain(transferArray, intraNoCol);
-    // }
-    // //rows = rows.filter((row) => row[uniquenessCol] !== 'transfer');
+    //만약 특이사항값이 transfer라면 soft-delete
+    const transferArray = rows.filter(
+      (row) => row[uniquenessCol] === 'transfer',
+    );
+    console.log(transferArray);
+    if (transferArray.length > 0) {
+      await this.checkSoftDeletedInMain(transferArray, intraNoCol);
+    }
+    //rows = rows.filter((row) => row[uniquenessCol] !== 'transfer');
 
-    // //삭제되었던 transfer가 다시 복구되는 경우
-    // const nonTransferObject = await this.getRecoverArray(
-    //   transferArray,
-    //   intraNoCol,
-    // );
-    // const nonTransferArray = nonTransferObject.map(
-    //   (nonTransfer) => nonTransfer.intra_no,
-    // );
-    // console.log(nonTransferObject);
-    // if (nonTransferArray.length > 0) {
-    //   await this.checkRecoverInMain(nonTransferArray, intraNoCol);
-    // }
+    //삭제되었던 transfer가 다시 복구되는 경우
+    const nonTransferObject = await this.getRecoverArray(
+      transferArray,
+      intraNoCol,
+    );
+    const nonTransferArray = nonTransferObject.map(
+      (nonTransfer) => nonTransfer.intra_no,
+    );
+    console.log(nonTransferObject);
+    if (nonTransferArray.length > 0) {
+      await this.checkRecoverInMain(nonTransferArray, intraNoCol);
+    }
 
-    //시트에서 유저가 사라졌다면 삭제
+    // 시트에서 유저가 사라졌다면 삭제
     if (deleteOrEdit) {
       await this.checkDeletedInMain(deleteData);
     }
@@ -254,29 +254,8 @@ export class UpdaterService {
     /*******************************************/
     /************* 데이터 파싱 작업 ***************/
 
-    // const userTable = {};
-    // userTable['user'] = await this.spreadService.parseSpread(
-    //   columns,
-    //   rows,
-    //   tableSet[0],
-    //   undefined,
-    // ); //기본 키값이 되는 유저정보 가져오기
-
-    // const allUser = await this.repoDict['user']
-    //   .createQueryBuilder('user')
-    //   .getMany();
-    // for (const user of userTable['user']) {
-    //   await this.findTargetByKey(
-    //     this.repoDict['user'],
-    //     'user',
-    //     user,
-    //     allUser,
-    //     oldDateTable,
-    //   );
-    // }
-
     await this.spreadService.composeTableData(spreadData, tableSet, false); //시트를 테이블 별로 나눠 정보를 저장 TableSet 배열 구성
-    //const api42s = PARSEDAPI; //await this.apiService.getApi();
+    const api42s = await this.apiService.getApi();
 
     const tableArray = {};
     for (const table of tableSet) {
@@ -286,7 +265,7 @@ export class UpdaterService {
         columns,
         rows,
         table,
-        // api42s,
+        api42s,
       );
     }
     const latestData = await this.getLatestAllOneData();
@@ -580,23 +559,9 @@ export class UpdaterService {
 
   async getLatestAllOneData() {
     try {
-      // const returnArray = {};
-      // const valueArray = Object.values(repoKeys);
-      // let key;
-      // console.log('for query');
-
-      // returnArray['gg'] = await this.userPersonalInformationRepository
-      //   .createQueryBuilder('user_personal_information')
-      //   .distinctOn([`${'user_personal_information'}.fk_user_no`])
-      //   .orderBy(`${'user_personal_information'}.fk_user_no`, 'DESC')
-      //   .addOrderBy('user_personal_information.validate_date', 'DESC')
-      //   .getMany();
-
-      // return returnArray;
       const returnArray = {};
       const valueArray = Object.values(repoKeys);
       let key;
-      console.log(valueArray, 'valueArray');
       for (const repoKey of valueArray) {
         console.log(repoKey, 'for query');
         if (repoKey == 'user') {
@@ -606,37 +571,14 @@ export class UpdaterService {
           key = 'fk_user_no';
           console.log(key, 'key2');
         }
-        await this.dataSource
-          .getRepository(classType[repoKey])
+        returnArray[repoKey] = await this.repoDict[repoKey]
           .createQueryBuilder(repoKey)
           .distinctOn([`${repoKey}.${key}`])
           .orderBy(`${repoKey}.${key}`, 'DESC')
+          .addOrderBy(`${repoKey}.${dateTable[repoKey]}`, 'DESC')
           .getMany();
-        // returnArray[repoKey] = latestValue;
-        console.log('-------------------------------------');
       }
       return returnArray;
-
-      // const returnArray = {};
-      // const valueArray = Object.values(repoKeys);
-      // let key;
-      // for (const repoKey of valueArray) {
-      //   console.log(repoKey, 'for query');
-      //   if (repoKey == 'user') {
-      //     key = 'intra_no';
-      //     console.log(key, 'key1');
-      //   } else {
-      //     key = 'fk_user_no';
-      //     console.log(key, 'key2');
-      //   }
-      //   returnArray[repoKey] = await this.repoDict[repoKey]
-      //     .createQueryBuilder(repoKey)
-      //     .distinctOn([`${repoKey}.${key}`])
-      //     .orderBy(`${repoKey}.${key}`, 'DESC')
-      //     .addOrderBy(`${repoKey}.${dateTable[repoKey]}`, 'DESC')
-      //     .getMany();
-      // }
-      // return returnArray;
     } catch {
       throw 'eere';
     }
@@ -682,45 +624,46 @@ export class UpdaterService {
 
   async findTargetByKey(repo, tableName, newOneData, targetObj, dateTable) {
     const emptyObj = {};
-    //try {
-    //스프레드 데이터가 db 데이터에 있는지 확인.
-    for (const target of targetObj) {
-      if (tableName == 'user') {
-        if (newOneData.intra_no == target.intra_no) {
-          return await target;
-        }
-      } else {
-        if (newOneData.fk_user_no == target.fk_user_no) {
-          return await target;
+    try {
+      //스프레드 데이터가 db 데이터에 있는지 확인.
+      for (const target of targetObj) {
+        if (tableName == 'user') {
+          if (newOneData.intra_no == target.intra_no) {
+            return await target;
+          }
+        } else {
+          if (newOneData.fk_user_no == target.fk_user_no) {
+            return await target;
+          }
         }
       }
-    }
 
-    if (autoProcessingDataObj[tableName] != undefined) {
-      const processData = Object.values(autoProcessingDataObj[tableName]);
-      const processedDataObj = await this.spreadService.autoProcessingData(
-        newOneData,
+      if (autoProcessingDataObj[tableName] != undefined) {
+        const processData = Object.values(autoProcessingDataObj[tableName]);
+        const processedDataObj = await this.spreadService.autoProcessingData(
+          newOneData,
+          tableName,
+        );
+        if (processData !== undefined) newOneData = processedDataObj;
+      }
+
+      if (newOneData['fk_user_no'] == 68641) {
+        console.log(tableName, ':', newOneData, '111111111');
+      }
+      await this.spreadService.initValidateDate(
         tableName,
-        // processData,
-        // dateTable,
+        newOneData,
+        dateTable,
       );
-      if (processData !== undefined) newOneData = processedDataObj;
-    }
-
-    // console.log(`insert ${tableName} due to dosend't exist spread data in db`);-----------------------
-    if (newOneData['fk_user_no'] == 68641) {
-      console.log(tableName, ':', newOneData, '111111111');
-    }
-    await this.spreadService.initValidateDate(tableName, newOneData, dateTable);
-    const newTuple = await repo.create(newOneData);
-    await repo.save(newTuple); /*.catch(() => {
+      const newTuple = await repo.create(newOneData);
+      await repo.save(newTuple); /*.catch(() => {
         return 'error save';
       });*/
-    //빈 객체를 리턴해줌으로써 호출한 곳에서 target을 못찾았고 새로운 값을 저장했다는 것을 알려줌
-    return emptyObj;
-    // } catch {
-    //   throw 'error at finding target by key';
-    // }
+      //빈 객체를 리턴해줌으로써 호출한 곳에서 target을 못찾았고 새로운 값을 저장했다는 것을 알려줌
+      return emptyObj;
+    } catch {
+      throw 'error at finding target by key';
+    }
   }
 
   //newData -> spread
@@ -764,15 +707,6 @@ export class UpdaterService {
     //return 'done!!';
   }
 
-  // initValidateDate(repoKey, saveDate) {
-  //   //데이터의 유효성을 확인하는 컬럼이 validate_date라면, 저장하는 데이터의 시간을 기점으로 저장
-  //   if (dateTable[repoKey] === 'validate_date') {
-  //     saveDate['validate_date'] = new Date();
-  //   } else {
-  //     saveDate['validate_date'] = saveDate[dateTable[repoKey]];
-  //   }
-  // }
-
   async saveTuple(repo, Tuple) {
     const newTuple = await repo.create(Tuple);
     await repo.save(newTuple); /*.catch(() => {
@@ -782,64 +716,68 @@ export class UpdaterService {
 
   async saveChangedData(repo, tableName, newOneData, targetObj) {
     let checkedDate;
-    // try {
-    const keys: string[] = Object.keys(newOneData);
-    let changed = 0;
-    for (const key of keys) {
-      //new data(spread)의 key 값이 default 값을 갖는 column 일때, null 값 파악 후 초기화
-      if (
-        this.spreadService.isDefaultColumn(tableName, key) ===
-        DEFAULT_VALUE.DEFAULT
-      ) {
-        this.spreadService.initailizeSpreadNullValue(
+    try {
+      const keys: string[] = Object.keys(newOneData);
+      let changed = 0;
+      for (const key of keys) {
+        //new data(spread)의 key 값이 default 값을 갖는 column 일때, null 값 파악 후 초기화
+        if (
+          this.spreadService.isDefaultColumn(tableName, key) ===
+          DEFAULT_VALUE.DEFAULT
+        ) {
+          this.spreadService.initailizeSpreadNullValue(
+            newOneData,
+            key,
+            tableName,
+          );
+        }
+        //초기화 했는데 DB 와 값이 다르면 save후 넘어감 -> continue;
+        //값이 같다면 default 값으로 초기화 후 비교한 값이변화가 없으므로 넘어가야함 -> continue;
+        //date 값은 밑에 if 절로 구별이 안되어 같은 date type으로 바꾸어 비교해야됨
+        checkedDate = await this.spreadService.checkDateValue(
           newOneData,
-          key,
+          targetObj,
           tableName,
+          key,
+          repo,
+          changed,
         );
-      }
-      //초기화 했는데 DB 와 값이 다르면 save후 넘어감 -> continue;
-      //값이 같다면 default 값으로 초기화 후 비교한 값이변화가 없으므로 넘어가야함 -> continue;
-      //date 값은 밑에 if 절로 구별이 안되어 같은 date type으로 바꾸어 비교해야됨
-      checkedDate = await this.spreadService.checkDateValue(
-        newOneData,
-        targetObj,
-        tableName,
-        key,
-        repo,
-        changed,
-      );
-      if (
-        //날짜의 변경을 확인하고 바꾸었던가, 날짜인 데이터지만 바뀌지 않았을 때 다음 column 조회
-        checkedDate === DEFAULT_VALUE.NOT
-      ) {
-        //this.processChangeData(newOneData, targetObj, key, checkedDefaulte, repo);
-        //스프레드에 널값이라면 default 값으로 바꾸고, default가 아님에도 불구하고 값이 다르다면 save
-        if (newOneData[key] != targetObj[key]) {
+        if (
+          //날짜의 변경을 확인하고 바꾸었던가, 날짜인 데이터지만 바뀌지 않았을 때 다음 column 조회
+          checkedDate === DEFAULT_VALUE.NOT
+        ) {
+          //this.processChangeData(newOneData, targetObj, key, checkedDefaulte, repo);
+          //스프레드에 널값이라면 default 값으로 바꾸고, default가 아님에도 불구하고 값이 다르다면 save
+          if (newOneData[key] != targetObj[key]) {
+            changed = 1;
+          }
+        } else if (checkedDate === DEFAULT_VALUE.CHANGED) {
+          //date에서 date 값 비교했을 때 바뀌어야 할 때
           changed = 1;
         }
-      } else if (checkedDate === DEFAULT_VALUE.CHANGED) {
-        //date에서 date 값 비교했을 때 바뀌어야 할 때
-        changed = 1;
       }
-    }
-    if (autoProcessingDataObj[tableName] != undefined) {
-      const processData = Object.values(autoProcessingDataObj[tableName]);
-      const processedDataObj = await this.spreadService.autoProcessingData(
-        newOneData,
+      if (autoProcessingDataObj[tableName] != undefined) {
+        const processData = Object.values(autoProcessingDataObj[tableName]);
+        const processedDataObj = await this.spreadService.autoProcessingData(
+          newOneData,
+          tableName,
+        );
+        if (processData !== undefined) newOneData = processedDataObj;
+      }
+      await this.spreadService.initValidateDate(
         tableName,
+        newOneData,
+        dateTable,
       );
-      if (processData !== undefined) newOneData = processedDataObj;
-    }
-    await this.spreadService.initValidateDate(tableName, newOneData, dateTable);
-    if (changed == 1) {
-      if (tableName !== 'user') await this.saveTuple(repo, newOneData);
-      //intra_no 가 이미 테이블에 있는 경우 삽입하지 않음, 해서 create를 사용하지 않고 find로 tuple을 가져옴
-      else {
-        this.spreadService.updateUser(newOneData);
+      if (changed == 1) {
+        if (tableName !== 'user') await this.saveTuple(repo, newOneData);
+        //intra_no 가 이미 테이블에 있는 경우 삽입하지 않음, 해서 create를 사용하지 않고 find로 tuple을 가져옴
+        else {
+          this.spreadService.updateUser(newOneData);
+        }
       }
+    } catch {
+      throw 'error during save';
     }
-    // } catch {
-    //   throw 'error during save';
-    // }
   }
 }
