@@ -27,7 +27,8 @@ const EditToolBarArea = styled.div`
   width: 100%;
   height: 2rem;
   align-items: center;
-  border: 1px solid blue;
+  // border: 1px solid blue;
+  background-color: lightgrey;
 `;
 
 interface BoardEditToolBarProps {

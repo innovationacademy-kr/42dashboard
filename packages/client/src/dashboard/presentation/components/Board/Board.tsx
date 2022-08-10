@@ -47,7 +47,14 @@ export default function Board() {
     return boardData.sectionLayouts.map((section: Layout) => {
       const stickerLayouts = getSectionDatas(section.i)?.stickerLayouts;
       return (
-        <div key={section.i}>
+        <div
+          key={section.i}
+          style={{
+            backgroundColor: '#F5F5F5',
+            boxShadow:
+              '0px 3px 5px -1px rgb(0 0 0 / 20%), 0px 6px 10px 0px rgb(0 0 0 / 14%)',
+          }}
+        >
           <Section
             key={section.i}
             id={section.i}
@@ -69,9 +76,10 @@ export default function Board() {
   return (
     <div
       style={{
-        padding: '1rem',
-        overflowY: 'scroll',
+        padding: '0',
+        overflowY: 'auto',
         maxHeight: '88vh',
+        color: 'rgba(0, 0, 0, 0)',
       }}
     >
       {getControlMode() === 'edit' && (

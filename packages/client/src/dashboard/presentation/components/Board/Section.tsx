@@ -141,8 +141,14 @@ export default function Section(props: SectionProps) {
   console.log('startDate !!!: ', startDate);
   function drawStickers() {
     return stickerLayouts.map((sticker: Layout, idx) => (
-      <div key={sticker.i}>
-        {/* TODO(sonkang) : 나중에 더 좋은 방법을 찾아보기 */}
+      <div
+        key={sticker.i}
+        style={{
+          backgroundColor: 'white',
+          boxShadow:
+            '0px 3px 5px -1px rgb(0 0 0 / 20%), 0px 6px 10px 0px rgb(0 0 0 / 14%)',
+        }}
+      >
         {stickerDatas[idx] && (
           <Sticker
             id={sticker.i}

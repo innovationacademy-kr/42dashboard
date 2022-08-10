@@ -12,7 +12,10 @@ function AppBar(props: AppBarProps) {
   return (
     <MuiAppBar
       position="fixed"
-      sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+      sx={{
+        zIndex: (theme) => theme.zIndex.drawer + 1,
+        backgroundColor: 'white',
+      }}
     >
       <Toolbar>{children}</Toolbar>
     </MuiAppBar>

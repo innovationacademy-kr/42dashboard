@@ -51,7 +51,8 @@ const FooterArea = styled.footer`
   position: fixed;
   width: calc(100% - 240px);
   bottom: 0;
-  background-color: #1976d2;
+  background-color: #fff;
+  border-top: 1px solid lightgrey;
 `;
 
 const ButtonArea = styled.div`
