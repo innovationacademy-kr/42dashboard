@@ -38,7 +38,7 @@ export default function BarChart(props: ChartProps) {
   const barData = {
     labels,
     datasets: datasets.map((dataset, idx) => ({
-      label: datasetNames[idx],
+      label: datasetNames[idx] ? datasetNames[idx] : 'Default',
       data: dataset,
       backgroundColor: backgroundColor[idx],
       borderColor: borderColor[idx],
