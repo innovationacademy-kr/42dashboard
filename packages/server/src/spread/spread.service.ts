@@ -28,8 +28,13 @@ import {
   getDomain,
 } from 'src/user_information/utils/getDomain.utils';
 import { ideahub } from 'googleapis/build/src/apis/ideahub';
-import { ERRORMSG, ErrorMsg, formatError } from './msg/errorMsg.msg';
 import { User } from 'src/user_information/entity/user_information.entity';
+import {
+  ERRORMSG,
+  ErrorMsg,
+  formatError,
+  formatErrorMain,
+} from './msg/errorMsg.msg';
 
 @Injectable()
 export class SpreadService {
@@ -350,15 +355,17 @@ export class SpreadService {
 
   /* 수정을 위해 생성했던 시트상에서 수정된 데이터를 DB테이블로 다시 업데이트하는 함수 */
   async saveModifiedDataFromSheet(endPoint, repoName, withDeleted) {
-    if (this.sheetId[repoName] == 0) return 'no file to save'; //수정하던 시트에 문제가 생긴경우
+    const newDatas = [];
+    const errorMsg = {} as ErrorMsg;
+    if (this.sheetId[repoName] == 0 || this.sheetId[repoName] === undefined)
+      return formatErrorMain(tableName[repoName], ERRORMSG.DISAPPEARED); //수정하던 시트에 문제가 생긴경우
     if (this.sheetId[repoName] == -1)
       //수정 도중 main이 업데이트된 경우, 해당 시트는 저장할 수 없음.
       return 'main is updated \nAfter deleting the edit sheet, click edit again';
-    const newDatas = [];
-    const errorMsg = {} as ErrorMsg;
     const googleSheet = await this.getGoogleSheetAPI();
     const deleteDatas = [];
     const restoreDatas = [];
+    console.log('delete: ', this.sheetId[repoName]);
     const deletePage = [
       {
         //시트를 삭제하는 명령
@@ -367,20 +374,28 @@ export class SpreadService {
         },
       },
     ];
-    const spreadData = await this.sendRequestToSpreadWithGoogleAPI(
-      endPoint,
-      tableName[repoName],
-    );
+    let spreadData;
+    try {
+      spreadData = await this.sendRequestToSpreadWithGoogleAPI(
+        endPoint,
+        tableName[repoName],
+      );
+    } catch (error) {
+      throw ERRORMSG.DISAPPEARED;
+    }
+
     const columns = this.convSpreadColumnToDBColumn(
       spreadData[0],
       EntityColumn[this.capitalize(repoName)],
     );
+    const spreadColumns = spreadData[0];
     spreadData.shift();
     spreadData.unshift(columns);
     const rows = (await spreadData).filter((value, index) => index > 0);
     try {
       const ret = await this.compareDataToCheckError(
         spreadData,
+        spreadColumns,
         repoName,
         withDeleted,
         newDatas,
@@ -389,30 +404,26 @@ export class SpreadService {
         errorMsg,
       ); //pk중복 체크도 해야함?
       if (ret === 'column error') {
-        return formatError(repoName, ERRORMSG.COLUMNS, errorMsg);
+        return formatError(tableName[repoName], ERRORMSG.COLUMNS, errorMsg);
       } else if (ret === 'check to duplicate') {
-        return formatError(repoName, ERRORMSG.DUPLICATE, errorMsg);
+        return formatError(tableName[repoName], ERRORMSG.DUPLICATE, errorMsg);
       } else if (ret === 'interrupt error') {
-        return formatError(repoName, ERRORMSG.INTERRUPT, errorMsg);
+        return formatError(tableName[repoName], ERRORMSG.INTERRUPT, errorMsg);
       } else if (ret === 'changed latest error') {
-        return formatError(repoName, ERRORMSG.CHANGED, errorMsg);
+        return formatError(tableName[repoName], ERRORMSG.CHANGED, errorMsg);
       } else if (ret === 'The updated data is wrong') {
-        return formatError(repoName, ERRORMSG.UPDATE, errorMsg);
+        return formatError(tableName[repoName], ERRORMSG.UPDATE, errorMsg);
       } else if (ret === 'The inserted data is wrong') {
-        return formatError(repoName, ERRORMSG.INSERT, errorMsg);
+        return formatError(tableName[repoName], ERRORMSG.INSERT, errorMsg);
+      } else if (ret === 'empty nonnullable cell') {
+        return formatError(tableName[repoName], ERRORMSG.NULL, errorMsg);
       }
       for (const row of rows) {
         const tuple = {};
         for (const col in columns) {
           this.makeRowPerColumnToModify(row, columns, col, tuple, repoName);
-        } //수정요망 ???
-        // if (deleteDatas.length > 0) {
-        //   await this.deleteDataToDB(deleteDatas, tuple, repoName);
-        // } else if (restoreDatas.length > 0) {
-        //   await this.restoreDataToDB(restoreDatas, tuple, repoName);
-        // } else {
+        }
         await this.updateDataToDB(repoName, tuple);
-        // }
       }
       if (newDatas.length > 0) {
         for (const newData of newDatas) {
@@ -479,10 +490,12 @@ export class SpreadService {
     colIdx: string,
     value: string,
     rowIdx?: number,
+    message?: string,
   ) {
     errorMsg['colIdx'] = colIdx;
     errorMsg['value'] = value;
     if (rowIdx != undefined) errorMsg['rowIdx'] = rowIdx;
+    if (message != undefined) errorMsg['message'] = message;
   }
 
   // 정확히 같은 배열인지 확인하는 함수
@@ -503,7 +516,7 @@ export class SpreadService {
             errorMsg,
             this.numToAlpha(idx + 1),
             arrayTwo[idx],
-            index,
+            index + 1,
           );
         }
         return oneValueToString == arrayTwo[idx];
@@ -570,6 +583,7 @@ export class SpreadService {
   // 수정시트를 저장하기 전, 제약조건에 벗어나는지 체크하는 함수입니다.
   async compareDataToCheckError(
     sheet,
+    spreadColumns,
     repoName: string,
     withDeleted: string,
     newDatas,
@@ -583,7 +597,6 @@ export class SpreadService {
     let sheetIdx;
     dbvalues.push(Object.keys(datas[0]));
     datas.forEach((data) => dbvalues.push(Object.values(data))); //DB데이터 형식 변경 object -> [][]
-
     const repo = await this.dataSource.getRepository(entityArray[repoName]); // 최신데이터 뽑아오기
     const latestData = await repo
       .createQueryBuilder(repoKeys[repoName])
@@ -594,10 +607,10 @@ export class SpreadService {
     const latestValues = [];
     latestValues.push(Object.keys(latestData[0]));
     latestData.forEach((data) => latestValues.push(Object.values(data)));
-
     const pkCol = dbvalues[0].findIndex((col) => col === 'pk'); //pk, fk위치 파악
     const fkCol = dbvalues[0].findIndex((col) => col === 'fk_user_no');
     const validCol = dbvalues[0].findIndex((col) => col === 'validate_date');
+    const sheetRows = sheet.filter((value, index) => index > 0);
 
     //column이 동일한지 체크
     let resultOfCheck;
@@ -622,17 +635,13 @@ export class SpreadService {
     if (resultOfCheck) return 'check to duplicate';
 
     //기존 pk의 사이값에 다른 값이 들어왔는지 pk-fk페어관계를 통해 체크
+    //DB를 기준으로 sheet값 순회
     resultOfCheck = dbvalues.every((dbValue, idx) => {
       const sheetValue = sheet.find(
         (sheetValue) => sheetValue[pkCol] == dbValue[pkCol],
       );
       if (sheetValue === undefined) {
-        this.makeErrorMsg(
-          errorMsg,
-          this.numToAlpha(pkCol + 1),
-          sheet[idx][pkCol],
-          idx + 1,
-        );
+        this.makeErrorMsg(errorMsg, this.numToAlpha(pkCol + 1), '?', idx + 1);
         return false;
       }
       if (!(sheetValue[fkCol] == dbValue[fkCol])) {
@@ -646,6 +655,15 @@ export class SpreadService {
       return sheetValue[fkCol] == dbValue[fkCol];
     });
     if (!resultOfCheck) return 'interrupt error';
+
+    //디폴트값이 필요한 항목에 공백이 들어가있는지 확인
+    resultOfCheck = this.checkIsEmpty(
+      sheetRows,
+      repoName,
+      errorMsg,
+      spreadColumns,
+    );
+    if (!resultOfCheck) return 'empty nonnullable cell';
 
     //최신 데이터가 변경이 되었는지 체크
     resultOfCheck = latestValues.every((latestValue) => {
@@ -706,6 +724,15 @@ export class SpreadService {
       const checkNew = latestValues.find(
         (latestValue) => latestValue[fkCol] == newData[fkCol],
       );
+      if (checkNew === undefined) {
+        this.makeErrorMsg(
+          errorMsg,
+          this.numToAlpha(fkCol),
+          newData[fkCol],
+          sheet.length + index,
+        );
+        return false;
+      }
       if (!this.compareDateIsNew(checkNew, newData, validCol, errorMsg)) {
         errorMsg['rowIdx'] = sheet.length + index;
         return false;
@@ -720,6 +747,41 @@ export class SpreadService {
     const sheetRestoreDatas = this.setRestoreList(noLatestDatas, dbvalues);
     deletedDatas.push(...sheetDeleteDatas);
     restoreDatas.push(...sheetRestoreDatas);
+  }
+
+  checkIsEmpty(sheetRows, repoName, errorMsg, spreadColumns) {
+    //디폴트가 없는 부분에 공백이들어왔는지 체크 확인 row가 모자른경우
+    const entityColumn = EntityColumn[this.capitalize(repoName)];
+    for (const col in spreadColumns) {
+      const columnLabel = entityColumn.find(
+        this.compareSpname(spreadColumns[col]),
+      );
+      if (
+        //해당 컬럼이 default값을 가지는지 확인
+        columnLabel !== undefined &&
+        this.isDefaultColumn(repoKeys[repoName], columnLabel.dbName) ===
+          DEFAULT_VALUE.DEFAULT
+      ) {
+        if (
+          !sheetRows.every((row, index) => {
+            //row가 col의 갯수보다 작거나 ''일경우 에러
+            if (row.length < col || row[col] === '') {
+              this.makeErrorMsg(
+                errorMsg,
+                this.numToAlpha(+col + 1),
+                '',
+                index + 1,
+              );
+              return false;
+            }
+            return true;
+          })
+        ) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   setDeleteList(noLatestDatas, dbvalues) {
@@ -1002,39 +1064,25 @@ export class SpreadService {
       // }
       if (api42s != undefined) {
         // 해당 intra_no인 사람의 api 데이터를 가져오가
-<<<<<<< HEAD
-        const api42 = await this.apiService.getTupleFromApi(row[1], api42s);
-        if (api42) {
-          if (table['name'] === 'user_personal_information') {
-            tuple['email'] = api42.email;
-            //tuple['phone_number'] = api42.phone_number;
-          }
-          // if (table['name'] === 'user_blackhole') {
-          //   tuple['blackhole_date'] = api42.blackhole_date;
-          // }
-          if (table['name'] === 'user_learning_data_api') {
-            tuple['level'] = api42.level;
-            //tuple['leveled_date'] = new Date('7777-12-31');
-          }
-=======
         const intraNo = cols.findIndex((col) => col === 'Intra No.');
         const isTransfer = transferUser.some(
           (transUser) => row[intraNo] === transUser[intraNo],
         );
         if (isTransfer) {
           const api42 = await this.apiService.getTupleFromApi(row[1], api42s);
-          if (table['name'] === 'user_personal_information') {
-            tuple['email'] = api42.email;
-            tuple['phone_number'] = api42.phone_number;
+          if (api42) {
+            if (table['name'] === 'user_personal_information') {
+              tuple['email'] = api42.email;
+              //tuple['phone_number'] = api42.phone_number;
+            }
+            // if (table['name'] === 'user_blackhole') {
+            //   tuple['blackhole_date'] = api42.blackhole_date;
+            // }
+            if (table['name'] === 'user_learning_data_api') {
+              tuple['level'] = api42.level;
+              //tuple['leveled_date'] = new Date('7777-12-31');
+            }
           }
-          if (table['name'] === 'user_blackhole') {
-            tuple['blackhole_date'] = api42.blackhole_date;
-          }
-          if (table['name'] === 'user_learning_data_api') {
-            tuple['level'] = api42.level;
-            tuple['leveled_date'] = new Date();
-          } //여기 학습데이터를 추가해야함.
->>>>>>> 79cbce5 (feat(server/error): feat: prevent for transfer)
         }
       }
       if (table['name'] != 'user') tuple['fk_user_no'] = row[1]; //usertable은 해당 컬럼이 필요가 없음
