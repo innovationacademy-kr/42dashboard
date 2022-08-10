@@ -12,7 +12,6 @@ import {
   dateTable,
   defaultVALUE,
   DEFAULT_VALUE,
-  exceptDataObj,
   LOCALTIME,
   oldDateTable,
   REMAINDPAYMENTPERIOD,

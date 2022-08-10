@@ -4,6 +4,8 @@
 /src/config
 /src/schema.gql
 /src/utils
+/.vscode
+
 # Logs
 logs
 *.log

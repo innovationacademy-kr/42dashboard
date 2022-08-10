@@ -45,7 +45,6 @@ import { ErrObject } from 'src/auth/dto/errObject.dto';
 import { ErrorObject } from 'src/auth/entity/bocal.entity';
 import { EntityColumn } from 'src/common/EntityColumn';
 import { APIS } from 'googleapis/build/src/apis';
-import { PARSEDAPI } from 'src/config/api';
 import { entityArray } from 'src/user_information/utils/getDomain.utils';
 
 interface RepoDict {
@@ -176,38 +175,38 @@ export class UpdaterService {
 
     /***************에러 검증****************/
 
-    if (intraNoArray.length > userInDB.length) {
-      deleteOrEdit = true;
-    } else {
-      deleteOrEdit =
-        deleteData.length === userInDB.length - intraNoArray.length;
-    }
+    // if (intraNoArray.length > userInDB.length) {
+    //   deleteOrEdit = true;
+    // } else {
+    //   deleteOrEdit =
+    //     deleteData.length === userInDB.length - intraNoArray.length;
+    // }
 
-    await this.dataSource
-      .createQueryBuilder()
-      .delete()
-      .from(ErrorObject)
-      .execute();
-    if (
-      !this.checkErrorBeforeUpdate(
-        tables,
-        columns,
-        rows,
-        deleteOrEdit,
-        intraNoArray,
-        errObject,
-      )
-    ) {
-      const errorObject = {};
-      console.log(errObject, '-----------');
-      for (const err of errObject) {
-        console.log(err);
-        errorObject['error'] = JSON.stringify(err);
-        await this.spreadService.insertDataToDB(ErrorObject, errorObject);
-      }
+    // await this.dataSource
+    //   .createQueryBuilder()
+    //   .delete()
+    //   .from(ErrorObject)
+    //   .execute();
+    // if (
+    //   !this.checkErrorBeforeUpdate(
+    //     tables,
+    //     columns,
+    //     rows,
+    //     deleteOrEdit,
+    //     intraNoArray,
+    //     errObject,
+    //   )
+    // ) {
+    //   const errorObject = {};
+    //   console.log(errObject, '-----------');
+    //   for (const err of errObject) {
+    //     console.log(err);
+    //     errorObject['error'] = JSON.stringify(err);
+    //     await this.spreadService.insertDataToDB(ErrorObject, errorObject);
+    //   }
 
-      return 'Error while inserting data with main sheet';
-    }
+    //   return 'Error while inserting data with main sheet';
+    // }
     /***************************************/
     /*************사전 처리 작업***************/
 
@@ -555,13 +554,10 @@ export class UpdaterService {
       const valueArray = Object.values(repoKeys);
       let key;
       for (const repoKey of valueArray) {
-        console.log(repoKey, 'for query');
         if (repoKey == 'user') {
           key = 'intra_no';
-          console.log(key, 'key1');
         } else {
           key = 'fk_user_no';
-          console.log(key, 'key2');
         }
         returnArray[repoKey] = await this.repoDict[repoKey]
           .createQueryBuilder(repoKey)
