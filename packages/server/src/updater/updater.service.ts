@@ -40,13 +40,16 @@ import {
 } from 'src/user_payment/entity/user_payment.entity';
 import { MAIN_SHEET, SPREAD_END_POINT } from 'src/config/key';
 import { UpdateDB } from 'src/user_information/argstype/updateSheet.argstype';
-import { tableName } from 'src/common/tableName';
 import { ErrObject } from 'src/auth/dto/errObject.dto';
-import { ErrorObject } from 'src/auth/entity/bocal.entity';
 import { EntityColumn } from 'src/common/EntityColumn';
 import { APIS } from 'googleapis/build/src/apis';
 import { entityArray } from 'src/user_information/utils/getDomain.utils';
 import { ExceptionsHandler } from '@nestjs/core/exceptions/exceptions-handler';
+import { tableName } from 'src/common/tableName';
+import { elementAt } from 'rxjs';
+import { Bocal, ErrorObject } from 'src/auth/entity/bocal.entity';
+import { ERRORMSG, ErrorMsg } from 'src/spread/msg/errorMsg.msg';
+import { makeServer } from 'graphql-ws';
 
 interface RepoDict {
   [repositoryName: string]:
@@ -150,7 +153,7 @@ export class UpdaterService {
 
   async updateData() {
     const tableSet = [] as TableSet[];
-    const errObject = [] as ErrObject[];
+    const errorMsg = [] as ErrorMsg[];
     let deleteOrEdit: boolean;
     const spreadData =
       await this.spreadService.sendRequestToSpreadWithGoogleAPI(
@@ -180,36 +183,36 @@ export class UpdaterService {
     });
     /***************에러 검증****************/
 
-    // if (intraNoArray.length > userInDB.length) {
-    //   deleteOrEdit = true;
-    // } else {
-    //   deleteOrEdit =
-    //     deleteData.length === userInDB.length - intraNoArray.length;
-    // }
+    if (intraNoArray.length > userInDB.length) {
+      deleteOrEdit = true;
+    } else {
+      deleteOrEdit =
+        deleteData.length === userInDB.length - intraNoArray.length;
+    }
 
-    // await this.dataSource
-    //   .createQueryBuilder()
-    //   .delete()
-    //   .from(ErrorObject)
-    //   .execute();
-    // if (
-    //   !this.checkErrorBeforeUpdate(
-    //     tables,
-    //     columns,
-    //     rows,
-    //     deleteOrEdit,
-    //     intraNoArray,
-    //     errObject,
-    //   )
-    // ) {
-    //   const errorObject = {};
-    //   for (const err of errObject) {
-    //     errorObject['error'] = JSON.stringify(err);
-    //     await this.spreadService.insertDataToDB(ErrorObject, errorObject);
-    //   }
+    await this.dataSource
+      .createQueryBuilder()
+      .delete()
+      .from(ErrorObject)
+      .execute();
+    if (
+      !this.checkErrorBeforeUpdate(
+        tables,
+        columns,
+        rows,
+        deleteOrEdit,
+        intraNoArray,
+        errorMsg,
+      )
+    ) {
+      const errorObject = {};
+      for (const err of errorMsg) {
+        errorObject['error'] = JSON.stringify(err);
+        await this.spreadService.insertDataToDB(ErrorObject, errorObject);
+      }
 
-    //   return 'Error while inserting data with main sheet';
-    // }
+      return 'Error while inserting data with main sheet';
+    }
     /***************************************/
     /*************사전 처리 작업***************/
 
@@ -290,18 +293,15 @@ export class UpdaterService {
     rows,
     DeleteOrEdit,
     intraNoArray,
-    errObject,
+    errorMsg,
   ) {
-    const tuple = {} as ErrObject;
+    const tuple = {} as ErrorMsg;
+    const repoName = Object.keys(repoKeys);
 
     //수정과 삭제가 동시에 일어났는지 확인
     if (!DeleteOrEdit) {
-      tuple['sheet'] = '0. 학사정보관리(main)';
-      tuple['msg'] =
-        'intra No의 수정, 삭제 작업이 동시에 일어났습니다. 작업을 분리해주세요';
-      tuple['index'] = '';
-      tuple['value'] = '';
-      errObject.push(Object.assign({}, tuple));
+      this.spreadService.makeErrorMsg(tuple, '', '', 0, ERRORMSG.DUPPROCESS);
+      errorMsg.push(Object.assign({}, tuple));
       console.log('DeleteOrEdit check: ', tuple);
     }
 
@@ -310,24 +310,25 @@ export class UpdaterService {
       const checkDup =
         intraNoArray.indexOf(element) !== intraNoArray.lastIndexOf(element);
       if (checkDup) {
-        tuple['index'] = intraNoArray.lastIndexOf(element) + 1;
-        tuple['value'] = element;
+        this.spreadService.makeErrorMsg(
+          tuple,
+          'B',
+          element,
+          intraNoArray.lastIndexOf(element) + 1,
+        );
       }
       return checkDup;
     });
     if (isDup) {
-      tuple['sheet'] = '0. 학사정보관리(main)';
-      tuple['msg'] = 'intra no가 중복되었습니다. 중복값을 수정해주세요';
-      errObject.push(Object.assign({}, tuple));
+      tuple['message'] = ERRORMSG.DUPLICATE;
+      errorMsg.push(Object.assign({}, tuple));
       console.log('isDup check: ', tuple);
     }
 
     //컬럼이름이 변경되었는지 확인
     if (!this.getAllColumnInDB(columns, tuple)) {
-      tuple['sheet'] = '0. 학사정보관리(main)';
-      tuple['msg'] =
-        '구글 스프레드 시트의 컬럼값이 수정되었습니다. 정해진 컬럼으로 되돌려주세요';
-      errObject.push(Object.assign({}, tuple));
+      tuple['message'] = ERRORMSG.COLUMNS;
+      errorMsg.push(Object.assign({}, tuple));
       console.log('columns check: ', tuple);
     }
 
@@ -339,22 +340,29 @@ export class UpdaterService {
       return ret;
     });
     if (!(DBTables.length === tables.length && checkTable)) {
-      tuple['sheet'] = '0. 학사정보관리(main)';
-      tuple['msg'] =
-        '구글 스프레드 시트의 테이블값이 수정되었습니다. 정해진 테이블으로 되돌려주세요';
-      tuple['index'] = `table:0`;
-      errObject.push(Object.assign({}, tuple));
+      this.spreadService.makeErrorMsg(
+        tuple,
+        'table',
+        'table_name',
+        0,
+        ERRORMSG.CHANGEDTABLE,
+      );
+      errorMsg.push(Object.assign({}, tuple));
       console.log('DBTables check: ', tuple);
     }
 
+    //디폴트값이 필요한 항목에 공백이 들어가있는지 확인 넣어줘야하나? 사용성을 해칠까 고민
+    // if (!this.spreadService.checkIsEmpty(rows, repoName, tuple, cㄴolumns)) {
+    //   errorMsg.push(Object.assign({}, tuple));
+    //   console.log('default check: ', tuple);
+    // }
+
     //#REF! or #ERROR! 인지 확인
     if (!this.checkOperationError(rows, tuple)) {
-      tuple['sheet'] = '0. 학사정보관리(main)';
-      tuple['msg'] =
-        '구글 스프레드 시트에 계산되지 않은 값들이 있습니다. 확인해주세요';
-      errObject.push(Object.assign({}, tuple));
+      tuple['message'] = ERRORMSG.NONCALCULATE;
+      errorMsg.push(Object.assign({}, tuple));
     }
-    if (errObject.length > 0) {
+    if (errorMsg.length > 0) {
       return false;
     } else {
       return true;
@@ -375,22 +383,23 @@ export class UpdaterService {
   }
 
   checkOperationError(rows, tuple) {
-    const indexTuple = {};
-    const indexArray = [];
+    const rowArray = [];
+    const colArray = [];
     const valueArray = [];
     let ret;
     rows.forEach((row, numIdx) => {
       row.forEach((domain, alphaIdx) => {
         ret = domain !== '#REF!' && domain !== '#ERROR!' && domain !== '#N/A';
         if (!ret) {
-          indexTuple[this.spreadService.numToAlpha(alphaIdx + 1)] = numIdx + 1;
-          indexArray.push(JSON.stringify(indexTuple));
+          rowArray.push(numIdx + 1);
+          colArray.push(this.spreadService.numToAlpha(alphaIdx + 1));
           valueArray.push(domain);
         }
       });
     });
     if (valueArray.length > 0) ret = false;
-    tuple['index'] = indexArray.toString();
+    tuple['colIdx'] = colArray.toString();
+    tuple['rowIdx'] = rowArray.toString();
     tuple['value'] = valueArray.toString();
     return ret;
   }
@@ -413,7 +422,8 @@ export class UpdaterService {
         flag = true;
       }
       if (!flag) {
-        tuple['index'] = `${this.spreadService.numToAlpha(index + 1)}:1`;
+        tuple['colIdx'] = this.spreadService.numToAlpha(index + 1);
+        tuple['rowIdx'] = 1;
         tuple['value'] = col;
       }
       return flag;
