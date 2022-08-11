@@ -39,8 +39,21 @@ function DashBoardPage() {
           .catch((error) => {
             let alertMsg = '';
             const errorMessages = error.response.data.data;
+            console.log(errorMessages);
             for (let i = 0; i < errorMessages.length; i += 1) {
-              alertMsg += `${errorMessages[i].sheet} sheet 내 ${errorMessages[i].index} 인덱스의 값이 ${errorMessages[i].value} 입니다\n${errorMessages[i].msg}\n\n`;
+              if (typeof errorMessages[i].rowIdx === typeof 1) {
+                alertMsg += `${errorMessages[i].colIdx}${errorMessages[i].rowIdx} 인덱스의 값이 ${errorMessages[i].value} 입니다\n`;
+              } else {
+                const colIdx = errorMessages[i].colIdx.split(',');
+                const rowIdx = errorMessages[i].rowIdx.split(',');
+                const value = errorMessages[i].value.split(',');
+                const count = colIdx.length;
+                console.log(colIdx);
+                for (let j = 0; j < count; j += 1) {
+                  alertMsg += `${colIdx[j]}${rowIdx[j]} 인덱스의 값이 ${value[j]} 입니다\n`;
+                }
+              }
+              alertMsg += `${errorMessages[i].message}\n\n`;
             }
             alert(alertMsg);
           });
