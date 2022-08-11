@@ -35,6 +35,7 @@ import {
   formatError,
   formatErrorMain,
 } from './msg/errorMsg.msg';
+import { ExceptionsHandler } from '@nestjs/core/exceptions/exceptions-handler';
 
 @Injectable()
 export class SpreadService {
@@ -1422,7 +1423,6 @@ export class SpreadService {
     if (tableName == 'user') key = 'intra_no';
     else key = 'fk_user_no';
 
-    console.log('32', tableName, '32', saveDate, '13,', expiredDate);
     try {
       const repo = this.dataSource.getRepository(classType[tableName]);
       const target = await repo
