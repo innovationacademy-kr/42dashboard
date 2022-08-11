@@ -1,4 +1,4 @@
-import { ConsoleLogger, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { ApiService } from 'src/api/api.service';
 import { google } from 'googleapis';
@@ -12,7 +12,6 @@ import {
   dateTable,
   defaultVALUE,
   DEFAULT_VALUE,
-  LOCALTIME,
   oldDateTable,
   REMAINDPAYMENTPERIOD,
   repoKeys,
@@ -20,14 +19,10 @@ import {
 import { UserHrdNetUtilizeConsent } from 'src/user_job/entity/user_job.entity';
 import { UserComputationFund } from 'src/user_payment/entity/user_payment.entity';
 import { UserLearningDataAPI } from 'src/user_status/entity/user_status.entity';
-import { Brackets, DataSource } from 'typeorm';
-import { MAIN_SHEET, SPREAD_END_POINT } from 'src/config/key';
+import { DataSource } from 'typeorm';
+import { SPREAD_END_POINT } from 'src/config/key';
 import { TableSet } from 'src/updater/updater.service';
-import {
-  entityArray,
-  getDomain,
-} from 'src/user_information/utils/getDomain.utils';
-import { ideahub } from 'googleapis/build/src/apis/ideahub';
+import { entityArray } from 'src/user_information/utils/getDomain.utils';
 import { User } from 'src/user_information/entity/user_information.entity';
 import {
   ERRORMSG,
@@ -35,6 +30,7 @@ import {
   formatError,
   formatErrorMain,
 } from './msg/errorMsg.msg';
+import { ExceptionsHandler } from '@nestjs/core/exceptions/exceptions-handler';
 
 @Injectable()
 export class SpreadService {

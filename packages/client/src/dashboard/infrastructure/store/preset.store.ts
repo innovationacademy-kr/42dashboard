@@ -10,7 +10,7 @@ class PresetStore {
   }
 
   public setPreset(preset: PresetType) {
-    console.log('setPreset', preset);
+    console.log('setPreset in memory', preset);
     zustandStore.setState({ preset });
   }
 

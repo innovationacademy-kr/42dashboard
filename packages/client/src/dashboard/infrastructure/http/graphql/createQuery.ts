@@ -56,8 +56,6 @@ function returnVariables(
   skip?: number,
   take?: number,
 ) {
-  console.log('STARTDATE', typeof startDate);
-  console.log('ENDDATE', typeof endDate);
   const filterNamesLiteral = `filters: [${returnFilters(filterNames)}]`;
   const startDateLiteral = startDate
     ? `startDate: "${new Date(startDate).toISOString().slice(0, 10)}"`
@@ -112,7 +110,6 @@ export default function createQueryForChart(
       .map(returnRequest(labels, startDateStr, endDateStr))
       .join('\n')}
   }`;
-  console.log('query', query);
   return gql(query);
 }
 
@@ -140,7 +137,6 @@ export function createQueryForTable(
        }
     }
   `;
-  console.log(query);
   return gql(query);
 }
 

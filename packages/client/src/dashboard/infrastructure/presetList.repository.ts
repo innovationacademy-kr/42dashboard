@@ -20,12 +20,12 @@ class PresetListRepository implements PresetListRepositoryInterface {
           presetInfos.push(res.data[i].info);
         }
       });
-    console.log('presetList: ', presetInfos);
+    console.log('presetList: from db', presetInfos);
     return { presetInfos };
   }
 
-  public async setPresetList(presetList: PresetListType): Promise<void> {
-    console.log('setList', presetList);
+  public setPresetList(presetList: PresetListType) {
+    console.log('setList in memory', presetList);
     presetlistStore.setPresetList(presetList);
   }
 }

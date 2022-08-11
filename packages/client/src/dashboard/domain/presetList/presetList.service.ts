@@ -5,10 +5,10 @@ class PresetListService {
   constructor(protected presetListRepository: PresetListRepositoryInterface) {}
 
   public async getPresetList(): Promise<PresetListType> {
-    return this.presetListRepository.getPresetList();
+    return await this.presetListRepository.getPresetList();
   }
 
-  public async setPresetList(presetList: PresetListType): Promise<void> {
+  public setPresetList(presetList: PresetListType): void {
     return this.presetListRepository.setPresetList(presetList);
   }
 }
