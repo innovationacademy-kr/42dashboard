@@ -28,4 +28,7 @@ function useMode() {
   return { controlModeData, getControlMode, setControlMode };
 }
 
+export const getControlMode = () => {
+  return controlModeService.getControlMode();
+};
 export default useMode;

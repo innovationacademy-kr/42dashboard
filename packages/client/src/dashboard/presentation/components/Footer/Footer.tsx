@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import * as axios from './../../../infrastructure/http/axios/axios.custom';
@@ -7,7 +7,6 @@ import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import IosShareIcon from '@mui/icons-material/IosShare';
-import usePreset from '../../../application/services/usePreset';
 import useBoard from '../../../application/services/useBoard';
 
 const RoundButton = styled.button`
@@ -62,8 +61,8 @@ const ButtonArea = styled.div`
 
 function Footer() {
   const { setControlMode, getControlMode } = useMode();
-  const [refetchState, setRefetchState] = React.useState('data');
-  const { handleSavePreset } = useBoard();
+  const [refetchState, setRefetchState] = useState<string>('data');
+  // const { handleSavePreset } = useBoard();
 
   console.log('Footer: ');
   const mode = getControlMode();
@@ -74,7 +73,7 @@ function Footer() {
         <ButtonArea>
           <RoundButton
             onClick={async () => {
-              await handleSavePreset();
+              // await handleSavePreset();
               setControlMode('view');
             }}
           >
@@ -98,14 +97,7 @@ function Footer() {
               await axios
                 .axiosGetError()
                 .then((data) => console.log('SUCCESS'))
-                .catch((error) => {
-                  // let alertMsg = '';
-                  // const errorMessages = error.response.data.data;
-                  // for (let i = 0; i < errorMessages.length; i += 1) {
-                  //   alertMsg += `${errorMessages[i].sheet} sheet 내 ${errorMessages[i].index} 인덱스의 값이 ${errorMessages[i].value} 입니다\n${errorMessages[i].msg}\n\n`;
-                  // }
-                  // alert(alertMsg);
-                });
+                .catch((error) => console.error(error));
             }}
           >
             <RotateRefreshIcon className={refetchState} />

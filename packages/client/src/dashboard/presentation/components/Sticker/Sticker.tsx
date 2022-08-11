@@ -1,7 +1,7 @@
 import StickerContentFactory, {
   StickerContentFactoryProps,
 } from './StickerContentFactory';
-import useMode from '../../../application/services/useMode';
+import { getControlMode } from '../../../application/services/useMode';
 import { StickerEditToolBar } from '../Common/EditToolBar';
 import { useState } from 'react';
 import ConfigModal from '../Modal/ConfigModal';
@@ -20,7 +20,6 @@ function Sticker(props: StickerProps) {
   const { id, data, handleStickerRemove, handleStickerUpdate } = props;
   const [isConfigOpen, setIsConfigOpen] = useState<boolean>(false);
 
-  const { getControlMode } = useMode();
   return (
     <>
       {getControlMode() === 'edit' && (
