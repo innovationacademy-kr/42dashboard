@@ -2,7 +2,6 @@ import './styles.css';
 import './styles2.css';
 import Sticker from '../Sticker/Sticker';
 import useStickers from '../../../application/services/useStickers';
-import { getControlMode } from '../../../application/services/useMode';
 import RGL, { Layout, WidthProvider } from 'react-grid-layout';
 import ModalFrame from '../Modal/Modal';
 import { useState, useEffect } from 'react';
@@ -165,7 +164,7 @@ export default function Section(props: SectionProps) {
   const periodFilter: PeriodFilterType = { startDate, endDate, grade };
   return (
     <>
-      {getControlMode() === 'edit' && (
+      {
         <SectionEditToolBar
           setIsOpen={setIsOpen}
           removeItem={handleSectionRemove}
@@ -178,7 +177,7 @@ export default function Section(props: SectionProps) {
           endDate={endDate}
           grade={grade}
         />
-      )}
+      }
       <ModalFrame
         isOpen={isOpen}
         setIsOpen={setIsOpen}
