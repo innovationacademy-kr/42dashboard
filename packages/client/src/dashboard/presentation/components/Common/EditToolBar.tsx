@@ -52,7 +52,7 @@ export const BoardEditToolBar = (props: BoardEditToolBarProps) => {
         <IconAdd style={{ width: '1rem' }} />
       </Button>
       <Button
-        onClick={handleSavePreset}
+        onClick={handleSavePreset} // TODO save preset label.
         style={{ position: 'absolute', right: '0' }}
       >
         <IconSave style={{ width: '1rem' }} />

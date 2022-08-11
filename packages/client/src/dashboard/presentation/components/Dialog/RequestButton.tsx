@@ -9,15 +9,18 @@ export interface RequestButtonProps {
   entityName: keyof typeof tableName;
   withDeleted: boolean;
   checkSucessSave: (e: any) => void;
-  retrySave: (e: any) => void;
+  retrySave: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const SUCCESS = '수정된 데이터가 성공적으로 저장되었습니다.';
 
 export default function RequestButton(props: RequestButtonProps) {
   const { entityName, withDeleted, checkSucessSave, retrySave } = props;
-  const { data, loading, error } = useQuery(
+  const { data, loading, error, refetch } = useQuery(
     createSaveModifiedDataQuery(entityName, withDeleted ? 'Y' : 'N'),
+    {
+      fetchPolicy: 'no-cache',
+    },
   );
 
   if (error) return <Button disabled={true}>{error.message}.</Button>;
@@ -35,7 +38,11 @@ export default function RequestButton(props: RequestButtonProps) {
       alert(data['saveModifiedDataFromSheet']);
       return (
         <Alert
-          onClick={retrySave}
+          onClick={async (e) => {
+            e.stopPropagation();
+            await refetch();
+            retrySave((prev) => !prev);
+          }}
           icon={<SaveIcon fontSize="inherit" />}
           severity="info"
         ></Alert>
