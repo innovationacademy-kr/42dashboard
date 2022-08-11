@@ -74,8 +74,19 @@ export class ApiService {
         //pageNum만 따로 빼서 구성할 수 있긴 하지만, page만 따로 프로퍼티 별로 나누는것이 가독성에 더 안좋을 것같아 그렇게 하지 않음.
         page = `page[number]=${++pageNum}&page[size]=100`;
         console.log(pageNum);
-      } catch {
-        throw BadRequestException;
+      } catch (ex) {
+        if (ex.request === undefined) {
+          console.log('요청 전 에러 발생');
+        } else if (
+          ex.response &&
+          (ex.response.status === 404 || ex.response.status === 403)
+        ) {
+          // 404 에러가 발생한 경우
+          console.log('400번대 응답을 받았습니다.');
+        } else {
+          // unexpected 에러가 발생한 경우
+          console.log('예상치 못한 에러가 발생했습니다.', ex.response);
+        }
       }
     }
     return apiData;
