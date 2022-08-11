@@ -622,14 +622,18 @@ export class UpdaterService {
   }
 
   async getDataToModifyFromDB(updateDB: UpdateDB) {
-    if (updateDB.sheetName === 'user') {
-      return "can't edit user page";
-    } else {
-      return await this.spreadService.getDataToModifyFromDB(
-        SPREAD_END_POINT,
-        updateDB.sheetName,
-        updateDB.withDeleted,
-      );
+    try {
+      if (updateDB.sheetName === 'user') {
+        return "can't edit user page";
+      } else {
+        return await this.spreadService.getDataToModifyFromDB(
+          SPREAD_END_POINT,
+          updateDB.sheetName,
+          updateDB.withDeleted,
+        );
+      }
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -641,11 +645,15 @@ export class UpdaterService {
   // }
 
   async saveModifiedDataFromSheet(updateDB: UpdateDB) {
-    return await this.spreadService.saveModifiedDataFromSheet(
-      SPREAD_END_POINT,
-      updateDB.sheetName,
-      updateDB.withDeleted,
-    );
+    try {
+      return await this.spreadService.saveModifiedDataFromSheet(
+        SPREAD_END_POINT,
+        updateDB.sheetName,
+        updateDB.withDeleted,
+      );
+    } catch (error) {
+      throw error;
+    }
   }
 
   async findTargetByKey(repo, tableName, newOneData, targetObj, dateTable) {
@@ -671,10 +679,6 @@ export class UpdaterService {
           tableName,
         );
         if (processData !== undefined) newOneData = processedDataObj;
-      }
-
-      if (newOneData['fk_user_no'] == 68641) {
-        console.log(tableName, ':', newOneData, '111111111');
       }
       await this.spreadService.initValidateDate(
         tableName,

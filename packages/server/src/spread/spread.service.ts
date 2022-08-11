@@ -504,7 +504,7 @@ export class SpreadService {
       arrayOne.length === arrayTwo.length &&
       arrayOne.every((oneValue, idx) => {
         let oneValueToString;
-        if (oneValue instanceof Date) {
+        if (oneValue instanceof Date && !isNaN(oneValue.getTime())) {
           oneValueToString = oneValue.toISOString();
         } else if (oneValue == null) {
           oneValueToString = '';
@@ -528,30 +528,27 @@ export class SpreadService {
 
   convSheetDataToDate(newData, oldDate, validCol, errorMsg, idx) {
     let validateCheck;
+    let errorDate;
     const newDate = new Date(newData[idx]);
+    if (newDate instanceof Date && !isNaN(newDate.getTime())) {
+      errorDate = newDate.toISOString();
+    } else {
+      errorDate = '유효하지 않은 날짜';
+    }
     if (newDate instanceof Date && !isNaN(newDate.getTime())) {
       if (validCol == idx) {
         validateCheck = oldDate <= newDate;
       } else {
         validateCheck = oldDate < newDate;
-        if (newDate.toISOString() === '9999-12-30T15:00:00.000Z')
-          validateCheck = false;
+        if (errorDate === '9999-12-30T15:00:00.000Z') validateCheck = false;
       }
       if (validateCheck) {
-        this.makeErrorMsg(
-          errorMsg,
-          this.numToAlpha(idx + 1),
-          newDate.toISOString(),
-        );
+        this.makeErrorMsg(errorMsg, this.numToAlpha(idx + 1), errorDate);
         return false; //'The new data is more recent than the main data.'
       }
       return true;
     } else {
-      this.makeErrorMsg(
-        errorMsg,
-        this.numToAlpha(idx + 1),
-        newDate.toISOString(),
-      );
+      this.makeErrorMsg(errorMsg, this.numToAlpha(idx + 1), errorDate);
       return false; //'Date type is wrong'
     }
   }
@@ -1141,37 +1138,6 @@ export class SpreadService {
           else if (colObj.table === 'UserHrdNetUtilizeConsent')
             await this.insertArrayToDB(UserHrdNetUtilizeConsent, data);
         }
-
-        // for (const data of datas) {
-        //   // 같은 일자에 저장된 시트들을 합쳐주는 작업
-        //   let flag = false;
-        //   for (const col of sheet) {
-        //     if (colData === '0') break;
-        //     const newDate =
-        //       EntityColumn[colObj.table][Number(colData) * 2 + 1]['dbName'];
-        //     const preDate =
-        //       EntityColumn[colObj.table][(Number(colData) - 1) * 2 + 1][
-        //         'dbName'
-        //       ];
-        //     if (
-        //       (flag =
-        //         col.fk_user_no === data.fk_user_no &&
-        //         col[`${preDate}`] === data[`${newDate}`])
-        //     ) {
-        //       await this.initValidateDate(repoKey, data, oldDateTable);
-        //       Object.assign(col, data);
-        //       break;
-        //     }
-        //   }
-        //   if (flag === false) {
-        //     await this.initValidateDate(repoKey, data, oldDateTable);
-        //     if (colObj.table === 'UserLearningDataAPI')
-        //       await this.insertArrayToDB(UserLearningDataAPI, data);
-        //     else if (colObj.table === 'UserHrdNetUtilizeConsent')
-        //       await this.insertArrayToDB(UserHrdNetUtilizeConsent, data);
-        //     //sheet.push(data);
-        //   }
-        // }
       }
     }
   }
