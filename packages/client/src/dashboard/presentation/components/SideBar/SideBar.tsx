@@ -12,9 +12,9 @@ import PresetListItem from './PresetListItem';
 
 function SideBar() {
   const {
+    preset,
     presetList,
     changePresetList,
-    preset,
     changePreset,
     createPreset,
     changePresetLabel,
@@ -28,7 +28,6 @@ function SideBar() {
         (presetInfo) => presetInfo.id !== id,
       ),
     });
-    console.log('deletePreset: ', id);
   }
 
   console.log('sidebar presetList: ', presetList);

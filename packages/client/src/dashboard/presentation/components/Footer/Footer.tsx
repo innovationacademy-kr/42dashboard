@@ -64,7 +64,6 @@ function Footer() {
   const [refetchState, setRefetchState] = useState<string>('data');
   // const { handleSavePreset } = useBoard();
 
-  console.log('Footer: ');
   const mode = getControlMode();
 
   return (

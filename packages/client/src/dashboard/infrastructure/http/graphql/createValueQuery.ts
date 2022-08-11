@@ -8,6 +8,5 @@ export default function createValueQuery(entityName: string, column: string) {
     }
   }
   `;
-  console.log('query : ', query);
   return gql(query);
 }

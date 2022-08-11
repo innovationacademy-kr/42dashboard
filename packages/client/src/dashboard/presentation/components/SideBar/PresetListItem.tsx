@@ -43,12 +43,10 @@ function PresetListItem(props: PresetListItemProps) {
   return (
     <ListItemButton
       sx={{ pl: 4 }}
-      onClick={() => {
-        if (controlModeData !== 'edit') changeSelectedPreset();
-      }}
+      onClick={changeSelectedPreset}
       selected={selected}
     >
-      {controlModeData === 'edit' ? (
+      {controlModeData === 'edit' && selected ? (
         <>
           <ListItemIcon>
             <DeleteIcon color="disabled" onClick={() => deletePreset(id)} />
