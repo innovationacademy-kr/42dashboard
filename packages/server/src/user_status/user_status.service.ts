@@ -91,12 +91,11 @@ export class UserStatusService {
   }
 
   async getUserLapiscineInformation(checkDuplication: CheckDuplication) {
-    // return getDomain(
-    //   this.dataSource,
-    //   checkDuplication,
-    //   entityArray,
-    //   'userLapiscineInformation',
-    // );
-    return this.userLapiscineInformationRepository.find({});
+    return getDomain(
+      this.dataSource,
+      checkDuplication,
+      entityArray,
+      'userLapiscineInformation',
+    );
   } //로얄티 추가됨.
 }
