@@ -100,7 +100,6 @@ function Footer() {
                 .catch((error) => {
                   let alertMsg = '';
                   const errorMessages = error.response.data.data;
-                  console.log(errorMessages);
                   for (let i = 0; i < errorMessages.length; i += 1) {
                     if (typeof errorMessages[i].rowIdx === typeof 1) {
                       alertMsg += `${errorMessages[i].colIdx}${errorMessages[i].rowIdx} 인덱스의 값이 ${errorMessages[i].value} 입니다\n`;
