@@ -38,4 +38,5 @@ export const enum ERRORMSG {
   DUPPROCESS = 'intra No의 수정, 삭제 작업이 동시에 일어났습니다. 작업을 분리해주세요',
   CHANGEDTABLE = '구글 스프레드 시트의 테이블값이 수정되었습니다. 정해진 테이블으로 되돌려주세요',
   NONCALCULATE = '구글 스프레드 시트에 계산되지 않은 값들이 있습니다. 확인해주세요',
+  TOMANYWORK = '기본키를 수정을 한번에 너무 많이 시도하였습니다.',
 }

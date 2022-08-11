@@ -33,6 +33,7 @@ import {
   autoProcessingDataObj,
   oldDateTable,
   classType,
+  SHEETSTATUS,
 } from './name_types/updater.name';
 import {
   UserComputationFund,
@@ -157,7 +158,7 @@ export class UpdaterService {
   async updateData() {
     const tableSet = [] as TableSet[];
     const errorMsg = [] as ErrorMsg[];
-    let deleteOrEdit: boolean;
+    let deleteOrEdit;
     const spreadData =
       await this.spreadService.sendRequestToSpreadWithGoogleAPI(
         SPREAD_END_POINT,
@@ -178,21 +179,30 @@ export class UpdaterService {
       .getRepository(User)
       .createQueryBuilder('user')
       .select('user.intra_no')
-      .orderBy('user.intra_no', 'ASC')
       .getMany();
     const deleteData = userInDB.filter((DBNo: User) =>
       intraNoArray.every((spreadNO: number) => DBNo.intra_no != spreadNO),
     );
+    const editData = intraNoArray.filter((spreadNO: number) =>
+      userInDB.every((DBNo: User) => DBNo.intra_no != spreadNO),
+    );
+
     /***************에러 검증****************/
 
-    if (intraNoArray.length > userInDB.length) {
-      deleteOrEdit = true;
-      console.log('1>>>? ', deleteOrEdit);
-    } else {
-      deleteOrEdit =
-        deleteData.length === userInDB.length - intraNoArray.length;
-      console.log('2>>>? ', deleteOrEdit, userInDB.length, intraNoArray.length);
-    }
+    this.checkErrorForEditDelete(
+      userInDB,
+      intraNoArray,
+      deleteData,
+      editData,
+      deleteOrEdit,
+    );
+
+    //DB길이가 SPREAD길이보다 더 크면서 deleteData와 차이가 같은 경우: 삭제
+    //DB길이가 SPREAD길이보다 더 작으면서 deleteData와 차이가 같은 경우: 삽입
+    //DB길이가 SPREAD길이와 같으면서 deleteData와 차이가 같은 경우: 아무동작 x
+    //DB길이가 SPREAD길이와 같으면서 deleteData와 차이가 다른 경우: 수정
+    //DB길이가 SPREAD길이보다 더 크면서 deleteData와 차이가 다른 경우: 삭제와 수정이 동시에 일어남
+    //DB길이가 SPREAD길이보다 더 작으면서 deleteData와 차이가 같은 경우: 삽입
 
     await this.dataSource
       .createQueryBuilder()
@@ -249,12 +259,12 @@ export class UpdaterService {
     // }
 
     // 시트에서 유저가 사라졌다면 삭제
-    if (deleteOrEdit) {
+    if (deleteOrEdit === SHEETSTATUS.DELETE) {
       await this.checkDeletedInMain(deleteData);
     }
     //시트에서 유저 intra_no이 변경된 경우 intra_no 수정
-    else {
-      await this.checkPKEditState(userInDB, intraNoArray);
+    else if (deleteOrEdit === SHEETSTATUS.EDIT) {
+      await this.checkPKEditState(editData, deleteData);
     }
 
     /*******************************************/
@@ -282,6 +292,39 @@ export class UpdaterService {
     /*******************************************/
   }
 
+  checkErrorForEditDelete(
+    userInDB,
+    intraNoArray,
+    deleteData,
+    editData,
+    deleteOrEdit,
+  ) {
+    if (
+      userInDB.length > intraNoArray.length &&
+      deleteData.length === userInDB.length - intraNoArray.length
+    ) {
+      deleteOrEdit = SHEETSTATUS.DELETE;
+    } else if (
+      userInDB.length < intraNoArray.length &&
+      deleteData.length === userInDB.length - intraNoArray.length
+    ) {
+      deleteOrEdit = SHEETSTATUS.INSERT;
+    } else if (
+      userInDB.length === intraNoArray.length &&
+      deleteData.length !== userInDB.length - intraNoArray.length
+    ) {
+      deleteOrEdit = SHEETSTATUS.EDIT;
+    } else if (
+      userInDB.length === intraNoArray.length &&
+      deleteData.length === userInDB.length - intraNoArray.length
+    ) {
+    } else if (editData.length > 1 || deleteData.length > 1) {
+      deleteOrEdit = SHEETSTATUS.TOMANY;
+    } else {
+      deleteOrEdit = SHEETSTATUS.ERROR;
+    }
+  }
+
   initTupleAndErrObject(tuple, errIndex, errValue) {
     tuple['sheet'] = '';
     tuple['msg'] = '';
@@ -302,10 +345,16 @@ export class UpdaterService {
     const tuple = {} as ErrorMsg;
 
     //수정과 삭제가 동시에 일어났는지 확인
-    if (!DeleteOrEdit) {
+    if (DeleteOrEdit === SHEETSTATUS.ERROR) {
       this.spreadService.makeErrorMsg(tuple, '', '', 0, ERRORMSG.DUPPROCESS);
       errorMsg.push(Object.assign({}, tuple));
       console.log('DeleteOrEdit check: ', tuple);
+    }
+
+    if (DeleteOrEdit === SHEETSTATUS.TOMANY) {
+      this.spreadService.makeErrorMsg(tuple, '', '', 0, ERRORMSG.TOMANYWORK);
+      errorMsg.push(Object.assign({}, tuple));
+      console.log('to many work check: ', tuple);
     }
 
     //intra no이 중복되어 들어왔는지 확인
@@ -394,7 +443,7 @@ export class UpdaterService {
       row.forEach((domain, alphaIdx) => {
         ret = excelErrorList.indexOf(domain);
         if (ret >= 0) {
-          rowArray.push(numIdx + 1);
+          rowArray.push(String(numIdx + 1));
           colArray.push(this.spreadService.numToAlpha(alphaIdx + 1));
           valueArray.push(domain);
         }
@@ -452,17 +501,17 @@ export class UpdaterService {
   }
 
   //수정 조금 수정해야함. 수정하고자하는 위치를 수정 -> 저장 -> 정렬
-  async checkPKEditState(userInDB, intraNoArray) {
-    for (const DBIndex in userInDB) {
-      if (userInDB[DBIndex].intra_no != intraNoArray[DBIndex]) {
-        const queryRunner = this.dataSource.createQueryRunner();
-        const user = await this.dataSource
-          .getRepository(User)
-          .find({ where: { intra_no: userInDB[DBIndex].intra_no } });
-        queryRunner.manager.save(user);
-      }
+  //하 현재 한개씩만 수정가능..
+  async checkPKEditState(editData, deleteData) {
+    for (const DBIndex in editData) {
+      const queryRunner = this.dataSource.createQueryRunner();
+      const user = await this.dataSource
+        .getRepository(User)
+        .find({ where: { intra_no: deleteData[DBIndex].intra_no } });
+      user[0].intra_no = editData[DBIndex];
+      queryRunner.manager.save(user[0]);
     }
-    console.log('pkedit :', userInDB, intraNoArray);
+    console.log('pkedit :', editData, deleteData);
   }
 
   //메인데이터 soft삭제

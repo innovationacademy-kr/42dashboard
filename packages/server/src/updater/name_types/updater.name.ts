@@ -50,6 +50,14 @@ import { EntityColumn } from 'src/common/EntityColumn';
 export const LOCALTIME = 32400000;
 export const REMAINDPAYMENTPERIOD = 24;
 
+export const enum SHEETSTATUS {
+  INSERT = 1,
+  DELETE = 2,
+  EDIT = 3,
+  ERROR = 4,
+  TOMANY = 5,
+}
+
 export const pastDataOnSheet = [
   //spread수정해야함!
   //하위1
