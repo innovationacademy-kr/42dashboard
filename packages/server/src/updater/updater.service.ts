@@ -230,34 +230,6 @@ export class UpdaterService {
     /***************************************/
     /*************사전 처리 작업***************/
 
-    // transfer의 경우 삭제하게된다면, data관리에 문제가 생김
-    // 기본적으로 softdelete한 항목은 보이지 않아야하는데, 시트에서는 항상 값이 들어옴
-    // 고로 삭제가 아닌 따로 transfer관리가 필요하다고 생각됨.
-    // 결론 - api42에서 데이터 받아오는것을 막아주는 것으로 끝맺음.
-
-    //만약 특이사항값이 transfer라면 soft-delete
-    // const transferArray = rows.filter(
-    //   (row) => row[uniquenessCol] === 'transfer',
-    // );
-    // //console.log(transferArray);
-    // if (transferArray.length > 0) {
-    //   //rows = rows.filter((row) => row[uniquenessCol] != 'transfer');
-    //   await this.checkSoftDeletedInMain(transferArray, intraNoCol);
-    // }
-
-    // //삭제되었던 transfer가 다시 복구되는 경우
-    // const nonTransferObject = await this.getRecoverArray(
-    //   transferArray,
-    //   intraNoCol,
-    // );
-    // const nonTransferArray = nonTransferObject.map(
-    //   (nonTransfer) => nonTransfer.intra_no,
-    // );
-    // //console.log(nonTransferObject);
-    // if (nonTransferArray.length > 0) {
-    //   await this.checkRecoverInMain(nonTransferArray, intraNoCol);
-    // }
-
     // 시트에서 유저가 사라졌다면 삭제
     if (deleteOrEdit === SHEETSTATUS.DELETE) {
       await this.checkDeletedInMain(deleteData);
@@ -402,12 +374,6 @@ export class UpdaterService {
       errorMsg.push(Object.assign({}, tuple));
       console.log('DBTables check: ', tuple);
     }
-
-    //디폴트값이 필요한 항목에 공백이 들어가있는지 확인 넣어줘야하나? 사용성을 해칠까 고민
-    // if (!this.spreadService.checkIsEmpty(rows, repoName, tuple, cㄴolumns)) {
-    //   errorMsg.push(Object.assign({}, tuple));
-    //   console.log('default check: ', tuple);
-    // }
 
     //#REF! or #ERROR! 인지 확인
     if (!this.checkOperationError(rows, tuple)) {
