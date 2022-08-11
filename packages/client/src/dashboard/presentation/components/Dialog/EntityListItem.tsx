@@ -26,11 +26,6 @@ export default function EntityListItem(props: EntityListItemProps) {
     setSave(false);
   }
 
-  function retrySave(e: any) {
-    e.stopPropagation();
-    setRetry((prev) => !prev);
-  }
-
   return (
     <ListItem
       button
@@ -48,7 +43,7 @@ export default function EntityListItem(props: EntityListItemProps) {
       )}
       {save && (
         <RequestButton
-          retrySave={retrySave}
+          retrySave={setRetry}
           withDeleted={withDeleted}
           entityName={entityName}
           checkSucessSave={checkSucessSave}

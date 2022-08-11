@@ -30,6 +30,7 @@ function useBoard() {
     const sectionDatas: SectionDataType[] = sectionDatasStore.getSectionDatas();
     const stickerDatas: StickerDataType[] = stickerDatasStore.getStickerDatas();
     console.log(boardData, sectionDatas, stickerDatas);
+    //make preset data to save in db
     const presetData = {
       boardData,
       sectionDatas,

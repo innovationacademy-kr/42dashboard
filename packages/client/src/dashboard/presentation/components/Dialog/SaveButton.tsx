@@ -3,6 +3,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import createModificationDataQuery from '../../../infrastructure/http/graphql/createModificationDataQuery';
 import { useQuery } from '@apollo/client';
 import { tableName } from 'common/src';
+import { useEffect } from 'react';
 
 export interface SaveButtonProps {
   entityName: keyof typeof tableName;
@@ -15,6 +16,9 @@ export default function SaveButton(props: SaveButtonProps) {
 
   const { data, loading, error } = useQuery(
     createModificationDataQuery(entityName, withDeleted ? 'Y' : 'N'),
+    {
+      fetchPolicy: 'no-cache',
+    },
   );
 
   if (error) return <Alert severity="error">{error.message}</Alert>;
