@@ -13,20 +13,18 @@ class PresetRepository implements PresetRepositoryInterface {
         },
       )
       .then((res) => {
-        console.log('get result', res);
+        console.log('get result from db', res);
         return res.data[0];
       });
     return preset;
   }
 
-  public async setPreset(preset: PresetType): Promise<void> {
+  public setPreset(preset: PresetType): void {
     presetStore.setPreset(preset);
   }
 
   public async savePreset(preset: PresetType): Promise<void> {
-    console.log('svaePreset');
     const { id } = preset;
-    console.log('preset', preset);
     let isExist = false;
     await axios
       .get(
@@ -40,7 +38,6 @@ class PresetRepository implements PresetRepositoryInterface {
           if (res.data[i].id === id) isExist = true;
         }
       });
-    console.log('isExist', isExist);
     if (isExist) {
       await axios.put(
         `${process.env.REACT_APP_API_URI}${process.env.REACT_APP_UPDATE_ONE_PRESET}/${id}`,
@@ -70,7 +67,7 @@ class PresetRepository implements PresetRepositoryInterface {
         },
       )
       .then((res) => {
-        console.log('delete result: ', res);
+        console.log('delete result: from db ', res);
       });
   }
 }

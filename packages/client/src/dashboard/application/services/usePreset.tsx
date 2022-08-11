@@ -39,7 +39,7 @@ function usePreset() {
   useEffect(() => {
     async function fetchPresetList() {
       // from db
-      const presetList = await presetListService.getPresetList(); // from db
+      const presetList = await presetListService.getPresetList();
       // if no presetLiset, create one
       if (presetList.presetInfos.length !== 0) {
         presetListStore.setPresetList(presetList);
@@ -62,14 +62,15 @@ function usePreset() {
 
   // Board, Section, Sticker 데이터 스토어를 업데이트 해준다.
   const changePreset = async (id: string) => {
+    // from db
     const presetData = await presetService.getPreset(id);
     if (presetData) {
-      return await presetService.setPreset(presetData);
+      return presetService.setPreset(presetData);
     }
   };
 
   const changePresetList = async (presetList: PresetListType) => {
-    await presetListService.setPresetList(presetList);
+    presetListService.setPresetList(presetList); // save in memory
   };
 
   const createPreset = async () => {
@@ -91,7 +92,7 @@ function usePreset() {
       },
     };
 
-    // update preset store state
+    // update preset store state in memory
     presetService.setPreset({
       id: newPresetId,
       data: newPreset.data,
@@ -101,13 +102,10 @@ function usePreset() {
     // save preset to db
     await presetService.savePreset(newPreset);
 
-    console.log('create preset', newPreset);
-
     // add to prestList in memory
     presetListStore.setPresetList({
       presetInfos: [...presetList.presetInfos, newPreset.info],
     });
-    console.log('createPreset', presetList); // 적용안됨.
     controlModeStore.setControlMode('edit');
   };
 
@@ -125,8 +123,8 @@ function usePreset() {
         label,
       };
 
-      // update preset db state
-      await presetService.setPreset({ ...presetData, info: newPresetInfo });
+      // update preset store state in memory
+      // presetService.setPreset({ ...presetData, info: newPresetInfo });
 
       // create updated presetInfoList
       const newPresetInfos = presetList.presetInfos.map((info) => {

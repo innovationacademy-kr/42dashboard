@@ -8,7 +8,7 @@ class PresetService {
     return await this.presetRepository.getPreset(id);
   }
 
-  public async setPreset(preset: PresetType): Promise<void> {
+  public setPreset(preset: PresetType): void {
     return this.presetRepository.setPreset(preset);
   }
 
