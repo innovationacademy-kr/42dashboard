@@ -78,7 +78,6 @@ export default function Board() {
         padding: '0',
         overflowY: 'auto',
         maxHeight: '88vh',
-        color: 'rgba(0, 0, 0, 0)',
       }}
     >
       {controlModeData === 'edit' && (
