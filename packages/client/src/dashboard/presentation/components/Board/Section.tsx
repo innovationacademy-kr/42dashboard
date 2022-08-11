@@ -2,7 +2,7 @@ import './styles.css';
 import './styles2.css';
 import Sticker from '../Sticker/Sticker';
 import useStickers from '../../../application/services/useStickers';
-import useMode from '../../../application/services/useMode';
+import { getControlMode } from '../../../application/services/useMode';
 import RGL, { Layout, WidthProvider } from 'react-grid-layout';
 import ModalFrame from '../Modal/Modal';
 import { useState, useEffect } from 'react';
@@ -51,7 +51,6 @@ export default function Section(props: SectionProps) {
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [grade, setGrade] = useState<string | undefined>(undefined);
-  const { getControlMode } = useMode();
 
   useEffect(() => {
     handlePreriodFilterUpdate(id, { startDate, endDate, grade });

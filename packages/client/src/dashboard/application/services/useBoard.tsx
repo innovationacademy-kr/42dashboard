@@ -29,8 +29,7 @@ function useBoard() {
     const boardData: BoardDataType = boardDataStore.getBoardData();
     const sectionDatas: SectionDataType[] = sectionDatasStore.getSectionDatas();
     const stickerDatas: StickerDataType[] = stickerDatasStore.getStickerDatas();
-    console.log(boardData, sectionDatas, stickerDatas);
-    //make preset data to save in db
+    console.log('SAVE PRESET', boardData, sectionDatas, stickerDatas);
     const presetData = {
       boardData,
       sectionDatas,

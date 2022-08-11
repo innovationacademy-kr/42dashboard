@@ -11,8 +11,6 @@ import useGqlQuery, {
 } from '../../../application/services/useDataset';
 import { useEffect, useState } from 'react';
 import { getRowsFromGqlResponse } from '../../../application/utils/tableQueryParse';
-import useMode from '../../../application/services/useMode';
-import ColumnSelector from './ColumnSelector';
 
 type cellAlignType = 'inherit' | 'left' | 'center' | 'right' | 'justify';
 interface ColumnGroupType {
@@ -45,8 +43,6 @@ export function TableStickerContent(props: TableProps) {
   const [rowsState, setRowsState] = useState<TableCellType[][]>([]);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);
-  const { getControlMode } = useMode();
-  const mode = getControlMode();
 
   useEffect(() => {
     if (visibleColumns.length === 0) {

@@ -4,7 +4,7 @@ import RGL, { Layout, WidthProvider } from 'react-grid-layout';
 import Section from './Section';
 import useSections from '../../../application/services/useSectionDatas';
 import useBoard from '../../../application/services/useBoard';
-import useMode from '../../../application/services/useMode';
+import useMode, { getControlMode } from '../../../application/services/useMode';
 import { v4 as uuid } from 'uuid';
 import SectionDataType from '../../../domain/sectionDatas/sectionData.type';
 import { BoardEditToolBar } from '../Common/EditToolBar';
@@ -30,8 +30,7 @@ export default function Board() {
     handleSavePreset,
   } = useBoard();
 
-  const { getControlMode } = useMode();
-
+  const { controlModeData } = useMode();
   const sectionData: SectionDataType = {
     id: uuid(),
     periodFilter: {
@@ -82,7 +81,7 @@ export default function Board() {
         color: 'rgba(0, 0, 0, 0)',
       }}
     >
-      {getControlMode() === 'edit' && (
+      {controlModeData === 'edit' && (
         <BoardEditToolBar
           sectionData={sectionData}
           addSectionData={addSectionData}

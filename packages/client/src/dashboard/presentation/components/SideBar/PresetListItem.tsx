@@ -12,7 +12,7 @@ export interface PresetListItemProps {
   label: string;
   description?: string;
   selected?: boolean;
-  changeSelectedPreset?: () => void;
+  changeSelectedPreset: () => void;
   changePresetLabel: (id: string, label: string) => void;
   id: string;
   deletePreset: (id: string) => void;
@@ -44,7 +44,7 @@ function PresetListItem(props: PresetListItemProps) {
     <ListItemButton
       sx={{ pl: 4 }}
       onClick={() => {
-        if (controlModeData !== 'edit') changeSelectedPreset?.();
+        if (controlModeData !== 'edit') changeSelectedPreset();
       }}
       selected={selected}
     >

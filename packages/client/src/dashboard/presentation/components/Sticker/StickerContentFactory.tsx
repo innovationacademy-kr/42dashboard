@@ -6,7 +6,7 @@ import {
 import LineChart from '../Charts/LineChart';
 import BarChart from '../Charts/BarChart';
 import styled from '@emotion/styled';
-import useMode from '../../../application/services/useMode';
+import useMode, { getControlMode } from '../../../application/services/useMode';
 import { ChartProps } from '../Charts/ChartData';
 import { TableProps, TableStickerContent } from '../Table/Table';
 import TextStickerContent, { TextProps } from '../Text/TextStickerContent';
@@ -31,10 +31,8 @@ const StickerContentWrapper = styled.div`
 
 function StickerContentFactory(props: StickerContentFactoryProps) {
   const { type, contentProps } = props;
-  const { getControlMode } = useMode();
   const mode = getControlMode();
 
-  console.log(type, contentProps);
   switch (type) {
     case 'pieChart':
       return (

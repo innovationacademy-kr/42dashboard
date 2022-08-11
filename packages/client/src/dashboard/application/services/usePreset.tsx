@@ -14,14 +14,12 @@ import SectionDataType from '../../domain/sectionDatas/sectionData.type';
 import StickerDataType from '../../domain/stickerDatas/stickerData.type';
 import presetListRepository from '../../infrastructure/presetList.repository';
 import PresetListService from '../../domain/presetList/presetList.service';
-import useMode from '../../application/services/useMode';
+import controlModeStore from '../../infrastructure/store/controlMode.store';
 
 const presetService = new PresetService(presetRepository);
 const presetListService = new PresetListService(presetListRepository);
 
 function usePreset() {
-  const { setControlMode } = useMode();
-
   const [preset, setPreset] = useState<PresetType | null>(
     presetStore.getPreset(),
   );
@@ -70,8 +68,8 @@ function usePreset() {
     }
   };
 
-  const changePresetList = (presetList: PresetListType) => {
-    presetListService.setPresetList(presetList);
+  const changePresetList = async (presetList: PresetListType) => {
+    await presetListService.setPresetList(presetList);
   };
 
   const createPreset = async () => {
@@ -110,7 +108,7 @@ function usePreset() {
       presetInfos: [...presetList.presetInfos, newPreset.info],
     });
     console.log('createPreset', presetList); // 적용안됨.
-    setControlMode('edit');
+    controlModeStore.setControlMode('edit');
   };
 
   const removePreset = async (id: string) => {
