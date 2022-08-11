@@ -5,6 +5,18 @@ export interface ErrorMsg {
   message?: string;
 }
 
+export const excelErrorList = [
+  '#REF!',
+  '#ERROR!',
+  '#N/A',
+  '#NAME?',
+  '#VALUE!',
+  '#N/A',
+  'DIV/0!',
+  '#NULL!',
+  '#NUM!',
+];
+
 export function formatError(repoName, contents, errorMsg) {
   return `[Sheet] ${repoName}\n[Contents] ${contents}\n[Index] \'${errorMsg.colIdx}:${errorMsg.rowIdx}\'의 '${errorMsg.value}' 값을 수정해주세요.`;
 }

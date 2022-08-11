@@ -40,7 +40,6 @@ import {
 } from 'src/user_payment/entity/user_payment.entity';
 import { MAIN_SHEET, SPREAD_END_POINT } from 'src/config/key';
 import { UpdateDB } from 'src/user_information/argstype/updateSheet.argstype';
-import { ErrObject } from 'src/auth/dto/errObject.dto';
 import { EntityColumn } from 'src/common/EntityColumn';
 import { APIS } from 'googleapis/build/src/apis';
 import { entityArray } from 'src/user_information/utils/getDomain.utils';
@@ -48,7 +47,11 @@ import { ExceptionsHandler } from '@nestjs/core/exceptions/exceptions-handler';
 import { tableName } from 'src/common/tableName';
 import { elementAt } from 'rxjs';
 import { Bocal, ErrorObject } from 'src/auth/entity/bocal.entity';
-import { ERRORMSG, ErrorMsg } from 'src/spread/msg/errorMsg.msg';
+import {
+  ERRORMSG,
+  ErrorMsg,
+  excelErrorList,
+} from 'src/spread/msg/errorMsg.msg';
 import { makeServer } from 'graphql-ws';
 
 interface RepoDict {
@@ -177,17 +180,18 @@ export class UpdaterService {
       .select('user.intra_no')
       .orderBy('user.intra_no', 'ASC')
       .getMany();
-    const deleteData = userInDB.filter((DBNo: User) => {
-      if (!intraNoArray.some((spreadNO: number) => DBNo.intra_no == spreadNO))
-        return DBNo.intra_no;
-    });
+    const deleteData = userInDB.filter((DBNo: User) =>
+      intraNoArray.every((spreadNO: number) => DBNo.intra_no != spreadNO),
+    );
     /***************에러 검증****************/
 
     if (intraNoArray.length > userInDB.length) {
       deleteOrEdit = true;
+      console.log('1>>>? ', deleteOrEdit);
     } else {
       deleteOrEdit =
         deleteData.length === userInDB.length - intraNoArray.length;
+      console.log('2>>>? ', deleteOrEdit, userInDB.length, intraNoArray.length);
     }
 
     await this.dataSource
@@ -388,8 +392,8 @@ export class UpdaterService {
     let ret;
     rows.forEach((row, numIdx) => {
       row.forEach((domain, alphaIdx) => {
-        ret = domain !== '#REF!' && domain !== '#ERROR!' && domain !== '#N/A';
-        if (!ret) {
+        ret = excelErrorList.indexOf(domain);
+        if (ret >= 0) {
           rowArray.push(numIdx + 1);
           colArray.push(this.spreadService.numToAlpha(alphaIdx + 1));
           valueArray.push(domain);
@@ -437,27 +441,27 @@ export class UpdaterService {
 
   //삽입과 삭제와 수정은 동시에 일어날 수 없음.
   async checkDeletedInMain(deleteData) {
-    deleteData.forEach(async (deleteUser) => {
+    for (const deleteUser of deleteData) {
       const queryRunner = this.dataSource.createQueryRunner();
       const user = await this.dataSource
         .getRepository(User)
         .find({ where: { intra_no: deleteUser.intra_no } });
       queryRunner.manager.remove(user);
-    });
+    }
     console.log('pkdelete :', deleteData);
   }
 
   //수정 조금 수정해야함. 수정하고자하는 위치를 수정 -> 저장 -> 정렬
   async checkPKEditState(userInDB, intraNoArray) {
-    userInDB.forEach(async (DBNo, index) => {
-      if (DBNo.intra_no != intraNoArray[index]) {
+    for (const DBIndex in userInDB) {
+      if (userInDB[DBIndex].intra_no != intraNoArray[DBIndex]) {
         const queryRunner = this.dataSource.createQueryRunner();
         const user = await this.dataSource
           .getRepository(User)
-          .find({ where: { intra_no: DBNo.intra_no } });
+          .find({ where: { intra_no: userInDB[DBIndex].intra_no } });
         queryRunner.manager.save(user);
       }
-    });
+    }
     console.log('pkedit :', userInDB, intraNoArray);
   }
 

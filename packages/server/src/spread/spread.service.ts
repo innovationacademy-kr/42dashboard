@@ -1124,6 +1124,7 @@ export class SpreadService {
         const columns = colDatas[colData][0];
         const rows = await colDatas[colData].filter((v, index) => index > 0);
 
+        //데이터와 데이터 일자로 구성된 항목을 파싱후 저장
         this.makeColumnsInTable(
           columns,
           rows,
@@ -1134,35 +1135,43 @@ export class SpreadService {
           repoKey,
         );
         for (const data of datas) {
-          // 같은 일자에 저장된 시트들을 합쳐주는 작업
-          let flag = false;
-          for (const col of sheet) {
-            if (colData === '0') break;
-            const newDate =
-              EntityColumn[colObj.table][Number(colData) * 2 + 1]['dbName'];
-            const preDate =
-              EntityColumn[colObj.table][(Number(colData) - 1) * 2 + 1][
-                'dbName'
-              ];
-            if (
-              (flag =
-                col.fk_user_no === data.fk_user_no &&
-                col[`${preDate}`] === data[`${newDate}`])
-            ) {
-              await this.initValidateDate(repoKey, data, oldDateTable);
-              Object.assign(col, data);
-              break;
-            }
-          }
-          if (flag === false) {
-            await this.initValidateDate(repoKey, data, oldDateTable);
-            if (colObj.table === 'UserLearningDataAPI')
-              await this.insertArrayToDB(UserLearningDataAPI, data);
-            else if (colObj.table === 'UserHrdNetUtilizeConsent')
-              await this.insertArrayToDB(UserHrdNetUtilizeConsent, data);
-            //sheet.push(data);
-          }
+          await this.initValidateDate(repoKey, data, oldDateTable);
+          if (colObj.table === 'UserLearningDataAPI')
+            await this.insertArrayToDB(UserLearningDataAPI, data);
+          else if (colObj.table === 'UserHrdNetUtilizeConsent')
+            await this.insertArrayToDB(UserHrdNetUtilizeConsent, data);
         }
+
+        // for (const data of datas) {
+        //   // 같은 일자에 저장된 시트들을 합쳐주는 작업
+        //   let flag = false;
+        //   for (const col of sheet) {
+        //     if (colData === '0') break;
+        //     const newDate =
+        //       EntityColumn[colObj.table][Number(colData) * 2 + 1]['dbName'];
+        //     const preDate =
+        //       EntityColumn[colObj.table][(Number(colData) - 1) * 2 + 1][
+        //         'dbName'
+        //       ];
+        //     if (
+        //       (flag =
+        //         col.fk_user_no === data.fk_user_no &&
+        //         col[`${preDate}`] === data[`${newDate}`])
+        //     ) {
+        //       await this.initValidateDate(repoKey, data, oldDateTable);
+        //       Object.assign(col, data);
+        //       break;
+        //     }
+        //   }
+        //   if (flag === false) {
+        //     await this.initValidateDate(repoKey, data, oldDateTable);
+        //     if (colObj.table === 'UserLearningDataAPI')
+        //       await this.insertArrayToDB(UserLearningDataAPI, data);
+        //     else if (colObj.table === 'UserHrdNetUtilizeConsent')
+        //       await this.insertArrayToDB(UserHrdNetUtilizeConsent, data);
+        //     //sheet.push(data);
+        //   }
+        // }
       }
     }
   }
@@ -1398,8 +1407,6 @@ export class SpreadService {
       return 'user_hrd_net_utilize';
     else if (spreadTable === '취업_기타수집_data' || spreadTable === '11')
       return 'user_other_employment_status';
-    // else if (spreadTable === '지원금 관리' || spreadTable === '12')
-    //   return 'user_education_fund_state';
     else if (spreadTable === '지원금 산정' || spreadTable === '12')
       return 'user_computation_fund';
     else if (spreadTable === '출입카드_info' || spreadTable === '13')
