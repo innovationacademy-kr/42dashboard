@@ -9,6 +9,11 @@ import { ReactComponent as IconRemove } from '../../../../assets/icons/xmark-sol
 import { ReactComponent as IconAdd } from '../../../../assets/icons/plus-solid.svg';
 import { ReactComponent as IconSave } from '../../../../assets/icons/floppy-disk-solid.svg';
 import SettingsIcon from '@mui/icons-material/Settings';
+import { getControlMode } from '../../../application/services/useMode';
+
+const FilterInfo = styled.span`
+  margin-left: 0.5rem;
+`;
 
 const Button = styled.button`
   background-color: none;
@@ -90,7 +95,7 @@ export const SectionEditToolBar = (props: SectionEditToolBarProps) => {
 
   return (
     <EditToolBarArea>
-      {
+      {getControlMode() === 'edit' && (
         <Button
           onClick={() => {
             setIsOpen && setIsOpen(true);
@@ -98,30 +103,34 @@ export const SectionEditToolBar = (props: SectionEditToolBarProps) => {
         >
           <IconAdd style={{ width: '1rem' }} />
         </Button>
-      }
-      {periodFilter && setStartDate && setEndDate && setGrade && (
-        <PeriodModal
-          setStartDate={setStartDate}
-          setEndDate={setEndDate}
-          setGrade={setGrade}
-          periodFilter={periodFilter || {}}
-        />
       )}
+      {periodFilter &&
+        setStartDate &&
+        setEndDate &&
+        setGrade &&
+        getControlMode() === 'edit' && (
+          <PeriodModal
+            setStartDate={setStartDate}
+            setEndDate={setEndDate}
+            setGrade={setGrade}
+            periodFilter={periodFilter || {}}
+          />
+        )}
       {startDate && endDate && !grade && (
-        <>
+        <FilterInfo>
           {startDate.getFullYear()}/{startDate.getMonth()}/{startDate.getDate()}
           ~{endDate.getFullYear()}/{endDate.getMonth()}/{endDate.getDate()}
-        </>
+        </FilterInfo>
       )}
-      {grade && !startDate && <>{grade}</>}
-      {
+      {grade && !startDate && <FilterInfo>{grade}</FilterInfo>}
+      {getControlMode() === 'edit' && (
         <Button
           onClick={() => removeItem && id && removeItem(id)}
           style={{ position: 'absolute', right: '0' }}
         >
           <IconRemove style={{ width: '1rem' }} />
         </Button>
-      }
+      )}
     </EditToolBarArea>
   );
 };
