@@ -59,8 +59,8 @@ export class Bocal {
   })
   currentHashedRefreshToken?: string;
 
-  @OneToMany(() => PreSet, (preSetArray) => preSetArray.bocal)
-  preSetArray: PreSet[];
+  // @OneToMany(() => PreSet, (preSetArray) => preSetArray.bocal)
+  // preSetArray: PreSet[];
 }
 
 @Entity()
@@ -78,8 +78,8 @@ export class PreSet extends BaseEntity {
   @Column({ name: 'info', nullable: false })
   info: string;
 
-  @ManyToOne(() => Bocal, (bocal) => bocal.preSetArray, { cascade: true })
-  bocal: Bocal;
+  // @ManyToOne(() => Bocal, (bocal) => bocal.preSetArray, { cascade: true })
+  // bocal: Bocal;
 }
 
 @Entity()

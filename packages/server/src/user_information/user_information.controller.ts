@@ -180,7 +180,6 @@ export class UserInformationController {
     preSetEntity.id = body['id'];
     preSetEntity.preSetData = JSON.stringify(preSetData);
     preSetEntity.info = JSON.stringify(info);
-    preSetEntity.bocal = bocalEntity;
     await preSetRepository.save(preSetEntity);
     return true;
   }
@@ -218,17 +217,18 @@ export class UserInformationController {
   @Get('/getAllPreSet')
   @UseGuards(AuthGuard('jwt'))
   async getAllPreSet(@Param('id') id, @Req() req) {
-    const bocalRepository = await this.dataSource.getRepository(Bocal);
-    console.log(req.user.id);
-    const bocal = await bocalRepository.findOne({
-      relations: { preSetArray: true },
-      where: { id: req.user.id },
-    });
-    if (!bocal) return 'bocal not found!';
+    // const bocalRepository = await this.dataSource.getRepository(Bocal);
+    // console.log(req.user.id);
+    // const bocal = await bocalRepository.findOne({
+    //   relations: { preSetArray: true },
+    //   where: { id: req.user.id },
+    // });
+    // if (!bocal) return 'bocal not found!';
+    const preSetArray = await this.dataSource.getRepository(PreSet).find();
     const ret = [];
-    for (const index in bocal['preSetArray']) {
+    for (const index in preSetArray) {
       ret[index] = {};
-      const onePreSet = bocal['preSetArray'][index];
+      const onePreSet = preSetArray[index];
       ret[index]['id'] = onePreSet['id'];
       ret[index]['data'] = JSON.parse(onePreSet['preSetData']);
       ret[index]['info'] = JSON.parse(onePreSet['info']);
@@ -243,17 +243,17 @@ export class UserInformationController {
   })
   @UseGuards(AuthGuard('jwt'))
   async getOnePreSet(@Param('uuid') uuid, @Req() req) {
-    const bocalRepository = await this.dataSource.getRepository(Bocal);
-    const bocal = await bocalRepository.findOne({
-      relations: { preSetArray: true },
-      where: { id: req.user.id, preSetArray: { id: uuid } },
+    const preSetRepository = await this.dataSource.getRepository(PreSet);
+    const preSet = await preSetRepository.find({
+      where: { id: uuid },
     });
-    if (!bocal) return 'entity not found!';
+    if (!preSet || preSet.length == 0)
+      throw new BadRequestException('preset not found!');
     const ret = [];
     // 배열에 요소 하나만 담김
-    for (const index in bocal['preSetArray']) {
+    for (const index in preSet) {
       ret[index] = {};
-      const onePreSet = bocal['preSetArray'][index];
+      const onePreSet = preSet[index];
       ret[index]['id'] = onePreSet['id'];
       ret[index]['data'] = JSON.parse(onePreSet['preSetData']);
       ret[index]['info'] = JSON.parse(onePreSet['info']);
