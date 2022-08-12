@@ -42,7 +42,7 @@ import {
 
 export type ReturnTypeByInputType = {
   user: User;
-  userPersonal: UserPersonalInformation;
+  userPersonalInformation: UserPersonalInformation;
   userCourseExtension: UserCourseExtension;
   userLeaveOfAbsence: UserLeaveOfAbsence;
   userBlackhole: UserBlackhole;
@@ -61,7 +61,7 @@ export type ReturnTypeByInputType = {
 
 export type GetReturnType<T> = T extends 'user'
   ? User
-  : T extends 'userPersonal'
+  : T extends 'userPersonalInformation'
   ? UserPersonalInformation
   : T extends 'userCourseExtension'
   ? UserCourseExtension
@@ -95,7 +95,7 @@ export type GetReturnType<T> = T extends 'user'
 
 export interface allEntityType {
   user: User;
-  userPersonal: UserPersonalInformation;
+  userPersonalInformation: UserPersonalInformation;
   userCourseExtension: UserCourseExtension;
   userLeaveOfAbsence: UserLeaveOfAbsence;
   userBlackhole: UserBlackhole;
