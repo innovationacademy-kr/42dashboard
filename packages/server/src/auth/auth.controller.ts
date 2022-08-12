@@ -67,7 +67,7 @@ export class AuthController {
     // res.send('login success!!');
   }
 
-  @Get('logout')
+  @Post('logout')
   @UseGuards(AuthGuard('jwt')) //정반합?
   async logout(@Req() req: any, @Res() res: Response) {
     await this.authService.logoutUser(req.user);
