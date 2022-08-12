@@ -93,7 +93,13 @@ function DashBoardPage() {
             delCookie('access_token');
             navigate('/');
           })
-          .catch((error) => console.log(error));
+          .catch((error) => {
+            if (error.response.status === 401) {
+              setUser(null);
+              delCookie('access_token');
+              navigate('/');
+            }
+          });
       },
     },
   ];
