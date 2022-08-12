@@ -15,7 +15,7 @@ import { AppModule } from 'src/app.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { SECRETORKEY } from 'src/config/42oauth';
-import { JwtStrategy } from 'src/auth/jwt.strategy';
+import { JwtStrategy } from 'src/auth/strategy/jwt.strategy';
 
 @Module({
   imports: [

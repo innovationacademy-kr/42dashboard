@@ -259,6 +259,8 @@ export class UserInformationService {
         }
       }
     }
+    ///////////////////////////////////////// NOT USER Entity
+
     for (const entityName in filterObj) {
       if (entityName == 'user') continue; // user는 이미 위의 for문에서 처리
       findObj['relations'][entityName] = true;
@@ -268,79 +270,9 @@ export class UserInformationService {
         filter = filterObj[entityName][idx];
         operator = filter['operator'];
         column = filter['column'];
-        ///////////////////////////////////////// NOT USER Entity
         if (column == 'null' || column == null) {
-          //   if (
-          //     startDateString &&
-          //     endDateString &&
-          //     entityName in entityColumnMapping &&
-          //     accumulate
-          //   ) {
-          //     const startDate = new Date(startDateString);
-          //     const endDate = new Date(endDateString);
-          //     findObj['where'][entityName][
-          //       getValidateColumn(entityName, column)
-          //     ] = getRawQuery(endDate); //ok
-          //     findObj['where'][entityName][getExpireColumn(entityName)] =
-          //       MoreThanOrEqual(startDate); //ok
-          //   } else if (
-          //     startDateString &&
-          //     endDateString &&
-          //     entityName in entityColumnMapping &&
-          //     !accumulate
-          //   ) {
-          //     findObj['where'][entityName][
-          //       getValidateColumn(entityName, column)
-          //     ] = Between(startDateString, endDateString);
-          //   } else if (
-          //     startDateString &&
-          //     endDateString &&
-          //     entityName in halfAndHalf &&
-          //     accumulate
-          //   ) {
-          //     const startDate = new Date(startDateString);
-          //     const endDate = new Date(endDateString);
-          //     findObj['where'][entityName][
-          //       getValidateColumn(entityName, column)
-          //     ] = getRawQuery(endDate); //ok
-          //     // 한번 더 걸러야하는데 그건 makeLimit에서 처리함 -> 처리 못해줌 -> flag 설정
-          //     // -> makeLimit함수 내에서 걸러주는 코드 추가함
-          //     flag = 1;
-          //   } else if (
-          //     startDateString &&
-          //     endDateString &&
-          //     entityName in halfAndHalf &&
-          //     !accumulate
-          //   ) {
-          //     const startDate = new Date(startDateString);
-          //     const endDate = new Date(endDateString);
-          //     console.log(startDate, endDate);
-          //     findObj['where'][entityName][
-          //       getValidateColumn(entityName, column)
-          //     ] = Between(startDate, endDate);
-          //   } else if (
-          //     // else if가 맞음
-          //     // 날짜 컬럼이 없는 엔터티에 대해선 아래 로직을 할 필요가 없음
-          //     'latest' in filter &&
-          //     filter['latest'] == true &&
-          //     (entityName in halfAndHalf ||
-          //       entityName in entityColumnMapping ||
-          //       exceptCase(entityName, column)) //여긴 이 조건 넣는게 맞을듯?
-          //   ) {
-          //     // ***********************************************************************************************
-          //     // 애시당초 filter조건에 validate column, expired column을 줄 필요가 없는거 -> entity 수정, common에 수정 필요
-          //     // 프론트에 date 관련된 컬럼 사용자에게 보여주지 말아 달라고 요청하기 -> 도메인 보내주는건 백엔드니까 중한님께 요청드리는게 맞을듯?
-          //     // ***********************************************************************************************
-          //     // 아래 주석 풀면 테스트 코드 페일나옴 (validate_date = '9999-12-31')
-          //     findObj['where'][entityName][
-          //       getValidateColumn(entityName, column)
-          //     ] = LessThan('9999-12-20'); //디폴트값이 달라지면 이 부분 수정 필요 //덮어쓰는 이슈가 있는지 확인
-          //   } else {
-          //     // do nothing
-          //   }
           continue;
         } // 예외처리 <- 명세서에 적어주기
-        //////////////////////////////////////////////////////// NOT USER Entity
         if (
           operator == 'In' ||
           operator == 'in' ||
@@ -351,28 +283,19 @@ export class UserInformationService {
         findObj['where'][entityName][column] = this.operatorToORMMethod(
           filter['operator'],
         )(filter['givenValue']); // overwrite issue 발생가능(명세서에 적어줘야함)
+        // 정렬규칙 다시 생각해보기
         if ('latest' in filter && filter['latest'] == true) {
-          // 정렬규칙 다시 생각해보기
           findObj['order'][entityName]['validate_date'] = 'DESC';
         } else {
           findObj['order'][entityName]['validate_date'] = 'ASC';
         }
         // Range 조건
-        console.log(
-          entityName,
-          'entityName in entityColumnMapping',
-          entityName in entityColumnMapping,
-        );
-        if (entityName in entityColumnMapping) {
-          console.log(getExpireColumn(entityName));
-        }
-        console.log('accumulate: ', accumulate);
         if (
           startDateString &&
           endDateString &&
           entityName in entityColumnMapping &&
-          accumulate &&
-          column
+          accumulate
+          // column
         ) {
           const startDate = new Date(startDateString);
           const endDate = new Date(endDateString);
@@ -384,8 +307,8 @@ export class UserInformationService {
           startDateString &&
           endDateString &&
           entityName in entityColumnMapping &&
-          !accumulate &&
-          column
+          !accumulate
+          // column
         ) {
           findObj['where'][entityName][getValidateColumn(entityName, column)] =
             Between(startDateString, endDateString);
@@ -393,8 +316,8 @@ export class UserInformationService {
           startDateString &&
           endDateString &&
           (entityName in halfAndHalf || exceptCase(entityName, column)) &&
-          accumulate &&
-          column
+          accumulate
+          // column
         ) {
           const startDate = new Date(startDateString);
           const endDate = new Date(endDateString);
@@ -407,8 +330,8 @@ export class UserInformationService {
           startDateString &&
           endDateString &&
           (entityName in halfAndHalf || exceptCase(entityName, column)) &&
-          !accumulate &&
-          column
+          !accumulate
+          // column
         ) {
           const startDate = new Date(startDateString);
           const endDate = new Date(endDateString);
@@ -421,13 +344,9 @@ export class UserInformationService {
           filter['latest'] == true &&
           (entityName in halfAndHalf ||
             entityName in entityColumnMapping ||
-            exceptCase(entityName, column)) &&
-          column
+            exceptCase(entityName, column))
+          // column
         ) {
-          // ***********************************************************************************************
-          // 애시당초 filter조건에 validate column, expired column을 줄 필요가 없는거 -> entity 수정, common에 수정 필요
-          // 프론트에 date 관련된 컬럼 사용자에게 보여주지 말아 달라고 요청하기 -> 도메인 보내주는건 백엔드니까 중한님께 요청드리는게 맞을듯?
-          // ***********************************************************************************************
           // 아래 주석 풀면 테스트 코드 페일나옴 (validate_date = '9999-12-31')
           findObj['where'][entityName][getValidateColumn(entityName, column)] =
             LessThan('9999-12-20'); // 디폴트값이 달라지면 이 부분 수정 필요 //덮어쓰는 이슈가 있는지 확인
@@ -442,16 +361,11 @@ export class UserInformationService {
   private makeLimit(data, filterObj, numOfPeople = 0, flag = 0) {
     let filter;
     let row;
-    // let temp: JoinedTable[];
-    let temp;
     for (const joinedTable in filterObj) {
       if (joinedTable == 'user') continue;
       for (const idx in filterObj[joinedTable]) {
         filter = filterObj[joinedTable][idx];
-        if (
-          (filter.column == 'null' || filter.column == null) &&
-          filter.latest == false
-        ) {
+        if (filter.column == 'null' || filter.column == null) {
           if (
             row[joinedTable] != null &&
             Array.isArray(row[joinedTable]) &&
@@ -460,10 +374,9 @@ export class UserInformationService {
             filter['latest'] == true
           ) {
             row[joinedTable] = row[joinedTable].slice(0, 1);
-            // console.log('slice!', row[joinedTable]);
           }
           continue;
-        } //이거 없는게 문제였음(사용상황을 너무 이상적인걸로 한정해버려서 이 케이스 생각을못함)
+        }
         for (const idx in data) {
           row = data[idx];
           if (
@@ -474,7 +387,6 @@ export class UserInformationService {
             filter['latest'] == true
           ) {
             row[joinedTable] = row[joinedTable].slice(0, 1);
-            // console.log('slice!', row[joinedTable]);
           }
           if (
             //최후의 보루

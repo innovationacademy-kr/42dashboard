@@ -54,6 +54,11 @@ export class Bocal {
   }) //도메인 제한 확인(도메인 아닌거 넣으면 pg에서 에러발생하는거 확인)
   role: BocalRole;
 
+  @Column({
+    nullable: true,
+  })
+  currentHashedRefreshToken?: string;
+
   @OneToMany(() => PreSet, (preSetArray) => preSetArray.bocal)
   preSetArray: PreSet[];
 }

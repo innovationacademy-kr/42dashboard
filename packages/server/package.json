@@ -38,6 +38,7 @@
     "@types/passport-jwt": "^3.0.6",
     "apollo-server-express": "^3.9.0",
     "axios": "^0.27.2",
+    "bcrypt": "^5.0.1",
     "common": "*",
     "googleapis": "^105.0.0",
     "graphql": "^16.5.0",

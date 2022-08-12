@@ -5,7 +5,7 @@ import { userInfo } from 'os';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { SECRETORKEY } from 'src/config/42oauth';
 import { DataSource } from 'typeorm';
-import { Bocal } from './entity/bocal.entity';
+import { Bocal } from '../entity/bocal.entity';
 
 const cookieExtractor = function (req) {
   let token: string = null;
@@ -22,7 +22,7 @@ const cookieExtractor = function (req) {
 };
 
 @Injectable() //이 strategy가 guard에서 쓰일 예정
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(@InjectDataSource() private dataSource: DataSource) {
     super({
       // 들어온 cookie와 payload를 통해 새로 만든 cookie를 비교해서 인가절차 진행

@@ -26,7 +26,14 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { Request, Response } from 'express';
 import { takeLast } from 'rxjs';
 import { Bocal, BocalRole, PreSet } from 'src/auth/entity/bocal.entity';
-import { DataSource, Equal, IsNull, LessThan, Not } from 'typeorm';
+import {
+  DataSource,
+  Equal,
+  FindManyOptions,
+  IsNull,
+  LessThan,
+  Not,
+} from 'typeorm';
 // import { PreSet } from './entity/preset.entity';
 import { User } from './entity/user_information.entity';
 import { UserInformationService } from './user_information.service';
@@ -72,11 +79,11 @@ export class UserInformationController {
         userLeaveOfAbsence: true,
         userBlackhole: true,
         userInterruptionOfCourse: true,
-        userLearningDataAPI: true,
+        // userLearningDataAPI: true,
         userLoyaltyManagement: true,
         userEmploymentStatus: true,
         userHrdNetUtilizeConsent: true,
-        userHrdNetUtilize: true,
+        // userHrdNetUtilize: true,
         userOtherEmploymentStatus: true,
         userComputationFund: true,
         userAccessCardInformation: true,
@@ -88,7 +95,7 @@ export class UserInformationController {
       },
       // order: {i},
       // cache: true,
-      take,
+      take: 30,
       skip, // take 10으로 주는게 적당할듯?
     };
     const userRepository = await this.dataSource.getRepository(User);
@@ -97,35 +104,40 @@ export class UserInformationController {
 
   @Get('/out2')
   async testOut2() {
-    const findObj = {
+    const findObj: FindManyOptions<User> = {
       relations: {
-        // userPersonalInformation: true,
-        // userCourseExtension: true,
-        // userLeaveOfAbsence: true,
-        // userBlackhole: true,
-        // userInterruptionOfCourse: true,
-        userLearningDataAPI: true,
-        // userLoyaltyManagement: true,
-        // userEmploymentStatus: true,
-        // userHrdNetUtilizeConsent: true,
-        userHrdNetUtilize: true,
-        // userOtherEmploymentStatus: true,
-        // userComputationFund: true,
-        // userAccessCardInformation: true,
-        // userOtherInformation: true,
-        // userLapiscineInformation: true,
+        userPersonalInformation: true,
+        userCourseExtension: true,
+        userLeaveOfAbsence: true,
+        userBlackhole: true,
+        userInterruptionOfCourse: true,
+        // userLearningDataAPI: true,
+        userLoyaltyManagement: true,
+        userEmploymentStatus: true,
+        userHrdNetUtilizeConsent: true,
+        // userHrdNetUtilize: true,
+        userOtherEmploymentStatus: true,
+        userComputationFund: true,
+        userAccessCardInformation: true,
+        userOtherInformation: true,
+        userLapiscineInformation: true,
       },
       where: {
         // start_process_date: LessThan(new Date('9999-12-31')),
       },
       select: { intra_no: true, userLearningDataAPI: false },
-      // order: {i},
+      // loadRelationIds: true,
+      take: 500,
       // cache: true,
-      // take: 10,
     };
     const userRepository = await this.dataSource.getRepository(User);
     const result = await userRepository.find(findObj);
     return result;
+    // console.log(new Date());
+    // userRepository.find(findObj).then(() => {
+    //   console.log('done!');
+    //   console.log(new Date());
+    // });
   }
 
   // @Get('/out1')

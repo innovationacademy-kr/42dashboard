@@ -1,4 +1,5 @@
 import {
+  BadGatewayException,
   Controller,
   Get,
   Logger,
@@ -12,7 +13,7 @@ import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiCookieAuth, ApiCreatedResponse } from '@nestjs/swagger';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { OAUTHURL } from 'src/config/42oauth';
 import { DataSource } from 'typeorm';
 import { AuthService } from './auth.service';
@@ -32,12 +33,11 @@ export class AuthController {
   @Get('/42')
   async authenticationUser(@Res() res: Response) {
     this.logger.debug('get /42');
-
     return res.redirect(OAUTHURL);
   }
 
   /**
-   *                     나중에 할 일
+   *                      나중에 할 일
    * 아래에서 res.redirection(url)의 url을 프론트의 주소값으로 바꿔주자.
    * cookie를 받은 브라우저가 cookie를 저장,
    * 프론트엔드는 그 값을 읽어서 백엔드에 요청보낼때마다 Authorization헤더에 Bearer cookieValue를 삽입해서 요청
@@ -48,22 +48,58 @@ export class AuthController {
   async redirect(@Query('code') code: string, @Res() res: Response) {
     // console.log(code);
     this.logger.debug('get /42/redirection');
-    const access_token = await this.authService.authentication(code);
+    const { access_token, refresh_token } =
+      await this.authService.authentication(code);
     this.logger.debug('access token : ', access_token);
+    res.cookie('refresh_token', `${refresh_token}`, {
+      httpOnly: true,
+      domain: 'localhost',
+      // domain: this.configService.get('APP_DOMAIN'),
+    });
+    res.cookie('access_token', `${access_token}`, {
+      httpOnly: true,
+      domain: 'localhost',
+      // domain: this.configService.get('APP_DOMAIN'),
+    }); //res.cookie()는 하나만 적용됨. 여러개 호출하면 제일 마지막에 호출된것만 적용됨(??)
+    // res.setHeader('WWW-authenticate', `Bearer: realm="DashBoard"`);
+    res.redirect('http://localhost:3000/auth/test'); //redirection해도 됨. 나중에 front Home으로 redirection되게 할 예정.
+    // res.redirect(this.configService.get('REDIRECT_URI')); //for hybae
+    // res.send('login success!!');
+  }
 
+  @Get('logout')
+  @UseGuards(AuthGuard('jwt')) //정반합?
+  async logout(@Req() req: any, @Res() res: Response) {
+    await this.authService.logoutUser(req.user);
+    res.clearCookie('refresh_token');
+    res.clearCookie('access_token');
+    //아래함수 동작하는지 확인하기
+    // req.logout((err) => {
+    //   console.log('에러');
+    //   throw new BadGatewayException();
+    // });
+    res.send();
+    // res.end(); 가 더 나을수도?
+  }
+
+  @Get('renewalAccessTokenByRefreshToken')
+  @UseGuards(AuthGuard('jwt-refresh-token'))
+  async renewalAccessTokenByRefreshToken(
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const access_token =
+      await this.authService.renewalAccessTokenByRefreshToken(req.user);
     res.cookie('access_token', `${access_token}`, {
       httpOnly: true,
       domain: this.configService.get('APP_DOMAIN'),
-    }); //res.cookie()는 하나만 적용됨. 여러개 호출하면 제일 마지막에 호출된것만 적용됨(??)
-    // res.setHeader('WWW-authenticate', `Bearer: realm="DashBoard"`);
-    // res.redirect('http://localhost:3000/auth/test'); //redirection해도 됨. 나중에 front Home으로 redirection되게 할 예정.
-    res.redirect(this.configService.get('REDIRECT_URI')); //for hybae
-    // res.send('login success!!');
+    });
+    res.send();
   }
 
   @Get('/test')
   @UseGuards(AuthGuard('jwt'))
-  test(@Req() req, @Res() res: Response) {
+  test(@Res() res: Response) {
     // guard를 무사히 통과하면 아래 메시지가 전송
     res.send('access_token 인가 완료!');
   }
@@ -79,26 +115,14 @@ export class AuthController {
     return req.user;
   }
 
-  @Post('/logout')
-  @ApiCreatedResponse({
-    description: '로그아웃',
-    type: Bocal,
-  })
-  @UseGuards(AuthGuard('jwt'))
-  async logoutUser(@Req() req) {
-    // console.log(req.user);
-    await this.authService.logoutUser(req.user);
-    return req.user;
-  }
-
   @Get('/getError')
   @ApiCreatedResponse({
     description: '에러점검',
     type: Bocal,
   })
-  // @UseGuards(AuthGuard('jwt'))
+  // @UseGuards(AuthGuard('jwt')) //배포때 이 주석 해제해야함
   async getError(@Req() req, @Res() res: Response) {
-    const data = await this.authService.getError(req.user);
+    const data = await this.authService.getError();
     if (!data) res.status(200);
     else res.status(400);
     res.send({ data });

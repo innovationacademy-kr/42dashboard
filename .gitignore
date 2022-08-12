@@ -4,3 +4,10 @@ src/config/
 .DS_Store
 .env.development
 .env.production
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
