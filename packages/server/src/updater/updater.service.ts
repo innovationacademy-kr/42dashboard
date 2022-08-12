@@ -220,6 +220,7 @@ export class UpdaterService {
       .delete()
       .from(ErrorObject)
       .execute();
+
     if (
       !this.checkErrorBeforeUpdate(
         tables,
