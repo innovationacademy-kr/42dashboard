@@ -53,16 +53,17 @@ export class AuthController {
     this.logger.debug('access token : ', access_token);
     res.cookie('refresh_token', `${refresh_token}`, {
       httpOnly: true,
-      domain: 'localhost',
+      domain: 'dashboard42.com',
       // domain: this.configService.get('APP_DOMAIN'),
     });
     res.cookie('access_token', `${access_token}`, {
       httpOnly: true,
-      domain: 'localhost',
+      domain: 'dashboard42.com',
+      // domain: 'localhost',
       // domain: this.configService.get('APP_DOMAIN'),
     }); //res.cookie()는 하나만 적용됨. 여러개 호출하면 제일 마지막에 호출된것만 적용됨(??)
     // res.setHeader('WWW-authenticate', `Bearer: realm="DashBoard"`);
-    res.redirect('http://localhost:3000/auth/test'); //redirection해도 됨. 나중에 front Home으로 redirection되게 할 예정.
+    res.redirect('http://www.dashboard42.com:3000/dashboard'); //redirection해도 됨. 나중에 front Home으로 redirection되게 할 예정.
     // res.redirect(this.configService.get('REDIRECT_URI')); //for hybae
     // res.send('login success!!');
   }
@@ -92,7 +93,7 @@ export class AuthController {
       await this.authService.renewalAccessTokenByRefreshToken(req.user);
     res.cookie('access_token', `${access_token}`, {
       httpOnly: true,
-      domain: this.configService.get('APP_DOMAIN'),
+      domain: 'dashboard42.com',
     });
     res.send();
   }
