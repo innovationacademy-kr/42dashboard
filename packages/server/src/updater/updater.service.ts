@@ -128,7 +128,7 @@ export class UpdaterService {
   //repoDict.user_personal_inforamtion = repository;
   repoDict: RepoDict = {
     [repoKeys.user]: this.userRepository,
-    [repoKeys.userPersonal]: this.userPersonalInformationRepository,
+    [repoKeys.userPersonalInformation]: this.userPersonalInformationRepository,
     [repoKeys.userCourseExtension]: this.userCourseExtensionRepository,
     [repoKeys.userLeaveOfAbsence]: this.userLeaveOfAbsenceRepository,
     [repoKeys.userBlackhole]: this.userBlackholeRepository,

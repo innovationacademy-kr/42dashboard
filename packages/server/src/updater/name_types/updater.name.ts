@@ -210,7 +210,7 @@ export const apiTable = ['학습데이터'];
 //key 값만 필요하지만, 지칭하는 repo를 명확하게 하기 위해서 value도 적었음
 export const repoKeys = {
   user: 'user',
-  userPersonal: 'user_personal_information',
+  userPersonalInformation: 'user_personal_information',
   userCourseExtension: 'user_course_extension',
   userLeaveOfAbsence: 'user_leave_of_absence',
   userBlackhole: 'user_blackhole',
@@ -369,7 +369,7 @@ export const defaultVALUE = {
 
 export const oldDateTable = {
   [repoKeys.user]: 'validate_date',
-  [repoKeys.userPersonal]: 'validate_date',
+  [repoKeys.userPersonalInformation]: 'validate_date',
   [repoKeys.userCourseExtension]: 'validate_date',
   [repoKeys.userLeaveOfAbsence]: 'begin_absence_date',
   [repoKeys.userBlackhole]: 'validate_date',
@@ -388,7 +388,7 @@ export const oldDateTable = {
 
 export const dateTable = {
   [repoKeys.user]: 'validate_date',
-  [repoKeys.userPersonal]: 'validate_date',
+  [repoKeys.userPersonalInformation]: 'validate_date',
   [repoKeys.userCourseExtension]: 'validate_date',
   [repoKeys.userLeaveOfAbsence]: 'validate_date',
   [repoKeys.userBlackhole]: 'validate_date',
@@ -416,7 +416,7 @@ export const manyDateTable = {
 
 export const classType = {
   [repoKeys.user]: User,
-  [repoKeys.userPersonal]: UserPersonalInformation,
+  [repoKeys.userPersonalInformation]: UserPersonalInformation,
   [repoKeys.userCourseExtension]: UserCourseExtension,
   [repoKeys.userLeaveOfAbsence]: UserLeaveOfAbsence,
   [repoKeys.userBlackhole]: UserBlackhole,
