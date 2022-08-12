@@ -76,7 +76,6 @@ type Query {
   getUserPersonalInformation(column: String, duplicated: String!): [UserPersonalInformation!]!
   saveModifiedDataFromSheet(sheetName: String!, withDeleted: String!): String!
   tempFunction: [JoinedTable!]!
-  test: String!
   updateData: String!
   updateOldData: String!
 }

@@ -150,10 +150,19 @@ export class UpdaterService {
       this.userLapiscineInformationRepository,
   };
 
+  /***************************************************************/
+  /*************         24시간 스케쥴링                *************/
+  /***************************************************************/
+
   @Cron('00 00 00 * * *') //24시간마다 업데이트
-  updatePerDay() {
-    console.log('start update', this.updateData());
+  async updatePerDay() {
+    console.log('start update', await this.updateData());
   }
+
+  /***************************************************************/
+  /************* 운영팀에 매일 시트에서 관리하는 데이터를 파싱  *************/
+  /************ 새로 고침은 갱신 요칭시, 데이터를 받아오게됩니다. ************/
+  /***************************************************************/
 
   async updateData() {
     const tableSet = [] as TableSet[];
@@ -187,7 +196,9 @@ export class UpdaterService {
       userInDB.every((DBNo: User) => DBNo.intra_no != spreadNO),
     );
 
-    /***************에러 검증****************/
+    /***************************************************************/
+    /*************             에러검증                  *************/
+    /***************************************************************/
 
     this.checkErrorForEditDelete(
       userInDB,
@@ -227,8 +238,10 @@ export class UpdaterService {
 
       return 'Error while inserting data with main sheet';
     }
+
     /***************************************/
     /*************사전 처리 작업***************/
+    /***************************************/
 
     // transfer의 경우 삭제하게된다면, data관리에 문제가 생김
     // 기본적으로 softdelete한 항목은 보이지 않아야하는데, 시트에서는 항상 값이 들어옴
@@ -269,6 +282,7 @@ export class UpdaterService {
 
     /*******************************************/
     /************* 데이터 파싱 작업 ***************/
+    /*******************************************/
 
     await this.spreadService.composeTableData(spreadData, tableSet, false); //시트를 테이블 별로 나눠 정보를 저장 TableSet 배열 구성
     const api42s = await this.apiService.getApi();
@@ -318,7 +332,10 @@ export class UpdaterService {
       userInDB.length === intraNoArray.length &&
       deleteData.length === userInDB.length - intraNoArray.length
     ) {
-    } else if (editData.length > 1 || deleteData.length > 1) {
+    } else if (
+      (editData.length > 1 && userInDB.length === intraNoArray.length) ||
+      deleteData.length > 1
+    ) {
       deleteOrEdit = SHEETSTATUS.TOMANY;
     } else {
       deleteOrEdit = SHEETSTATUS.ERROR;
@@ -434,6 +451,7 @@ export class UpdaterService {
     return nonTransferArray;
   }
 
+  //엑셀에서 주로 발생하는 에러처리 #REF!
   checkOperationError(rows, tuple) {
     const rowArray = [];
     const colArray = [];
@@ -456,6 +474,7 @@ export class UpdaterService {
     return ret;
   }
 
+  //DB에 모든 컬럼 가져오기
   getAllColumnInDB(columns, tuple) {
     let checkColumn;
     const entities = Object.values(EntityColumn);
@@ -564,6 +583,11 @@ export class UpdaterService {
             "fk_user_no": "68582"
         },
      */
+
+  /***************************************************************/
+  /*************기존에 운영팀이 관리해오던 데이터를 파싱하는 함수*************/
+  /************   최초 1회면 데이터를 받아오게됩니다.       **************/
+  /***************************************************************/
 
   async updateOldData() {
     /* 지원금 관련 월별 지금액 시트 */
