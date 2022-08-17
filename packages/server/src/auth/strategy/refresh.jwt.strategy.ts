@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { SECRETORKEY } from 'src/config/42oauth';
 import { AuthService } from '../auth.service';
 
 const cookieExtractor = function (req) {
@@ -32,7 +31,7 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(
       //       return request?.cookies?.refresh_token;
       //     },
       //   ]),
-      secretOrKey: SECRETORKEY,
+      secretOrKey: process.env.SECRETORKEY,
       passReqToCallback: true, //무슨의미?
     });
   }

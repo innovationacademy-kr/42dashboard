@@ -4,19 +4,20 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
   // cors 설정
-  const whitelist = ['dashboard42.com', 'localhost'];
-  app.enableCors({
-    origin: function (origin, callback) {
-      // if (!origin || whitelist.indexOf(origin) !== -1) {
-      if (true) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    credentials: true,
-  });
+  // const whitelist = ['dashboard42.com', 'localhost'];
+  // app.enableCors({
+  //   origin: function (origin, callback) {
+  //     if (!origin || whitelist.indexOf(origin) !== -1) {
+  //       callback(null, true);
+  //     } else {
+  //       callback(new Error('Not allowed by CORS'));
+  //     }
+  //   },
+  //   credentials: true,
+  // });
+
   // swagger 설정
   const config = new DocumentBuilder()
     .setTitle('dashBoard42')
@@ -26,6 +27,6 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
-  await app.listen(3000);
+  await app.listen(process.env.port || 3000);
 }
 bootstrap();

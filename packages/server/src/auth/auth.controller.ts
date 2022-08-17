@@ -1,5 +1,4 @@
 import {
-  BadGatewayException,
   Controller,
   Get,
   Logger,
@@ -11,14 +10,14 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiCookieAuth, ApiCreatedResponse } from '@nestjs/swagger';
+import { ApiCreatedResponse } from '@nestjs/swagger';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { Request, Response } from 'express';
-import { OAUTHURL } from 'src/config/42oauth';
 import { DataSource } from 'typeorm';
 import { AuthService } from './auth.service';
-import { Bocal, BocalRole } from './entity/bocal.entity';
+import { Bocal } from './entity/bocal.entity';
 import { ConfigService } from '@nestjs/config';
+
 //authentication 과 authorization은 다름
 @Controller('auth')
 export class AuthController {
@@ -30,10 +29,14 @@ export class AuthController {
     private readonly configService: ConfigService,
   ) {}
 
+  @Get()
+  async helloAuth() {
+    return process.env.database;
+  }
   @Get('/42')
   async authenticationUser(@Res() res: Response) {
     this.logger.debug('get /42');
-    return res.redirect(OAUTHURL);
+    return res.redirect(this.configService.get('OAUTHURL'));
   }
 
   /**
@@ -46,26 +49,17 @@ export class AuthController {
    */
   @Get('/42/redirection')
   async redirect(@Query('code') code: string, @Res() res: Response) {
-    // console.log(code);
-    this.logger.debug('get /42/redirection');
     const { access_token, refresh_token } =
       await this.authService.authentication(code);
-    this.logger.debug('access token : ', access_token);
     res.cookie('refresh_token', `${refresh_token}`, {
       httpOnly: true,
-      domain: 'dashboard42.com',
-      // domain: this.configService.get('APP_DOMAIN'),
+      domain: this.configService.get('APP_DOMAIN'),
     });
     res.cookie('access_token', `${access_token}`, {
       httpOnly: true,
-      domain: 'dashboard42.com',
-      // domain: 'localhost',
-      // domain: this.configService.get('APP_DOMAIN'),
-    }); //res.cookie()는 하나만 적용됨. 여러개 호출하면 제일 마지막에 호출된것만 적용됨(??)
-    // res.setHeader('WWW-authenticate', `Bearer: realm="DashBoard"`);
-    res.redirect('http://www.dashboard42.com:3000/dashboard'); //redirection해도 됨. 나중에 front Home으로 redirection되게 할 예정.
-    // res.redirect(this.configService.get('REDIRECT_URI')); //for hybae
-    // res.send('login success!!');
+      domain: this.configService.get('APP_DOMAIN'),
+    });
+    res.redirect(this.configService.get('REDIRECT_URI')); //for hybae
   }
 
   @Post('logout')
@@ -106,22 +100,21 @@ export class AuthController {
   }
 
   @Get('/userInfo')
+  @UseGuards(AuthGuard('jwt'))
   @ApiCreatedResponse({
     description: '로그인한 유저의 정보',
     type: Bocal,
   })
-  @UseGuards(AuthGuard('jwt'))
   getUserInfo(@Req() req) {
-    // console.log(req.user);
     return req.user;
   }
 
   @Get('/getError')
+  // @UseGuards(AuthGuard('jwt')) //배포때 이 주석 해제해야함
   @ApiCreatedResponse({
     description: '에러점검',
     type: Bocal,
   })
-  // @UseGuards(AuthGuard('jwt')) //배포때 이 주석 해제해야함
   async getError(@Req() req, @Res() res: Response) {
     const data = await this.authService.getError();
     if (!data) res.status(200);

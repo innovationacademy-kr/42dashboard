@@ -1,4 +1,4 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { UserInformationController } from './user_information.controller';
 import { UserInformationService } from './user_information.service';
 import { UserInformationResolver } from './user_information.resolver';
@@ -7,15 +7,7 @@ import { User } from 'src/user_information/entity/user_information.entity';
 import { UserPersonalInformation } from 'src/user_information/entity/user_personal_information.entity';
 import { UserOtherInformation } from 'src/user_information/entity/user_other_information.entity';
 import { UserAccessCardInformation } from 'src/user_information/entity/user_access_card_information.entity';
-import { GraphQLModule } from '@nestjs/graphql';
-import { JoinedTable } from './argstype/joinedTable';
-import { Filter } from './filter';
 import { DataSource } from 'typeorm';
-import { AppModule } from 'src/app.module';
-import { PassportModule } from '@nestjs/passport';
-import { JwtModule } from '@nestjs/jwt';
-import { SECRETORKEY } from 'src/config/42oauth';
-import { JwtStrategy } from 'src/auth/strategy/jwt.strategy';
 
 @Module({
   imports: [

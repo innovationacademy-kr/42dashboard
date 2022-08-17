@@ -1,8 +1,9 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectDataSource } from '@nestjs/typeorm';
 import axios from 'axios';
-import { AUTHPARAM, SECRETORKEY } from 'src/config/42oauth';
+import { jsonToFile } from 'src/utils/json-helper/jsonHelper';
 import { DataSource } from 'typeorm';
 import { Bocal, BocalRole, ErrorObject } from './entity/bocal.entity';
 
@@ -13,6 +14,7 @@ export class AuthService {
   constructor(
     @InjectDataSource() private dataSource: DataSource,
     private jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
   /**
@@ -20,16 +22,30 @@ export class AuthService {
    */
   async createJwt(obj) {
     // 아래 if문은 주석문은 배포할때 주석풀어주기
-    // if (obj.isStaff != true)
-    //   throw new BadRequestException('staff가 아니기때문에 로그인 허용 불가');
+    const whiteList = [
+      'kilee',
+      'sonkang',
+      'hybae',
+      'jinbekim',
+      'doyun',
+      'huchoi',
+      'junghan',
+    ];
+    //스태프 또는 플젝인원들만 로그인 가능
+    if (obj.isStaff != true && !whiteList.includes(obj.intraName))
+      throw new BadRequestException('staff가 아니기때문에 로그인 허용 불가');
+    //42 Soeul 사람만 로그인 가능 (42 Soeul의 campusId는 29번)
+    if (obj['campusId'] != 29)
+      throw new BadRequestException(
+        'campusId가 부적절하기때문에 로그인 허용 불가',
+      );
     const payload = obj;
-    console.log(payload);
     const access_token = await this.jwtService.sign(payload, {
-      secret: SECRETORKEY,
+      secret: this.configService.get('SECRETORKEY'),
       expiresIn: '30m',
     });
     const refresh_token = await this.jwtService.sign(payload, {
-      secret: SECRETORKEY,
+      secret: this.configService.get('SECRETORKEY'),
       expiresIn: '7d',
     }); //이 리프레쉬토큰을 해쉬로 바꿔서 데이터베이스에 저장 //이 작업은 DB가 털렸을때를 생각해서 refresh token을 암호화하는거
     const bocal = this.dataSource.getRepository(Bocal).create();
@@ -40,14 +56,19 @@ export class AuthService {
     bocal.role = BocalRole.ADMIN; //이 부분 나중에 분기문으로 처리
     bocal.isStaff = true;
     bocal.currentHashedRefreshToken = refresh_token;
-    console.log('save bocal ', bocal.intraName);
     await this.dataSource.getRepository(Bocal).save(bocal);
     return { access_token, refresh_token }; //42에 대한 토큰이 아니라 우리 백엔드 서버에 대한 토큰
   }
 
   async authentication(code) {
-    const param = AUTHPARAM;
-    param['code'] = code;
+    const param = {
+      grant_type: this.configService.get('grant_type'),
+      client_id: this.configService.get('client_id'),
+      client_secret: this.configService.get('client_secret'),
+      redirect_uri: this.configService.get('redirect_uri'),
+      state: this.configService.get('state'),
+      code,
+    };
     let response42;
     let url = 'https://api.intra.42.fr/oauth/token?';
     // url에 query붙이기
@@ -97,7 +118,7 @@ export class AuthService {
       }
     }
     this.logger.debug(`response 42 ${response42}`);
-
+    // jsonToFile('./temp.json', response42.data);
     // 아래에서 id는 고유 number임 ("huchoi"같은 intra_id가 아님)
     const payload = {
       id: response42.data.id,
@@ -105,6 +126,7 @@ export class AuthService {
       email: response42.data.email,
       image_url: response42.data.image_url,
       isStaff: response42.data['staff?'],
+      campusId: response42.data['campus'][0]['id'],
     };
     this.logger.debug(`payload ${payload}`);
     return await this.createJwt(payload);
@@ -129,6 +151,7 @@ export class AuthService {
     }
     return ret;
   }
+
   async getUserIfRefreshTokenMatches(refresh_token, id) {
     const bocalRepository = this.dataSource.getRepository(Bocal);
     return bocalRepository.findOneBy({
@@ -140,9 +163,16 @@ export class AuthService {
   async renewalAccessTokenByRefreshToken(user) {
     const payload = { ...user };
     const access_token = await this.jwtService.sign(payload, {
-      secret: SECRETORKEY,
+      secret: this.configService.get('SECRETORKEY'),
       expiresIn: '10m',
     });
     return access_token;
+  }
+
+  checkCampus(campusArr) {
+    for (const val of campusArr) {
+      if (val['campusId'] == 29) return true;
+    }
+    return false;
   }
 }

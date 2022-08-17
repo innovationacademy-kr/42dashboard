@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { SECRETORKEY } from 'src/config/42oauth';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { Bocal } from './entity/bocal.entity';
@@ -14,7 +13,8 @@ import { JwtRefreshTokenStrategy } from './strategy/refresh.jwt.strategy';
     TypeOrmModule.forFeature([Bocal]),
     PassportModule.register({ defaultStrategy: ['jwt', 'jwt-refresh-token'] }), //기억해두기
     JwtModule.register({
-      secret: SECRETORKEY,
+      secret: process.env.SECRETORKEY,
+      // secret: SECRETORKEY,
       // signOptions: {
       //   // expiresIn: 60 * 60,
       // },
