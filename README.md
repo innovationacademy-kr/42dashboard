@@ -1,5 +1,3 @@
 # 42dashboard
 
-<img width="842" alt="image" src="https://user-images.githubusercontent.com/55140432/185033537-ef33ab65-d2cd-4e5c-b02c-a34b6734d494.png">
-
-
+<img width="1434" alt="image" src="https://user-images.githubusercontent.com/55140432/185033675-df1d4de4-0b9c-40a5-9a46-f2dff0c69564.png">
