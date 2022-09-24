@@ -4,11 +4,13 @@ import {
   HttpStatus,
   Injectable,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { app_id, app_secret } from 'src/config/key';
 
 @Injectable()
 export class ApiService {
+  constructor(private readonly configService: ConfigService) {}
   ///////////////////////////////////////////////////////////////
   /////////////////////////start get api/////////////////////////
   ///////////////////////////////////////////////////////////////
@@ -35,8 +37,10 @@ export class ApiService {
         url: 'https://api.intra.42.fr/oauth/token',
         data: {
           grant_type: 'client_credentials',
-          client_id: app_id,
-          client_secret: app_secret,
+          // client_id: app_id,
+          client_id: this.configService.get('42oauth_client_id'),
+          // client_secret: app_secret,
+          client_secret: this.configService.get('42oauth_client_secret'),
           redirect_uri: 'localhost:3000',
         },
       });

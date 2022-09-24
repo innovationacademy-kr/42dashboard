@@ -84,22 +84,25 @@ export const pastDataOnSheet = [
   },
   {
     // 휴학
-    endPoint: SPREAD_END_POINT,
-    Id: [SUB_LEAVEOFABSENCE_ID],
+    // endPoint: SPREAD_END_POINT,
+    endPoint: process.env.SPREAD_END_POINT,
+    Id: [process.env.SUB_LEAVEOFABSENCE_ID],
     columns: EntityColumn['UserLeaveOfAbsence'],
     table: 'UserLeaveOfAbsence',
   },
   {
     // 블랙홀
-    endPoint: SPREAD_END_POINT,
-    Id: [SUB_BLACKHOLE_ID],
+    // endPoint: SPREAD_END_POINT,
+    endPoint: process.env.SPREAD_END_POINT,
+    Id: [process.env.SUB_BLACKHOLE_ID],
     columns: EntityColumn['UserBlackhole'],
     table: 'UserBlackhole',
   },
   {
     // 과정중단
-    endPoint: SPREAD_END_POINT,
-    Id: [SUB_INTERRUPTIONOFCOURSE_ID],
+    // endPoint: SPREAD_END_POINT,
+    endPoint: process.env.SPREAD_END_POINT,
+    Id: [process.env.SUB_INTERRUPTIONOFCOURSE_ID],
     columns: EntityColumn['UserInterruptionOfCourse'],
     table: 'UserInterruptionOfCourse',
   },
@@ -112,15 +115,20 @@ export const pastDataOnSheet = [
   },
   {
     // 로열티 관리
-    endPoint: SPREAD_END_POINT,
-    Id: [SUB_LOYALTYMANAGEMENT_22_1_ID, SUB_LOYALTYMANAGEMENT_22_2_ID],
+    // endPoint: SPREAD_END_POINT,
+    endPoint: process.env.SPREAD_END_POINT,
+    Id: [
+      process.env.SUB_LOYALTYMANAGEMENT_22_1_ID,
+      process.env.SUB_LOYALTYMANAGEMENT_22_2_ID,
+    ],
     columns: EntityColumn['UserLoyaltyManagement'],
     table: 'UserLoyaltyManagement',
   },
   {
     // 취업현황
-    endPoint: SPREAD_END_POINT,
-    Id: [SUB_EMPLOYMENTSTATUS_ID],
+    // endPoint: SPREAD_END_POINT,
+    endPoint: process.env.SPREAD_END_POINT,
+    Id: [process.env.SUB_EMPLOYMENTSTATUS_ID],
     columns: EntityColumn['UserEmploymentStatus'],
     table: 'UserEmploymentStatus',
   },
@@ -133,22 +141,24 @@ export const pastDataOnSheet = [
   },
   {
     // HRD-Net_data
-    endPoint: SPREAD_END_POINT,
+    // endPoint: SPREAD_END_POINT,
+    endPoint: process.env.SPREAD_END_POINT,
     Id: [
-      SUB_HRDNETUTILIZE_22_1_ID,
-      SUB_HRDNETUTILIZE_22_2_ID,
-      SUB_HRDNETUTILIZE_22_3_ID,
-      SUB_HRDNETUTILIZE_22_4_ID,
-      SUB_HRDNETUTILIZE_22_5_ID,
-      SUB_HRDNETUTILIZE_22_6_ID,
+      process.env.SUB_HRDNETUTILIZE_22_1_ID,
+      process.env.SUB_HRDNETUTILIZE_22_2_ID,
+      process.env.SUB_HRDNETUTILIZE_22_3_ID,
+      process.env.SUB_HRDNETUTILIZE_22_4_ID,
+      process.env.SUB_HRDNETUTILIZE_22_5_ID,
+      process.env.SUB_HRDNETUTILIZE_22_6_ID,
     ],
     columns: EntityColumn['UserHrdNetUtilize'],
     table: 'UserHrdNetUtilize',
   },
   {
     // 취업_기타수집_data
-    endPoint: SPREAD_END_POINT,
-    Id: [SUB_OTHEREMPLOYMENTSTATUS_ID],
+    // endPoint: SPREAD_END_POINT,
+    endPoint: process.env.SPREAD_END_POINT,
+    Id: [process.env.SUB_OTHEREMPLOYMENTSTATUS_ID],
     columns: EntityColumn['UserOtherEmploymentStatus'],
     table: 'UserOtherEmploymentStatus',
   },
@@ -185,22 +195,29 @@ export const pastDataOnSheet = [
 export const pastDataOnColumn = [
   //하위컬럼1
   {
-    endPoint: SPREAD_END_POINT,
+    // endPoint: SPREAD_END_POINT,
+    endPoint: process.env.SPREAD_END_POINT,
     Id: [
-      SUB_COMPUTATIONFUND2020_ID,
-      SUB_COMPUTATIONFUND2021_ID,
-      SUB_COMPUTATIONFUND2022_ID,
+      process.env.SUB_COMPUTATIONFUND2020_ID,
+      process.env.SUB_COMPUTATIONFUND2021_ID,
+      process.env.SUB_COMPUTATIONFUND2022_ID,
     ],
     table: 'UserComputationFund',
   },
   {
-    endPoint: SPREAD_END_POINT,
-    Id: [SUB_COALITION_API_ID, SUB_CIRCLE_API_ID, SUB_LEVEL_API_ID],
+    // endPoint: SPREAD_END_POINT,
+    endPoint: process.env.SPREAD_END_POINT,
+    Id: [
+      process.env.SUB_COALITION_API_ID,
+      process.env.SUB_CIRCLE_API_ID,
+      process.env.SUB_LEVEL_API_ID,
+    ],
     table: 'UserLearningDataAPI',
   },
   {
-    endPoint: SPREAD_END_POINT,
-    Id: [SUB_HRDNETUTILIZE_CONSENT_ID],
+    // endPoint: SPREAD_END_POINT,
+    endPoint: process.env.SPREAD_END_POINT,
+    Id: [process.env.SUB_HRDNETUTILIZE_CONSENT_ID],
     table: 'UserHrdNetUtilizeConsent',
   },
 ];

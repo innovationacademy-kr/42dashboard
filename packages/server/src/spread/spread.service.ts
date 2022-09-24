@@ -31,12 +31,14 @@ import {
   formatErrorMain,
 } from './msg/errorMsg.msg';
 import { ExceptionsHandler } from '@nestjs/core/exceptions/exceptions-handler';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class SpreadService {
   private sheetId;
   constructor(
     private apiService: ApiService,
+    private readonly configService: ConfigService,
     @InjectDataSource()
     private dataSource: DataSource,
   ) {
@@ -50,9 +52,11 @@ export class SpreadService {
   /* google API로 spread sheet data읽어오기 */
   async sendRequestToSpreadWithGoogleAPI(endPoint: string, id: string) {
     const authorize = new google.auth.JWT(
-      credentials['client_email'],
+      this.configService.get('credential_client_email'),
+      // credentials['client_email'],
       null,
-      credentials['private_key'],
+      this.configService.get('credential_private_key'),
+      // credentials['private_key'],
       ['https://www.googleapis.com/auth/spreadsheets'],
     );
     // google spread sheet api 가져오기
@@ -78,9 +82,11 @@ export class SpreadService {
   async getGoogleSheetAPI() {
     //프라이빗 키 값으로, 인증 토큰 발급
     const authorize = new google.auth.JWT(
-      credentials['client_email'],
+      // credentials['client_email'],
+      this.configService.get('credential_client_email'),
       null,
-      credentials['private_key'],
+      // credentials['private_key'],
+      this.configService.get('credential_private_key'),
       ['https://www.googleapis.com/auth/spreadsheets'],
     );
 
@@ -231,7 +237,10 @@ export class SpreadService {
         latestData,
         this.sheetId[repoName],
       );
-      return `https://docs.google.com/spreadsheets/d/${SPREAD_END_POINT}/edit#gid=${this.sheetId[repoName]}`;
+      // return `https://docs.google.com/spreadsheets/d/${SPREAD_END_POINT}/edit#gid=${this.sheetId[repoName]}`;
+      return `https://docs.google.com/spreadsheets/d/${this.configService.get(
+        'SPREAD_END_POINT',
+      )}/edit#gid=${this.sheetId[repoName]}`;
     } catch (err) {
       // TODO (developer) - Handle exception
       throw err;

@@ -13,8 +13,8 @@ import { JwtRefreshTokenStrategy } from './strategy/refresh.jwt.strategy';
     TypeOrmModule.forFeature([Bocal]),
     PassportModule.register({ defaultStrategy: ['jwt', 'jwt-refresh-token'] }), //기억해두기
     JwtModule.register({
-      secret: process.env.SECRETORKEY,
-      // secret: SECRETORKEY,
+      secret: process.env.JWT_SECRETORKEY,
+      // secret: JWT_SECRETORKEY,
       // signOptions: {
       //   // expiresIn: 60 * 60,
       // },

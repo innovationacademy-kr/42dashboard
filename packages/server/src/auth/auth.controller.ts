@@ -49,17 +49,18 @@ export class AuthController {
    */
   @Get('/42/redirection')
   async redirect(@Query('code') code: string, @Res() res: Response) {
+    console.log(code);
     const { access_token, refresh_token } =
       await this.authService.authentication(code);
     res.cookie('refresh_token', `${refresh_token}`, {
       httpOnly: true,
-      domain: this.configService.get('APP_DOMAIN'),
+      domain: this.configService.get('BACKEND_APP_DOMAIN'),
     });
     res.cookie('access_token', `${access_token}`, {
       httpOnly: true,
-      domain: this.configService.get('APP_DOMAIN'),
+      domain: this.configService.get('BACKEND_APP_DOMAIN'),
     });
-    res.redirect(this.configService.get('REDIRECT_URI')); //for hybae
+    res.redirect(this.configService.get('frontEndURI')); //for hybae
   }
 
   @Post('logout')

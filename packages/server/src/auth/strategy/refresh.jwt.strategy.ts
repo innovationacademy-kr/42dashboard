@@ -31,7 +31,7 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(
       //       return request?.cookies?.refresh_token;
       //     },
       //   ]),
-      secretOrKey: process.env.SECRETORKEY,
+      secretOrKey: process.env.JWT_SECRETORKEY,
       passReqToCallback: true, //무슨의미?
     });
   }

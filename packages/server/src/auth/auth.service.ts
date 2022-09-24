@@ -34,18 +34,18 @@ export class AuthService {
     //스태프 또는 플젝인원들만 로그인 가능
     if (obj.isStaff != true && !whiteList.includes(obj.intraName))
       throw new BadRequestException('staff가 아니기때문에 로그인 허용 불가');
-    //42 Soeul 사람만 로그인 가능 (42 Soeul의 campusId는 29번)
+    //42 Seoul 사람만 로그인 가능 (42 Seoul의 campusId는 29번)
     if (obj['campusId'] != 29)
       throw new BadRequestException(
         'campusId가 부적절하기때문에 로그인 허용 불가',
       );
     const payload = obj;
     const access_token = await this.jwtService.sign(payload, {
-      secret: this.configService.get('SECRETORKEY'),
+      secret: this.configService.get('JWT_SECRETORKEY'),
       expiresIn: '30m',
     });
     const refresh_token = await this.jwtService.sign(payload, {
-      secret: this.configService.get('SECRETORKEY'),
+      secret: this.configService.get('JWT_SECRETORKEY'),
       expiresIn: '7d',
     }); //이 리프레쉬토큰을 해쉬로 바꿔서 데이터베이스에 저장 //이 작업은 DB가 털렸을때를 생각해서 refresh token을 암호화하는거
     const bocal = this.dataSource.getRepository(Bocal).create();
@@ -63,9 +63,9 @@ export class AuthService {
   async authentication(code) {
     const param = {
       grant_type: this.configService.get('grant_type'),
-      client_id: this.configService.get('client_id'),
-      client_secret: this.configService.get('client_secret'),
-      redirect_uri: this.configService.get('redirect_uri'),
+      client_id: this.configService.get('42oauth_client_id'),
+      client_secret: this.configService.get('42oauth_client_secret'),
+      redirect_uri: this.configService.get('42oauth_redirect_uri'),
       state: this.configService.get('state'),
       code,
     };
@@ -76,9 +76,10 @@ export class AuthService {
       url += `${key}=`;
       url += `${param[key]}&`;
     }
-    this.logger.debug(`url: ${url}`);
     try {
+      console.log(url);
       response42 = await axios.post(url);
+      console.log(response42);
     } catch (what) {
       console.log('42 token reqest error', what);
       throw new BadRequestException();
@@ -163,7 +164,7 @@ export class AuthService {
   async renewalAccessTokenByRefreshToken(user) {
     const payload = { ...user };
     const access_token = await this.jwtService.sign(payload, {
-      secret: this.configService.get('SECRETORKEY'),
+      secret: this.configService.get('JWT_SECRETORKEY'),
       expiresIn: '10m',
     });
     return access_token;

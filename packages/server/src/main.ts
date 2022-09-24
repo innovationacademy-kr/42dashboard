@@ -1,3 +1,4 @@
+import { InternalServerErrorException } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
@@ -27,6 +28,10 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
-  await app.listen(process.env.port || 3000);
+  if (new Date(process.env.expired_date) < new Date()) {
+    console.log('42 API 시크릿 키가 만료되었습니다. 시크릿 키 갱신해주세요.');
+    throw new InternalServerErrorException();
+  }
+  await app.listen(process.env.server_port || 3000);
 }
 bootstrap();

@@ -54,6 +54,7 @@ import {
   excelErrorList,
 } from 'src/spread/msg/errorMsg.msg';
 import { makeServer } from 'graphql-ws';
+import { ConfigService } from '@nestjs/config';
 
 interface RepoDict {
   [repositoryName: string]:
@@ -122,6 +123,7 @@ export class UpdaterService {
     private dataSource: DataSource,
     private apiService: ApiService,
     private spreadService: SpreadService,
+    private readonly configService: ConfigService,
   ) {
     //repoKeys에 선언된 문자열 value 를 받음
   }
@@ -170,8 +172,10 @@ export class UpdaterService {
     let deleteOrEdit;
     const spreadData =
       await this.spreadService.sendRequestToSpreadWithGoogleAPI(
-        SPREAD_END_POINT,
-        MAIN_SHEET,
+        //SPREAD_END_POINT,
+        this.configService.get('SPREAD_END_POINT'),
+        // MAIN_SHEET,
+        this.configService.get('MAIN_SHEET'),
       );
     const tables = spreadData[0].filter((value) => value != ''); //모든 테이블
     const columns = spreadData[1]; //모든 테이블의 컬럼 ex) [Intra No., Intra ID, 성명 ...]
@@ -566,8 +570,10 @@ export class UpdaterService {
 
     const spreadData =
       await this.spreadService.sendRequestToSpreadWithGoogleAPI(
-        SPREAD_END_POINT,
-        MAIN_SHEET,
+        //SPREAD_END_POINT,
+        this.configService.get('SPREAD_END_POINT'),
+        // MAIN_SHEET,
+        this.configService.get('MAIN_SHEET'),
       );
     await this.spreadService.composeTableData(spreadData, tableSet, true);
     const columns = spreadData[1];
@@ -654,7 +660,8 @@ export class UpdaterService {
     ];
     const googleSheet = await this.spreadService.getGoogleSheetAPI();
     await this.spreadService.controlSheet(
-      SPREAD_END_POINT,
+      //SPREAD_END_POINT,
+      this.configService.get('SPREAD_END_POINT'),
       googleSheet,
       deletePage,
     );
@@ -667,7 +674,8 @@ export class UpdaterService {
         return "can't edit user page";
       } else {
         return await this.spreadService.getDataToModifyFromDB(
-          SPREAD_END_POINT,
+          //SPREAD_END_POINT,
+          this.configService.get('SPREAD_END_POINT'),
           updateDB.sheetName,
           updateDB.withDeleted,
         );
@@ -679,7 +687,8 @@ export class UpdaterService {
 
   // maketestsheet() {
   //   return await this.spreadService.maketestsheet(
-  //     SPREAD_END_POINT,
+  //     //SPREAD_END_POINT,
+  //    this.configService.get('SPREAD_END_POINT'),
   //     '0. 학사정보관리(main)',
   //   );
   // }
@@ -687,7 +696,8 @@ export class UpdaterService {
   async saveModifiedDataFromSheet(updateDB: UpdateDB) {
     try {
       return await this.spreadService.saveModifiedDataFromSheet(
-        SPREAD_END_POINT,
+        //SPREAD_END_POINT,
+        this.configService.get('SPREAD_END_POINT'),
         updateDB.sheetName,
         updateDB.withDeleted,
       );

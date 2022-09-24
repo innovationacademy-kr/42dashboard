@@ -29,7 +29,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   ) {
     super({
       // 들어온 cookie와 payload를 통해 새로 만든 cookie를 비교해서 인가절차 진행
-      secretOrKey: process.env.SECRETORKEY,
+      secretOrKey: process.env.JWT_SECRETORKEY,
       jwtFromRequest: cookieExtractor,
       // jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
     });
