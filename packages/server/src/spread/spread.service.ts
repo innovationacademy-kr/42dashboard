@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { ApiService } from 'src/api/api.service';
 import { google } from 'googleapis';
-import { credentials } from 'src/config/credentials';
 import { tableName } from 'src/common/tableName';
 import { EntityColumn } from 'src/common/EntityColumn';
 import {

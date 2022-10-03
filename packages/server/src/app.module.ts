@@ -9,13 +9,12 @@ import { UserStatusModule } from './user_status/user_status.module';
 import { UserPaymentModule } from './user_payment/user_payment.module';
 import { UserJobModule } from './user_job/user_job.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { typeORMConfig } from './config/typeorm.config';
 import { ApiModule } from './api/api.module';
 import { UpdaterModule } from './updater/updater.module';
 import { AuthModule } from './auth/auth.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SpreadModule } from './spread/spread.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -24,8 +23,25 @@ import { ConfigModule } from '@nestjs/config';
           ? '.env.production'
           : '.env.development',
       isGlobal: true,
+      cache: false,
+      // load: [typeORMConfig],
     }),
-    TypeOrmModule.forRoot(typeORMConfig),
+    // TypeOrmModule.forRootAsync(typeORMConfig),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get('database_host'),
+        port: configService.get('database_port'),
+        username: configService.get('database_username'),
+        password: configService.get('database_password'),
+        database: configService.get('database'),
+        entities: [join(__dirname, '/**/*.entity.js')],
+        synchronize: configService.get('database'),
+        dropSchema: configService.get('dropSchema'),
+      }),
+    }),
     UserInformationModule,
     UserJobModule,
     UserPaymentModule,
