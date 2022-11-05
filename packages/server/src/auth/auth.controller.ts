@@ -88,7 +88,7 @@ export class AuthController {
       await this.authService.renewalAccessTokenByRefreshToken(req.user);
     res.cookie('access_token', `${access_token}`, {
       httpOnly: true,
-      domain: 'dashboard42.com',
+      domain: this.configService.get('BACKEND_APP_DOMAIN'),
     });
     res.send();
   }

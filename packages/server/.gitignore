@@ -37,3 +37,6 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+# sql파일 ignore
+*.sql

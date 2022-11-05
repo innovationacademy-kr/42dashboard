@@ -44,6 +44,7 @@ export class AuthService {
       secret: this.configService.get('JWT_SECRETORKEY'),
       expiresIn: '30m',
     });
+    // access_token이랑 동일한 jwt가 생성됨... 나중에 수정
     const refresh_token = await this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_SECRETORKEY'),
       expiresIn: '7d',
@@ -57,7 +58,7 @@ export class AuthService {
     bocal.isStaff = true;
     bocal.currentHashedRefreshToken = refresh_token;
     await this.dataSource.getRepository(Bocal).save(bocal);
-    return { access_token, refresh_token }; //42에 대한 토큰이 아니라 우리 백엔드 서버에 대한 토큰
+    return { access_token, refresh_token }; //42에 대한 토큰이 아니라, 우리 백엔드 서버에 대한 토큰
   }
 
   async authentication(code) {

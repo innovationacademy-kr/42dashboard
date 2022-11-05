@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToOne,
@@ -68,11 +69,13 @@ export class UserAccessCardInformation extends BaseEntity {
   expired_date: Date;
 
   @Column({ name: 'fk_user_no', nullable: false })
+  // @Index()
   fk_user_no: string;
 
   @ManyToOne(() => User, (user) => user.userAccessCardInformation, {
     onDelete: 'CASCADE',
   })
+  @Index()
   @JoinColumn({ name: 'fk_user_no' })
   user: User;
 }

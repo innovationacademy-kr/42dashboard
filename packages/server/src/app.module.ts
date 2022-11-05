@@ -40,6 +40,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         entities: [join(__dirname, '/**/*.entity.js')],
         synchronize: configService.get('database'),
         dropSchema: configService.get('dropSchema'),
+        logging: configService.get('database_logging'),
       }),
     }),
     UserInformationModule,
