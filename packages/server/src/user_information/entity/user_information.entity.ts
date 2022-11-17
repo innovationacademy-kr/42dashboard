@@ -104,21 +104,21 @@ export class User {
     (userPersonalInformation) => userPersonalInformation.user,
     { cascade: true },
   )
-  userPersonalInformation: UserPersonalInformation;
+  userPersonalInformation: Promise<UserPersonalInformation[]>;
 
   @OneToMany(
     () => UserOtherInformation,
     (userOtherInformation) => userOtherInformation.user,
     { cascade: true },
   )
-  userOtherInformation: UserOtherInformation[];
+  userOtherInformation: Promise<UserOtherInformation[]>;
 
   @OneToMany(
     () => UserAccessCardInformation,
     (userAccessCardInformation) => userAccessCardInformation.user,
     { cascade: true },
   )
-  userAccessCardInformation: UserAccessCardInformation;
+  userAccessCardInformation: Promise<UserAccessCardInformation[]>;
 
   /***********************************
    *               Job               *
@@ -129,28 +129,28 @@ export class User {
     (userOtherEmploymentStatus) => userOtherEmploymentStatus.user,
     { cascade: true },
   )
-  userOtherEmploymentStatus: UserOtherEmploymentStatus[];
+  userOtherEmploymentStatus: Promise<UserOtherEmploymentStatus[]>;
 
   @OneToMany(
     () => UserHrdNetUtilizeConsent,
     (userHrdNetUtilizeConsent) => userHrdNetUtilizeConsent.user,
     { cascade: true },
   )
-  userHrdNetUtilizeConsent: UserHrdNetUtilizeConsent[];
+  userHrdNetUtilizeConsent: Promise<UserHrdNetUtilizeConsent[]>;
 
   @OneToMany(
     () => UserHrdNetUtilize,
     (userHrdNetUtilize) => userHrdNetUtilize.user,
     { cascade: true },
   )
-  userHrdNetUtilize: UserHrdNetUtilize[];
+  userHrdNetUtilize: Promise<UserHrdNetUtilize[]>;
 
   @OneToMany(
     () => UserEmploymentStatus,
     (userEmploymentStatus) => userEmploymentStatus.user,
     { cascade: true },
   )
-  userEmploymentStatus: UserEmploymentStatus[];
+  userEmploymentStatus: Promise<UserEmploymentStatus[]>;
 
   /***********************************
    *               Payment           *
@@ -168,7 +168,7 @@ export class User {
     (userComputationFund) => userComputationFund.user,
     { cascade: true },
   )
-  userComputationFund: UserComputationFund[];
+  userComputationFund: Promise<UserComputationFund[]>;
 
   /***********************************
    *               Status            *
@@ -179,45 +179,45 @@ export class User {
     (userLearningDataAPI) => userLearningDataAPI.user,
     { cascade: true },
   )
-  userLearningDataAPI: UserLearningDataAPI[];
+  userLearningDataAPI: Promise<UserLearningDataAPI[]>;
 
   @OneToMany(
     () => UserLoyaltyManagement,
     (userLoyaltyManagement) => userLoyaltyManagement.user,
     { cascade: true },
   )
-  userLoyaltyManagement: UserLoyaltyManagement[];
+  userLoyaltyManagement: Promise<UserLoyaltyManagement[]>;
 
   @OneToMany(
     () => UserCourseExtension,
     (userCourseExtension) => userCourseExtension.user,
     { cascade: true },
   )
-  userCourseExtension: UserCourseExtension[];
+  userCourseExtension: Promise<UserCourseExtension[]>;
 
   @OneToMany(() => UserBlackhole, (userBlackhole) => userBlackhole.user, {
     cascade: true,
   })
-  userBlackhole: UserBlackhole[];
+  userBlackhole: Promise<UserBlackhole[]>;
 
   @OneToMany(
     () => UserLeaveOfAbsence,
     (userLeaveOfAbsence) => userLeaveOfAbsence.user,
     { cascade: true },
   )
-  userLeaveOfAbsence: UserLeaveOfAbsence[];
+  userLeaveOfAbsence: Promise<UserLeaveOfAbsence[]>;
 
   @OneToMany(
     () => UserInterruptionOfCourse,
     (userInterruptionOfCourse) => userInterruptionOfCourse.user,
     { cascade: true },
   )
-  userInterruptionOfCourse: UserInterruptionOfCourse[];
+  userInterruptionOfCourse: Promise<UserInterruptionOfCourse[]>;
 
   @OneToMany(
     () => UserLapiscineInformation,
     (userLapiscineInformation) => userLapiscineInformation.user,
     { cascade: true },
   )
-  userLapiscineInformation: UserLapiscineInformation[];
+  userLapiscineInformation: Promise<UserLapiscineInformation[]>;
 }
