@@ -65,10 +65,10 @@ function SideBar() {
             }}
           />
         </SideBarList>
-        <Divider />
-        <SideBarList label="Future" icon={ExtensionSharp}>
+        {/* <Divider /> */}
+        {/* <SideBarList label="Future" icon={ExtensionSharp}>
           <SideBarListItem icon={ShowChart} label="미래기능" />
-        </SideBarList>
+        </SideBarList> */}
       </Box>
     </Drawer>
   );
