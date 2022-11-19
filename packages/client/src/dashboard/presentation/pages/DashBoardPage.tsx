@@ -78,12 +78,6 @@ function DashBoardPage() {
       },
     },
     {
-      label: '마이페이지',
-      onClick: () => {
-        console.log('Click');
-      },
-    },
-    {
       label: '로그아웃',
       onClick: () => {
         axios
