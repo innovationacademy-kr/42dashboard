@@ -3,7 +3,10 @@ import { Route, Routes } from 'react-router-dom';
 import DashBoardPage from './dashboard/presentation/pages/DashBoardPage';
 import Login from './dashboard/presentation/pages/Login';
 import { createTheme, ThemeProvider } from '@mui/material';
-
+import {
+  getControlMode,
+  setControlMode,
+} from './dashboard/application/services/useMode';
 const Colors = {
   cyan: '#65C2C2',
   magenta: '#EA6390',
@@ -61,6 +64,14 @@ const theme = createTheme({
       },
     },
   },
+});
+
+document.addEventListener('keyup', (event) => {
+  const keyName = event.keyCode;
+  if (keyName === 27 && getControlMode() === 'fullscreen') {
+    setControlMode('view');
+    window.location.reload();
+  }
 });
 
 function App() {

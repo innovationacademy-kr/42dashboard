@@ -31,4 +31,7 @@ function useMode() {
 export const getControlMode = () => {
   return controlModeService.getControlMode();
 };
+export const setControlMode = async (mode: ControlModeType) => {
+  return await controlModeService.setControlMode(mode);
+};
 export default useMode;

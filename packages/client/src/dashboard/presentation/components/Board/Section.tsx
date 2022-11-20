@@ -136,7 +136,6 @@ export default function Section(props: SectionProps) {
     ]);
   }, [startDate, endDate, grade]);
 
-  console.log('startDate !!!: ', startDate);
   function drawStickers() {
     return stickerLayouts.map((sticker: Layout, idx) => (
       <div
