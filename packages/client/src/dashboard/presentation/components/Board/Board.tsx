@@ -4,12 +4,29 @@ import RGL, { Layout, WidthProvider } from 'react-grid-layout';
 import Section from './Section';
 import useSections from '../../../application/services/useSectionDatas';
 import useBoard from '../../../application/services/useBoard';
-import useMode, { getControlMode } from '../../../application/services/useMode';
+import useMode, {
+  getControlMode,
+  setControlMode,
+} from '../../../application/services/useMode';
 import { v4 as uuid } from 'uuid';
 import SectionDataType from '../../../domain/sectionDatas/sectionData.type';
 import { BoardEditToolBar } from '../Common/EditToolBar';
+import styled from '@emotion/styled';
+import { useState, useEffect } from 'react';
 
 const ReactGridLayout = WidthProvider(RGL.Responsive);
+
+type BoardWrapperProps = {
+  status: string;
+};
+
+const BoardWrapper = styled.div<BoardWrapperProps>`
+  padding: '0',
+  overflowY: 'auto',
+  maxHeight: ${(props) => (props.status === 'fullscreen' ? `100vh` : `88vh`)};
+  width: ${(props) =>
+    props.status === 'fullscreen' ? `100vw` : `calc(100vw - 240px)`};
+`;
 
 export default function Board() {
   const {
@@ -73,13 +90,7 @@ export default function Board() {
   }
 
   return (
-    <div
-      style={{
-        padding: '0',
-        overflowY: 'auto',
-        maxHeight: '88vh',
-      }}
-    >
+    <BoardWrapper status={controlModeData}>
       {controlModeData === 'edit' && (
         <BoardEditToolBar
           sectionData={sectionData}
@@ -99,6 +110,6 @@ export default function Board() {
       >
         {drawSections()}
       </ReactGridLayout>
-    </div>
+    </BoardWrapper>
   );
 }

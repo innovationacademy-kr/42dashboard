@@ -120,7 +120,12 @@ function Footer() {
           >
             <RotateRefreshIcon className={refetchState} />
           </RoundButton>
-          <RoundButton onClick={() => setControlMode('fullscreen')}>
+          <RoundButton
+            onClick={() => {
+              setControlMode('fullscreen');
+              window.location.reload();
+            }}
+          >
             <FullscreenIcon />
           </RoundButton>
           <RoundButton onClick={() => setControlMode('export')}>
