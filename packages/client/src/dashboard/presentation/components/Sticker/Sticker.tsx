@@ -3,8 +3,9 @@ import StickerContentFactory, {
 } from './StickerContentFactory';
 import { getControlMode } from '../../../application/services/useMode';
 import { StickerEditToolBar } from '../Common/EditToolBar';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import ConfigModal from '../Modal/ConfigModal';
+import html2canvas from 'html2canvas';
 
 interface StickerProps {
   id: string;
@@ -20,6 +21,23 @@ function Sticker(props: StickerProps) {
   const { id, data, handleStickerRemove, handleStickerUpdate } = props;
   const [isConfigOpen, setIsConfigOpen] = useState<boolean>(false);
 
+  const element = useRef(null);
+
+  const onHtmlToPng = () => {
+    html2canvas(element.current!).then((canvas) => {
+      onSaveAs(canvas.toDataURL('image/png'), 'image-download.png');
+    });
+  };
+
+  const onSaveAs = (uri: string, filename: string) => {
+    const link = document.createElement('a');
+    document.body.appendChild(link);
+    link.href = uri;
+    link.download = filename;
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <>
       {getControlMode() === 'edit' && (
@@ -29,6 +47,7 @@ function Sticker(props: StickerProps) {
           stickerId={id}
           isConfigOpen={isConfigOpen}
           setIsConfigOpen={setIsConfigOpen}
+          onHtmlToPng={onHtmlToPng}
         />
       )}
       {isConfigOpen ? (
@@ -40,10 +59,12 @@ function Sticker(props: StickerProps) {
           handleStickerUpdate={handleStickerUpdate}
         />
       ) : (
-        <StickerContentFactory
-          type={data.type}
-          contentProps={data.contentProps}
-        />
+        <div style={{ width: '100%', height: '100%' }} ref={element}>
+          <StickerContentFactory
+            type={data.type}
+            contentProps={data.contentProps}
+          />
+        </div>
       )}
     </>
   );

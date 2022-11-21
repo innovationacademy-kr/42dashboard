@@ -10,6 +10,7 @@ import { ReactComponent as IconAdd } from '../../../../assets/icons/plus-solid.s
 import { ReactComponent as IconSave } from '../../../../assets/icons/floppy-disk-solid.svg';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { getControlMode } from '../../../application/services/useMode';
+import { createSvgIcon } from '@mui/material/utils';
 
 const FilterInfo = styled.span`
   margin-left: 0.5rem;
@@ -140,16 +141,30 @@ interface StickerEditToolBarProps {
   handelStickerRemove: (id: string) => void;
   isConfigOpen: boolean;
   setIsConfigOpen: (isConfigOpen: boolean) => void;
+  onHtmlToPng: () => void;
   // 설정 적용 something
   // updateStickerData:
 }
 
+const ExportIcon = createSvgIcon(
+  <path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2z" />,
+  'SaveAlt',
+);
+
 export const StickerEditToolBar = (props: StickerEditToolBarProps) => {
-  const { stickerId, handelStickerRemove, isConfigOpen, setIsConfigOpen } =
-    props;
+  const {
+    stickerId,
+    handelStickerRemove,
+    isConfigOpen,
+    setIsConfigOpen,
+    onHtmlToPng,
+  } = props;
 
   return (
     <EditToolBarArea>
+      <Button onClick={onHtmlToPng}>
+        <ExportIcon style={{ width: '2rem' }} />
+      </Button>
       <Button onClick={() => setIsConfigOpen(true)}>
         <SettingsIcon />
       </Button>
