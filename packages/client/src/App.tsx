@@ -7,6 +7,7 @@ import {
   getControlMode,
   setControlMode,
 } from './dashboard/application/services/useMode';
+import { Interceptor } from './dashboard/infrastructure/http/axios/axios.instance';
 const Colors = {
   cyan: '#65C2C2',
   magenta: '#EA6390',
@@ -77,10 +78,12 @@ document.addEventListener('keyup', (event) => {
 function App() {
   return (
     <div className="App">
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/dashboard" element={<DashBoardPage />} />
-      </Routes>
+      <Interceptor>
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/dashboard" element={<DashBoardPage />} />
+        </Routes>
+      </Interceptor>
     </div>
   );
 }
