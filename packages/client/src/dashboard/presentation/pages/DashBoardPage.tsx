@@ -12,6 +12,10 @@ import Footer from '../components/Footer/Footer';
 import ModificationDialog from '../components/Dialog/ModificationDialog';
 import { useEffect, useState } from 'react';
 import UserType from '../../domain/user/user.type';
+import {
+  getControlMode,
+  setControlMode,
+} from '../../application/services/useMode';
 
 // TODO: hybae
 // userData가 null일 때 처리 추가
@@ -21,8 +25,11 @@ function DashBoardPage() {
   const { setUser, getUser, userInfo } = useUser();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [mode, setMode] = useState('view');
+  const controlMode = getControlMode();
 
   useEffect(() => {
+    setMode(controlMode);
     getUser().then((data: UserType | null) => {
       if (data === null) {
         axios
@@ -59,6 +66,10 @@ function DashBoardPage() {
       }
     });
   }, []);
+  useEffect(() => {
+    console.log(`mode change to ${controlMode}`);
+    setMode(controlMode);
+  }, [controlMode]);
 
   function delCookie(key: string) {
     const now = new Date();
@@ -75,12 +86,6 @@ function DashBoardPage() {
       label: '수정하기',
       onClick: () => {
         setOpen(true);
-      },
-    },
-    {
-      label: '마이페이지',
-      onClick: () => {
-        console.log('Click');
       },
     },
     {
@@ -104,6 +109,8 @@ function DashBoardPage() {
     },
   ];
 
+  console.log(mode);
+
   const profileMenu = (
     <ProfileMenu menuItems={profileMenuItems} profile={profile} />
   );
@@ -111,16 +118,23 @@ function DashBoardPage() {
   return (
     <div style={{ display: 'flex' }}>
       <CssBaseline />
-      <AppBar>
-        <Logo />
-        <div style={{ flexGrow: 1 }} />
-        {profileMenu}
-      </AppBar>
-      <SideBar />
-      <MainArea>
+      {mode !== 'fullscreen' && (
+        <AppBar>
+          <Logo />
+          <div style={{ flexGrow: 1 }} />
+          {profileMenu}
+        </AppBar>
+      )}
+      {mode !== 'fullscreen' && <SideBar />}
+      {mode === 'fullscreen' ? (
         <Board />
-        <Footer />
-      </MainArea>
+      ) : (
+        <MainArea>
+          <Board />
+          <Footer />
+        </MainArea>
+      )}
+
       <ModificationDialog open={open} setOpen={setOpen} />
     </div>
   );
