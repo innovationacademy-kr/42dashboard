@@ -52,6 +52,11 @@ export class UserInformationResolver {
     return await this.userService.getPeopleByFiter(filterArg);
   }
 
+  @Query(() => [JoinedTable])
+  async rawQueryTest(@Args() filterArg: FilterArgs) {
+    return await this.userService.rawQueryDataTest(filterArg);
+  }
+
   @Query(() => Int)
   async getNumOfPeopleByFilter(@Args() filterArg: FilterArgs) {
     return await this.userService.getNumOfPeopleByFilter(filterArg);

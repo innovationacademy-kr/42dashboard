@@ -84,11 +84,6 @@ const valExColumnEntity = [
 
 // 프론트에서 할수 있는건 프론트에서 처리하게끔 하자
 const entityColumnNotMapping = {
-  userEducationFundState: {
-    // 기간 필터링 적용 X
-    // validate_date: 'validate_date',
-    // expired_date: 'expired_date',
-  },
   userAccessCardInformation: {
     // 기간 필터링 적용 X
     // 사용 불가능

@@ -237,7 +237,13 @@ describe('User Service', () => {
     await queryRunner.startTransaction();
     //when
     const userInfoRepo = db.getRepository(User);
-    const user = await userInfoRepo.findOneBy({ intra_id: 'huchoi' });
+    const user = await userInfoRepo.findOne({
+      relations: ['userPersonalInformayion'],
+      where: {
+        intra_id: 'huchoi',
+        // userPersonalInformation: { gender: '남' },
+      },
+    });
     console.log(user);
     console.log(user.userPersonalInformation);
     // console.log(await user.userPersonalInformation[0]); //이거 안되는게 당연

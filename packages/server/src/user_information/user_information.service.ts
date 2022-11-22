@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { UserAccessCardInformation } from 'src/user_information/entity/user_access_card_information.entity';
@@ -46,6 +47,10 @@ import {
   valExColumnEntity,
 } from './utils/entityArray.utils';
 import { entityArray, getDomain } from './utils/getDomain.utils';
+import {
+  makeFromStatementRawQuery,
+  makeWhereStatementRawQuery,
+} from './utils/makeRawQuery.util.';
 import { operatorDict } from './utils/operatorDict.utils';
 
 @Injectable()
@@ -108,6 +113,146 @@ export class UserInformationService {
       entityArray,
       'userAccessCardInformation',
     );
+  }
+
+  async rawQueryDataTest(filterArgs) {
+    const { filterObj } = await this.filtersToObj(filterArgs);
+    // eslint-disable-next-line prettier/prettier
+    console.log(`select * ${makeFromStatementRawQuery(filterObj)} ${makeWhereStatementRawQuery(filterObj)}`);
+    // eslint-disable-next-line prettier/prettier
+    return await this.dataSource.query(`select * ${makeFromStatementRawQuery(filterObj)} ${makeWhereStatementRawQuery(filterObj)}`);
+  }
+
+  async rawQueryCountTest(filterArgs) {
+    const { filterObj } = await this.filtersToObj(filterArgs);
+    // eslint-disable-next-line prettier/prettier
+    console.log(`select (count(*)) ${makeFromStatementRawQuery(filterObj)} ${makeWhereStatementRawQuery(filterObj)}`);
+    // eslint-disable-next-line prettier/prettier
+    const ta = await this.dataSource.query(`select (count(*)) as c ${makeFromStatementRawQuery(filterObj)} ${makeWhereStatementRawQuery(filterObj)}`);
+    return ta.c;
+  }
+
+  async getPeopleByFiter(filterArgs: FilterArgs) {
+    return await this.rawQueryDataTest(filterArgs);
+    // const { findObj, filterObj, flag } = this.filtersToObj(filterArgs);
+    // console.log('--------------------------------------------');
+    // console.log(findObj);
+    // console.log('--------------------------------------------');
+    // let data = await this.dataSource.getRepository(User).find(findObj);
+    // console.log('data.length', data.length);
+    // const limitedData = this.makeLimit(data, filterObj, 0, flag);
+    // data = limitedData.data;
+    // return data;
+  }
+
+  async getPeopleByFilterForAdmin(filterArgs: FilterArgs) {
+    const { findObj, filterObj, flag } = this.filtersToObj(filterArgs);
+    return await this.rawQueryDataTest(filterObj);
+    // const { findObj, filterObj, flag } = this.filtersToObj(filterArgs, true);
+    // console.log('--------------------------------------------');
+    // console.log(findObj);
+    // console.log('--------------------------------------------');
+    // let data = await this.dataSource.getRepository(User).find(findObj);
+    // console.log('data.length', data.length);
+    // const limitedData = this.makeLimit(data, filterObj, 0, flag);
+    // data = limitedData.data;
+    // return data;
+  }
+
+  async getNumOfPeopleByFilter(filterArgs: FilterArgs): Promise<number> {
+    const { findObj, filterObj, flag } = this.filtersToObj(filterArgs);
+    return await this.rawQueryDataTest(filterObj);
+    // const { findObj, filterObj, flag } = this.filtersToObj(filterArgs);
+    // console.log('--------------------------------------------');
+    // console.log(findObj);
+    // console.log('--------------------------------------------');
+    // // findAndCount의 return 값 = 배열
+    // // 0번째 인덱스 = find의 결과
+    // // 1번째 인덱스 = count의 결과
+    // const dataAndCount = await this.dataSource
+    //   .getRepository(User)
+    //   .findAndCount(findObj);
+    // const data = dataAndCount[0];
+    // console.log('data.length', data.length); //data는 최대 take 값만큼 가져옴
+    // const count = dataAndCount[1];
+    // console.log('data.count', count); // count 하기는 take 값에 얽메이지 않고 모두 count함
+    // const limitedData = this.makeLimit(data, filterObj, count, flag);
+    // return limitedData.numOfPeople;
+  }
+
+  async getDomainOfColumnFilter(filterArgs: FilterArgs) {
+    const { findObj, filterObj } = this.filtersToObj(filterArgs);
+    console.log('find is', findObj);
+    console.log('filter is', filterObj);
+    // console.log('OBJ is', findObj);
+    const data = await this.dataSource.getRepository(User).find(findObj);
+    console.log(data);
+    console.log('------------------------------');
+    this.makeLimit(data, filterObj);
+    console.log(data);
+    return data;
+  }
+
+  // 아래는 mutation을 위한 service code
+  createFindObjForMutation(cudDto: CudDto) {
+    const ret = {};
+    ret['relations'] = {};
+    ret['where'] = {};
+    ret['where']['intra_no'] = cudDto.intra_no;
+    if (cudDto.entityName != 'user') {
+      ret['relations'][cudDto.entityName] = true; //relation -> relations
+      ret['where'][cudDto.entityName] = {};
+      ret['where'][cudDto.entityName]['pk'] = cudDto.pk;
+    } else {
+      // nothing
+    }
+    return ret;
+  }
+
+  async updateUserInformation(cudDto: CudDto): Promise<boolean> {
+    const { findObj } = this.createFindObj(cudDto);
+    const user = await this.dataSource.getRepository(User).findOne(findObj);
+    if (user == null) return false;
+    const entityName = cudDto.entityName;
+    const coulmn = cudDto.column;
+    const value = cudDto.value;
+    if (coulmn == 'intra_no' || coulmn == 'pk') throw new BadRequestException();
+    if (entityName == 'user') user[coulmn] = value;
+    else if (Array.isArray(user[entityName]))
+      user[entityName][0][coulmn] = value;
+    else user[entityName][coulmn] = value;
+    //cacade true 덕분에 user만 save해도 다른 엔터티도 save 됨
+    if (await this.dataSource.getRepository(User).save(user)) return true;
+    else return false;
+  }
+
+  async deleteUserInformation(cudDto: CudDto) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    const { findObj } = this.createFindObj(cudDto);
+    const user = await this.dataSource.getRepository(User).findOne(findObj);
+    if (user == null) return false;
+    const entityName = cudDto.entityName;
+    if (Array.isArray(user[entityName]))
+      queryRunner.manager.softRemove(user[entityName][0]);
+    else queryRunner.manager.softRemove(user[entityName]);
+    //cacade true 덕분에 user만 save해도 다른 엔터티도 save 됨
+    if (await this.dataSource.getRepository(User).save(user)) return true;
+    else return false;
+  }
+
+  async recoverUserInformaiton(cudDto: CudDto) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    const { findObj } = this.createFindObj(cudDto);
+    findObj['withDeleted'] = true; //상단에 위치해야함
+    const user = await this.dataSource.getRepository(User).findOne(findObj);
+    if (user == null) return false;
+    const entityName = cudDto.entityName;
+    if (Array.isArray(user[entityName]))
+      queryRunner.manager.recover(user[entityName][0]);
+    else queryRunner.manager.recover(user[entityName]);
+    //cacade true 덕분에 user만 save해도 다른 엔터티도 save 됨
+    if (await this.dataSource.getRepository(User).save(user)) return true;
+    else return false;
   }
 
   /**
@@ -365,20 +510,20 @@ export class UserInformationService {
       if (joinedTable == 'user') continue;
       for (const idx in filterObj[joinedTable]) {
         filter = filterObj[joinedTable][idx];
-        if (filter.column == 'null' || filter.column == null) {
-          if (
-            row[joinedTable] != null &&
-            Array.isArray(row[joinedTable]) &&
-            row[joinedTable].length > 0 &&
-            'latest' in filter &&
-            filter['latest'] == true
-          ) {
-            row[joinedTable] = row[joinedTable].slice(0, 1);
-          }
-          continue;
-        }
         for (const idx in data) {
           row = data[idx];
+          if (filter.column == 'null' || filter.column == null) {
+            if (
+              row[joinedTable] != null &&
+              Array.isArray(row[joinedTable]) &&
+              row[joinedTable].length > 0 &&
+              'latest' in filter &&
+              filter['latest'] == true
+            ) {
+              row[joinedTable] = row[joinedTable].slice(0, 1);
+            }
+            continue;
+          }
           if (
             row[joinedTable] != null &&
             Array.isArray(row[joinedTable]) &&
@@ -414,123 +559,7 @@ export class UserInformationService {
     return this.operatorToMethod[operator];
   }
 
-  async getPeopleByFiter(filterArgs: FilterArgs) {
-    const { findObj, filterObj, flag } = this.filtersToObj(filterArgs);
-    console.log('--------------------------------------------');
-    console.log(findObj);
-    console.log('--------------------------------------------');
-    let data = await this.dataSource.getRepository(User).find(findObj);
-    console.log('data.length', data.length);
-    const limitedData = this.makeLimit(data, filterObj, 0, flag);
-    data = limitedData.data;
-    return data;
-  }
-
-  async getPeopleByFilterForAdmin(filterArgs: FilterArgs) {
-    const { findObj, filterObj, flag } = this.filtersToObj(filterArgs, true);
-    console.log('--------------------------------------------');
-    console.log(findObj);
-    console.log('--------------------------------------------');
-    let data = await this.dataSource.getRepository(User).find(findObj);
-    console.log('data.length', data.length);
-    const limitedData = this.makeLimit(data, filterObj, 0, flag);
-    data = limitedData.data;
-    return data;
-  }
-
-  async getNumOfPeopleByFilter(filterArgs: FilterArgs): Promise<number> {
-    const { findObj, filterObj, flag } = this.filtersToObj(filterArgs);
-    console.log('--------------------------------------------');
-    console.log(findObj);
-    console.log('--------------------------------------------');
-    // findAndCount의 return 값 = 배열
-    // 0번째 인덱스 = find의 결과
-    // 1번째 인덱스 = count의 결과
-    const dataAndCount = await this.dataSource
-      .getRepository(User)
-      .findAndCount(findObj);
-    const data = dataAndCount[0];
-    console.log('data.length', data.length); //data는 최대 take 값만큼 가져옴
-    const count = dataAndCount[1];
-    console.log('data.count', count); // count 하기는 take 값에 얽메이지 않고 모두 count함
-    const limitedData = this.makeLimit(data, filterObj, count, flag);
-    return limitedData.numOfPeople;
-  }
-
-  async getDomainOfColumnFilter(filterArgs: FilterArgs) {
-    const { findObj, filterObj } = this.filtersToObj(filterArgs);
-    console.log('find is', findObj);
-    console.log('filter is', filterObj);
-    // console.log('OBJ is', findObj);
-    const data = await this.dataSource.getRepository(User).find(findObj);
-    console.log(data);
-    console.log('------------------------------');
-    this.makeLimit(data, filterObj);
-    console.log(data);
-    return data;
-  }
-
-  // 아래는 mutation을 위한 service code
-  createFindObjForMutation(cudDto: CudDto) {
-    const ret = {};
-    ret['relations'] = {};
-    ret['where'] = {};
-    ret['where']['intra_no'] = cudDto.intra_no;
-    if (cudDto.entityName != 'user') {
-      ret['relations'][cudDto.entityName] = true; //relation -> relations
-      ret['where'][cudDto.entityName] = {};
-      ret['where'][cudDto.entityName]['pk'] = cudDto.pk;
-    } else {
-      // nothing
-    }
-    return ret;
-  }
-
-  async updateUserInformation(cudDto: CudDto): Promise<boolean> {
-    const { findObj } = this.createFindObj(cudDto);
-    const user = await this.dataSource.getRepository(User).findOne(findObj);
-    if (user == null) return false;
-    const entityName = cudDto.entityName;
-    const coulmn = cudDto.column;
-    const value = cudDto.value;
-    if (coulmn == 'intra_no' || coulmn == 'pk') throw new BadRequestException();
-    if (entityName == 'user') user[coulmn] = value;
-    else if (Array.isArray(user[entityName]))
-      user[entityName][0][coulmn] = value;
-    else user[entityName][coulmn] = value;
-    //cacade true 덕분에 user만 save해도 다른 엔터티도 save 됨
-    if (await this.dataSource.getRepository(User).save(user)) return true;
-    else return false;
-  }
-
-  async deleteUserInformation(cudDto: CudDto) {
-    const queryRunner = this.dataSource.createQueryRunner();
-    const { findObj } = this.createFindObj(cudDto);
-    const user = await this.dataSource.getRepository(User).findOne(findObj);
-    if (user == null) return false;
-    const entityName = cudDto.entityName;
-    if (Array.isArray(user[entityName]))
-      queryRunner.manager.softRemove(user[entityName][0]);
-    else queryRunner.manager.softRemove(user[entityName]);
-    //cacade true 덕분에 user만 save해도 다른 엔터티도 save 됨
-    if (await this.dataSource.getRepository(User).save(user)) return true;
-    else return false;
-  }
-
-  async recoverUserInformaiton(cudDto: CudDto) {
-    const queryRunner = this.dataSource.createQueryRunner();
-    const { findObj } = this.createFindObj(cudDto);
-    findObj['withDeleted'] = true; //상단에 위치해야함
-    const user = await this.dataSource.getRepository(User).findOne(findObj);
-    if (user == null) return false;
-    const entityName = cudDto.entityName;
-    if (Array.isArray(user[entityName]))
-      queryRunner.manager.recover(user[entityName][0]);
-    else queryRunner.manager.recover(user[entityName]);
-    //cacade true 덕분에 user만 save해도 다른 엔터티도 save 됨
-    if (await this.dataSource.getRepository(User).save(user)) return true;
-    else return false;
-  }
+  
 
   //--------------------------------------------------
   //                                                  |
@@ -665,4 +694,6 @@ export class UserInformationService {
     await queryRunner.release();
     return ret;
   }
+
+  
 }
