@@ -129,7 +129,7 @@ export class UserInformationService {
     console.log(`select (count(*)) ${makeFromStatementRawQuery(filterObj)} ${makeWhereStatementRawQuery(filterObj)}`);
     // eslint-disable-next-line prettier/prettier
     const ta = await this.dataSource.query(`select (count(*)) as c ${makeFromStatementRawQuery(filterObj)} ${makeWhereStatementRawQuery(filterObj)}`);
-    return ta.c;
+    return ta[0].c;
   }
 
   async getPeopleByFiter(filterArgs: FilterArgs) {
@@ -147,7 +147,7 @@ export class UserInformationService {
 
   async getPeopleByFilterForAdmin(filterArgs: FilterArgs) {
     const { findObj, filterObj, flag } = this.filtersToObj(filterArgs);
-    return await this.rawQueryDataTest(filterObj);
+    return await this.rawQueryDataTest(filterArgs);
     // const { findObj, filterObj, flag } = this.filtersToObj(filterArgs, true);
     // console.log('--------------------------------------------');
     // console.log(findObj);
@@ -160,8 +160,9 @@ export class UserInformationService {
   }
 
   async getNumOfPeopleByFilter(filterArgs: FilterArgs): Promise<number> {
-    const { findObj, filterObj, flag } = this.filtersToObj(filterArgs);
-    return await this.rawQueryDataTest(filterObj);
+    const ret =  await this.rawQueryCountTest(filterArgs);
+    console.log(ret);
+    return ret;
     // const { findObj, filterObj, flag } = this.filtersToObj(filterArgs);
     // console.log('--------------------------------------------');
     // console.log(findObj);
@@ -272,6 +273,7 @@ export class UserInformationService {
     const filterObj = {};
     let filter;
     let entityName;
+
     const filters = filterArgs.filters;
 
     for (let i = 0; i < filters.length; i++) {

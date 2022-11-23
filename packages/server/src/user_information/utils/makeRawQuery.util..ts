@@ -25,21 +25,21 @@ function makeFromStatementRawQuery(filterObj) {
       if (column == null || column == "null") continue;
       operator = filter['operator'];
       value = filter['givenValue'];
-      ret += `${entityAlias('user')}.${columnMapping(column)} ${operatorMapping(operator)} ${valueMapping(operator, value)} `;
-
+      whereStatement += `${entityAlias('user')}.${columnMapping(column)} ${operatorMapping(operator)} ${valueMapping(operator, value)} `;
     }
-    if (whereStatement != '') whereStatement = 'where ' + whereStatement; 
+    if (whereStatement != '') whereStatement = 'where ' + whereStatement;
+    ret += whereStatement;
     ret += `) as u`;
   }
   else ret = 'from "user" as u';
   for (const entityName in filterObj) {
     // ret = addOneSubQuery(entityName, filterObj[entityName], ret);
-    ret += makeOneSubQuery(entityName, filterObj[entityName], ret);
+    ret += makeOneSubQuery(entityName, filterObj[entityName]);
   }
   return ret;
 }
 
-function makeOneSubQuery(entityName, filters, query) {
+function makeOneSubQuery(entityName, filters) {
   if (entityName == 'user') return ' ';
   let ret = ' '
   ret += ` left join ( select distinct on (fk_user_no) * from ${entityMapping(entityName)} as ${entityAlias(entityName)}`;
@@ -76,6 +76,17 @@ function makeWhereStatementRawQuery(filterObj) {
   }
   if (ret != '') ret = ' where ' + ret + ';';
   return ret + ';';
+}
+
+// 아래처럼하게 되면 너무 불편해짐(프론트와 상의해 봐야할듯)
+function addDateRangeFiltering(entityName, startDate, endDate, accumulate = false) {
+  let ret = '';
+  if (accumulate) {
+    ret += ` and not (${entityAlias(entityName)}.expired_date < ${startDate} or ${endDate} < ${entityAlias(entityName)}.validate_date) `;
+  } else {
+    ret += '';
+  }
+  return ret;
 }
 
 function entityMapping(entityName) {
