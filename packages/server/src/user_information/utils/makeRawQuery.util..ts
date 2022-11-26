@@ -25,7 +25,7 @@ function makeFromStatementRawQuery(filterObj) {
       if (column == null || column == "null") continue;
       operator = filter['operator'];
       value = filter['givenValue'];
-      whereStatement += `${entityAlias('user')}.${columnMapping(column)} ${operatorMapping(operator)} ${valueMapping(operator, value)} `;
+      whereStatement += `${(idx)=>{if (idx > 0) return ' and '; else return ' ';}}${entityAlias('user')}.${columnMapping(column)} ${operatorMapping(operator)} ${valueMapping(operator, value)} `;
     }
     if (whereStatement != '') whereStatement = 'where ' + whereStatement;
     ret += whereStatement;
@@ -44,7 +44,7 @@ function makeOneSubQuery(entityName, filters) {
   let ret = ' '
   ret += ` left join ( select distinct on (fk_user_no) * from ${entityMapping(entityName)} as ${entityAlias(entityName)}`;
   ret += makeWhereStatementRawQueryOnSubQuery(entityName, filters);
-  ret += ` order by fk_user_no, validate_date`;
+  ret += ` order by fk_user_no ASC, validate_date DESC `;
   ret += ` ) as ${entityAlias(entityName)} on ${entityAlias('user')}.intra_no=${entityAlias(entityName)}.fk_user_no `;
   return ret;
 }
