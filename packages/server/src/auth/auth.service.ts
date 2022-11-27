@@ -23,7 +23,6 @@ export class AuthService {
    */
   async createJwt(obj) {
     await this.validateBocal(obj);
-    
     // [수정 사항] payload는 id만 가지고 있음
     const payload = { id: obj.id };
     const access_token = await this.getCookieWithJwtAccessToken(payload);
@@ -74,11 +73,7 @@ export class AuthService {
   async logoutUser(user) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.startTransaction();
-    await this.dataSource
-      .getRepository(Bocal)
-      .update({ id: user }, {
-          currentHashedRefreshToken: null 
-      });
+    await this.dataSource.getRepository(Bocal).update({ id: user.id }, { currentHashedRefreshToken: null });
     await queryRunner.commitTransaction(); //rollback 해버리는 실수
     await queryRunner.release();
   }
@@ -96,7 +91,7 @@ export class AuthService {
   // [수정 사항] refresh_token hash 검증
   async getUserIfRefreshTokenMatches(refresh_token, id) {
     const bocalRepository = this.dataSource.getRepository(Bocal);
-    const bocal = await bocalRepository.findOneBy({id});
+    const bocal = await bocalRepository.findOneBy({ id });
     const isRefreshTokenMatching = await compare(
       refresh_token,
       bocal.currentHashedRefreshToken,
@@ -170,7 +165,6 @@ export class AuthService {
 
   // [수정 사항] bocal 생성 함수 추가
   async createBocal(obj, refresh_token) {
-    
     const bocal = this.dataSource.getRepository(Bocal).create();
     bocal.id = obj.id;
     bocal.intraName = obj.intraName;
@@ -202,10 +196,6 @@ export class AuthService {
   // [수정 사항] refresh_token hash 저장 함수 추가
   async setCurrentRefreshToken(refresh_token, payload) {
     const currentHashedRefreshToken = await hash(refresh_token, 10);
-    await this.dataSource
-      .getRepository(Bocal)
-      .update({ id: payload.id }, {
-          currentHashedRefreshToken
-      });
+    await this.dataSource.getRepository(Bocal).update( { id: payload.id }, { currentHashedRefreshToken });
   }
 }
