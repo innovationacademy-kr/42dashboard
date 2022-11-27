@@ -12,7 +12,7 @@ const cookieExtractor = function (req) {
     const array = arr[idx].split('=');
     array[0] = array[0].replace(/\s/g, ''); //white space제거
     if (array[0] == 'refresh_token') {
-      return array[1]; //access_token 값을 반환
+      return array[1]; //refresh_token 값을 반환
     }
   }
   return null; //null을 반환
@@ -26,22 +26,17 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(
   constructor(private readonly authService: AuthService) {
     super({
       jwtFromRequest: cookieExtractor,
-      //   jwtFromRequest: ExtractJwt.fromExtractors([
-      //     (request: Request) => {
-      //       return request?.cookies?.refresh_token;
-      //     },
-      //   ]),
-      secretOrKey: process.env.JWT_SECRETORKEY,
+      secretOrKey: process.env.JWT_REFRESH_TOKEN_SECRET,
       passReqToCallback: true, //무슨의미?
     });
   }
 
+  // [수정 사항] refresh_token 검증 코드 추가
   async validate(request: Request, payload) {
-    console.log('도달');
-    const refreshToken = request.cookies?.refresh_token;
-    return this.authService.getUserIfRefreshTokenMatches(
+    const refreshToken = cookieExtractor(request);
+    return await this.authService.getUserIfRefreshTokenMatches(
       refreshToken,
-      payload.userId,
+      payload.id,
     );
   }
 }
