@@ -47,7 +47,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       // console.log(`In authGuard: ${user.intraName} is login`);
       return payload.id;
     }
-    
     else return null;
   }
 }
