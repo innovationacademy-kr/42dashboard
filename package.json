@@ -38,7 +38,9 @@
 	},
 	"dependencies": {},
 	"lint-staged": {
-    "packages/**/*.{js,jsx,ts,tsx}": "eslint --cache --fix",
-    "packages/**/*.{js,jsx,ts,tsx,css,sass,less,md,mdx}": "prettier --write"
-  }
+		"packages/**/*.{js,jsx,ts,tsx}": "eslint --cache --fix",
+		"packages/**/*.{js,jsx,ts,tsx,css,sass,less,md,mdx}": "prettier --write"
+	},
+	"main": "index.js",
+	"license": "MIT"
 }
