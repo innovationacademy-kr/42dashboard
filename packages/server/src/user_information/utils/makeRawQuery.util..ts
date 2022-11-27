@@ -20,10 +20,11 @@ function makeFromStatementRawQuery(filterObj) {
     // ret = `from (select * from "user" as u where `;
     ret = `from (select * from "user" as u `;
     for (const idx in filterObj['user']) {
-      if (idx != '0') whereStatement += ' and ';
       filter = filterObj['user'][idx];
       column = filter['column'];
       if (column == null || column == "null") continue;
+      console.log('idx: ', idx, ' AND idx != 0', idx != '0');
+      if (idx != '0') whereStatement += ' and ';
       operator = filter['operator'];
       value = filter['givenValue'];
       whereStatement += ` ${entityAlias('user')}.${columnMapping(column)} ${operatorMapping(operator)} ${valueMapping(operator, value)} `;
