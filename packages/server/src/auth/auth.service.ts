@@ -73,7 +73,9 @@ export class AuthService {
   async logoutUser(user) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.startTransaction();
-    await this.dataSource.getRepository(Bocal).update({ id: user.id }, { currentHashedRefreshToken: null });
+    await this.dataSource
+      .getRepository(Bocal)
+      .update({ id: user.id }, { currentHashedRefreshToken: null });
     await queryRunner.commitTransaction(); //rollback 해버리는 실수
     await queryRunner.release();
   }
@@ -196,6 +198,8 @@ export class AuthService {
   // [수정 사항] refresh_token hash 저장 함수 추가
   async setCurrentRefreshToken(refresh_token, payload) {
     const currentHashedRefreshToken = await hash(refresh_token, 10);
-    await this.dataSource.getRepository(Bocal).update( { id: payload.id }, { currentHashedRefreshToken });
+    await this.dataSource
+      .getRepository(Bocal)
+      .update({ id: payload.id }, { currentHashedRefreshToken });
   }
 }

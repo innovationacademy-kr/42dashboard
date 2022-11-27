@@ -50,7 +50,7 @@ export class AuthController {
    */
   @Get('/42/redirection')
   async redirect(@Query('code') code: string, @Res() res: Response) {
-    const { access_token,  refresh_token } =
+    const { access_token, refresh_token } =
       await this.authService.authentication(code);
     res.cookie('refresh_token', `${refresh_token}`, {
       httpOnly: true,
