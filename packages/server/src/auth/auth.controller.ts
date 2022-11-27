@@ -17,6 +17,7 @@ import { DataSource } from 'typeorm';
 import { AuthService } from './auth.service';
 import { Bocal } from './entity/bocal.entity';
 import { ConfigService } from '@nestjs/config';
+import { GqlAuthGuard } from './guard/gql.guard';
 
 //authentication 과 authorization은 다름
 @Controller('auth')
@@ -49,8 +50,7 @@ export class AuthController {
    */
   @Get('/42/redirection')
   async redirect(@Query('code') code: string, @Res() res: Response) {
-    console.log(code);
-    const { access_token, refresh_token } =
+    const { access_token,  refresh_token} =
       await this.authService.authentication(code);
     res.cookie('refresh_token', `${refresh_token}`, {
       httpOnly: true,
@@ -69,13 +69,7 @@ export class AuthController {
     await this.authService.logoutUser(req.user);
     res.clearCookie('refresh_token');
     res.clearCookie('access_token');
-    //아래함수 동작하는지 확인하기
-    // req.logout((err) => {
-    //   console.log('에러');
-    //   throw new BadGatewayException();
-    // });
     res.send();
-    // res.end(); 가 더 나을수도?
   }
 
   @Get('renewalAccessTokenByRefreshToken')
@@ -106,12 +100,13 @@ export class AuthController {
     description: '로그인한 유저의 정보',
     type: Bocal,
   })
-  getUserInfo(@Req() req) {
-    return req.user;
+  // [수정사항] 프론트에서 payload에 맞게 데이터를 받아오면 수정할것.
+  async getUserInfo(@Req() req) {
+    return await this.authService.getUserInfo(req.user);
   }
 
   @Get('/getError')
-  // @UseGuards(AuthGuard('jwt')) //배포때 이 주석 해제해야함
+  @UseGuards(AuthGuard('jwt')) //배포때 이 주석 해제해야함
   @ApiCreatedResponse({
     description: '에러점검',
     type: Bocal,

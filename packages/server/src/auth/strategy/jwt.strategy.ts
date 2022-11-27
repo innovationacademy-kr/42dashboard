@@ -31,22 +31,23 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       // 들어온 cookie와 payload를 통해 새로 만든 cookie를 비교해서 인가절차 진행
       secretOrKey: process.env.JWT_SECRETORKEY,
       jwtFromRequest: cookieExtractor,
-      // jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
     });
   }
 
   async validate(payload) {
-    const { id, intraName, email, image_url, isStaff } = payload;
-    console.log(`In authGuard: ${intraName} is login`);
     return await this.validateUser(payload); //<- 배포때는 이걸로 return 해줘야함
-    // return payload;
+    // return payload; //<- 배포때는 이걸로 return 해줘야함
   }
 
   async validateUser(payload) {
     const user = await this.dataSource
       .getRepository(Bocal)
       .findOne({ where: { id: payload.id } });
-    if (user) return payload;
+    if (user) {
+      // console.log(`In authGuard: ${user.intraName} is login`);
+      return payload.id;
+    }
+    
     else return null;
   }
 }

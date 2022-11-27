@@ -39,7 +39,7 @@
     "@types/passport-jwt": "^3.0.6",
     "apollo-server-express": "^3.9.0",
     "axios": "^0.27.2",
-    "bcrypt": "^5.0.1",
+    "bcrypt": "^5.1.0",
     "common": "*",
     "dotenv": "^16.0.1",
     "googleapis": "^105.0.0",
